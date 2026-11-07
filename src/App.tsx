@@ -227,6 +227,10 @@ export function App() {
     <main>
       <header>
         <h1>MoveIDE</h1>
+        <nav aria-label="Session source" className="source-nav">
+          <a href="/" aria-current="page">Recorded clip</a>
+          <a href="/harness/live/">Live camera</a>
+        </nav>
       </header>
 
       <div className="toolbar">
@@ -234,7 +238,7 @@ export function App() {
           Start with your clip
           <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
         </label>
-        <button onClick={openSample}>Start coached squat</button>
+        <button className="primary" onClick={openSample}>Start coached squat</button>
         {active && <button onClick={stop}>Stop session</button>}
         <label>
           Model{' '}
@@ -260,10 +264,11 @@ export function App() {
           {clip && (
             <video ref={video} key={clip.src} src={clip.src} controls playsInline muted onError={onDecodeError} />
           )}
+          {!clip && <p className="empty">Start the coached squat or choose your own clip. Analysis runs on this device.</p>}
           <canvas ref={canvas} aria-hidden />
-          {coaching && cue && <div aria-label="Playback AI cue" style={{ position: 'absolute', bottom: 12, left: 12, right: 12, padding: '10px 14px', borderRadius: 12, color: '#fff', background: 'rgba(15,23,42,.88)' }}>
+          {coaching && cue && <div aria-label="Playback AI cue" className="cue">
             <small>AI observation · {cue.repId} · evidence {cue.evidenceTimestampsMs.join(', ')} ms</small>
-            <p style={{ margin: '5px 0' }}>{cue.observationIndices.length ? coaching.response.observations[cue.observationIndices[0]].text : coaching.response.nextFocus.text}</p>
+            <p>{cue.observationIndices.length ? coaching.response.observations[cue.observationIndices[0]].text : coaching.response.nextFocus.text}</p>
           </div>}
         </div>
 

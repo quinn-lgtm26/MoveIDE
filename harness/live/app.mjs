@@ -16,7 +16,7 @@ function liveCoach(signal) {
     try {
       const connection = await chatGPTProvider.getConnection(signal);
       if (signal.aborted) return;
-      if (connection.state !== 'connected') { $('ai').textContent = 'Connect ChatGPT in video analysis to add AI coaching. Local tracking stays on.'; return; }
+      if (connection.state !== 'connected') { $('ai').textContent = 'Connect the AI coach on the Recorded clip page to add AI coaching. Local tracking stays on.'; return; }
       const models = await chatGPTProvider.listModels(signal);
       if (signal.aborted) return;
       model = models[0]?.id;

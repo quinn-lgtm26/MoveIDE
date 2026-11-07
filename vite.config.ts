@@ -27,4 +27,6 @@ export default defineConfig({
   server: { host: '127.0.0.1' },
   preview: { host: '127.0.0.1', port: 4173, strictPort: true },
   publicDir: 'harness/public', worker: { format: 'es' },
+  // Ship the live camera page in the 4173 preview build next to the root app.
+  build: { rollupOptions: { input: { main: 'index.html', live: 'harness/live/index.html' } } },
 });
