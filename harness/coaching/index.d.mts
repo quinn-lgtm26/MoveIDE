@@ -98,3 +98,14 @@ export function coachingMarkerAt(
   timestampMs: number,
   windowMs?: number,
 ): CoachingTimelineMarker | null;
+
+export interface CoachingSegment {
+  repId: string;
+  startMs: number;
+  endMs: number;
+  evidenceTimestampsMs: number[];
+  observationIndices: number[];
+  hasNextFocus: boolean;
+}
+export function getCoachingSegments(response: CoachingResponse, packet: CoachPacket, report: AnalysisReport): CoachingSegment[];
+export function coachingSegmentAt(segments: readonly CoachingSegment[], timestampMs: number): CoachingSegment | null;

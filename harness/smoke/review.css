@@ -54,6 +54,11 @@ summary { cursor: pointer; font-size: .9rem; font-weight: 600; }
 pre { padding: 1rem; background: #e8eee9; border-radius: .4rem; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
 section[aria-label="Optional local provider spike"] { padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid #cbd7cf; }
 #cue { background: #e5efe8; padding: .7rem 1rem; border-radius: 0 .3rem .3rem 0; }
+.coaching-panel { border-top: 1px solid #cbd7cf; margin-top: 1.4rem; padding-top: 1.3rem; }
+.coaching-help, #coaching-uncertainty { color: #536363; font-size: .85rem; }
+#cue-context { font-size: .85rem; font-weight: 600; margin-bottom: .25rem; }
+#coaching-observations { padding-left: 1.25rem; }
+#coaching-observations:empty, #coaching-next-focus:empty, #coaching-uncertainty:empty { display: none; }
 #coaching:empty { display: none; }
 @media (max-width: 540px) {
   body { padding: 2rem 1rem 3rem; }

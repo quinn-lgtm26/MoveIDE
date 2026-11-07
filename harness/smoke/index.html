@@ -45,7 +45,17 @@
         <span id="phase" class="readout"></span>
       </div>
       <p id="frame-metrics" class="readout"></p>
-      <p id="cue" hidden></p>
+      <section class="coaching-panel" aria-label="AI playback analysis">
+        <h2>AI coaching</h2>
+        <p id="coaching-status" role="status">No AI analysis yet. Review the packet, then generate an explanation.</p>
+        <button id="interpret" disabled>Generate AI analysis</button>
+        <p class="coaching-help">Uses your selected ChatGPT model and plan. Sends the previewed measurements and source JPEGs. The full video stays on this device.</p>
+        <p id="cue-context" hidden></p>
+        <p id="cue" hidden></p>
+        <ul id="coaching-observations"></ul>
+        <p id="coaching-next-focus"></p>
+        <p id="coaching-uncertainty"></p>
+      </section>
     </section>
     <p id="coverage"></p>
     <ul id="metrics" aria-label="Rep measurements"></ul>
@@ -58,9 +68,8 @@
       <button id="cancel" disabled>Cancel sign-in</button>
       <button id="disconnect" disabled>Disconnect</button>
       <select id="model" aria-label="Image-capable model" disabled></select>
-      <button id="interpret" disabled>Send previewed packet and images</button>
       <p><a href="https://chatgpt.com/settings/usage" rel="noreferrer">Manage ChatGPT usage</a></p>
-      <pre id="coaching" aria-live="polite"></pre>
+      <details><summary>AI response details</summary><pre id="coaching"></pre></details>
     </section>
   </main>
   <script type="module" src="./smoke.mjs"></script>

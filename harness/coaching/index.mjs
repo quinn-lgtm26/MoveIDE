@@ -8,4 +8,4 @@ export {
   validateCoachingImages,
   validateCoachingResponse,
 } from "./packet.mjs";
-export { coachingMarkerAt, getCoachingTimeline } from './playback.mjs';
+export { coachingMarkerAt, getCoachingTimeline, coachingSegmentAt, getCoachingSegments } from './playback.mjs';

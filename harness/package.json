@@ -18,6 +18,7 @@
     "preverify:fixtures": "npm run setup:pose",
     "verify:fixtures": "node verify/fixtures.mjs",
     "verify:build": "node verify/build-smoke.mjs",
+    "verify:coaching-playback": "node verify/coaching-playback.mjs",
     "verify:source-timeline": "node verify/source-timeline.mjs",
     "verify:decoder-matrix": "node verify/decoder-matrix.mjs",
     "verify:live": "node verify/live-chatgpt.mjs"

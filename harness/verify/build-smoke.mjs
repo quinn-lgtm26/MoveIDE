@@ -81,7 +81,7 @@ try {
     assert.match(copied, /MoveIDE Magna Carta v1\.0\.0/);
     assert(!copied.includes('worldLandmarks') && !copied.includes('normalizedLandmarks'));
     for (const time of bottoms) assert(copied.includes(`frame-${time}ms.jpg`));
-    assert.equal(await page.getByRole('button', { name: 'Send previewed packet and images' }).isDisabled(), true);
+    assert.equal(await page.getByRole('button', { name: 'Generate AI analysis' }).isDisabled(), true);
     assert.deepEqual(outbound, []);
     assert.deepEqual(errors, []);
     console.log('Built harness · 2 reps, 2 source JPEGs, synchronized overlay and step controls, real clipboard handoff, no outbound requests');

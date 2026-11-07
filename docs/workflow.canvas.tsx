@@ -72,7 +72,7 @@ const system = [
 const checks = [
   [
     "Geometry and missing data",
-    "Straight leg → 0° flexion; right angle → 90°. Missing or low-visibility required joints yield unavailable measures. Pixel aspect ratio, selected-side continuity and tracking gaps have automated coverage. The combined local suite now passes 41 tests. These formula checks do not establish anatomical angle accuracy."
+    "Straight leg → 0° flexion; right angle → 90°. Missing or low-visibility required joints yield unavailable measures. Pixel aspect ratio, selected-side continuity and tracking gaps have automated coverage. The combined local suite now passes 44 tests. These formula checks do not establish anatomical angle accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -227,7 +227,7 @@ const stories = [
   [
     "FE-5 · Replay and coaching cues",
     "Reference verified · product integration pending",
-    "Standalone replay, overlay, sample stepping and raw export pass. Timestamped cue APIs exist. The integrated product needs full-video cue rendering, comparison playback and browser acceptance."
+    "Standalone replay, overlay, sample stepping and raw export pass. Generate AI analysis is now beside the player. Validated notes persist for the matching rep, label their evidence timestamps, and clear on model or clip changes. A real-Heavy browser test with controlled provider responses verifies readable cues and evidence seeks without repeated inference. The production frontend still needs these APIs and final acceptance."
   ],
   [
     "BE-6 · Complete sampled MediaPipe outputs",

@@ -57,6 +57,10 @@ The release view should show actual tracking coverage, rep counts, timing error 
 
 ## Coaching while replaying
 
+- The backend being connected does not mean an interpretation exists. Show an explicit **Generate AI analysis** action next to the player, with idle, generating, ready, failed, and canceled states. It sends only the reviewed packet/JPEGs. Local metrics should be visually distinct from generated coaching.
+- Use `getCoachingSegments(response, approvedPacket, report)` and `coachingSegmentAt(segments, mediaTimeMs)` to keep a note readable for its corresponding rep. Label it with the actual evidence timestamps so a bottom-frame observation is not presented as a new frame-by-frame inference. Hide the active cue outside the rep or when local tracking is unavailable. Keep all observations, uncertainty, next focus, and evidence-seek buttons available as readable text beside/below the player.
+- The prior `coachingMarkerAt` default is only a 150 ms window either side of a cited timestamp. It is suitable for point markers, but alone makes playback text flash too briefly to read. Segment cues extend display duration without changing evidence scope or making additional model requests. Clear them on clip or pair changes and reject results from older request generations.
+
 - The local trace updates during playback. Request ChatGPT once for the explicit approved selection. The optional provider returns an explanation with approved evidence IDs.
 - Call `getCoachingTimeline(response, approvedPacket)` once. Use `coachingMarkerAt(timeline, timestampMs)` to surface matching notes while the video plays. Render values from the report and let the user seek to any cited frame. Scope the response and timeline to the clip, pair, and request generation. Hide stale results when a selection changes.
 - Deploy the hosted workbench with manual handoff. The local integration can embed `createProviderMiddleware` from `harness/provider/local-server.mjs` on the same HTTP 127.0.0.1 origin. Keep local credentials on the server.

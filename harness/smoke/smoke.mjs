@@ -1,5 +1,5 @@
 import { analyzeSquat, getMotionTrace, getSquatProfile, RAW_POSE_COORDINATES } from '../motion/analyze.mjs';
-import { coachingMarkerAt, formatManualHandoff, getCoachingTimeline, prepareCoachingBundle } from '../coaching/index.mjs';
+import { coachingSegmentAt, formatManualHandoff, getCoachingSegments, prepareCoachingBundle } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
 import { drawSquatOverlay, overlayFrameAt } from '../motion/overlay.mjs';
 
@@ -13,7 +13,8 @@ let popup;
 let poll;
 let releasePlayback;
 let coaching;
-let coachingTimeline = [];
+let coachingSegments = [];
+let activeReport;
 
 const projectedAngles = [
   ['Knee', 'kneeFlexionDeg'],
@@ -57,13 +58,17 @@ function attachPlayback(report) {
       if (row?.hipAboveKneeLegLengths != null) metrics.push(`Hip above knee ${(row.hipAboveKneeLegLengths * 100).toFixed(1)}%`);
       element('frame-metrics').textContent = metrics.join(' · ');
     }
-    const marker = frame ? coachingMarkerAt(coachingTimeline, timestampMs) : null;
+    const marker = frame ? coachingSegmentAt(coachingSegments, timestampMs) : null;
     const cue = marker?.observationIndices.map((index) => coaching?.observations[index]?.text).filter(Boolean).join(' ')
       || (marker?.hasNextFocus ? coaching?.nextFocus.text : '');
-    if (cue !== displayedCue) {
-      displayedCue = cue;
+    const contextLabel = marker ? `${marker.repId} · Based on evidence at ${marker.evidenceTimestampsMs.join(', ')} ms` : '';
+    const displayKey = `${contextLabel}\n${cue}`;
+    if (displayKey !== displayedCue) {
+      displayedCue = displayKey;
       element('cue').hidden = !cue;
       element('cue').textContent = cue;
+      element('cue-context').hidden = !cue;
+      element('cue-context').textContent = contextLabel;
     }
   }
 
@@ -145,10 +150,16 @@ element('analyze').onclick = async () => {
   releasePlayback?.();
   releasePlayback = null;
   coaching = null;
-  coachingTimeline = [];
+  coachingSegments = [];
+  activeReport = null;
   element('replay').hidden = true;
   element('clip').pause();
   element('cue').hidden = true;
+  element('cue-context').hidden = true;
+  element('coaching-observations').replaceChildren();
+  element('coaching-next-focus').textContent = '';
+  element('coaching-uncertainty').textContent = '';
+  element('coaching-status').textContent = 'No AI analysis yet. Review the packet, then generate an explanation.';
   element('copy').disabled = true;
   element('report').hidden = true;
   element('trace-download').hidden = true;
@@ -182,6 +193,7 @@ element('analyze').onclick = async () => {
     const prepared = await prepareCoachingBundle(report, sample, { repIds: report.reps.slice(0, 2).map(({ id }) => id) });
     if (current !== generation) return;
     bundle = prepared;
+    activeReport = report;
     element('clip').src = sample;
     element('replay').hidden = false;
     releasePlayback = attachPlayback(report);
@@ -259,6 +271,7 @@ element('cancel').onclick = async () => {
 };
 
 element('disconnect').onclick = async () => {
+  if (interpretation) element('coaching-status').textContent = 'AI request canceled. Local measurements and any earlier notes remain available.';
   interpretation?.abort();
   const result = await chatGPTProvider.disconnect();
   await refreshConnection();
@@ -267,25 +280,72 @@ element('disconnect').onclick = async () => {
   }
 };
 
-element('interpret').onclick = async () => {
-  const current = generation;
-  interpretation = new AbortController();
-  const { signal } = interpretation;
+element('model').onchange = () => {
+  interpretation?.abort();
+  interpretation = null;
+  coaching = null;
+  coachingSegments = [];
+  element('coaching-observations').replaceChildren();
+  element('coaching-next-focus').textContent = '';
+  element('coaching-uncertainty').textContent = '';
+  element('coaching').textContent = '';
+  element('coaching-status').textContent = 'Model changed. Generate a new analysis for the selected model.';
+  element('clip').dispatchEvent(new Event('seeked'));
   updateInterpret();
+};
+
+element('interpret').onclick = async () => {
+  if (!bundle || !activeReport || interpretation) return;
+  const current = generation;
+  const request = new AbortController();
+  interpretation = request;
+  const { signal } = request;
+  const approvedBundle = bundle;
+  const report = activeReport;
+  updateInterpret();
+  element('coaching-status').textContent = 'Generating AI analysis… You can keep playing the video.';
   element('coaching').textContent = 'Interpreting the approved bundle…';
   try {
-    const result = await chatGPTProvider.interpret(bundle.packet, bundle.images, { model: element('model').value, signal });
+    const result = await chatGPTProvider.interpret(approvedBundle.packet, approvedBundle.images, { model: element('model').value, signal });
     if (current === generation && !signal.aborted) {
+      const segments = getCoachingSegments(result, approvedBundle.packet, report);
       coaching = result;
-      coachingTimeline = getCoachingTimeline(result, bundle.packet);
+      coachingSegments = segments;
       element('coaching').textContent = JSON.stringify(result, null, 2);
+      element('coaching-status').textContent = 'AI analysis ready. Play a rep to follow its notes, or open a cited frame below.';
+      const times = new Map([
+        ...approvedBundle.packet.measurements.map(({ id, evidenceTimestampMs }) => [id, evidenceTimestampMs]),
+        ...approvedBundle.packet.evidence.map(({ id, timestampMs }) => [id, timestampMs]),
+      ]);
+      element('coaching-observations').replaceChildren(...result.observations.map(observation => {
+        const item = document.createElement('li');
+        const text = document.createElement('p');
+        text.textContent = observation.text;
+        item.append(text);
+        for (const timestamp of new Set(observation.evidenceIds.map(id => times.get(id)))) {
+          const button = document.createElement('button');
+          button.textContent = `Evidence at ${timestamp} ms`;
+          button.onclick = () => {
+            const video = element('clip');
+            video.pause();
+            video.currentTime = Math.min((timestamp + .501) / 1000, video.duration - .000001);
+          };
+          item.append(button);
+        }
+        return item;
+      }));
+      element('coaching-next-focus').textContent = `Next focus: ${result.nextFocus.text}`;
+      element('coaching-uncertainty').textContent = `Limits: ${result.uncertainty}`;
       // Refresh the cue if playback is already paused at its evidence frame.
       element('clip').dispatchEvent(new Event('seeked'));
     }
   } catch (error) {
-    if (current === generation && !signal.aborted) element('coaching').textContent = error.message;
+    if (current === generation && !signal.aborted) {
+      element('coaching').textContent = error.message;
+      element('coaching-status').textContent = `AI analysis could not complete: ${error.message}. Your local measurements are still available.`;
+    }
   } finally {
-    interpretation = null;
+    if (interpretation === request) interpretation = null;
     updateInterpret();
   }
 };

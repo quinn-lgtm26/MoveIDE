@@ -17,6 +17,8 @@ npm --prefix harness run start:local
 
 Open [the local smoke page](http://127.0.0.1:4173). It runs the actual worker, shows the generated packet and frame downloads, and exercises the clipboard. The React workbench is a separate frontend track.
 
+To see AI coaching during replay, analyze the sample, review the packet, connect ChatGPT, and click **Generate AI analysis** beside the player. Connecting alone does not create an interpretation. Once ready, notes stay visible through their matching rep and retain the cited evidence timestamps. The readable observation list includes source-frame seek buttons, uncertainty and next focus. Changing the model or reanalyzing clears old notes. Playback itself makes no model requests. `npm --prefix harness run verify:coaching-playback` tests this UI with real Heavy analysis and a controlled provider response, without spending plan usage.
+
 The setup script installs pinned WASM from the npm lock and fetches the exact Heavy and Full v1 models, verifies each SHA-256, and stages the assets under `harness/public/pose`. The build serves those assets alongside the harness. Browser verification blocks other origins and checks that the local path attempts no outbound requests. To publish a frontend static build, serve the staged `pose/` directory from the app's Vite base and include the [fixture and attribution](../fixtures/squat/README.md). The harness source uses the [MIT license](../LICENSE). MediaPipe has its own [asset terms](setup/THIRD-PARTY-NOTICES.md).
 
 ## Frontend integration
