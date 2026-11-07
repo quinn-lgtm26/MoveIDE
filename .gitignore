@@ -2,3 +2,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 .env*
+
+# Local BMad / agent skill installs
+.agents/
+.claude/skills/
+_bmad/
+skills-lock.json
