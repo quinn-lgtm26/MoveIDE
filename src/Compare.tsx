@@ -1,95 +1,86 @@
 // FE-3: compare two reps and hand off the evidence manually. Works with no provider connected.
 import { useEffect, useMemo, useState } from 'react';
-import type { AnalysisReport, EvidenceRef, Measurement } from './contract.ts';
-import { buildPacket, delta, fmtValue, packetText, repRow } from './coach.ts';
+import type { AnalysisReport, SquatMetrics, SquatRepProfile } from '../harness/motion/analyze.mjs';
+import { getSquatProfile } from '../harness/motion/analyze.mjs';
+import { formatManualHandoff, prepareCoachingBundle } from '../harness/coaching/index.mjs';
+import type { CoachingBundle } from '../harness/coaching/index.mjs';
 
-type Shot = { url: string } | { error: string };
+type Row = { label: string; unit: '°' | ' ms' | ' leg lengths'; get: (r: SquatRepProfile) => number | null };
+const bottom = (k: keyof SquatMetrics) => (r: SquatRepProfile) => r.bottom[k];
+const PRIMARY: Row[] = [
+  { label: 'Knee flexion (bottom)', unit: '°', get: bottom('kneeFlexionDeg') },
+  { label: 'Hip flexion (bottom)', unit: '°', get: bottom('hipFlexionDeg') },
+  { label: 'Torso lean (bottom)', unit: '°', get: bottom('torsoLeanDeg') },
+  { label: 'Descent', unit: ' ms', get: (r) => r.descentMs },
+  { label: 'Ascent', unit: ' ms', get: (r) => r.ascentMs },
+];
+const DETAILS: Row[] = [
+  { label: 'Shin inclination (bottom)', unit: '°', get: bottom('shinInclinationDeg') },
+  { label: 'Ankle closure change', unit: '°', get: bottom('ankleClosureChangeDeg') },
+  { label: 'Hip descent', unit: ' leg lengths', get: bottom('hipDescentLegLengths') },
+  { label: 'Hip above knee', unit: ' leg lengths', get: bottom('hipAboveKneeLegLengths') },
+];
 
-/** Grab unannotated JPEGs of the source clip at each evidence timestamp, on a private video element. */
-async function captureFrames(src: string, refs: EvidenceRef[], signal: AbortSignal): Promise<Record<string, Shot>> {
-  const v = document.createElement('video');
-  v.muted = true; v.preload = 'auto'; v.src = src;
-  const wait = (ev: string) => new Promise<void>((ok, fail) => {
-    const off = () => { v.removeEventListener(ev, done); v.removeEventListener('error', err); };
-    const done = () => { off(); ok(); };
-    const err = () => { off(); fail(new Error('video could not be decoded')); };
-    v.addEventListener(ev, done); v.addEventListener('error', err);
-  });
-  const out: Record<string, Shot> = {};
-  try {
-    await wait('loadedmetadata');
-    for (const r of refs) {
-      if (signal.aborted) break;
-      try {
-        if (r.timestampMs > v.duration * 1000) throw new Error('timestamp is past the end of the clip');
-        const seeked = wait('seeked');
-        v.currentTime = r.timestampMs / 1000;
-        await seeked;
-        const c = document.createElement('canvas');
-        c.width = v.videoWidth; c.height = v.videoHeight;
-        c.getContext('2d')!.drawImage(v, 0, 0);
-        const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, 'image/jpeg', 0.9));
-        if (!blob) throw new Error('JPEG encoding failed');
-        out[r.id] = { url: URL.createObjectURL(blob) };
-      } catch (e) {
-        out[r.id] = { error: (e as Error).message };
-      }
-    }
-  } catch (e) {
-    for (const r of refs) out[r.id] ??= { error: (e as Error).message };
-  } finally {
-    v.removeAttribute('src'); v.load();
-  }
-  return out;
-}
+const val = (v: number | null, unit: string) => (v === null ? <span className="muted">unavailable</span> : `${unit === ' ms' ? Math.round(v) : v.toFixed(unit === '°' ? 1 : 2)}${unit}`);
+const diff = (a: number | null, b: number | null, unit: string) => {
+  if (a === null || b === null) return <span className="muted">—</span>;
+  const d = b - a;
+  return `${d > 0 ? '+' : ''}${unit === ' ms' ? Math.round(d) : d.toFixed(unit === '°' ? 1 : 2)}${unit}`;
+};
+
+type Shots = { bundle: CoachingBundle; urls: Record<string, string> };
 
 function download(href: string, name: string) {
   const a = document.createElement('a');
   a.href = href; a.download = name; a.click();
 }
 
-type Props = { report: AnalysisReport; clipSrc: string; selected: string | null; onOpen: (m: Measurement) => void; onSeek: (ms: number) => void };
+type Props = { report: AnalysisReport; clipSrc: string; onSeek: (ms: number) => void };
 
-export function Compare({ report, clipSrc, selected, onOpen, onSeek }: Props) {
-  const ids = report.reps.map((r) => r.id);
+export function Compare({ report, clipSrc, onSeek }: Props) {
+  const profile = useMemo(() => getSquatProfile(report), [report]);
+  const ids = profile.reps.map((r) => r.repId);
   const [pair, setPair] = useState<[string, string]>([ids[0], ids[1]]);
   const [preview, setPreview] = useState(false);
+  const [draftGoal, setDraftGoal] = useState('');
   const [goal, setGoal] = useState('');
-  const [shots, setShots] = useState<Record<string, Shot> | null>(null);
+  const [shots, setShots] = useState<Shots | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
-  const a = repRow(report, pair[0]), b = repRow(report, pair[1]);
-  const packet = useMemo(() => (a && b ? buildPacket(report, a, b, goal) : null), [report, pair, goal]); // eslint-disable-line
-  const evidenceKey = packet?.evidence.map((e) => e.id).join() ?? '';
+  const distinct = !!pair[0] && !!pair[1] && pair[0] !== pair[1];
 
-  // Capture only while the preview is open; a newer pair or clip cancels the old capture and frees its images.
+  // One request generation per (clip, pair, goal) while the preview is open. A newer one aborts the
+  // old capture and frees its image URLs, so stale JPEGs never show against a new packet.
   useEffect(() => {
-    if (!preview || !packet) return;
+    if (!preview || !distinct) return;
     const ctrl = new AbortController();
-    let got: Record<string, Shot> = {};
-    setShots(null);
-    captureFrames(clipSrc, packet.evidence, ctrl.signal).then((s) => {
-      got = s;
-      if (ctrl.signal.aborted) revoke(s); else setShots(s);
-    });
-    return () => { ctrl.abort(); revoke(got); };
-  }, [preview, clipSrc, evidenceKey]); // eslint-disable-line
+    let urls: Record<string, string> = {};
+    setShots(null); setFailure(null); setCopied(null);
+    prepareCoachingBundle(report, clipSrc, { repIds: pair, userGoal: goal || undefined, signal: ctrl.signal }).then(
+      (bundle) => {
+        if (ctrl.signal.aborted) return;
+        urls = Object.fromEntries(bundle.images.map((i) => [i.id, URL.createObjectURL(i.blob)]));
+        setShots({ bundle, urls });
+      },
+      (e) => { if (!ctrl.signal.aborted) setFailure(e?.message ?? String(e)); },
+    );
+    return () => { ctrl.abort(); Object.values(urls).forEach(URL.revokeObjectURL); };
+  }, [preview, distinct, report, clipSrc, pair[0], pair[1], goal]); // eslint-disable-line
+
+  const text = useMemo(() => shots && formatManualHandoff(shots.bundle.packet, shots.bundle.images), [shots]);
 
   if (ids.length < 2) {
     return <section className="compare"><h2>Compare reps</h2><p className="muted">Comparison needs two complete reps; this clip has {ids.length}.</p></section>;
   }
 
-  const cell = (m?: Measurement) =>
-    m && m.quality === 'usable' && m.evidenceTimestampMs !== null
-      ? <button aria-pressed={m.id === selected} onClick={() => onOpen(m)}>{fmtValue(m)} <small>@ {m.evidenceTimestampMs} ms</small></button>
-      : <span className="muted">unavailable</span>;
-  const d = (x?: Measurement, y?: Measurement) => {
-    const v = delta(x, y);
-    return v === null ? '—' : `${v > 0 ? '+' : ''}${v}${x!.unit === 'deg' ? '°' : ' ms'}`;
-  };
+  const a = profile.reps.find((r) => r.repId === pair[0])!, b = profile.reps.find((r) => r.repId === pair[1])!;
+  const rows = (list: Row[]) => list.map((row) => (
+    <tr key={row.label}><th>{row.label}</th><td>{val(row.get(a), row.unit)}</td><td>{val(row.get(b), row.unit)}</td><td>{distinct ? diff(row.get(a), row.get(b), row.unit) : '—'}</td></tr>
+  ));
 
   const copy = async () => {
-    try { await navigator.clipboard.writeText(packetText(packet!)); setCopied('Copied the Magna Carta and packet.'); }
+    try { await navigator.clipboard.writeText(text!); setCopied('Copied the Magna Carta and packet.'); }
     catch { setCopied('Copy was blocked. Select the packet text below and copy it manually.'); }
   };
   const exportReport = () => {
@@ -97,7 +88,8 @@ export function Compare({ report, clipSrc, selected, onOpen, onSeek }: Props) {
     download(url, `${report.clip.id}-report.json`);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const missing = packet?.evidence.filter((e) => shots && 'error' in (shots[e.id] ?? { error: '' })) ?? [];
+  const packet = shots?.bundle.packet;
+  const missing = shots?.bundle.unavailableImages ?? [];
 
   return (
     <section className="compare">
@@ -112,76 +104,77 @@ export function Compare({ report, clipSrc, selected, onOpen, onSeek }: Props) {
           </label>
         ))}
       </div>
+      {!distinct && <p className="warning">Pick two different reps to compare.</p>}
 
-      {a && b && (
-        <table>
-          <thead><tr><th /><th>{a.rep.id}</th><th>{b.rep.id}</th><th>B − A</th></tr></thead>
-          <tbody>
-            <tr><th>Knee flexion</th><td>{cell(a.knee)}</td><td>{cell(b.knee)}</td><td>{d(a.knee, b.knee)}</td></tr>
-            <tr><th>Duration</th><td>{cell(a.duration)}</td><td>{cell(b.duration)}</td><td>{d(a.duration, b.duration)}</td></tr>
-            <tr>
-              <th>Evidence</th>
-              {[a, b].map((r) => (
-                <td key={r.rep.id}><button onClick={() => onSeek(r.rep.bottomMs)}>Bottom frame @ {r.rep.bottomMs} ms</button></td>
-              ))}
-              <td />
-            </tr>
-          </tbody>
-        </table>
-      )}
+      <table>
+        <thead><tr><th /><th>{a.repId}</th><th>{b.repId}</th><th>B − A</th></tr></thead>
+        <tbody>
+          {rows(PRIMARY)}
+          <tr>
+            <th>Evidence</th>
+            {[a, b].map((r, i) => <td key={i}><button onClick={() => onSeek(r.bottomMs)}>Bottom frame @ {r.bottomMs} ms</button></td>)}
+            <td />
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More measurements</summary>
+        <table><tbody>{rows(DETAILS)}</tbody></table>
+        <p className="muted">Estimated in the video plane from a single side view. Depth proxies are in leg lengths, not centimetres. No overall score.</p>
+      </details>
 
       <div className="toolbar">
-        <button aria-expanded={preview} onClick={() => setPreview((p) => !p)} disabled={!packet}>
+        <button aria-expanded={preview} onClick={() => setPreview((p) => !p)} disabled={!distinct}>
           {preview ? 'Hide coaching packet' : 'Preview coaching packet'}
         </button>
         <button onClick={exportReport}>Export report JSON</button>
       </div>
 
-      {preview && packet && (
+      {preview && distinct && (
         <div className="packet">
           <p className="muted">Nothing is sent from here. This is exactly what you copy and attach to your AI tool.</p>
-          <label>Goal (optional) <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="e.g. squat deeper" /></label>
-          <p><b>Reps:</b> {packet.repIds.join(', ')}</p>
-          <p><b>Summary:</b> {packet.summary}</p>
-          <ul>
-            {packet.measurements.map((m) => <li key={m.id}>{m.id} · {m.repId} · {m.metric} = {m.value} {m.unit} @ {m.evidenceTimestampMs} ms</li>)}
-          </ul>
-          <div className="frames">
-            {packet.evidence.map((e) => {
-              const s = shots?.[e.id];
-              return (
-                <figure key={e.id}>
-                  {!s ? <div className="thumb muted">Capturing…</div>
-                    : 'url' in s ? <img className="thumb" src={s.url} alt={`Source frame at ${e.timestampMs} ms`} />
-                    : <div className="thumb error">Image unavailable: {s.error}</div>}
-                  <figcaption>{e.id} · {e.timestampMs} ms</figcaption>
-                </figure>
-              );
-            })}
-          </div>
-          {missing.length > 0 && (
-            <p role="alert" className="warning">⚠ {missing.length} of {packet.evidence.length} images are missing. The comparison and packet text are unaffected; attach the rest manually.</p>
+          <label>
+            Goal (optional){' '}
+            <input value={draftGoal} onChange={(e) => setDraftGoal(e.target.value)} onBlur={() => setGoal(draftGoal.trim())}
+              onKeyDown={(e) => e.key === 'Enter' && setGoal(draftGoal.trim())} placeholder="e.g. squat deeper" />
+          </label>
+          {failure && <p role="alert" className="error">Couldn’t prepare the packet: {failure}</p>}
+          {!shots && !failure && <p className="muted">Preparing packet and capturing source frames…</p>}
+          {packet && (
+            <>
+              <p><b>Summary:</b> {packet.summary}</p>
+              <div className="frames">
+                {packet.evidence.map((e) => {
+                  const url = shots.urls[e.id];
+                  const miss = missing.find((m) => m.id === e.id);
+                  return (
+                    <figure key={e.id}>
+                      {url ? <img className="thumb" src={url} alt={`Source frame at ${e.timestampMs} ms`} />
+                        : <div className="thumb error">Image unavailable{miss && `: ${miss.message}`}</div>}
+                      <figcaption>{e.id} · {e.timestampMs} ms</figcaption>
+                    </figure>
+                  );
+                })}
+              </div>
+              {missing.length > 0 && (
+                <p role="alert" className="warning">⚠ {missing.length} of {packet.evidence.length} images are missing. The packet text lists them as unavailable; attach the rest manually.</p>
+              )}
+              <div className="toolbar">
+                <button onClick={copy}>Copy Magna Carta + packet</button>
+                <button disabled={shots.bundle.images.length === 0}
+                  onClick={() => shots.bundle.images.forEach((i) => download(shots.urls[i.id], i.imageName))}>
+                  Download images
+                </button>
+                <span role="status">{copied}</span>
+              </div>
+              <details>
+                <summary>Packet text</summary>
+                <pre>{text}</pre>
+              </details>
+            </>
           )}
-          <div className="toolbar">
-            <button onClick={copy}>Copy Magna Carta + packet</button>
-            <button
-              disabled={!shots || missing.length === packet.evidence.length}
-              onClick={() => packet.evidence.forEach((e) => { const s = shots?.[e.id]; if (s && 'url' in s) download(s.url, e.imageName); })}
-            >
-              Download images
-            </button>
-            <span role="status">{copied}</span>
-          </div>
-          <details>
-            <summary>Packet text</summary>
-            <pre>{packetText(packet)}</pre>
-          </details>
         </div>
       )}
     </section>
   );
-}
-
-function revoke(s: Record<string, Shot>) {
-  for (const v of Object.values(s)) if ('url' in v) URL.revokeObjectURL(v.url);
 }
