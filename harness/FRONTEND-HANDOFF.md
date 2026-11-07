@@ -63,6 +63,14 @@ The release view should show actual tracking coverage, rep counts, timing error 
 
 ## Release checks
 
+### Current product acceptance probe
+
+Built and tested `main` at `5225a3d70b29f952fa599e638d4554a0a72de8a4` in Chrome 154. The root application reached `Ready · sample-squat.mp4`, but both reps' knee flexion and duration were unavailable. Its own warning reported 23/53 tracked frames with gaps at both candidate bottoms. The root bundle still loaded Full assets from jsDelivr/Google Storage and the old hard-case sample. Root unit tests (25, including the newly merged server tests) and the production build passed; those checks alone do not prove the product demo journey.
+
+This is the outstanding join between the frontend and the verified harness. Apply the shared analyzer, same-origin Heavy assets, clear fixture, and coaching bundle replacements above. Then require two usable rep comparisons, source-linked angles, both JPEGs, and disconnected preview/copy on the built product before dispatching Seldon. [Recorded browser outcome](../qa/product-readiness.json)
+
+After `npm ci`, `npm --prefix harness ci`, and `npm run build`, run `node harness/verify/product-readiness.mjs --write`. It exits nonzero until the built product uses the expected Heavy model and exact clear-fixture bytes, meets labeled bottom timing, exposes usable comparisons, decodes both JPEGs and copies the preview with the provider disconnected. This readiness probe uses the current workbench's accessible controls; update its selectors if those controls change. It is an early gate, with the broader overlay/replacement and final hosted workflows still required.
+
 - Describe the engine as analyzing at up to 15 Hz. The independent ffprobe audit accounts for all 57 clear-demo and all 90 supported-regression source timestamps. Higher-rate uploads can have unanalysed source frames. Stepping controls should say “analyzed sample” unless exact source-frame coverage has been verified for that file. [Audit and scope](results/source-timeline-verification.json)
 - Chrome must show a real knee angle on the selected source frame, a letterbox-correct skeleton, and a playback gap when evidence is missing. Check playback, paused stepping, seek, resize and an invalid upload.
 - Compare two reps, preview both timestamped JPEGs and copy the approved handoff with the provider disconnected.
