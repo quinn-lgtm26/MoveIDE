@@ -10,15 +10,17 @@ try {
   browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--autoplay-policy=no-user-gesture-required'] });
   const page = await browser.newPage({ viewport: { width: 1400, height: 1100 } });
   const errors = [], sends = [];
+  let holdNextRequest = false, announceHeldRequest, releaseHeldResponse, connectionState = 'connected';
   page.on('pageerror', error => errors.push(error.message));
-  await page.route('**/api/connection', route => route.fulfill({ json: { state: 'connected' } }));
+  await page.route('**/api/connection', route => route.fulfill({ json: { state: connectionState } }));
   await page.route('**/api/models', route => route.fulfill({ json: [{ id: 'mock-model', label: 'Mock test model' }] }));
   await page.route('**/api/interpret', async route => {
     const body = route.request().postDataJSON(); sends.push(body);
     assert.equal(body.packet.repIds.length, 1);
-    assert.ok(body.images.length > 0);
+    assert.equal(body.images.length, 3, 'The complete fixture rep must include exact descent, bottom and ascent JPEGs');
     for (const image of body.images) assert.ok(body.packet.evidence.some(item => item.timestampMs === image.timestampMs && item.id === image.id));
     const evidenceIds = [body.packet.evidence[0].id];
+    if (holdNextRequest) { holdNextRequest = false; announceHeldRequest(); await new Promise(resolve => { releaseHeldResponse = resolve; }); }
     await route.fulfill({ json: { observations: [{ text: 'Synthetic test observation.', evidenceIds }], nextFocus: { text: 'Keep the same camera position.', evidenceIds }, uncertainty: 'Mock AI response for integration testing only.' } });
   });
   await page.addInitScript(() => {
@@ -26,9 +28,13 @@ try {
       const source = document.createElement('video'); source.src = '/fixtures/squat/clear-squat.mp4'; source.loop = true; source.muted = true;
       document.body.append(source); source.style.display = 'none';
       await source.play();
-      window.syntheticVideo = source;
-      window.syntheticStream = source.captureStream();
-      return window.syntheticStream;
+      const capture = document.createElement('canvas'); capture.width = source.videoWidth; capture.height = source.videoHeight;
+      const context = capture.getContext('2d'); let stream;
+      const draw = () => { if (stream?.getVideoTracks()[0]?.readyState === 'ended') return; context.drawImage(source, 0, 0, capture.width, capture.height); requestAnimationFrame(draw); };
+      draw(); stream = capture.captureStream(30);
+      window.resizeSynthetic = () => { capture.width = Math.round(source.videoWidth / 2); capture.height = Math.round(source.videoHeight / 2); };
+      window.syntheticVideo = source; window.syntheticStream = stream;
+      return stream;
     };
   });
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/harness/live/`);
@@ -36,12 +42,28 @@ try {
   await page.waitForFunction(() => document.querySelector('#knee').textContent !== '—', null, { timeout: 60_000 });
   await page.waitForFunction(() => document.querySelector('#ai-feed').textContent.includes('Synthetic test observation'), null, { timeout: 40_000 });
   await page.waitForFunction(() => document.querySelector('#ai-feed').children.length >= 2, null, { timeout: 40_000 });
-  const cards = await page.locator('#ai-feed > li').count();
+  let cards = await page.locator('#ai-feed > li').count();
   assert.ok(cards >= 2 && cards <= 6);
   assert.equal(await page.locator('#ai-feed').evaluate(feed => new Set([...feed.children].map(card => card.dataset.repKey)).size === feed.children.length), true);
   assert.equal(await page.locator('#ai-feed details[open]').count(), 0);
   assert.ok((await page.locator('#ai').innerText()).length <= 192);
   assert.ok(sends.length > 0 && sends.length <= 6);
+  // A complete, frozen rep remains valid historical evidence across camera-size adaptation.
+  const previousEpoch = await page.locator('#video').getAttribute('data-analysis-epoch');
+  let heldTimeout;
+  const held = new Promise((resolve, reject) => { announceHeldRequest = resolve; heldTimeout = setTimeout(() => reject(new Error('No eligible rep reached the deferred AI check.')), 45000); });
+  holdNextRequest = true; await held.finally(() => clearTimeout(heldTimeout));
+  await page.evaluate(() => window.resizeSynthetic());
+  await page.waitForFunction(epoch => Number(document.querySelector('#video').dataset.analysisEpoch) > Number(epoch), previousEpoch, { timeout: 15000 });
+  assert.equal(await page.locator('#stop').isVisible(), true, 'A frame-size change must not stop the session');
+  releaseHeldResponse();
+  await page.waitForFunction(count => document.querySelector('#ai-feed').children.length > count, cards, { timeout: 10000 });
+  assert.equal(await page.locator('#ai-feed > li').last().getAttribute('data-epoch'), previousEpoch, 'Delayed review remains labeled with its historical view');
+  await page.waitForFunction(() => document.querySelector('#knee').textContent !== '—' && document.querySelector('#status').textContent.startsWith('Live'), null, { timeout: 15000 });
+  await page.waitForFunction(count => document.querySelector('#ai-feed').children.length >= count + 2, cards, { timeout: 45000 });
+  assert.notEqual(await page.locator('#ai-feed > li').last().getAttribute('data-epoch'), previousEpoch, 'Fresh rep coaching belongs to the reacquired view');
+  cards = await page.locator('#ai-feed > li').count();
+  assert.equal(await page.locator('#error').innerText(), '');
   const observed = await page.locator('#latency').innerText();
   await page.screenshot({ path: new URL('./app-qa.png', import.meta.url).pathname });
   // Freeze the analyzed element to simulate no newly presented camera frames.
@@ -51,14 +73,17 @@ try {
   assert.equal(await page.evaluate(() => window.syntheticStream.getTracks().every(track => track.readyState === 'ended')), true);
   assert.equal(await page.locator('#start').isEnabled(), true);
   assert.equal(await page.locator('#ai-feed > li').count(), cards, 'Stop preserves accepted coaching cards');
+  connectionState = 'disconnected';
   await page.locator('#start').click();
   assert.equal(await page.locator('#ai-feed > li').count(), 0, 'New session clears previous cards');
-  await page.locator('#stop').click();
+  await page.waitForFunction(() => document.querySelector('#knee').textContent !== '—', null, { timeout: 60000 });
+  assert.ok((await page.locator('#ai').innerText()).includes('Connect the AI coach'), 'Stable local tracking must not promise AI when disconnected');
+  await page.locator('#stop').click(); connectionState = 'connected';
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Mobile layout must fit the viewport');
   assert.deepEqual(errors, []);
   if (process.env.MOVEIDE_TEST_LOCAL_ONLY === '1') {
-    console.log(JSON.stringify({ result: 'passed', localOnly: true, aiRequests: sends.length, stackedCards: cards, preservedOnStop: true, resetOnNewSession: true, stalePoseCleared: true, tracksStopped: true }));
+    console.log(JSON.stringify({ result: 'passed', localOnly: true, aiRequests: sends.length, stackedCards: cards, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, threePhaseJpegs: true, preservedOnStop: true, resetOnNewSession: true, stalePoseCleared: true, tracksStopped: true }));
   } else {
   const localRequests = sends.length;
   // Real dedicated signalling + fixed local receiver proxy; no physical camera or external tunnel.
@@ -155,6 +180,6 @@ try {
   assert.equal(await page.locator('#start').isEnabled(), true);
   await page.unroute('**/rooms');
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ result: 'passed', observed, phoneObserved, aiRequests: sends.length, syntheticCamera: true, realWebRTC: true, twoBrowserContexts: true, phoneLocalFeedback: true, phoneAIResponse: true, localQr: true, staleQrSuppressed: true, pendingPairingRevoked: true, missingHttpsGuidance: true, stalePoseCleared: true, tracksStopped: true, physicalIPhoneTested: false }));
+  console.log(JSON.stringify({ result: 'passed', observed, phoneObserved, aiRequests: sends.length, syntheticCamera: true, realWebRTC: true, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, threePhaseJpegs: true, twoBrowserContexts: true, phoneLocalFeedback: true, phoneAIResponse: true, localQr: true, staleQrSuppressed: true, pendingPairingRevoked: true, missingHttpsGuidance: true, stalePoseCleared: true, tracksStopped: true, physicalIPhoneTested: false }));
   }
 } finally { await browser?.close(); await transport?.close(); await server.close(); }

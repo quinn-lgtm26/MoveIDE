@@ -1,46 +1,48 @@
-# AI integration amendments — one coached session
+# AI integration amendment — one session, retained coaching
 
-This is the current implementation direction for every frontend agent. It supersedes earlier normal-flow requirements to preview/copy a coaching handoff or separately press Generate. Track delivery in [tracker.md](tracker.md).
+Read this with the [global tracker](tracker.md), [UI/UX contract](docs/frontend-design-amendments.md), [frontend API handoff](docs/frontend-harness-amendments.md) and [shared report/packet contract](_bmad-output/specs/shared/analysis-report-v1.md). This supersedes normal-flow Preview/Generate/Send/Handoff requirements and disappearing single-paragraph coaching.
 
-## Required behavior
+## One Start and shared interpretation
 
-**Start coached squat** is the single normal action. After one-time account/camera setup, the app automatically runs local motion analysis, builds bounded timestamped evidence, applies the shared coaching principles through the provider, and renders validated AI feedback beside the video. Internal stages are asynchronous; they are not separate user tasks. The full video remains local. Clearly disclose that selected source JPEGs and measurements go to the connected model using the user’s plan.
+After initial account/camera setup, **Start coached squat** automatically coordinates local Heavy, measures, source evidence and connected AI. Disclose selected image/measurement transmission beside Start. Full video and raw landmark traces remain local. Provider supplies the shared Magna Carta principles, structured response schema and citation validation; do not create a parallel prompt or replace measured values with generated numbers.
 
-Use the existing `harness/coaching` and `harness/provider` APIs. The shared provider already supplies the Magna Carta principles, structured response schema and citation validation. Do not duplicate prompt logic or replace report measurements with generated numbers. See the [API-by-API frontend amendment](docs/frontend-harness-amendments.md).
+For a recording, call shared `analyzeSquat`, then `prepareCoachingBundle(report, originalSource, {repIds,signal})`; the current path selects up to two complete reps/four source images. Call `chatGPTProvider.interpret` once per authorized report. Validate source binding through `getCoachingSegments`; seek/play uses stored results, not new requests. Report/packet exports are developer details only.
 
-## Recorded video
+For live video, use `startLiveSquat` and its completed-rep event/cached exact accepted pixels. Join packet evidence by source timestamp, not current screenshot time. Current limits: **one request in flight,≥8 seconds between dispatches, six calls per Start/Stop session**, skip while busy with no queue. Keep local analysis/video usable while waiting.
 
-1. Start calls shared `analyzeSquat` with Heavy and a cancellable source-bound session.
-2. Report-ready automatically calls `prepareCoachingBundle(report, originalSource, {repIds, signal})` for up to two completed reps and four source JPEGs.
-3. If connected and evidence is complete, call `chatGPTProvider.interpret` once; local playback stays usable while waiting.
-4. Validate and bind the response with `getCoachingSegments`; resolve `coachingSegmentAt` against media time. Play, pause and seek reuse the response and create zero additional requests.
-5. Keep one concise active cue; make full explanation, evidence jumps and developer exports secondary. The user never has to transfer data between components.
+## Stacked coaching behavior
 
-## Live video
+Append a concise source-timestamped card when an eligible observation arrives. Keep prior cards across phase changes, tracking loss and Stop; highlight the newest, and expand full rationale/uncertainty per card. Current implementation bounds are12 smoke cards and6 live AI cards. These supersede the earlier proposed20-card default; redesigned root should use explicit documented bounds rather than an unbounded transcript.
 
-Use `startLiveSquat(video, {model:'heavy',captureEvidence:true,...})`. Its `onRepComplete` event contains a report, stable key, rep and `evidenceImages` captured from the **same accepted pixels** used for inference. Build the packet with only `repIds:[event.rep.id]`; join packet evidence to cached JPEGs by timestamp. Do not seek the live stream and do not substitute a current screenshot for an old bottom frame.
+Short primary actions aim for12 words or fewer; full observations remain in details. The provider asks for concise output, but a prompt alone is not a UI length guarantee. Local templates need local labels. A delayed AI card says **About rep N** and must not imply current-frame detection. Deduplicate semantic events across rewind/replay; preserve scroll/focus for someone reading an earlier card. No typed-out paragraphs or page jumps.
 
-The implemented initial policy is **one request in flight, at least eight seconds between starts, maximum six requests per Start/Stop session**. Skip while busy or missing exact evidence; do not build a growing queue. Delayed AI text is labeled as about its cited completed rep, not as a current-frame measurement. Local tracking continues independently.
+New source/session/model invalidates pending work and clears the applicable history. Stop aborts pending requests but preserves accepted session cards. Capture/view loss clears unreliable current geometry/numbers; historical cards remain explicitly evidence-bound. Never pin an old body's skeleton or an old region highlight onto a different current frame.
 
-Stop, source replacement, model/goal changes, disconnect and unmount cancel or invalidate pending work. Clear stale numerical/geometry/AI views promptly. No dispatch before Start or after Stop. If disconnected, failing, missing evidence or capped, retain local tracking and say what happened; never fake AI text.
+## Phone and provider boundaries
 
-## Visual semantics and pending frontend work
+Phone video arrives over the existing WebRTC transport and enters the same Heavy controller. Local cues and AI text return through the bounded data-channel messages. Phone sender uses authenticated JSON long polling for temporary HTTPS tunnels; the private laptop receiver uses its local connection/proxy. Only dedicated4176 is exposed; the credential-bearing provider on4173 remains loopback-only. QR generation is local and pairing invitations must not enter logs or external QR services.
 
-Green means a disclosed target was met with usable evidence; amber means a supported target miss at the appropriate completed-rep phase; gray means uncertain/unavailable tracking. Tracking confidence is not measurement accuracy.110° projected knee flexion is an illustrative demo target, not a universal good-squat rule. Do not mark standing/descent as a bottom-depth failure.
+Two-context browser checks passed, including return feedback and cleanup. The public HTTPS test passed video, Heavy and local return feedback but timed out waiting for a returned AI caption. The failure is traced to WebRTC resolution adaptation aborting the analysis session and real AI request, not sign-in. Recovery passed local real-Heavy browser tests; the public AI-return path remains unresolved until a complete rerun passes. Physical iPhone/venue behavior has not been verified.
 
-Reuse the new live camera page and transport rather than creating another engine. Finish the primary app entry, two-video comparison with independent source identities, trusted-HTTPS phone pairing and actual iPhone/Mac verification. Keep native OpenCap and other movements deferred.
+## Viewpoints, experimental metrics and motion evidence
 
-## Evidence and acceptance
+Green means a disclosed goal met with usable evidence; amber means a supported selected-goal miss at the correct phase; gray means unavailable/uncertain. The illustrative110° projected knee goal is not a universal good squat or medical threshold. Full-body detection/visibility is not measurement accuracy. Side-view timing/formula checks are not independent joint-angle validation.
 
-- Real Heavy + real GPT-6.1 Sol passed the one-Start sample flow with six measurements and source JPEGs at1067/3000ms: [verification record](qa/one-start-heavy-live.json).
-- Live UI has real Heavy/synthetic-camera verification with a **mocked** model; actual phone streaming and live-session external AI are separate remaining checks.
-- Final root acceptance must independently verify automatic coaching, matching-rep cues, source swaps/Stop, offline behavior and no inference on seek. The smoke result alone is not root acceptance.
-- Final Wren runs remain held until the integrated build is ready. Update both stable core workflows to the one-action experience, rerun on the final build, and record results in the ledger.
+The requested orbiting-camera feature requires identity/left-right continuity, bounded filter delay, per-metric view validity and baseline reacquisition. `createViewGuard` is integrated into the live per-metric validity/epoch path and passed combined browser checks; it remains an experimental image-continuity heuristic. `analyzeMultiViewFrame` returns experimental estimates/projection reasons; it does not modify AnalysisReport v1. Estimated world-XYZ knee/hip angles and front-only medial offsets are not calibrated 3D or clinical valgus. Preserve nulls and uncertainty; never infer arbitrary-angle accuracy from33 landmarks.
 
-## Latest experience and camera-motion amendment
+Current real-provider evidence uses bottom JPEGs and bounded report measurements. The new `buildLiveCoachBundle` helper adds selected cached descent/bottom/ascent images and measured phase samples within the existing v1 contract; three focused tests and live cache/browser wiring passed, with five controlled-provider requests carrying three phase JPEGs each; real-provider phase interpretation remains pending. Direction, sequencing or knee-path claims still require adequate temporal evidence; bottom stills alone do not prove whole motion. Keep phase images exact and bounded, and do not describe this as full-video upload.
 
-New cues **stack in a timestamped session feed** and remain across rep/phase changes. Keep cards short, expandable via Why, and deduplicated across rewind/replay; do not replace them with a disappearing paragraph panel. The newest cue may be highlighted, but older accepted guidance remains inspectable. This supersedes exclusive single-cue presentation above.
+## Evidence and remaining gates
 
-The product target now includes a camera moving around the squatting person. Preserve that requirement in implementation planning, but do not claim it is already accurate: MediaPipe supplies estimated world XYZ, while the current validated measurement protocol is side-view projected geometry. Automatic view/continuity detection, temporal stability, per-metric capability gates, baseline resets and independent cross-view validation are required. Keep uncertain current values unavailable while retaining timestamped past guidance. Full-body visibility alone is not sufficient evidence of trustworthy 3D angles.
+- Real Heavy + real ChatGPT passed smoke and [root](qa/root-live-chatgpt.json), with one request and source images1067/3000 ms; root replay showed both rep cues without extra requests.
+- Smoke stacked playback passed its controlled-provider check. Live stacked feed passed a two-card local-camera browser check. Root's designed feed adoption remains work.
+- [Root readiness](qa/product-readiness.json) has20 passing local checks on its recorded build; [archived evidence](qa/product-readiness.md) keeps the old preview/copy result separate.
+- Physical phone, public resolution-adaptation/AI-return recovery, independent cross-view/orbit accuracy and both final Wren workflows remain distinct gates. No historical test should be relabeled as those results.
 
-See the feature-by-feature status in [tracker.md](tracker.md) and the updated [design amendment](docs/frontend-design-amendments.md). Front/oblique knee-inward diagnostics must not become a clinical label or automatic correction without supported evidence. The current bottom-only visual packet does not substantiate whole-motion claims.
+Root retained-feed integration now passes fifteen controlled-provider development checks: short cards, delayed rep ordering, expanded reasons/limits/citations, Stop/reset, replay deduplication and source races. Per-rep accessible labels are preserved. Earlier built readiness and real-provider passes remain scoped to their recorded builds.
+
+### View-epoch versus source/session invalidation
+
+A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
+
+Final automated suite checkpoint: `npm test` passed86 harness tests and4 launcher tests with no failures, cancellations or skips. Public real-provider, physical-device and independent-accuracy acceptance remain separate.

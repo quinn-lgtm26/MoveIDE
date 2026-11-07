@@ -1,6 +1,7 @@
 // Explicit opt-in verification: sends public fixture evidence to the connected ChatGPT plan.
 import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { validateCoachingResponse } from '../coaching/index.mjs';
 if (!process.argv.includes('--send-public-fixture')) throw new Error('Use --send-public-fixture to run a real connected-plan request.');
@@ -24,7 +25,11 @@ try {
   await page.getByRole('button', { name: 'rep-2 bottom' }).click();
   await page.locator('[aria-label="Playback AI cue"]').getByText(/rep-2/).waitFor();
   assert.equal(requestCount, 1, 'Seek must reuse the first response');
-  const result = { verifiedAtUtc: new Date().toISOString(), surface: 'root product', fixture: 'clear-squat.mp4', provider: 'real ChatGPT', model: approved.model, requestCount, sourceImageTimestampsMs: approved.images.map(x => x.timestampMs), measurementIds: approved.packet.measurements.map(x => x.id), responseEvidenceIds: body.observations.map(x => x.evidenceIds), checks: { oneStart: true, responseValidated: true, firstRepCueVisible: true, secondRepCueVisible: true, noExtraSeekRequests: true } };
+  assert.equal(await page.locator('.coaching-card').count(), 2);
+  assert(await page.locator('.coaching-focus').evaluateAll(nodes => nodes.every(node => node.textContent.length <= 180)));
+  await page.getByRole('button', { name: 'Stop session', exact: true }).click();
+  assert.equal(await page.locator('.coaching-card').count(), 2);
+  const result = { verifiedAtUtc: new Date().toISOString(), revision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), surface: 'root production build', fixture: 'clear-squat.mp4', provider: 'real ChatGPT', model: approved.model, requestCount, sourceImageTimestampsMs: approved.images.map(x => x.timestampMs), measurementIds: approved.packet.measurements.map(x => x.id), responseEvidenceIds: body.observations.map(x => x.evidenceIds), checks: { oneStart: true, responseValidated: true, firstRepCueVisible: true, secondRepCueVisible: true, noExtraSeekRequests: true, twoPersistentShortCards: true, stopRetainsCards: true } };
   await writeFile(new URL('../../qa/root-live-chatgpt.json', import.meta.url), JSON.stringify(result, null, 2)+'\n');
   await page.screenshot({ path: new URL('../../qa/root-live-chatgpt.png', import.meta.url).pathname, fullPage: true });
   console.log(JSON.stringify(result, null, 2));

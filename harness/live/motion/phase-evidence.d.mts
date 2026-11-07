@@ -1,0 +1,9 @@
+import type { AnalysisReport, Rep } from '../../motion/analyze.mjs';
+import type { CoachPacket, CoachingImage } from '../../coaching/index.mjs';
+export interface PhaseEvidence {
+  phase: 'descent' | 'bottom' | 'ascent'; timestampMs: number; blob: Blob;
+}
+export function selectPhaseEvidence(report: AnalysisReport, rep: Rep, images: Map<number, Blob>): PhaseEvidence[];
+export function buildLiveCoachBundle(report: AnalysisReport, repId: string, evidenceImages: { timestampMs: number; blob: Blob }[]): {
+  packet: CoachPacket; images: CoachingImage[]; phases: Omit<PhaseEvidence, 'blob'>[]; report: AnalysisReport;
+};

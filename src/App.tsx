@@ -16,6 +16,11 @@ const METRIC_LABEL: Record<Measurement['metric'], string> = {
 };
 const fmt = (m: Measurement & { quality: 'usable' }) => (m.unit === 'deg' ? `${m.value.toFixed(1)}°` : `${m.value} ms`);
 const deg = (v: number | null) => (v === null ? 'unavailable' : `${v.toFixed(1)}°`);
+const shortCue = (segment: CoachingSegment, response: CoachingResponse) => {
+  const text = segment.hasNextFocus ? response.nextFocus.text
+    : response.observations[segment.observationIndices[0]]?.text ?? 'Review this rep’s cited evidence.';
+  return text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
+};
 const MODEL_LABEL: Record<string, string> = {
   'mediapipe-pose-landmarker-heavy': 'MediaPipe Pose Heavy',
   'mediapipe-pose-landmarker-full': 'MediaPipe Pose Full',
@@ -38,10 +43,12 @@ export function App() {
   const [connection, setConnection] = useState('unknown');
   const [active, setActive] = useState(false);
   const [mediaMs, setMediaMs] = useState(0);
+  const [furthestMs, setFurthestMs] = useState(0);
   const [coachStatus, setCoachStatus] = useState('Start a session for local tracking and connected AI coaching.');
   const [coaching, setCoaching] = useState<{ bundle: CoachingBundle; response: CoachingResponse; segments: CoachingSegment[] } | null>(null);
   const sampleRequest = useRef<AbortController | null>(null);
   const sessionRequest = useRef<AbortController | null>(null);
+  const playbackGeneration = useRef(0);
 
   const clearOverlay = () => {
     const c = canvas.current;
@@ -50,11 +57,12 @@ export function App() {
   };
 
   const invalidateSession = () => {
+    playbackGeneration.current++;
     sampleRequest.current?.abort();
     sessionRequest.current?.abort();
     sessionRequest.current = new AbortController();
     clearOverlay();
-    setCoaching(null); setMediaMs(0); setReport(null); setSampleMs(null);
+    setCoaching(null); setMediaMs(0); setFurthestMs(0); setReport(null); setSampleMs(null);
   };
 
   useEffect(() => {
@@ -108,7 +116,7 @@ export function App() {
         signal.throwIfAborted();
         const segments = getCoachingSegments(response, bundle.packet, report);
         setCoaching({ bundle, response, segments });
-        setCoachStatus(`AI analysis ready · ${coachModel.label} · replay a rep to follow its evidence.`);
+        setCoachStatus(`AI analysis ready · ${coachModel.label} · short reviews stay saved as you play.`);
       } catch (e) {
         if (!signal.aborted) setCoachStatus(`AI coach unavailable — ${e instanceof Error ? e.message : String(e)} Local measurements remain available.`);
       }
@@ -165,12 +173,15 @@ export function App() {
     clearOverlay();
     if (!v || !c || !report) return;
     const ctx = c.getContext('2d')!;
+    const generation = playbackGeneration.current;
     const draw = (mediaTimeS: number) => {
+      if (generation !== playbackGeneration.current) return;
       const dpr = devicePixelRatio, width = v.clientWidth, height = v.clientHeight;
       if (c.width !== width * dpr || c.height !== height * dpr) { c.width = width * dpr; c.height = height * dpr; }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const frame = overlayFrameAt(report.frames, Math.round(mediaTimeS * 1000));
       setMediaMs(Math.round(mediaTimeS * 1000));
+      setFurthestMs(previous => Math.max(previous, Math.round(mediaTimeS * 1000)));
       setSampleMs(frame ? frame.timestampMs : null);
       drawSquatOverlay(ctx, frame, { side: report.protocol.side, videoWidth: v.videoWidth, videoHeight: v.videoHeight, width, height });
     };
@@ -222,6 +233,15 @@ export function App() {
   const sel = report?.measurements.find((m) => m.id === selected);
   const tracked = report?.frames.filter((f) => f.quality === 'usable').length ?? 0;
   const cue = coaching ? coachingSegmentAt(coaching.segments, mediaMs) : null;
+  // Keep reviews encountered in source order, including when AI arrives after playback.
+  // A backward seek/replay cannot remove or duplicate an already accepted card.
+  const acceptedCues = coaching?.segments.filter(segment => segment.startMs <= furthestMs) ?? [];
+  const displayedCue = cue ?? acceptedCues.at(-1) ?? null;
+  const citationTimes = new Map(coaching ? [
+    ...coaching.bundle.packet.measurements.map(item => [item.id, item.evidenceTimestampMs] as const),
+    ...coaching.bundle.packet.evidence.map(item => [item.id, item.timestampMs] as const),
+  ] : []);
+  const citedTimes = (ids: string[]) => [...new Set(ids.map(id => citationTimes.get(id)).filter((time): time is number => time !== undefined))].sort((a, b) => a - b);
 
   return (
     <main>
@@ -266,9 +286,9 @@ export function App() {
           )}
           {!clip && <p className="empty">Choose a clip or start the coached squat.</p>}
           <canvas ref={canvas} aria-hidden />
-          {coaching && cue && <div aria-label="Playback AI cue" className="cue">
-            <small>AI observation · {cue.repId} · evidence {cue.evidenceTimestampsMs.join(', ')} ms</small>
-            <p>{cue.observationIndices.length ? coaching.response.observations[cue.observationIndices[0]].text : coaching.response.nextFocus.text}</p>
+          {coaching && displayedCue && <div aria-label="Playback AI cue" className="cue">
+            <small>{cue ? 'AI review · current rep' : 'Saved AI review · not this frame'} · {displayedCue.repId} · evidence {displayedCue.evidenceTimestampsMs.join(', ')} ms</small>
+            <p>{shortCue(displayedCue, coaching.response)}</p>
           </div>}
         </div>
 
@@ -293,9 +313,9 @@ export function App() {
                 {report.reps.map((r) => (
                   <span key={r.id} className="phases">
                     {r.id}:{' '}
-                    <button onClick={() => seek(r.startMs)}>start @ {r.startMs} ms</button>
-                    <button onClick={() => seek(r.bottomMs)}>bottom @ {r.bottomMs} ms</button>
-                    <button onClick={() => seek(r.endMs)}>return @ {r.endMs} ms</button>
+                    <button aria-label={`${r.id} start @ ${r.startMs} ms`} onClick={() => seek(r.startMs)}>start @ {r.startMs} ms</button>
+                    <button aria-label={`${r.id} bottom @ ${r.bottomMs} ms`} onClick={() => seek(r.bottomMs)}>bottom @ {r.bottomMs} ms</button>
+                    <button aria-label={`${r.id} return @ ${r.endMs} ms`} onClick={() => seek(r.endMs)}>return @ {r.endMs} ms</button>
                   </span>
                 ))}
               </div>
@@ -339,22 +359,25 @@ export function App() {
 
       {coaching && (
         <section aria-label="AI coaching" className="readout">
-          <h2>AI coaching{cue ? ` · ${cue.repId}` : ''}</h2>
-          {cue ? <>
-            {cue.observationIndices.map((i) => <p key={i}>{coaching.response.observations[i].text}</p>)}
-            {cue.hasNextFocus && <p><b>Next focus:</b> {coaching.response.nextFocus.text}</p>}
-            {cue.evidenceTimestampsMs.map((ms) => <button key={ms} onClick={() => seek(ms)}>See evidence @ {ms} ms</button>)}
-          </> : <p>Play a measured rep to see its AI observation. Choose an evidence point below to review.</p>}
-          <p className="muted">{coaching.response.uncertainty}</p>
-          <details>
-            <summary>All AI observations and evidence</summary>
-            {coaching.segments.map((segment) => <div key={segment.repId}>
-              <b>{segment.repId}</b>
-              {segment.observationIndices.map((i) => <p key={i}>{coaching.response.observations[i].text}</p>)}
-              {segment.hasNextFocus && <p>Next focus: {coaching.response.nextFocus.text}</p>}
-              {segment.evidenceTimestampsMs.map((ms) => <button key={ms} onClick={() => seek(ms)}>Evidence @ {ms} ms</button>)}
-            </div>)}
-          </details>
+          <h2>Saved AI reviews</h2>
+          <p className="muted">Short, evidence-based notes stay here through playback and Stop. Open Why for the full reasoning.</p>
+          {!acceptedCues.length && <p>Play a measured rep to add its review here.</p>}
+          <ol className="coaching-feed" aria-label="Saved AI reviews" aria-live="polite">
+            {acceptedCues.map(segment => <li key={segment.repId} data-rep-id={segment.repId} className="coaching-card">
+              <p className="coaching-stamp">{segment.repId} · source {(segment.startMs / 1000).toFixed(1)}–{(segment.endMs / 1000).toFixed(1)}s · {cue?.repId === segment.repId ? 'current rep review' : 'saved review'}</p>
+              <p className="coaching-focus">{shortCue(segment, coaching.response)}</p>
+              <details>
+                <summary>Why</summary>
+                {segment.observationIndices.map(i => <p key={i}>{coaching.response.observations[i].text} <small className="muted">[Evidence: {citedTimes(coaching.response.observations[i].evidenceIds).map(time => `${time} ms`).join(', ')}]</small></p>)}
+                {segment.hasNextFocus && <p><b>Next focus:</b> {coaching.response.nextFocus.text} <small className="muted">[Evidence: {citedTimes(coaching.response.nextFocus.evidenceIds).map(time => `${time} ms`).join(', ')}]</small></p>}
+                <p className="muted">Limits: {coaching.response.uncertainty}</p>
+                <div className="toolbar">{citedTimes([
+                  ...segment.observationIndices.flatMap(i => coaching.response.observations[i].evidenceIds),
+                  ...(segment.hasNextFocus ? coaching.response.nextFocus.evidenceIds : []),
+                ]).map(ms => <button key={ms} onClick={() => seek(ms)}>Evidence @ {ms} ms</button>)}</div>
+              </details>
+            </li>)}
+          </ol>
         </section>
       )}
 

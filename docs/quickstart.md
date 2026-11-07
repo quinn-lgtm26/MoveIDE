@@ -3,7 +3,7 @@
 From the repository on your Mac:
 
 ```sh
-node scripts/start-demo.mjs
+npm run demo
 ```
 
 The launcher checks Node/dependencies and ports, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Start coached squat** for a recording, or **Live coached squat** for a camera session. The default command opens no public tunnel.
@@ -17,7 +17,7 @@ Use Node.js 22.18 or newer. If dependencies are missing, install the repository'
 ```sh
 npm ci
 npm --prefix harness ci
-node scripts/start-demo.mjs
+npm run demo
 ```
 
 Asset setup may need network access on the first run. The launcher uses the existing pinned setup script and does not install new tools or change account credentials. Initial ChatGPT connection happens in the app; connected sessions can automatically send bounded rep images/measurements under the Start disclosure. Local analysis still works when the coach is disconnected.
@@ -27,7 +27,7 @@ Asset setup may need network access on the first run. The launcher uses the exis
 An installed `cloudflared` executable must be available on PATH. Use the [official installation instructions](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) if needed; the launcher does not install it automatically.
 
 ```sh
-node scripts/start-demo.mjs --phone
+npm run demo -- --phone
 ```
 
 This additionally creates a temporary trusted HTTPS address for **the dedicated pairing service on port 4176 only**, configures that address, and checks that the phone page is reachable. The app/provider on port 4173 remains loopback-only. Existing cloudflared configuration is bypassed for this temporary tunnel; its metrics listener also stays on loopback. Raw tunnel output, account credentials and pairing invitations are not printed by the launcher.
@@ -45,8 +45,8 @@ Same Wi-Fi does not guarantee peer connectivity on isolated venue networks. A re
 
 ```sh
 # No build, services or tunnel; connect-only checks do not bind demo ports.
-node scripts/start-demo.mjs --check
-node scripts/start-demo.mjs --phone --check
+npm run demo -- --check
+npm run demo -- --phone --check
 ```
 
 | Message / symptom | Next step |

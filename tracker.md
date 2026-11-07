@@ -1,118 +1,101 @@
 # MoveIDE global delivery tracker
 
-Updated 2026-11-07; incorporates frontend through `747ca8a` (trace/replay controls and deferred Movement Charter). **Read this first when picking up the product.** This file is the cross-agent source of truth; update the status and evidence whenever work changes. A merged implementation is not automatically a verified product workflow.
+Updated 2026-11-07; integration checkpoint `afb6fa1`, with newer frontend and experimental work still being verified. **Incoming frontend agent: read this first.** This tracker distinguishes implemented code, the surface actually verified, and remaining acceptance. Later commits do not inherit an earlier build's final-QA status automatically.
 
-## Current product decision
+## Product decision and handoff
 
-One **Start coached squat** action coordinates capture/video playback, MediaPipe Heavy tracking, measurements, evidence extraction, shared coaching principles, automatic AI requests and timestamp-linked feedback. Account and camera permissions are one-time setup. Packet preview/copy/export belongs in developer details. Do not add a separate Generate/Send/Handoff step to the normal experience.
+One **Start coached squat** coordinates the selected video/camera, local MediaPipe Heavy, measurements, exact source evidence, shared coaching principles and asynchronous AI. Initial account/camera permission is setup. No normal Generate/Send/packet-handoff task. Coaching cards append with source timestamps and remain across rep phases; each has a short focus and expandable explanation. Do not restore disappearing paragraphs or a shifting wall of text.
 
-Current priority: a simple one-Start squat coach with a persistent timestamped cue feed, full-body visualization, two-video comparison, and iPhone → MacBook live video with feedback returned to the phone. The requested target now includes a camera moving around the person during squats; view-aware stability and independently verified cross-view measurements are required before claiming that capability. Native OpenCap inference and broad movement coverage are deferred. The OpenCap import adapter remains available, explicitly imported/unverified.
+The requested target includes full-body visualization, two genuinely different video recordings, and iPhone → MacBook streaming with feedback returned to the phone. It also includes a camera moving around a person during squats. That orbit capability is a required research/integration target, **not a verified accuracy claim**. Full-body visibility alone is insufficient. Native OpenCap inference and broad non-squat movements remain deferred; the existing OpenCap import adapter stays available as imported-unverified data.
 
-Read [AI amendments](AI-AMENDMENTS.md), [frontend API amendment](docs/frontend-harness-amendments.md), [complete UX amendment](docs/frontend-design-amendments.md), [live product stories](_bmad-output/specs/live-squat-product.md), [frontend integration guide](harness/FRONTEND-HANDOFF.md), and [demo runbook](docs/live-squat-demo.md). The generated [workflow dashboard](workflow.html) is a summary; this tracker owns actionable status.
+Read in this order:
 
-## Delivered and evidence
+1. [UI/UX contract](docs/frontend-design-amendments.md): layouts, stacked feed, setup, view gates, orbit behavior and accessibility.
+2. [AI amendment](AI-AMENDMENTS.md): automatic dispatch, exact evidence, history and validity rules.
+3. [Frontend API handoff](docs/frontend-harness-amendments.md) and [harness integration guide](harness/FRONTEND-HANDOFF.md).
+4. [Shared report/packet contract](_bmad-output/specs/shared/analysis-report-v1.md), [motion API](harness/motion/analyze.d.mts), [live API](harness/live/motion/index.d.mts), [transport guide](harness/live/transport/README.md).
+5. [Product spec](_bmad-output/specs/live-squat-product.md), [story backlog](_bmad-output/specs/epics.md), [demo runbook](docs/live-squat-demo.md) and [quickstart](docs/quickstart.md).
 
-| Item | Status | Evidence / location |
+[workflow.html](workflow.html) is the interactive summary. This tracker and linked acceptance evidence remain authoritative.
+
+## Complete feature and evidence inventory
+
+| Feature | Implementation / tested surface | Remaining gate |
 | --- | --- | --- |
-| Shared Heavy analysis in root frontend | Merged in PR #13, `e5dea78` | `src/analyze.ts`, `src/App.tsx`; no duplicate geometry engine |
-| Heavy, full pose exports, source-timed metrics, OpenCap import | Implemented, fixture/browser verified | `harness/motion/`, `harness/results/`, `harness/opencap/` |
-| One-Start sample review | Implemented; real Heavy + real ChatGPT verified | `harness/smoke/`; `qa/one-start-heavy-live.json`, screenshot alongside |
-| Real AI evidence from current clear fixture | Passed 2026-11-07 | GPT-6.1 Sol; exactly one request; six measurements and JPEGs at 1067/3000 ms; validated citations and visible playback cue |
-| Playback reuse and evidence navigation | Browser verified with controlled provider | `harness/verify/coaching-playback.mjs`; no new inference on play/seek |
-| Root one-Start automatic AI | Implemented in this increment; Chrome root acceptance passed with controlled provider | `src/App.tsx`, `src/Compare.tsx`; 8 checks cover offline behavior, automatic AI, replay, Stop, source replacement and races |
-| Manual Generate panel removed | Done 2026-11-07; `src/Coach.tsx` deleted so developer tools only preview/copy/export (nothing sent) | typecheck clean, 54/54 tests, `root-coaching.mjs` 8/8 on the resulting main |
-| Live session entry | Done 2026-11-07; both headers have a `Session source` nav (Recorded clip / Live camera, `aria-current`); live page reuses `startLiveSquat` and is now a build input so it ships in the 4173 preview | typecheck clean, 54/54 tests (incl. live browser + RTC), `root-coaching.mjs` passed, `dist/harness/live/index.html` built; browser screenshots of both pages; `inspect-spacing` (1440/1728/390, both pages): 0 critical, 3 serious (live wordmark link 23px tall) fixed to 44px and confirmed by DOM measurement; Better Design recheck blocked by free quota; 16 moderate left (off-scale 5.6/13.1/14px nav padding, 34–36px desktop nav links). One `live/transport/browser.test.mjs` timeout, then 54/54 on two reruns |
-| Live Heavy engine | Browser verified with real-clip `captureStream` | `harness/live/motion/`; bounded frame/JPEG cache, one inference in flight, no queued frames |
-| Live local camera page + automatic per-rep AI | Implemented; synthetic-camera UI and controlled-provider test passed | `harness/live/`; local camera only on Start; Stop releases tracks and aborts requests |
-| Live AI rate/evidence bounds | Implemented | Max 6 requests/session, ≥8 seconds between starts, one in flight; skip while busy; only exact cached completed-rep pixels |
-| Phone signaling and video transport | Implemented; two independent Chrome contexts verified | `harness/live/transport/`; pixel decode, expiry, role isolation and Stop cleanup tested |
-| Shared automated suite | 54 tests passed in final local suite | `npm --prefix harness test` (includes real browser transport test) |
-| Product specialist review + revised stories | Written | `_bmad-output/specs/live-squat-product.md`, `docs/live-squat-demo.md` |
+| Shared recorded analysis | Root frontend consumes `analyzeSquat`; Heavy v1 default, Full explicit alternative; pinned assets and same-origin worker | Preserve shared engine during redesign; do not introduce private geometry |
+| Source-timed measurements and reps | Clear fixture 57/57 tracked, two bottoms 1067/3000 ms; labels1067/2933 ms, errors0/67 ms within150 ms. Extended knee/hip/torso/shin/ankle/depth proxies and phase anchors exist | Independent anatomical-angle accuracy remains unmeasured |
+| Full model output | 33 normalized/world slots per sample with observed confidence/provenance, local export | Estimated world XYZ is not calibrated 3D truth |
+| Root one-Start AI | Real GPT-6.1 Sol, one request, six measurements, source JPEGs1067/3000 ms; both rep cues and no extra seek requests passed in [root evidence](qa/root-live-chatgpt.json) | Does not prove later redesigned UI or full-motion image interpretation |
+| Root lifecycle and local readiness | Fifteen controlled-provider development checks in [root-one-start](qa/root-one-start.json), including retained short cards, Why, delayed response ordering, Stop/reset and source races; twenty historical fresh-build offline checks in [readiness](qa/product-readiness.json), tested source `e953a13` | Rerun affected gates after current integration; readiness is not Wren authorization |
+| Root replay controls | Trace, sample stepping, playback speed, rep anchors, evidence navigation verified by readiness probe | Preserve accessible equivalents and source clock in designed frontend |
+| Root/live navigation | Main root links to live page; source navigation added upstream and preserved | Unified designed session experience and consistent source-state UX remain |
+| Smoke stacked coaching | Implemented, controlled-provider playback verifier passed; persistent cards, no duplicates on seek/replay, reset on new analysis/model | Root feed now implemented and covered by fifteen development checks; final built acceptance remains |
+| Live stacked coaching | Implemented; local-camera browser test produced two distinct cards, retained on Stop, reset on new Start, collapsed Why and narrow-layout checks passed | Public HTTPS returned-AI-caption acceptance remains unresolved below |
+| Feed bounds and concise text | Smoke retains up to12 cards; live AI feed up to6 matching six-request budget. Short next focus/expanded reasoning; no paragraph streaming | Root retained feed now implemented; short cues and expanded evidence/limits verified with controlled provider |
+| Full-body overlay | Shared overlay now draws reliable arms, torso, legs and hand/foot links; five focused tests passed | Designed region-specific emphasis and physical moving-camera stability remain |
+| Live Heavy controller | Real fixture `captureStream` benchmark:37 processed/72 dropped, mean76.8 ms/max164.6 ms local processing; two reconstructed reps, one stabilized completion before clip end | Not phone end-to-end latency or independent angle validation |
+| Bounded live AI | Exact accepted source pixels cached; one request in flight,≥8 seconds between dispatches, maximum6/session, skip while busy/no queue | Preserve caps, abort/generation guards and evidence origin during integration |
+| Phone pairing, QR and received stream | Dedicated transport + same-origin private receiver proxy; local-generated QR/private link, expiry/late-QR/Stop cleanup; received MediaStream feeds shared Heavy | Real iPhone permission/foreground/lock/reconnect and venue network check |
+| Phone return feedback | Real WebRTC data channel carries local feedback and AI captions; independent Chrome-context integration passed | A physical phone has not been verified |
+| Trusted HTTPS / long polling | Phone sender long-polls authenticated signaling to avoid quick-tunnel SSE limitation; private receiver stays local | Public test passed video+Heavy+local return, but returned AI-caption timed out because WebRTC resolution adaptation aborted the session/request; adaptive resize recovery passed local browser QA; public real-provider rerun pending |
+| Experimental multiview adapter | `analyzeMultiViewFrame` provides estimated world-XYZ knee/hip angles and front-only signed image-plane knee offsets; six focused tests passed | Integrated as experimental diagnostics with per-metric availability; real frontal/oblique accuracy missing |
+| Actual Heavy confidence compatibility | [Browser evidence](harness/motion/multiview-browser-evidence.json):57 frames,1,881 normalized and world points each with observed confidence; left estimates available, occluded right withheld, front proxies withheld on side view | Compatibility/abstention evidence only; not angle-accuracy proof |
+| Experimental continuity/view guard | `createViewGuard` integrated into live samples; eight focused tests and combined real-Heavy browser QA passed; real clear fixture49/57 stable without epoch break | Live epochs reset current metric/baseline state, preserve completed-rep history; guard remains an experimental image-continuity heuristic |
+| Moving-camera / orbit analysis | UX and VIEW-4/5/6 requirements recorded: identity, anatomical sides, view changes, latency-bound filtering, baseline reacquisition | Independent orbit dataset/reference, per-metric validity, false-cue and accuracy benchmarks are missing |
+| Front knee-inward projection | Experimental front-only normalized image-plane offset exists with per-metric reason/confidence/provenance | Person/phase baseline, view stability, independent real frontal labels and cue precision; not clinical valgus |
+| Multi-phase AI evidence | `buildLiveCoachBundle` / `selectPhaseEvidence` implemented in `harness/live/motion/phase-evidence.mjs`; three focused tests passed | Live cache wiring and combined browser QA passed: five controlled-provider requests each carried three phase JPEGs; latest real-provider evidence remains bottom-only pending public rerun |
+| Two different videos | Attributed clear/supported fixtures exist; current root Compare is two reps from one report | Independent sources/reports, matching phase navigation, truthful target-relative comparison UI |
+| OpenCap import | Constructed-data tests and browser File import passed; imported-unverified units/hashes/source rows retained | Native inference blocked on unavailable compatible runtime/assets/metadata; deferred by user |
+| Easy launch | `npm run demo` / launcher and quickstart implemented; four persistent launcher tests passed, plus syntax/helper cleanup/port-refusal checks | Full assembled startup and real phone rehearsal still need acceptance; no public tunnel by default |
+| Final design polish | Detailed UI/UX and engineering handoff supplied | Designed root/mobile implementation, rendered review, contrast/focus/text zoom/reduced-motion checks |
+| Final Wren qualification | Prior harness cases and one older workbench case passed | Both core cases on the same final build, after local/device gates; reconcile debit before dispatch |
 
-Local live-engine processing benchmark: 37 processed frames, 72 dropped while busy, mean 76.8 ms/max 164.6 ms. Two reps reconstructed; only one stabilized completion event because the clip ends before later samples confirm the last rep. **Not an iPhone end-to-end latency result or independent joint-angle accuracy benchmark.**
+**Automated-suite status:** final `npm test` passed86 harness tests and4 launcher tests with zero failures, cancellations or skips. Combined live browser QA passed adaptive-resolution recovery, preserved historical AI, fresh subsequent reps, three phase JPEGs per controlled request, offline operation and real WebRTC return. Local processing means were74ms at10.6fps and77ms at7.6fps for the phone-stream browser path; these are not end-to-end network latency.
 
-## Full product feature inventory — latest requested scope
+**Newest root acceptance:** fifteen controlled-provider checks passed on the development surface, with per-rep accessible names restored and retained short cards/Why tested. The twenty-check fresh-build readiness result remains scoped to its recorded earlier source. Incoming design changes must retain semantic labels and rerun affected acceptance gates.
 
-Status is evidence-based: **verified** names the actual tested surface; **implemented** still needs broader acceptance; **in progress** is not shipped; **research gate** is a required capability without adequate accuracy evidence yet.
+## Incoming frontend implementation contract
 
-| Feature / owner | Status | Acceptance / next action |
+- Reuse `analyzeSquat`, `getMotionTrace`, `getSquatProfile`, `overlayFrameAt` and `drawSquatOverlay`. Use actual source media time and video content rect. The raw `onPoseFrame` hook is optional/local.
+- Reuse `prepareCoachingBundle` for seekable recordings and `chatGPTProvider` for connected interpretation. Provider owns shared principles and response validation. `getCoachingSegments`/timeline helpers associate accepted responses with evidence; playback does not request inference.
+- Reuse `startLiveSquat` for MediaStream. Exact cached `onRepComplete` source pixels supply live images. Never send a stream to the file analyzer or substitute a later screenshot for a prior rep bottom.
+- Reuse `connectReceiver` and the dedicated phone path; do not expose the provider/OAuth service. Phone side uses authenticated polling; receiver-side streaming stays local. Render the local QR from the supplied private link, never through an external QR service.
+- Root persistent-feed adoption is implemented and passed fifteen controlled-provider development checks. Preserve these semantics in subsequent design work. Preserve accepted history on Stop/loss while clearing untrusted **current** values and geometry; new source/session clears history and invalidates late replies. Show observation time separately from delayed arrival.
+- Experimental multiview metrics return `status`, `reason`, `confidence`, `unit` and `provenance`; never turn `unavailable` into zero or `estimated` into verified. View guard returns `{state,reason,epoch}`. On epoch change invalidate current metrics, unfinished reps and relative baselines; keep immutable completed-rep in-flight AI in the same source/session and label its eventual card with the original view; consume the integrated `LiveSample` fields `poseDisplayFrame`, `analysisEligible`, `metricValidity`, `multiView` and `viewGuard`; completed `LiveRep` adds `epoch` and up to three exact phase JPEGs.
+
+## Remaining pickup order and blockers
+
+| Priority / owner | Concrete task | Acceptance |
 | --- | --- | --- |
-| One Start for video, measurements and AI / integration | Verified in smoke and root product with real ChatGPT | `qa/root-live-chatgpt.json`; one actual request, both rep cues visible, no inference on seek |
-| Persistent coaching feed / frontend + harness | In progress; replaces disappearing paragraph panel | New short timestamped cards stack; previous cards remain; Why expands reasoning; rewind never duplicates; new session resets |
-| Concise actionable output / coaching | In progress | Next focus ≤12 words requested by versioned presentation policy; max three short observations; no invented posture fault, no unsupported core/spine diagnosis |
-| Whole-body skeleton / motion | Implemented; five focused overlay checks passed | Both arms, torso, both legs, hands/feet when visible; uncertain joints dimmed or omitted; no fabricated occluded geometry |
-| Camera moving/orbiting around squatting person / motion | Required target — **not verified** | Detect continuity/view changes, preserve person identity, handle left/right assignment changes, gate each metric, reacquire rather than carry stale baselines |
-| View-change/temporal stability guard / motion | In progress prototype | Conservative image-geometry continuity guard, epoch reset, stable dwell; cannot itself establish true camera motion or calibrated 3D tracking |
-| Estimated 3D knee/hip geometry / motion | In progress experimental adapter | Both sides from world XYZ; rotation/scale/missing-data tests; label estimated and uncalibrated; independent real-camera accuracy still required |
-| Front-facing knee inward trend / motion | In progress experimental diagnostic | Signed image-plane offset relative to hip/ankle line with units/confidence; front-only; baseline/camera/visibility gates; not clinical valgus |
-| Oblique-view and arbitrary-angle measurements / motion research | Research gate | Separate from side-validated protocol; independent labeled front/oblique/orbit captures needed; full body in frame does not prove angle accuracy |
-| Multi-phase visual AI evidence / coaching | Planned requirement | Provide bounded descent/bottom/ascent evidence and trajectory summaries; current real AI checks used bottom JPEGs only, so no full-motion visual understanding claim |
-| Phone video → Heavy → feedback/AI → phone / integration | Implemented; separate Chrome contexts passed | Actual WebRTC, source-pixel evidence, bounded AI, persistent phone AI caption; physical iPhone still required |
-| Pairing and easy setup / integration | Implemented; browser verification passed | One Start creates local QR/private link; phone permission then automatic analysis; expiry, Stop and stale invitation cleanup |
-| HTTPS phone signaling / integration | In progress public endpoint verification | Phone long polling avoids temporary tunnel SSE limitation; provider stays private on4173, dedicated phone service4176 only |
-| Session orchestration / harness | Local/browser verified | One pose frame in flight, no frame backlog; one AI request in flight,≥8s spacing,6/session cap; cancel/source/Stop rejects stale work |
-| Two genuinely different videos / frontend | Remaining | Distinct source/report identities, synchronized evidence, disclosed comparison target; not two reps mislabeled as two videos |
-| Main UI polish / frontend | Design handoff supplied; acceptance remaining | Video and feed visible together, restrained metrics, stable layout, no technical packet steps, accessible controls, mobile sender feedback |
-| One-command local launch / integration | Remaining | Install pinned dependencies/assets and launch private app + dedicated signaling with readiness checks and simple recovery; no secrets in configuration committed to Git |
-| Independent accuracy benchmark / QA | Missing | Rep-count/timing evidence exists; anatomical angle truth and moving-camera ground truth do not |
-| Final two-workflow Wren run / QA | Held | Exact final integrated build, both stable core workflow IDs, reconcile budget first; no claim of hackathon qualification until recorded |
+| P0 · frontend | Designed one-Start root with stacked feed and readable video | No packet task, short retained cards, expandable reasons, no jumps, accurate timestamps/source reset, accessible narrow layout |
+| P0 · integration | Close public HTTPS AI-return failure | Same recorded run proves phone media, Heavy, bounded model response and visible returned AI cue; diagnose timeout rather than count local-only success as whole journey |
+| P0 · motion/integration | Integrated guard, validity and sparse phase evidence browser-verified | Keep experimental labels; public real-provider adaptive-resize rerun and independent motion accuracy remain |
+| P0 · frontend | Implement genuine two-video comparison | Distinct source identities and evidence, same definition/goal, no capture-failure-as-bad-posture story |
+| P0 · device QA | Actual iPhone/Mac and venue rehearsal | Permission, connection, motion, feedback, lock/background, disconnect/reconnect, cleanup and measured end-to-end latency |
+| P1 · coaching/motion | Phase/trajectory evidence + reference calibration | Versioned bounded contract, correct source pixels, per-view baseline reset and unsupported-motion abstention |
+| Research · motion QA | VIEW-3–6 and R-2 accuracy gates | Independent front/oblique/orbit references, prespecified errors/coverage/delay and false-cue limits |
+| Final · QA | Full suite, refreshed browser gates and Wren | Exact final build and per-case records; no active fixed-port service conflicting with tests |
 
-The frontend must expose the latest capability state honestly. Capture or view uncertainty should clear **current** untrusted geometry/measurements while retaining past accepted coaching cards labeled with their source rep/time. Do not present a past cue as a current-frame measurement.
+**Blocked versus pending:** native OpenCap execution is explicitly deferred for missing runtime/assets. Physical device and independent angle/orbit evidence are missing prerequisites. Public AI-return timeout is traced to WebRTC resolution adaptation aborting the analysis session and real AI request; it is not a sign-in failure. Resolution-change recovery passed local real-Heavy/browser tests and must now pass the public real-provider rerun. Designed frontend and two-source UI are remaining implementation, not external blockers.
 
-## Remaining work, in pickup order
+## Commands and final QA budget
 
-| Priority / owner | Work | Done means |
-| --- | --- | --- |
-| P0 · frontend/integration | Finish root one-Start acceptance and polish; align actual root build with smoke behavior | Connected Start → Heavy → exact evidence → AI → matching-rep playback, without packet actions; offline mode honest; Stop/source replacement rejects late results |
-| P0 · frontend | Bring live session into the primary product navigation | One obvious session entry; choose recorded/live source; reuse existing `startLiveSquat` and provider APIs rather than rebuild them |
-| P0 · frontend | Two **different video** comparison | Clear and supported source clips retain distinct source/report identities; per-source seeks and images verified; illustrative 110° projected target clearly disclosed; green/amber never presented as clinical correctness |
-| P0 · integration | Received phone stream is wired; finish actual HTTPS/device acceptance | `connectReceiver(...,{onStream})` feeds the same Heavy controller; no seekable-file analyzer used on a stream; Stop ends peer, camera and analysis |
-| P0 · device QA | iPhone + Mac same-Wi-Fi physical check | Trusted HTTPS phone camera page; permission, connect, motion, disconnect/reconnect, latency and stop tested on actual hardware. Continuity Camera is an alternative source, not yet hardware-verified |
-| P1 · frontend | Concise coaching presentation and target indication | Short timestamped cues append and remain in a bounded session feed; fuller reasoning expandable; local measurements vs local target feedback vs AI narration distinguishable; stale pose (>500 ms live) clears geometry/numbers |
-| P1 · integration QA | Refresh old readiness probe and baseline expectations | Use Start journey; developer-copy is optional, not a required product step. Preserve old historical evidence; write a new result for the exact final build |
-| Final · QA owner | Wren/Seldon final acceptance | Both stable core case IDs run against the same reachable final build, fix issues and rerun, record experiment/case verdicts and actual debit |
-
-**Held QA budget:** last confirmed balance was 14 after two harness cases. The newly merged frontend ledger records one additional workbench run (`92de42c1-1168-4346-9730-e7d903fe94c4`), debit pending; expected remaining balance is 13. Reconcile before any dispatch. User requested Seldon after the product is built. Do not spend runs merely to validate this handoff. Follow `AI.md` and `qa/seldon-ledger.md`; never expose the credential-bearing local provider through a tunnel.
-
-The main root recorded-video readiness probe now passes20 scoped checks; the exact physical-phone/moving-camera and final Wren gates above remain open. The older failed product audit is archived under `qa/archive/`.
-
-## Entry points and commands
+See [quickstart](docs/quickstart.md) for `npm run demo` and phone mode. Ordinary verification uses Chrome and pinned local assets; no account or Seldon run is needed for controlled-provider tests.
 
 ```sh
-npm --prefix harness ci
 npm --prefix harness test
-npm --prefix harness run build
-npm --prefix harness run verify:build
-npm --prefix harness run verify:coaching-playback
-node harness/live/app.browser.test.mjs
-node harness/live/motion/verify-browser.mjs
-```
-
-The ordinary test/build commands do not need ChatGPT credentials. Browser checks use Chrome and pinned local pose assets.
-
-```sh
-# Local signed-in review; credentials remain private to the local service.
-MOVEIDE_ENABLE_CHATGPT=1 npm --prefix harness run start:local
-# Visit /harness/smoke/ or /harness/live/ on http://127.0.0.1:4173
-# Explicit real-provider check, consumes the connected plan:
-node harness/verify/one-start-live.mjs
-
-# Root product (avoid the development prebuild git-pull hook in CI/worktrees):
-npm ci
 CI=1 npm run build
-npm run typecheck
+npm --prefix harness run build
+npm --prefix harness run verify:coaching-playback
 node harness/verify/root-coaching.mjs
-
-# Separate credential-free signaling service; defaults to loopback4176:
-node harness/live/transport/server.mjs
+node harness/verify/product-readiness.mjs --write
+node harness/live/app.browser.test.mjs
 ```
 
-Read the transport README before configuring a trusted HTTPS origin. Same Wi-Fi alone does not make a plain HTTP LAN URL camera-capable on iPhone. Do not tunnel port4173 or publish OAuth credentials.
+Some transport/proxy tests bind 4176. Stop owned demo services before those tests; do not kill unrelated processes. Physical-provider/public-HTTPS runs are separate, account-dependent checks.
 
-## Coordination rules
+**Held Wren budget:**16 granted; two harness simulations confirmed used, leaving 14. A later single workbench run `92de42c1-1168-4346-9730-e7d903fe94c4` has debit pending reconciliation, so expected remaining is 13. See [ledger](qa/seldon-ledger.md). Preserve at least four for two final cases and a rerun. User asked to save Seldon until the product is built. Historical smoke/one-case passes do not establish final qualification.
 
-- Pull/rebase latest `main` before starting; publish focused changes to `quinn-lgtm26/MoveIDE`. User has authorized updates to `main`. Never force-push over another agent’s commits.
-- Claim the relevant item above with your branch/owner before editing shared UI. Current implementation separates root frontend, smoke reference, live motion, and credential-free transport for ownership; these are internal modules, not required user steps.
-- Update this tracker, the AI amendment if contracts change, and `workflow.html` after verification. Record **implemented**, **mock-verified**, **real-provider verified**, and **physical-device verified** separately.
-- Local models provide estimated projected angles. No universal good-squat score, clinical safety verdict, calibrated 3D accuracy, or native OpenCap success is established.
-- Keep keys, session files, dependency symlinks, model binaries and temporary output out of commits. Model assets are installed from the pinned setup script.
+**Live layout review:** [seven checks passed](qa/live-layout.json) on a Vite development surface with fixture playback and inserted representative cards. Desktop1400×900 and1280×800 retain a520px video stage and390px feed through empty/two-card/expanded-Why states. Mobile390×844 retains a405.11px active stage; the first card ends at834.20px, fully inside the viewport. No horizontal overflow or page errors. [Desktop](qa/live-layout-desktop.png) and [mobile](qa/live-layout-mobile.png) screenshots are layout evidence, not camera, provider or physical-phone acceptance.
+
+Frontend spacing update `a402e4e` is preserved: the live wordmark has a 44 px tap target; retain this alongside the newer responsive coaching layout.

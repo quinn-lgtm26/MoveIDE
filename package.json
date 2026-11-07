@@ -11,7 +11,7 @@
     "prebuild": "[ -n \"$CI\" ] || git pull --ff-only && npm --prefix harness run setup:pose",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
-    "test": "npm --prefix harness test",
+    "test": "npm --prefix harness test && node --test scripts/start-demo.test.mjs",
     "preview": "vite preview",
     "demo": "node scripts/start-demo.mjs"
   },

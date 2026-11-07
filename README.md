@@ -3,7 +3,17 @@
 Current delivery: [global tracker](tracker.md) · [AI integration amendments](AI-AMENDMENTS.md) · [workflow status](workflow.html)
 
 
-MoveIDE is a free, open-source workbench for human movement. The hackathon build starts with a side-view squat clip. The plan is to measure movement locally, show the frames behind each measurement, and let the user choose an AI model to interpret the evidence.
+MoveIDE is an open-source squat analysis and coaching workbench. One Start runs local MediaPipe Heavy analysis and, when connected, sends bounded source images and measurements for cited AI coaching. Recorded playback and live camera sessions share the harness. Estimated geometry is not a clinical assessment or independently validated arbitrary-view motion capture.
+
+## Run the demo
+
+```sh
+npm ci
+npm --prefix harness ci
+npm run demo
+```
+
+Open the printed local address. For iPhone pairing, use `npm run demo -- --phone` with `cloudflared` installed. The launcher builds the app, prepares pinned assets and starts the necessary services. See the [quickstart](docs/quickstart.md) for phone setup, permissions and recovery. Stop the launcher with Ctrl+C.
 
 ## Development status
 
@@ -12,8 +22,8 @@ Open [workflow.html](workflow.html) for the development workflow, story status, 
 ## Build handoff
 
 - Read the [epics and stories](_bmad-output/specs/epics.md) for the frontend and backend workstreams.
-- For the harness session, start **BE-1** with the [bundled two-rep squat clip](fixtures/squat/README.md) and the [AnalysisReport v1 contract](_bmad-output/specs/shared/analysis-report-v1.md). The first checkpoint is one real MediaPipe report with an evidence-linked knee angle.
-- Timebox **BE-3**, the ChatGPT sign-in spike, in parallel. [Backend and harness spec](_bmad-output/specs/spec-moveide-harness/SPEC.md)
+- Use the [bundled squat fixtures](fixtures/squat/README.md) and [AnalysisReport v1 contract](_bmad-output/specs/shared/analysis-report-v1.md) for integration. Foundational analysis and account integration are implemented; the tracker records remaining release gates.
+- Follow the [latest frontend contracts](docs/frontend-harness-amendments.md) and [UX requirements](docs/frontend-design-amendments.md). The [original harness spec](_bmad-output/specs/spec-moveide-harness/SPEC.md) is historical where the amendments supersede it.
 - Use [AI.md](AI.md) for Seldon setup, [seldon.yml](seldon.yml) for the two submission cases, and the [simulation ledger](qa/seldon-ledger.md) to track the 16-simulation allocation.
 
 Hosted Seldon validation and final runs require an authenticated MCP connection and a reachable build.
@@ -23,11 +33,12 @@ Hosted Seldon validation and final runs require an authenticated MCP connection 
 Requires Node 22.18+.
 
 ```bash
-npm install
+npm ci
+npm --prefix harness ci
 npm run dev      # workbench on http://127.0.0.1:5173 (ChatGPT shows unavailable)
 npm test         # harness tests
 npm run build    # typecheck + production build
 MOVEIDE_ENABLE_CHATGPT=1 npm run preview   # built app on 127.0.0.1:4173 with live ChatGPT sign-in
 ```
 
-Layout: [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) types come from `harness/motion` · `src/App.tsx` workbench, `src/Compare.tsx` rep compare, `src/Coach.tsx` ChatGPT coaching · `harness/` analysis engine and ChatGPT provider (`/api`, mounted in Vite). Backlog: [epics](_bmad-output/specs/epics.md).
+Layout: [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) types come from `harness/motion` · `src/App.tsx` recorded workbench and coaching · `src/Compare.tsx` rep comparison · `harness/live/` live analysis and phone transport · `harness/provider/` private ChatGPT provider (`/api`, mounted in Vite). Backlog: [epics](_bmad-output/specs/epics.md).

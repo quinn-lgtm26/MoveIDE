@@ -62,3 +62,33 @@ Items 1–4 below describe the reviewed `e5dea78` state and are addressed by thi
 - Replace clip during sample load, analysis, image extraction and AI request; change model/goal; Stop/restart. No stale source, overlay, image or explanation appears, and owned object URLs/media tracks are released.
 - Verify two source identities, correct per-source evidence navigation and real image/timestamp correspondence. Track physical iPhone/WebRTC verification separately from fixture tests.
 - Update the old product-readiness selectors and Wren expectations to this journey; manual copy must not remain a required acceptance step. Preserve the stable Wren case IDs and run both on the final integrated build only after local QA, per the held-budget gate.
+
+## Current pickup checkpoint — stacked feed and experimental views
+
+The designed frontend should consume the [global tracker](../tracker.md) and [UI/UX contract](frontend-design-amendments.md) before reusing historical examples above. Root real AI now has independent recorded evidence in `qa/root-live-chatgpt.json`. Root readiness has20 passing scoped checks; historical results are archived. Main/root links into the live page and that upstream navigation must be preserved.
+
+Smoke and live now implement retained timestamped coaching cards (bounds12 and6 respectively), with expanded Why details and source/session reset. Their focused browser checks pass; the root retained feed now passes fifteen controlled-provider development checks. Whole-body overlay is implemented with five focused tests. Phone long polling, received-stream Heavy and return-feedback transport exist; public media/Heavy/local return passed, but a returned AI-caption timeout remains unresolved. No physical iPhone acceptance is claimed.
+
+`createViewGuard` is now integrated as experimental live validity/epoch gating. `analyzeMultiViewFrame` returns estimated/unavailable values plus reason, unit, confidence and provenance; its actual Heavy confidence compatibility is verified, not anatomical accuracy. Use the integrated result shape documented below. Clear per-view baselines on epoch/source changes, preserve historical cards and never convert unavailable into zero. The incoming designed frontend must not bypass these gates to make arbitrary views appear supported.
+
+The new `harness/live/motion/phase-evidence.mjs` exports `selectPhaseEvidence` and `buildLiveCoachBundle`. It selects cached descent/bottom/ascent frames and measured phase samples within v1; three focused tests pass. Live cache wiring is browser-verified; use the returned bound report/packet/images together. Current real-provider evidence remains bottom-only. Preserve per-rep accessible labels in the redesigned root: a recent compact-label regression was fixed and the fifteen-check development probe passes.
+
+### Sparse phase-evidence API (integrated and browser-verified)
+
+Import from `harness/live/motion/phase-evidence.mjs` (typed sibling `.d.mts`):
+
+- `selectPhaseEvidence(report, rep, Map<timestampMs, JPEGBlob>)` chooses the exact measured bottom plus available cached mid-descent/mid-ascent samples, at most three images. A missing phase is omitted; a missing exact bottom is never replaced with a nearby screenshot.
+- `buildLiveCoachBundle(report, repId, evidenceImages)` returns `{packet, images, phases, report}` with actual trace knee/torso phase measurements (at most seven), matching source references and a valid CoachPacket v1. Original report data is unchanged; the returned report binds the added measurements for replay validation.
+- The summary explicitly describes sparse phase coverage. Display returned phase times/labels; do not imply every video frame went to AI or infer evidence from an omitted phase. Keep source-generation/epoch binding and existing live request caps.
+
+Three pure tests pass. Combined live browser QA passes cache selection: five controlled-provider requests each received three phase JPEGs. Actual real-provider phase interpretation remains pending. This increment expands evidence coverage; it does not establish full-motion visual understanding or phase-angle accuracy.
+
+### View-epoch versus source/session invalidation
+
+A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
+
+### Integrated live result contract
+
+`LiveSample` adds `poseDisplayFrame` (full-body drawing independent of side-view measurement validity), `analysisEligible`, `metricValidity` (each projected key has `{status,reason}`), experimental `multiView` diagnostics/provenance and `viewGuard: {state,reason,epoch,declaredView,experimental:true}`. `LiveRep` adds its epoch and up to three exact phase JPEGs. `startLiveSquat` defaults declared view to side as an explicit workflow assumption; `setView`/`resetView` reset window baselines. These labels do not infer a validated camera angle.
+
+Adaptive video dimensions no longer fatally stop the session: old-size in-flight detections are discarded and the new epoch reacquires. Historical completed-rep AI can finish across a view epoch with its original view/time labels; Stop/new session still aborts it. Twenty-three focused motion/live/phase tests and combined real-Heavy browser QA passed, including dynamic resize, fresh subsequent reps, five controlled-provider three-image requests, real WebRTC AI return and QR cleanup. Offline browser QA passes with zero provider calls. Public HTTPS real-provider return, physical iPhone and independent moving-camera accuracy remain unverified.

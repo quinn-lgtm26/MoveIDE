@@ -1,5 +1,8 @@
+import type { MultiView, MultiViewDiagnostics, MultiViewMetric, MultiViewMetricName, MultiViewReason } from '../../motion/multiview.mjs';
+import type { ViewGuardOptions, ViewGuardResult } from './view-guard.mjs';
 import type { AnalysisReport, AnalysisOptions, MotionTraceSample, PoseFrame, RawPoseFrame, Rep } from '../../motion/analyze.mjs';
 export interface LiveStats {
+  discardedDimensionResults: number; analysisEpoch: number;
   presentedFrames: number; acceptedFrames: number; processedFrames: number;
   droppedBusy: number; droppedCadence: number; droppedNonMonotonic: number;
   inFlight: boolean; stopped: boolean; lastAcceptedTimestampMs: number | null;
@@ -16,7 +19,14 @@ export interface CompletedRepFeedback {
 }
 export interface LiveSample {
   timestampMs: number; sourceMediaTimeMs: number; report: AnalysisReport; frame: PoseFrame;
+  /** Drawing remains independent of side-view metric eligibility. */
+  poseDisplayFrame: PoseFrame;
   metrics: MotionTraceSample;
+  metricValidity: Record<keyof Omit<MotionTraceSample, 'timestampMs' | 'repId' | 'phase'>, { status: 'estimated' | 'unavailable'; reason: string }>;
+  /** Experimental diagnostics only; unavailable while the view guard is reacquiring. */
+  multiView: Omit<MultiViewDiagnostics, 'metrics'> & { metrics: Record<MultiViewMetricName, Omit<MultiViewMetric, 'reason'> & { reason: MultiViewReason | 'tracking_unavailable' | 'view_reacquiring' }> };
+  viewGuard: ViewGuardResult & { declaredView: MultiView; experimental: true };
+  analysisEligible: boolean;
   phase: 'unknown' | 'standing' | 'moving' | 'descent' | 'ascent' | 'near-bottom';
   /** Minimum selected hip/knee/ankle visibility, not calibrated accuracy. */
   trackingConfidence: number | null; phaseIsProvisional: true; feedback: DepthFeedback;
@@ -24,11 +34,13 @@ export interface LiveSample {
 }
 export interface LiveRep {
   /** Stable session + start/end key; report rep IDs are local to the rolling window. */
-  key: string; rep: Rep; report: AnalysisReport; feedback: CompletedRepFeedback;
-  /** Exact accepted frame at rep.bottomMs. Empty unless captureEvidence:true and retained. */
-  evidenceImages: { timestampMs: number; blob: Blob }[];
+  key: string; epoch: number; rep: Rep; report: AnalysisReport; feedback: CompletedRepFeedback;
+  /** Up to 3 exact accepted descent/bottom/ascent frames. Empty if the measured bottom is unavailable. */
+  evidenceImages: { phase: 'descent' | 'bottom' | 'ascent'; timestampMs: number; blob: Blob }[];
 }
 export interface LiveSquatOptions {
+  /** Declared capture workflow, not a validated camera classification. Default side. */
+  declaredView?: MultiView; viewGuardOptions?: ViewGuardOptions;
   model?: 'heavy' | 'full'; targetKneeFlexionDeg?: number | null;
   maxHz?: number; historyMs?: number; maxFrames?: number; captureEvidence?: boolean;
   clipId?: string; assets?: AnalysisOptions['assets']; signal?: AbortSignal;
@@ -36,6 +48,8 @@ export interface LiveSquatOptions {
   onError?: (error: unknown) => void; onPoseFrame?: (frame: RawPoseFrame) => void;
 }
 export interface LiveSquatSession {
+  /** Changing the declared view invalidates history and relative baselines. */
+  setView(view: MultiView): boolean; resetView(): ViewGuardResult;
   stop(): void; getStats(): LiveStats; getReport(): AnalysisReport | null;
   getEvidence(timestampMs: number): Blob | null;
 }

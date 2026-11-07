@@ -1,13 +1,14 @@
 import QRCode from 'qrcode';
 import { createPairing, connectReceiver, revokePairing } from './transport/client.mjs';
 import { startLiveSquat } from './motion/index.mjs';
+import { buildLiveCoachBundle } from './motion/phase-evidence.mjs';
 import { drawSquatOverlay } from '../motion/overlay.mjs';
-import { buildCoachPacket, validateCoachingResponse } from '../coaching/index.mjs';
+import { validateCoachingResponse } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
 
 const $ = id => document.getElementById(id);
 const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d');
-let controller, media, analysis, receiver, pairing, phoneFeedback, latest, lastArrived = 0, animation, completed = 0;
+let controller, media, analysis, receiver, pairing, phoneFeedback, currentCoach, coachingPauseKey, latest, lastArrived = 0, animation, completed = 0;
 const degrees = value => Number.isFinite(value) ? `${value.toFixed(0)}°` : '—';
 const elapsed = milliseconds => `${(milliseconds / 1000).toFixed(1)}s`;
 
@@ -18,8 +19,8 @@ function appendCoachingCard(event, result, cite, signal) {
   if (signal.aborted || controller?.signal !== signal || feed.children.length >= 6 ||
       [...feed.children].some(card => card.dataset.repKey === event.key)) return false;
   const followLatest = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 48;
-  const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key;
-  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.textContent = `Evidence at ${elapsed(event.rep.bottomMs)} · delayed AI review`;
+  const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key; card.dataset.epoch = String(event.epoch);
+  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.textContent = `Evidence at ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1} · delayed AI review`;
   const focus = document.createElement('p'); focus.className = 'coaching-focus'; focus.textContent = briefFocus(result.nextFocus.text);
   const why = document.createElement('details'), summary = document.createElement('summary'); summary.textContent = 'Why';
   const observations = document.createElement('ul');
@@ -34,42 +35,63 @@ function appendCoachingCard(event, result, cite, signal) {
   return true;
 }
 
+function currentEvidence(event) {
+  return latest?.analysisEligible && latest.viewGuard.epoch === event.epoch &&
+    performance.now() - lastArrived + latest.processingLatencyMs <= 500 &&
+    latest.report.clip.widthPx === video.videoWidth && latest.report.clip.heightPx === video.videoHeight;
+}
+
 function liveCoach(signal, onResult = () => {}) {
-  let model, busy = false, sent = 0, lastSent = -Infinity;
+  let model, busy = false, sent = 0, lastSent = -Infinity, coachState = 'connecting';
   const seen = new Set();
   void (async () => {
     try {
       const connection = await chatGPTProvider.getConnection(signal);
       if (signal.aborted) return;
-      if (connection.state !== 'connected') { $('ai').textContent = 'Connect the AI coach on the Recorded clip page to add AI coaching. Local tracking stays on.'; return; }
+      if (connection.state !== 'connected') { coachState = 'offline'; $('ai').textContent = 'Connect the AI coach on the Recorded clip page to add AI coaching. Local tracking stays on.'; return; }
       const models = await chatGPTProvider.listModels(signal);
       if (signal.aborted) return;
-      model = models[0]?.id;
-      $('ai').textContent = model ? 'Connected · AI feedback follows complete reps.' : 'No ChatGPT model available. Local tracking stays on.';
-    } catch (error) { if (!signal.aborted) $('ai').textContent = 'ChatGPT unavailable. Local tracking stays on.'; }
+      model = models[0]?.id; coachState = model ? 'ready' : 'offline';
+      $('ai').textContent = model ? 'Connected · waiting for a stable side view and complete reps.' : 'No ChatGPT model available. Local tracking stays on.';
+    } catch { if (!signal.aborted) { coachState = 'offline'; $('ai').textContent = 'ChatGPT unavailable. Local tracking stays on.'; } }
   })();
-  return async event => {
-    if (signal.aborted || !model || busy || sent >= 6 || performance.now() - lastSent < 8000 || seen.has(event.key)) return;
+  const coach = async event => {
+    if (signal.aborted || !currentEvidence(event) || !model || busy || sent >= 6 || performance.now() - lastSent < 8000 || seen.has(event.key)) return;
     let packet, images;
     try {
-      packet = buildCoachPacket(event.report, { repIds: [event.rep.id] });
-      images = packet.evidence.map(evidence => ({ ...evidence, blob: event.evidenceImages.find(image => image.timestampMs === evidence.timestampMs)?.blob }));
+      ({ packet, images } = buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages));
       if (!packet.measurements.length || !images.length || images.some(image => !image.blob)) return;
     } catch { return; }
-    busy = true; sent++; lastSent = performance.now(); seen.add(event.key);
+    busy = true; coachState = 'reviewing'; sent++; lastSent = performance.now(); seen.add(event.key);
     if (sent >= 6) $('ai-limit').hidden = false;
     $('ai').textContent = `AI reviewing rep at ${elapsed(event.rep.bottomMs)}… Keep moving.`;
     try {
       const result = validateCoachingResponse(await chatGPTProvider.interpret(packet, images, { model, signal }), packet);
       if (signal.aborted) return;
+      const stillCurrent = currentEvidence(event);
       const evidence = new Map([...packet.measurements.map(item => [item.id, item.evidenceTimestampMs]), ...packet.evidence.map(item => [item.id, item.timestampMs])]);
       const cite = item => `${item.text} [${[...new Set(item.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
       if (!appendCoachingCard(event, result, cite, signal)) return;
-      $('ai').textContent = `Next focus: ${briefFocus(result.nextFocus.text)}`;
-      onResult({ kind: 'ai', text: briefFocus(result.nextFocus.text), sourceTimestampMs: event.rep.bottomMs });
-    } catch (error) { if (!signal.aborted) $('ai').textContent = 'AI feedback unavailable for this rep. Local tracking continues.'; }
+      coachState = 'reviewed';
+      $('ai').textContent = stillCurrent ? `Next focus: ${briefFocus(result.nextFocus.text)}` : `Historical review added · ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1}.`;
+      onResult({ kind: 'ai', text: briefFocus(stillCurrent ? result.nextFocus.text : `Earlier view ${event.epoch + 1}: ${result.nextFocus.text}`), sourceTimestampMs: event.rep.bottomMs }, event.epoch);
+    } catch { if (!signal.aborted) { coachState = 'error'; $('ai').textContent = 'AI feedback unavailable for that completed rep. Local tracking continues.'; } }
     finally { busy = false; }
   };
+  coach.viewChanged = () => {
+    if (signal.aborted) return;
+    if (coachState === 'reviewed') $('ai').textContent = 'Earlier AI reviews remain below. Current view status is shown above.';
+    if (coachState === 'reviewing') $('ai').textContent = 'AI review in progress for a completed rep. Current view status is shown above.';
+  };
+  return coach;
+}
+
+function pauseCurrentCoaching(reason) {
+  const key = `${latest?.viewGuard.epoch ?? 'pending'}:${reason}`;
+  if (coachingPauseKey === key) return;
+  coachingPauseKey = key;
+  currentCoach?.viewChanged();
+  phoneFeedback?.({ kind: 'status', text: 'Current coaching paused. Hold a clear side view; earlier AI notes describe a previous view or rep.', sourceTimestampMs: latest?.timestampMs ?? null });
 }
 
 function clearTracking() {
@@ -81,32 +103,36 @@ function render() {
   if (!controller || controller.signal.aborted) return;
   animation = requestAnimationFrame(render);
   const age = latest ? performance.now() - lastArrived + latest.processingLatencyMs : Infinity;
-  const usable = latest?.frame.quality === 'usable' && age <= 500;
+  const dimensionsMatch = latest?.report.clip.widthPx === video.videoWidth && latest?.report.clip.heightPx === video.videoHeight;
+  const displayUsable = latest?.poseDisplayFrame.quality === 'usable' && age <= 500 && dimensionsMatch;
+  const metricsUsable = displayUsable && latest.analysisEligible;
   $('age').textContent = latest ? `Local pose age ${Math.round(age)} ms` : 'Waiting for pose';
-  if (!usable) {
-    clearTracking();
-    phoneFeedback?.({ kind: 'status', text: 'Tracking unavailable. Keep your whole body visible and wait for a fresh pose.', sourceTimestampMs: latest?.timestampMs ?? null });
+  if (!metricsUsable) {
+    for (const id of ['knee', 'hip', 'torso']) $(id).textContent = '—';
     $('feedback').dataset.state = 'unknown';
-    $('phase').textContent = 'Tracking unavailable';
+    $('phase').textContent = 'Current squat metrics unavailable';
     if (latest) {
-      $('cue').textContent = age > 500 ? 'Waiting for a fresh view.' : 'Step into view.';
-      $('detail').textContent = age > 500 ? 'Tracking is delayed. Numbers are hidden until a fresh pose arrives.' : 'Keep your whole body visible and turn side-on to the camera.';
+      phoneFeedback?.({ kind: 'status', text: 'Current coaching paused. Hold a clear side view; earlier notes describe an earlier rep.', sourceTimestampMs: latest.timestampMs });
+      pauseCurrentCoaching(!dimensionsMatch ? 'dimensions-changed' : age > 500 ? 'stale-frame' : latest.viewGuard.reason);
+      $('cue').textContent = !displayUsable ? 'Let the view settle.' : 'Turn side-on for squat metrics.';
+      $('detail').textContent = !displayUsable ? 'Comparisons pause after tracking or view changes. Hold a clear view, then begin again from standing.' : 'Full-body tracking is visible. Squat depth and coaching still require a stable side view.';
+      $('status').textContent = !displayUsable ? 'Reacquiring a stable view' : 'Pose visible · side metrics unavailable';
     }
-    return;
   }
-  const bounds = canvas.getBoundingClientRect();
-  const scale = devicePixelRatio || 1;
+  if (!displayUsable) { context.clearRect(0, 0, canvas.width, canvas.height); return; }
+  const bounds = canvas.getBoundingClientRect(), scale = devicePixelRatio || 1;
   if (canvas.width !== Math.round(bounds.width * scale) || canvas.height !== Math.round(bounds.height * scale)) {
     canvas.width = Math.round(bounds.width * scale); canvas.height = Math.round(bounds.height * scale);
   }
-  drawSquatOverlay(context, latest.frame, { side: latest.report.protocol.side,
-    videoWidth: video.videoWidth, videoHeight: video.videoHeight, width: canvas.width, height: canvas.height });
+  drawSquatOverlay(context, latest.poseDisplayFrame, { side: latest.report.protocol.side,
+    showKneeArc: metricsUsable, videoWidth: latest.report.clip.widthPx, videoHeight: latest.report.clip.heightPx, width: canvas.width, height: canvas.height });
   context.save(); context.globalCompositeOperation = 'source-in';
-  context.fillStyle = latest.feedback.state === 'target-met' ? '#a2f47f' : '#e5f1df';
+  context.fillStyle = metricsUsable && latest.feedback.state === 'target-met' ? '#a2f47f' : '#e5f1df';
   context.fillRect(0, 0, canvas.width, canvas.height); context.restore();
-  $('knee').textContent = degrees(latest.metrics.kneeFlexionDeg);
-  $('hip').textContent = degrees(latest.metrics.hipFlexionDeg);
-  $('torso').textContent = degrees(latest.metrics.torsoLeanDeg);
+  if (!metricsUsable) return;
+  coachingPauseKey = null;
+  $('status').textContent = $('source').value === 'phone' ? 'Live · iPhone · local analysis' : 'Live · local analysis';
+  for (const [id, key] of [['knee', 'kneeFlexionDeg'], ['hip', 'hipFlexionDeg'], ['torso', 'torsoLeanDeg']]) $(id).textContent = degrees(latest.metrics[key]);
   $('phase').textContent = `${latest.phase.replaceAll('-', ' ')} · provisional`;
   $('feedback').dataset.state = latest.feedback.state;
   $('cue').textContent = latest.feedback.state === 'target-met' ? 'Your depth goal, reached.' : 'Keep your rhythm.';
@@ -114,7 +140,7 @@ function render() {
 }
 
 function stop(message = 'Session stopped') {
-  const previous = controller; controller = null; phoneFeedback = null;
+  const previous = controller; controller = null; phoneFeedback = null; currentCoach = null; coachingPauseKey = null;
   const oldReceiver = receiver, oldPairing = pairing; receiver = null; pairing = null;
   previous?.abort();
   if (oldReceiver) void oldReceiver.stop().catch(() => {});
@@ -123,7 +149,7 @@ function stop(message = 'Session stopped') {
   media?.getTracks().forEach(track => track.stop()); media = null;
   video.srcObject = null;
   cancelAnimationFrame(animation);
-  latest = null; clearTracking();
+  latest = null; clearTracking(); $('view-status').textContent = 'Measurements resume after a stable side view is established.';
   $('source').disabled = false;
   $('pairing').hidden = true; $('phone-url').value = ''; $('pairing-expiry').textContent = '';
   $('pairing-qr').hidden = true; $('phone-qr').width = 0; $('phone-qr').height = 0;
@@ -185,12 +211,18 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
     $('cue').textContent = 'Finding your movement.'; $('detail').textContent = 'Stand side-on with your whole body visible.';
     $('start').hidden = true;
     const session = await startLiveSquat(video, {
-      model: 'heavy', targetKneeFlexionDeg: 110, signal: own.signal, captureEvidence: true,
+      model: 'heavy', targetKneeFlexionDeg: 110, declaredView: 'side', signal: own.signal, captureEvidence: true,
       onSample(sample) {
         if (controller !== own || own.signal.aborted) return;
+        const changedEpoch = latest && latest.viewGuard.epoch !== sample.viewGuard.epoch;
         latest = sample; lastArrived = performance.now();
+        video.dataset.analysisEpoch = String(sample.viewGuard.epoch);
+        $('view-status').textContent = sample.analysisEligible ? 'Stable side view · estimated angles' : sample.viewGuard.state !== 'stable' ? 'Hold a clear view while tracking settles.' : 'Turn side-on for squat measurements.';
+        for (const [id, key] of [['knee', 'kneeFlexionDeg'], ['hip', 'hipFlexionDeg'], ['torso', 'torsoLeanDeg']]) { $(id).dataset.validity = sample.metricValidity[key].status; $(id).title = sample.metricValidity[key].reason.replaceAll('_', ' '); }
+        if (changedEpoch) { pauseCurrentCoaching('epoch-changed'); $('rep').textContent = 'View changed. Previous coaching cards remain below; begin a new rep from standing.'; $('rep').removeAttribute('data-state'); }
+        if (!sample.analysisEligible) pauseCurrentCoaching(sample.viewGuard.reason);
         $('latency').textContent = `${Math.round(sample.processingLatencyMs)} ms · ${sample.stats.analyzedHz.toFixed(1)} analyzed fps`;
-        if (sample.frame.quality === 'usable' && sample.processingLatencyMs <= 500) sendFeedback({ kind: 'local', text: `${degrees(sample.metrics.kneeFlexionDeg)} projected knee flexion · ${sample.phase.replaceAll('-', ' ')} (provisional). ${sample.feedback.label}`, sourceTimestampMs: sample.timestampMs });
+        if (sample.analysisEligible && sample.frame.quality === 'usable' && sample.processingLatencyMs <= 500) sendFeedback({ kind: 'local', text: `${degrees(sample.metrics.kneeFlexionDeg)} projected knee flexion · ${sample.phase.replaceAll('-', ' ')} (provisional). ${sample.feedback.label}`, sourceTimestampMs: sample.timestampMs });
       },
       onRepComplete(event) {
         if (controller !== own || own.signal.aborted) return;
@@ -213,21 +245,24 @@ $('start').onclick = async () => {
   const source = $('source').value;
   let lastFeedbackAt = -Infinity, lastFeedbackKind = null, aiRetry, pendingAi = null;
   own.signal.addEventListener('abort', () => { clearTimeout(aiRetry); pendingAi = null; }, { once: true });
-  const sendFeedback = (payload, attempts = 10) => {
+  const sendFeedback = (payload, attempts = 10, evidenceEpoch = latest?.viewGuard.epoch) => {
     if (controller !== own || own.signal.aborted || source !== 'phone' || !receiver) return;
     const now = performance.now();
     if (payload.kind !== 'ai' && (pendingAi || now - lastFeedbackAt < 500 || payload.kind === 'status' && lastFeedbackKind === 'status')) return;
-    if (receiver.sendFeedback(payload)) {
+    const outgoing = payload.kind === 'ai' && latest?.viewGuard.epoch !== evidenceEpoch && !payload.text.startsWith('Earlier view ')
+      ? { ...payload, text: briefFocus(`Earlier view ${evidenceEpoch + 1}: ${payload.text}`) } : payload;
+    if (receiver.sendFeedback(outgoing)) {
       lastFeedbackAt = now; lastFeedbackKind = payload.kind;
       if (payload.kind === 'ai') { clearTimeout(aiRetry); pendingAi = null; }
     } else if (payload.kind === 'ai' && attempts > 0) {
       // One bounded pending narration; a recent local update must not drop the AI result.
       clearTimeout(aiRetry); pendingAi = payload;
-      aiRetry = setTimeout(() => sendFeedback(payload, attempts - 1), 150);
+      aiRetry = setTimeout(() => sendFeedback(payload, attempts - 1, evidenceEpoch), 150);
     } else if (payload.kind === 'ai') pendingAi = null;
   };
   phoneFeedback = sendFeedback;
-  const coachRep = liveCoach(own.signal, sendFeedback);
+  const coachRep = liveCoach(own.signal, (payload, epoch) => sendFeedback(payload, 10, epoch));
+  currentCoach = coachRep; coachingPauseKey = null;
   $('error').textContent = ''; $('phone-setup').hidden = true;
   $('start').disabled = true; $('stop').hidden = false; $('source').disabled = true;
   $('status').textContent = source === 'phone' ? 'Creating private phone link' : 'Allow camera access';

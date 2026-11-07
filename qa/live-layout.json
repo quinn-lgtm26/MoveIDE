@@ -1,0 +1,254 @@
+{
+  "verifiedAtUtc": "2026-11-07T23:21:15.231Z",
+  "sourceCommit": "afb6fa1b40ca6010a38ba711e6101fcc476d515d",
+  "cssSha256": "ce932d73a7c4850e44ce8f01acfca1200bd48881376ee004d15f279cad65cc98",
+  "surface": "Vite development page; modified worktree CSS",
+  "evidenceType": "Layout-only real fixture playback with inserted representative coaching cards; not live pipeline/model/physical-phone QA",
+  "liveCameraTested": false,
+  "providerInferenceUsed": false,
+  "physicalIPhoneTested": false,
+  "desktop": {
+    "note": "Desktop measured before final mobile-only media-query adjustment; desktop CSS unchanged by that adjustment.",
+    "views": [
+      {
+        "state": "desktop-active-empty",
+        "viewport": {
+          "width": 1400,
+          "height": 900
+        },
+        "pageWidth": 1400,
+        "stage": {
+          "x": 48,
+          "y": 169,
+          "width": 844,
+          "height": 520,
+          "bottom": 689
+        },
+        "feed": {
+          "x": 912,
+          "y": 297.390625,
+          "width": 440,
+          "height": 390,
+          "bottom": 687.390625
+        },
+        "metrics": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0
+        },
+        "cards": 0,
+        "firstCard": null,
+        "stopVisible": true
+      },
+      {
+        "state": "desktop-two-cards",
+        "viewport": {
+          "width": 1400,
+          "height": 900
+        },
+        "pageWidth": 1400,
+        "stage": {
+          "x": 48,
+          "y": 169,
+          "width": 844,
+          "height": 520,
+          "bottom": 689
+        },
+        "feed": {
+          "x": 912,
+          "y": 297.390625,
+          "width": 440,
+          "height": 390,
+          "bottom": 687.390625
+        },
+        "metrics": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0
+        },
+        "cards": 2,
+        "firstCard": {
+          "x": 912,
+          "y": 405.984375,
+          "width": 425,
+          "height": 100.09375,
+          "bottom": 506.078125
+        },
+        "stopVisible": true
+      },
+      {
+        "state": "desktop-expanded",
+        "viewport": {
+          "width": 1400,
+          "height": 900
+        },
+        "pageWidth": 1400,
+        "stage": {
+          "x": 48,
+          "y": 169,
+          "width": 844,
+          "height": 520,
+          "bottom": 689
+        },
+        "feed": {
+          "x": 912,
+          "y": 297.390625,
+          "width": 440,
+          "height": 390,
+          "bottom": 687.390625
+        },
+        "metrics": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0
+        },
+        "cards": 2,
+        "firstCard": {
+          "x": 912,
+          "y": 405.984375,
+          "width": 425,
+          "height": 162.46875,
+          "bottom": 568.453125
+        },
+        "stopVisible": true
+      },
+      {
+        "state": "laptop-1280",
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "pageWidth": 1280,
+        "stage": {
+          "x": 48,
+          "y": 169,
+          "width": 724,
+          "height": 520,
+          "bottom": 689
+        },
+        "feed": {
+          "x": 792,
+          "y": 297.390625,
+          "width": 440,
+          "height": 390,
+          "bottom": 687.390625
+        },
+        "metrics": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0
+        },
+        "cards": 2,
+        "firstCard": {
+          "x": 792,
+          "y": 405.984375,
+          "width": 425,
+          "height": 100.09375,
+          "bottom": 506.078125
+        },
+        "stopVisible": true
+      }
+    ]
+  },
+  "mobile": {
+    "empty": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pageWidth": 390,
+      "stage": {
+        "x": 16,
+        "y": 171,
+        "width": 358,
+        "height": 405.109375,
+        "bottom": 576.109375
+      },
+      "feed": {
+        "x": 16,
+        "y": 576.109375,
+        "width": 358,
+        "height": 202.78125,
+        "bottom": 778.890625
+      },
+      "cards": 0,
+      "firstCard": null
+    },
+    "cards": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pageWidth": 390,
+      "stage": {
+        "x": 16,
+        "y": 171,
+        "width": 358,
+        "height": 405.109375,
+        "bottom": 576.109375
+      },
+      "feed": {
+        "x": 16,
+        "y": 576.109375,
+        "width": 358,
+        "height": 423.59375,
+        "bottom": 999.703125
+      },
+      "cards": 2,
+      "firstCard": {
+        "x": 20,
+        "y": 705.703125,
+        "width": 335,
+        "height": 128.5,
+        "bottom": 834.203125
+      }
+    },
+    "expanded": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pageWidth": 390,
+      "stage": {
+        "x": 16,
+        "y": 171,
+        "width": 358,
+        "height": 405.109375,
+        "bottom": 576.109375
+      },
+      "feed": {
+        "x": 16,
+        "y": 576.109375,
+        "width": 358,
+        "height": 456.59375,
+        "bottom": 1032.703125
+      },
+      "cards": 2,
+      "firstCard": {
+        "x": 20,
+        "y": 705.703125,
+        "width": 335,
+        "height": 190.875,
+        "bottom": 896.578125
+      }
+    }
+  },
+  "checks": {
+    "desktopStageStable": true,
+    "desktopFeedStable": true,
+    "desktopFirstCardVisible": true,
+    "mobileStageStable": true,
+    "mobileFirstCardVisible": true,
+    "mobileNoHorizontalOverflow": true,
+    "noPageErrors": true
+  },
+  "errors": []
+}

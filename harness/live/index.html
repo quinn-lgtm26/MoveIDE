@@ -8,7 +8,7 @@
     <div id="pairing-qr" class="pairing-qr" hidden><canvas id="phone-qr" role="img" aria-label="Private iPhone pairing QR code"></canvas><p>Scan with your iPhone camera.</p></div>
     <div class="pairing-link"><label for="phone-url">Private session link</label><div><input id="phone-url" type="text" readonly autocomplete="off" spellcheck="false"><button id="copy-phone" type="button">Copy link</button></div><p id="pairing-expiry" role="status"></p></div>
   </section>
-  <section id="phone-setup" class="phone-setup" hidden><h2>Give your iPhone a secure camera link.</h2><p>The phone needs a trusted HTTPS address for the dedicated phone service. Your Mac camera works without this setup.</p><p class="fine">Configure <code>MOVEIDE_STREAM_PUBLIC_ORIGIN</code> on the dedicated phone service (port 4176), then restart that service. Keep the ChatGPT service on port 4173 local. A physical iPhone and Wi-Fi connection still need a device test.</p></section>
+  <section id="phone-setup" class="phone-setup" hidden><h2>Start the demo with phone pairing.</h2><p>Restart the demo with <code>npm run demo -- --phone</code>, then try again. Or choose Mac / Continuity Camera to start now.</p><details><summary>Setup details</summary><p class="fine">The launcher prepares the dedicated secure phone link while keeping your AI connection local. Keep both devices on the same Wi-Fi and the phone page awake. A physical iPhone and venue Wi-Fi still need a device test.</p></details></section>
   <div class="workspace">
     <section class="stage" aria-label="Live camera and pose tracking">
       <video id="video" autoplay muted playsinline></video><canvas id="overlay" aria-hidden="true"></canvas>
@@ -18,7 +18,7 @@
     </section>
     <aside>
       <section id="feedback" class="panel feedback" data-state="unknown"><p class="eyebrow">LOCAL MOVEMENT FEEDBACK</p><h2 id="cue">One rep at a time.</h2><p id="detail">Start when ready. Tracking and projected angles appear automatically.</p></section>
-      <section class="panel"><div class="panel-heading"><h2>In this moment</h2><span>PROJECTED 2D</span></div><dl class="metrics"><div><dt>Knee flexion</dt><dd id="knee">—</dd></div><div><dt>Hip flexion</dt><dd id="hip">—</dd></div><div><dt>Torso lean</dt><dd id="torso">—</dd></div><div><dt>Complete reps</dt><dd id="count">0</dd></div></dl><p class="fine">Angles depend on the camera view. Visibility is tracking confidence, not measurement accuracy.</p></section>
+      <section class="panel"><div class="panel-heading"><h2>In this moment</h2><span>PROJECTED 2D</span></div><dl class="metrics"><div><dt>Knee flexion</dt><dd id="knee">—</dd></div><div><dt>Hip flexion</dt><dd id="hip">—</dd></div><div><dt>Torso lean</dt><dd id="torso">—</dd></div><div><dt>Complete reps</dt><dd id="count">0</dd></div></dl><p class="fine">Angles depend on the camera view. Visibility is tracking confidence, not measurement accuracy.</p><p id="view-status" class="fine" role="status">Measurements resume after a stable side view is established.</p></section>
       <section class="panel target"><p class="eyebrow">TODAY’S DEMO GOAL</p><p><strong>110°</strong> projected knee flexion</p><p class="fine">An illustrative depth target, not a universal definition of a good squat. Green means this target was reached; amber applies only to a completed rep below it.</p></section>
     </aside>
   </div>

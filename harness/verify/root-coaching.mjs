@@ -1,13 +1,16 @@
 import { chromium } from 'playwright';
-import { preview } from 'vite';
+import { preview, createServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 const root=fileURLToPath(new URL('../../', import.meta.url));
-const server=await preview({root,configFile:`${root}/vite.config.ts`,preview:{host:'127.0.0.1',port:0,strictPort:false}});
+const dev=process.argv.includes('--dev');
+const server=dev?await createServer({root,configFile:`${root}/vite.config.ts`,server:{host:'127.0.0.1',port:0,strictPort:false}}):await preview({root,configFile:`${root}/vite.config.ts`,preview:{host:'127.0.0.1',port:0,strictPort:false}});
+if(dev)await server.listen();
 const browser=await chromium.launch({channel:'chrome'});
 const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
-const out={provider:'mocked only; no account inference',checks:{},errors:[]};
+const out={verifiedAtUtc:new Date().toISOString(),mode:dev?'development':'production-preview',checkoutRevision:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),hasUncommittedSourceChanges:Boolean(execFileSync('git',['status','--porcelain','--','src/App.tsx','index.html','harness/verify/root-coaching.mjs'],{cwd:root,encoding:'utf8'}).trim()),buildSurface:dev?'Root Vite development server (current source files)':'Root dist served by Vite preview (prebuilt artifact)',provider:'mocked only; no account inference',checks:{},errors:[]};
 let count=0, pendingResolve, hold=false;
 try {
  const page=await browser.newPage();
@@ -20,7 +23,7 @@ try {
   assert.equal(Object.keys(data).length,3); assert.ok(data.images.length>0&&data.images.length<=4);
   assert.ok(data.images.every(image=>image.dataUrl.startsWith('data:image/jpeg;base64,')));
   const refs=data.packet.evidence;
-  const response={observations:refs.map((ref,i)=>({text:`QA observation ${i+1} for this measured rep.`,evidenceIds:[ref.id]})),uncertainty:'Mock provider for UI verification; not a real AI assessment.',nextFocus:{text:'Compare the next measured rep.',evidenceIds:[refs[0].id]}};
+  const response={observations:refs.map((ref,i)=>({text:`QA observation ${i+1} for this measured rep. ${i===1?'Full reasoning remains in Why. '.repeat(9):''}`,evidenceIds:[ref.id]})).concat([{text:'QA comparison across both measured reps.',evidenceIds:refs.map(ref=>ref.id)}]),uncertainty:'Mock provider for UI verification; not a real AI assessment.',nextFocus:{text:'Compare the next measured rep.',evidenceIds:[refs[0].id]}};
   if(hold) await new Promise(r=>pendingResolve=r);
   await route.fulfill({json:response}).catch(()=>{});
  });
@@ -30,16 +33,31 @@ try {
  await page.getByText(/Local tracking only — coach disconnected/).waitFor();
  assert.equal(count,0); out.checks.offlineLocalOnly=true;
  assert.equal(await page.getByRole('button',{name:'Preview coaching packet',exact:true}).isVisible(),false);out.checks.packetHiddenByDefault=true;
- connected=true;
+ connected=true;hold=true;pendingResolve=undefined;
  await page.getByRole('button',{name:'Start coached squat',exact:true}).click();
+ await page.getByText(/AI coach reviewing/).waitFor({timeout:90000});
+ while(!pendingResolve)await new Promise(r=>setTimeout(r,25));
+ await page.waitForFunction(()=>document.querySelector('.stage video').ended,null,{timeout:15000});
+ assert.equal(await page.locator('.coaching-card').count(),0);pendingResolve();hold=false;
  await page.getByText(/AI analysis ready/).waitFor({timeout:90000});
  assert.equal(count,1);out.checks.oneStartAutoInterpret=true;
+ await page.locator('.coaching-card').nth(1).waitFor();
+ assert.deepEqual(await page.locator('.coaching-card').evaluateAll(cards=>cards.map(card=>card.dataset.repId)),['rep-1','rep-2']);out.checks.lateAIRevealsCompletedRepsInOrder=true;
+ assert(await page.locator('.coaching-focus').evaluateAll(cues=>cues.every(cue=>cue.textContent.length<=180)));out.checks.cuesAreShort=true;
+ await page.getByLabel('Playback AI cue').getByText(/Saved AI review · not this frame/).waitFor();out.checks.cuePersistsBetweenReps=true;
+ await page.locator('.coaching-card').nth(1).locator('summary').click();
+ assert((await page.locator('.coaching-card').nth(1).innerText()).includes('Full reasoning remains in Why.'));
+ assert((await page.locator('.coaching-card').nth(1).innerText()).includes('Limits: Mock provider'));
+ assert.equal(await page.locator('.coaching-card').nth(1).getByRole('button',{name:/Evidence @/}).count(),2);out.checks.whyKeepsFullReasoningLimitsAndCitations=true;
+ await page.screenshot({path:new URL('../../qa/root-coaching-feed.png',import.meta.url).pathname,fullPage:true});
+ await page.getByRole('button',{name:'Stop session',exact:true}).click();assert.equal(await page.locator('.coaching-card').count(),2);out.checks.stopKeepsAcceptedReviews=true;
  await page.getByRole('button',{name:'rep-1 bottom',exact:false}).click();
- await page.locator('[aria-label="Playback AI cue"]').getByText('QA observation 1 for this measured rep.').waitFor();
+ await page.locator('[aria-label="Playback AI cue"]').getByText('Compare the next measured rep.').waitFor();
  await page.getByRole('button',{name:'rep-2 bottom',exact:false}).click();
- await page.locator('[aria-label="Playback AI cue"]').getByText('QA observation 2 for this measured rep.').waitFor();
- assert.equal(count,1);out.checks.cuesFollowRepWithoutRequests=true;
- hold=true;
+ await page.locator('[aria-label="Playback AI cue"]').getByText(/^QA observation 2/).waitFor();
+ assert.equal(count,1);assert.equal(await page.locator('.coaching-card').count(),2);out.checks.cuesFollowRepWithoutRequests=true;out.checks.replayDoesNotDuplicateReviews=true;
+ await page.getByRole('combobox').first().selectOption('full');assert.equal(await page.locator('.coaching-card').count(),0);await page.getByRole('combobox').first().selectOption('heavy');out.checks.modelChangeClearsFeed=true;
+ hold=true;pendingResolve=undefined;
  await page.getByRole('button',{name:'Start coached squat',exact:true}).click();
  await page.waitForFunction(()=>document.body.textContent.includes('AI coach reviewing'),null,{timeout:90000});
  while(!pendingResolve) await new Promise(r=>setTimeout(r,50));
@@ -49,7 +67,7 @@ try {
  assert.equal(await page.locator('[aria-label="AI coaching"]').count(),0);out.checks.stopRejectsPendingResponse=true;
  hold=false;
  let releaseSample;
- await page.route('**/assets/clear-squat-*.mp4',async route=>{ await new Promise(r=>releaseSample=r);await route.continue().catch(()=>{});});
+ await page.route('**/clear-squat*.mp4*',async route=>{ await new Promise(r=>releaseSample=r);await route.continue().catch(()=>{});});
  await page.getByRole('button',{name:'Start coached squat',exact:true}).click();
  while(!releaseSample) await new Promise(r=>setTimeout(r,50));
  await page.locator('input[type=file]').setInputFiles(`${root}/fixtures/squat/supported-squat.mp4`);
@@ -61,4 +79,4 @@ try {
  assert.deepEqual(out.errors,[]);out.checks.noPageErrors=true;
  await writeFile(new URL('../../qa/root-one-start.json',import.meta.url),JSON.stringify(out,null,2)+'\n');
  console.log(JSON.stringify(out,null,2));
-} finally {await browser.close();await new Promise(r=>server.httpServer.close(r));}
+} finally {await browser.close();if(dev)await server.close();else await new Promise(r=>server.httpServer.close(r));}

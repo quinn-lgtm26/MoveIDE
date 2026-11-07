@@ -55,8 +55,14 @@
       .stage video { width: 100%; height: 100%; object-fit: contain; display: block; }
       .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
       .stage .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; padding: 1.5rem; text-align: center; color: oklch(0.8 0 0); }
-      .cue { position: absolute; bottom: 0.75rem; left: 0.75rem; right: 0.75rem; padding: 0.625rem 0.875rem; border-radius: var(--radius); color: #fff; background: rgba(15,23,42,.88); }
+      .cue { position: absolute; pointer-events: none; bottom: 3.25rem; left: 0.75rem; right: 0.75rem; padding: 0.625rem 0.875rem; border-radius: var(--radius); color: #fff; background: rgba(15,23,42,.88); }
       .cue p { margin: 0.3rem 0; }
+      .coaching-feed { display: grid; gap: 0.75rem; list-style: none; padding: 0; margin: 1rem 0 0; }
+      .coaching-card { padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--muted); }
+      .coaching-stamp { font-size: 12px; color: var(--muted-foreground); }
+      .coaching-focus { font-weight: 550; font-size: 1rem; line-height: 1.5; }
+      .coaching-card details { margin-bottom: 0; }
+      .coaching-card details p { max-width: 72ch; }
       aside, section.readout, .compare { background: var(--background); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; box-shadow: var(--shadow-sm); }
       section.readout, .compare { margin-top: 1rem; }
       aside ul { list-style: none; padding: 0; margin: 0; }

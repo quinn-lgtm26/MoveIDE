@@ -164,16 +164,16 @@ Depends on the BE-2 baseline and suitable approved recordings. [OpenCap research
 
 ## Epic 3 · Stable coaching and view-aware squat analysis
 
-The user explicitly rejected flickering walls of text and requested a coherent setup/phone/session flow, actionable real-time coaching, whole-body context, and front/oblique knee-path analysis. Ship the stable supported-view experience first, while the expanded-view experiments acquire evidence. All story statuses below are **specified; acceptance pending** unless a later evidence-linked update says otherwise. Parent work on the immediate stable cue must be verified before marking it complete.
+The user explicitly rejected flickering walls of text and requested a coherent setup/phone/session flow, actionable real-time coaching, whole-body context, and front/oblique knee-path analysis. Ship the stable supported-view experience first, while the expanded-view experiments acquire evidence. Stories below remain specified/acceptance pending except for these scoped increments: smoke stacked playback passed its controlled-provider verifier; live retained two distinct cards through Stop/reset in local-camera browser QA; full-body overlay passed five tests; standalone view guard passed eight tests; experimental multiview passed six tests and actual Heavy confidence compatibility. Root retained feed now passes fifteen controlled-provider development checks. Integrated live validity/epoch/phase wiring passes twenty-three focused tests and combined real-Heavy browser QA, including dynamic resize, historical/fresh-view cards and real WebRTC return. Public real-provider returned-AI rerun, physical iPhone and independent accuracy remain. See [tracker](../../tracker.md) for exact surfaces and gates.
 
 ### UX-1 · Stack concise coaching cards without moving the player
 
 **As a person squatting**, I see actionable cues arrive one after another and retain earlier observations instead of watching them disappear.
 
 - Append timestamped concise cards to a reserved scrollable feed. Aim for 12 words/action and one body region. Highlight the newest card; per-card Why expands full reasoning and uncertainty.
-- Deduplicate semantic events across frames, seeks and replay. Proposed local-candidate persistence is 500 ms; validated completed-rep AI appends once. Retain the latest 20 cards/session with an explicit cap label; prior cards survive phase changes and loss as historical evidence.
+- Deduplicate semantic events across frames, seeks and replay. Proposed local-candidate persistence is 500 ms; validated completed-rep AI appends once. Use the actual bounded retention (12 smoke cards; six live AI cards), with an explicit cap policy; prior cards survive phase changes and loss as historical evidence.
 - Preserve scroll/focus when reading older cards, and offer New coaching rather than forcing scroll. Never move the player or controls. Source/new session resets history; Stop retains accepted cards but rejects late replies. Tracking/view loss invalidates current geometry, not the recorded history.
-- **Acceptance:** three cues remain after phase changes; replay/seek adds no duplicate or inference; threshold jitter adds no repeated semantic card; a 21st event respects the cap. Test delayed AI about a prior rep, Stop, loss, source reset, narrow viewport, reduced motion, focus retention and 200% text zoom. No text clipping or layout jump.
+- **Acceptance:** three cues remain after phase changes; replay/seek adds no duplicate or inference; threshold jitter adds no repeated semantic card; events beyond the configured bound respect that cap. Test delayed AI about a prior rep, Stop, loss, source reset, narrow viewport, reduced motion, focus retention and 200% text zoom. No text clipping or layout jump.
 
 Depends on the existing local feedback and coaching-segment APIs. This supersedes the earlier exclusive-current-cue/2-second-hold design. Presentation timing does not establish biomechanical correctness.
 
@@ -231,6 +231,8 @@ Depends on VIEW-1, VIEW-2 and UX-3. Native OpenCap is not a prerequisite or a su
 
 ### TEMP-1 · Ground coaching in the relevant movement phase
 
+**Increment status:** bounded `buildLiveCoachBundle` / `selectPhaseEvidence` is implemented with three focused tests. It preserves v1 and original report immutability while selecting exact cached phase samples. Live cache integration, browser/provider proof and temporal-claim acceptance remain pending.
+
 **As a person replaying a squat**, I see the observation where it happened, with enough evidence to explain movement rather than a bottom still alone.
 
 - Preserve local source-timed trajectories and phase intervals. A bottom-depth claim can use bottom evidence; direction, pacing, sequencing and knee-path claims require source-bound temporal measurements/excerpts.
@@ -259,7 +261,7 @@ Research gate; does not block shipping the truthful supported-view demo. Broad n
 - Use bounded temporal filters with explicitly measured maximum added latency; reset when identity, view evidence or time continuity fails. Retain raw landmarks and filter/version provenance for audit.
 - **Acceptance:** real orbit/translation/roll clips with bystanders and occlusion report identity swaps, left/right swaps, landmark jitter/drift, filter lag and recovery time. One person's trajectory must not be joined to another's. Visible whole body alone cannot bypass uncertainty gates.
 
-Depends on BE-6 and VIEW-1. Status: research implementation and real-capture acceptance pending.
+Depends on BE-6 and VIEW-1. Status: a standalone image-continuity heuristic is implemented with eight focused tests; live metric-validity integration is in progress. This does not establish camera-motion estimation, identity robustness or orbit accuracy.
 
 ### VIEW-5 · Reacquire metric validity and baselines throughout an orbit
 
@@ -267,7 +269,7 @@ Depends on BE-6 and VIEW-1. Status: research implementation and real-capture acc
 
 - Separate camera-relative projected values from experimental body-canonical 3D estimates; document canonical-frame construction and its uncertainty. MediaPipe world coordinates alone are not validation of that construction.
 - Invalidate view-dependent baselines/targets across yaw changes; reacquire each metric independently using its landmark, view and calibration gates. Do not keep stale side-view values while the camera faces front.
-- Keep historical coaching cards, but clear current invalid geometry/values and show a concise reacquisition status. A newly valid cue is an event in the existing feed, not an instruction to restart capture manually.
+- Keep historical coaching cards, but clear current invalid geometry/values and show a concise reacquisition status. Completed-rep evidence already captured in this same source/session remains valid across view epochs: retain its in-flight AI and label the eventual card with the original rep/view. Stop/new source/session still rejects pending results. A newly valid cue is an event in the existing feed, not an instruction to restart capture manually.
 - **Acceptance:** continuous side→oblique→front→oblique sequences with partial occlusion show correct per-metric availability transitions, no stale baselines and bounded reacquisition time. Return-to-start repeatability and coordinate-frame consistency are measured, not assumed.
 
 Depends on VIEW-2/4. Status: specified, unverified.
@@ -292,7 +294,7 @@ The [reviewed design amendment](../../docs/frontend-design-amendments.md) covers
 
 [Seldon baseline](../../seldon.yml) · [16-simulation ledger](../../qa/seldon-ledger.md) · [Fixtures and labels](../../fixtures/squat/README.md)
 
-- **Seldon measure-squat.** Open the built-in sample and select the first complete rep’s knee-flexion measurement. Verify its evidence frame, skeleton, and angle in degrees. Check count and timing tolerance locally before spending simulations.
-- **Seldon compare-and-handoff.** Select the first and second complete reps. Verify their IDs, measurements, and timestamped frames in the coaching preview without account credentials.
-- The hosted harness smoke used two simulations and passed both cases. Hold the remaining 14 until the final integrated product is ready. The ledger separates the harness verdicts from the final product gate.
+- **Seldon measure-squat.** Use Start coached squat on the built-in sample and select the first complete rep’s knee-flexion measurement. Verify its evidence frame, skeleton, and angle in degrees. Check count and timing tolerance locally before spending simulations.
+- **Seldon compare-and-handoff.** Preserve this historical case ID but update its journey to automatic session coaching and evidence comparison. Verify selected rep/source identities, measurements and evidence navigation; connected coaching must cite the correct source, while disconnected mode stays explicitly local. Manual packet copy is not a required normal step. Final baseline selectors must match the integrated UI.
+- The hosted harness smoke used two simulations and passed both cases; a later single workbench run has debit pending reconciliation. Last confirmed balance was 14, expected current balance 13. Hold further dispatch until the final integrated product is ready. The ledger separates historical verdicts from the final product gate.
 - Validate the baseline and smoke-test locally. Reconcile the 16-simulation allocation and keep at least four reserved for the final build and a rerun. Run both cases against the final submission build after fixes. Record the build ID, experiment ID, actual debit, both verdicts, and summary. Keep a separate local result for live ChatGPT sign-in and image-plus-report interpretation.

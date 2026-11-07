@@ -9,3 +9,29 @@
 .pairing{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.pairing-qr{text-align:center}.pairing-qr[hidden]{display:none}#phone-qr{position:static;inset:auto;display:block;width:220px;height:220px;border-radius:10px;background:#fff}.pairing-qr p{font-size:10px;margin:6px 0 0}.pairing-link{grid-column:-2/-1}@media(max-width:1000px){.pairing{grid-template-columns:minmax(0,1fr) auto}.pairing-link{grid-column:1/-1}}@media(max-width:730px){.pairing{grid-template-columns:1fr}.pairing-qr{justify-self:center}.pairing-link{grid-column:1}}
 
 .coaching-feed{padding:26px 4px;border-bottom:1px solid #dce4d6}.feed-heading{display:flex;justify-content:space-between;align-items:end;gap:20px}.feed-heading h2{font-size:22px;font-weight:500;margin:8px 0 12px;letter-spacing:-.5px}.feed-heading>p{font-size:11px;color:#63766a;line-height:1.6}#ai-feed{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px;max-height:440px;overflow:auto;scrollbar-gutter:stable}.coaching-card{padding:17px 20px;background:#fafbf7;border:1px solid #dbe3d6;border-radius:15px;overflow-wrap:anywhere}.coaching-stamp{font-size:10px;color:#63766a;letter-spacing:.3px;margin:0 0 8px}.coaching-focus{font-size:15px;line-height:1.5;margin:0}.coaching-card details{font-size:12px;line-height:1.6;margin-top:10px;color:#526b58}.coaching-card summary{width:fit-content;cursor:pointer;font-size:11px;font-weight:600;color:#345b3e}.coaching-card summary:focus-visible{outline:3px solid #58ac76;outline-offset:3px}.coaching-card details ul{padding-left:20px}.coaching-limits{color:#748170}.coaching-feed .fine{font-size:11px}@media(max-width:730px){.feed-heading{display:block}.feed-heading>p{margin-top:0}.coaching-card{padding:15px 16px}#ai-feed{max-height:380px}}
+
+/* Keep the movement and accumulated coaching in the same desktop glance. */
+@media(min-width:1100px){
+  main{display:grid;grid-template-columns:minmax(0,1fr) 440px;column-gap:20px;grid-template-areas:"header header" "intro intro" "pairing pairing" "setup setup" "stage feedback" "stage feed" "metrics target" "strip strip" "footer footer"}
+  header{grid-area:header;padding-bottom:18px}.intro{grid-area:intro;margin-bottom:22px}
+  .pairing{grid-area:pairing}.phone-setup{grid-area:setup}.workspace{display:contents}
+  .stage{grid-area:stage;aspect-ratio:auto;min-height:520px}
+  aside{display:contents}aside .feedback{grid-area:feedback}.panel{padding:17px}.feedback h2{margin:10px 0 8px}
+  aside>.panel:nth-child(2){grid-area:metrics;margin-top:18px}.target{grid-area:target;margin-top:18px}
+  .metrics{grid-template-columns:repeat(4,1fr);gap:14px 10px;margin:18px 0}.metrics dd{font-size:25px}
+  .coaching-feed{grid-area:feed;min-width:0;height:390px;display:flex;flex-direction:column;padding:18px 0 0;border-bottom:0}
+  .feed-heading{display:block}.feed-heading h2{font-size:20px;margin:6px 0}.feed-heading>p{margin:0}
+  #ai-feed{min-height:0;max-height:none;flex:1;align-content:start;margin-top:12px}.coaching-card{padding:14px 16px}
+  .session-strip{grid-area:strip}footer{grid-area:footer}
+}
+@media(max-width:730px){
+  main{display:flex;flex-direction:column}.workspace{display:contents}
+  header{order:0}.intro{order:1}.pairing,.phone-setup{order:2}.stage{order:3;max-height:65vh;min-height:320px}
+  .coaching-feed{order:4}aside{order:5;margin-top:18px}.session-strip{order:6}footer{order:7}
+  .coaching-card summary{min-height:44px;display:flex;align-items:center}#ai-feed{max-height:300px}
+}
+main:has(#stop:not([hidden])) .intro>div:first-child{display:none}
+main:has(#stop:not([hidden])) .intro{justify-content:flex-end}
+main:has(#stop:not([hidden])) .actions{display:flex;align-items:center;gap:12px;margin-top:0}
+main:has(#stop:not([hidden])) .source-label,main:has(#stop:not([hidden])) .start-disclosure{display:none}
+@media(max-width:730px){main:has(#stop:not([hidden])) #source{display:none}main:has(#stop:not([hidden])) .intro{margin-bottom:14px}main:has(#stop:not([hidden])) .stage{height:48vh;max-height:420px;min-height:300px;aspect-ratio:auto}}

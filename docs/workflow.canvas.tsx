@@ -9,7 +9,7 @@ const milestones = [
     "title": "One Start, one coached session",
     "owner": "Shared · contracts established",
     "work": "Start coordinates local Heavy tracking, timestamped measurements, exact source JPEGs, coaching principles and asynchronous interpretation. Evidence packets remain internal, with optional developer exports. The session amendment replaces the old manual preview/send workflow.",
-    "proof": "The clear sample has independent rep-bottom labels at 1,067 and 2,933 ms; the supported regression uses 1,600 and 4,400 ms. Each declares a 150 ms tolerance. Joint-angle reference annotations remain unavailable."
+    "proof": "One Start passed real ChatGPT on smoke and root. Root made one request with six measurements and source images at 1,067/3,000 ms; both rep cues resolved and seeking made no extra request. This is bounded evidence, not full-video interpretation."
   },
   {
     "id": "02",
@@ -20,24 +20,24 @@ const milestones = [
   },
   {
     "id": "03",
-    "title": "Measure two reps and preview their evidence",
+    "title": "Review two reps and source evidence",
     "owner": "Shared harness integrated in PR #13",
-    "work": "The local trace and profile expose knee, torso, hip, shin, ankle-change and normalized depth proxies with start/bottom/return anchors. Six selected report measurements and two unannotated JPEGs form the coaching packet. Keep report and raw-pose export local.",
-    "proof": "Heavy yields six usable measurements and two source JPEGs for each positive fixture. PR #13 adopts the shared Heavy engine and clear fixture in the root frontend. The one-Start integration is being verified separately from the historical readiness result."
+    "work": "Local phase traces, projected metrics and source evidence support review. Start dispatches bounded coaching automatically; packet/copy controls are developer-only. Timestamped concise cards stack in smoke/live and retain accepted history.",
+    "proof": "Historical built readiness passed20 checks on e953a13. Latest root retained-feed probe passes15 controlled-provider development checks, including short cards, expanded reasons/citations, Stop/reset, replay deduplication and source races. Two different video sources remain."
   },
   {
     "id": "04",
     "title": "Verify ChatGPT sign-in and evidence interpretation",
-    "owner": "Provider · real Heavy smoke verified / FE-4 · controlled root QA passed",
-    "work": "The eligible account completed loopback sign-in and model discovery; the updated local Heavy preview retains that connection without making a new inference request. The historical GPT-6.1 Sol request interpreted six Full-baseline measurements and two approved public JPEGs with validated evidence IDs. A new one-Start Heavy clear-fixture request passed with GPT-6.1 Sol: six measurements, two JPEGs and validated playback cues. OpenCap has no live inference claim.",
-    "proof": "Validated observation IDs resolve to source timestamps for replay cues. The full video, landmark arrays and raw depth remain local. The frontend must bind asynchronous results to the active clip and selected pair, preserve playback, and clear stale cues."
+    "owner": "Real root AI verified · public phone AI return unresolved",
+    "work": "The root and smoke have independent real Heavy + ChatGPT evidence. Phone media, Heavy processing and local feedback passed over the public HTTPS path; that run timed out awaiting the returned AI caption. Two local browser contexts already passed AI return.",
+    "proof": "The phone sender now uses authenticated JSON long polling; the local receiver stays private. The provider/OAuth service is never exposed. A physical iPhone and venue latency have not been tested."
   },
   {
     "id": "05",
     "title": "Integrate and verify the final build",
     "owner": "Integration + final QA · open",
-    "work": "PR #13 is merged at e5dea78 and adopts the shared Heavy harness. Current scope is a one-action recorded review, two-video target-relative demo, and real-time squat capture on iPhone/Mac. Native OpenCap and broad movement expansion remain deferred.",
-    "proof": "The historical Full harness smoke passed both Seldon cases on 2a6511f and spent two simulations. The last confirmed14 balance now has an additional frontend run pending reconciliation (expected13); further dispatch stays on hold until the complete integrated product is ready. Native OpenCap inference is deferred by the user because compatible GPU setup and assets are unavailable."
+    "work": "Finish two-source comparison, final design/accessibility and physical iPhone acceptance. The experimental continuity guard, per-metric validity and sparse phase evidence are integrated; camera-orbit accuracy is still unverified.",
+    "proof": "Final npm test:86 harness tests plus4 launcher tests passed, no failures/cancellations/skips. Combined real-Heavy browser QA covers adaptive dimensions, historical/fresh-view cards and real WebRTC return. Public real-provider rerun and both final Wren workflows remain."
   }
 ];
 
@@ -45,7 +45,7 @@ const system = [
   {
     "title": "Browser workbench",
     "stack": "React · TypeScript · Vite · Canvas 2D",
-    "body": "A single Start action coordinates analysis and coaching. Local tracking and slower interpretation run asynchronously, with timestamped notes reused during playback. Keep evidence exports under developer details and expose account setup once."
+    "body": "One Start coordinates analysis and coaching. Root, smoke and live retain concise timestamped cards with expandable reasons. Root passes15 controlled-provider development checks. Preserve the shared controller, source resets and root/live navigation during design work."
   },
   {
     "title": "Local measurement engine",
@@ -70,14 +70,19 @@ const system = [
   {
     "title": "Live squat capture",
     "stack": "MediaStream · Heavy worker · bounded history · optional WebRTC",
-    "body": "One inference frame in flight; drop work instead of queueing latency. Exact accepted pixels supply cached JPEGs. iPhone WebRTC needs trusted HTTPS; Continuity Camera is an alternative Mac source. Browser transport passes; physical iPhone validation remains pending."
+    "body": "One pose frame in flight and no backlog; exact accepted pixels supply live JPEGs. Phone video enters the same Heavy controller; local/AI feedback returns by data channel. Dedicated HTTPS signaling uses phone long polling, while provider credentials stay local. Physical device and public AI-return acceptance remain."
+  },
+  {
+    "title": "Experimental view and 3D diagnostics",
+    "stack": "createViewGuard · analyzeMultiViewFrame · explicit reason/epoch/provenance",
+    "body": "Integrated live samples expose independent full-body display, analysis eligibility, per-metric reasons and experimental multiview/view epochs. Adaptive resolution reacquires without killing the session. Completed-rep AI retains its original view/time; current baselines reset. No arbitrary-angle accuracy is claimed."
   }
 ];
 
 const checks = [
   [
     "Geometry and missing data",
-    "Straight leg → 0° flexion; right angle → 90°. Missing or low-visibility required joints yield unavailable measures. Pixel aspect ratio, selected-side continuity and tracking gaps have automated coverage. The combined local suite now passes 54 tests, including live transport and backpressure. These formula checks do not establish anatomical angle accuracy."
+    "Final npm test passed86 harness tests and4 launcher tests, with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -112,8 +117,8 @@ const checks = [
     "The archived Full baseline preserves the old reports and JPEGs. That supported clip supplied the successful local ChatGPT request and earlier hosted harness run. The live response cited six approved measurement IDs and both image IDs. Do not substitute the current Heavy numbers into that historical result."
   ],
   [
-    "Historical product readiness audit",
-    "The built root workbench at 5225a3d reaches Ready, decodes both evidence images and copies text matching its preview with no page errors. It still uses the older Full path and original hard sample. Heavy selection, the clear fixture, labeled timing, two usable comparisons and same-origin assets fail. Both reps show unavailable knee flexion and duration. The probe reports readyForFinalQA=false; passing 25 root tests and a build does not close this integration gate. PR #13 has since integrated shared Heavy; this old verdict is not the current build verdict. Final product QA must be rerun."
+    "Current root readiness and retained history",
+    "The refreshed one-Start probe passed 20 local gates on e953a13 with Heavy and the exact clear fixture: 57/57 samples, 0/67 ms bottom errors, usable comparisons, trace/rate/keyboard/evidence seeking, same-origin assets and stale-overlay cleanup. Old 617912a evidence is archived. This scoped pass is not final Wren or independent angle accuracy."
   ],
   [
     "Final hosted acceptance",
@@ -122,41 +127,61 @@ const checks = [
   [
     "Live browser evidence",
     "Heavy real-clip captureStream processed37 frames with72 busy drops, mean76.8ms/max164.6ms local processing latency and one stabilized rep callback with its exact JPEG. Two reps were reconstructed; the final event lacked later samples and was withheld. This is not phone-to-Mac latency. Two Chrome contexts also verified real WebRTC decoded pixels and Stop cleanup."
+  ],
+  [
+    "Stacked cue browser checks",
+    "Smoke playback verification passed retained cards, no duplicate replay/seek events, source/model resets and no repeated inference using a controlled provider. Live local-camera verification retained two AI cards on Stop and cleared them on new Start. Current caps: 12 smoke cards and six live AI cards."
+  ],
+  [
+    "Real root AI",
+    "qa/root-live-chatgpt.json records real GPT-6.1 Sol, one request, source images 1,067/3,000 ms, valid citations and cues for both reps without extra seek requests."
+  ],
+  [
+    "Experimental multiview compatibility",
+    "Actual Heavy output had 57 frames and observed confidence for 1,881 points per coordinate representation. Left knee/hip estimates were available; occluded right joints and front-only proxies on this side view were withheld. This proves schema/abstention compatibility, not angle accuracy."
+  ],
+  [
+    "Phone HTTPS partial result",
+    "Public HTTPS passed video, Heavy and local return before adaptive resolution aborted AI. That root cause is fixed and covered by combined local real-Heavy browser QA, including real WebRTC AI return. Public real-provider rerun, physical iPhone and venue/end-to-end latency remain."
+  ],
+  [
+    "Latest integrated browser checks",
+    "Root15 controlled-provider development checks pass. Combined live QA passes adaptive dimensions, old-view historical AI and subsequent fresh reps, five requests with three exact phase JPEGs, offline zero requests, QR cleanup and real WebRTC feedback. Processing means74/77ms are local processing, not network latency."
+  ],
+  [
+    "Stable live layout",
+    "Seven layout checks pass with representative cards and real fixture playback. Desktop1400/1280 uses a stable520px stage and390px feed. Mobile390×844 uses405.11px stage; first card ends834.20px, inside viewport. No overflow or page errors. These are layout checks, not live inference or physical-device results."
   ]
 ];
 
 const handoff = [
   [
-    "Latest repository state",
-    "Main includes PR #13 at e5dea78: shared Heavy engine, clear sample and overlay. Automatic coaching follows the one-action amendment. Smoke review no longer exposes a handoff step. Final production acceptance and Wren reruns remain open."
+    "Read current contracts first",
+    "Read tracker.md, AI-AMENDMENTS.md, docs/frontend-design-amendments.md, docs/frontend-harness-amendments.md and harness/FRONTEND-HANDOFF.md. New one-Start/stacked-feed requirements supersede historical manual preview/send stories."
   ],
   [
-    "Verify the integrated product",
-    "Rerun readiness against the latest exact root build. Verify automatic AI, timestamped playback cues, cancellation and source replacement. Historical failures remain as history. Reconcile the last-confirmed14 balance against the newly recorded frontend run (expected13); hold further Seldon dispatch until the complete build is ready."
+    "Preserve the verified core",
+    "Root Heavy and real ChatGPT work. Reuse analyzeSquat, source-time overlays, trace/profile helpers, prepareCoachingBundle and chatGPTProvider; keep shared principles/validation. Do not replace tested motion with a private UI geometry engine."
   ],
   [
-    "Run the harness locally",
-    "Install the locked dependencies with npm --prefix harness ci. Run test, verify:fixtures, build and verify:build. Setup verifies and stages both model assets; Heavy is the default. verify:source-timeline checks saved results against source PTS. Decoder matrix and OpenCap parser checks remain separate from pose accuracy claims."
+    "Finish the designed session",
+    "Preserve the root retained-feed integration now covered by15 development checks: source timestamps, short action, Why details, Stop history, deduplicated replay and rejected stale results. Complete unified setup, region highlighting and full accessibility without duplicating inference."
   ],
   [
-    "Motion and raw tracking pickup",
-    "Call analyzeSquat(source, { clipId, signal, onProgress, onPoseFrame }). The optional callback gives local raw samples; the returned AnalysisReport v1 stays compatible. Keep video/report/raw trace bound to one clip generation. Show model name, coverage and unavailable samples. Describe stepping as analyzed samples unless source-frame coverage is independently known."
+    "Reuse phone and live infrastructure",
+    "Use startLiveSquat on the received MediaStream, exact cached completed-rep images, connectReceiver and the local proxy. Phone uses authenticated polling; QR generation stays local. Never expose the credential provider. Public returned-AI caption timeout and physical-device acceptance remain."
   ],
   [
-    "Comparison and coaching pickup",
-    "Use prepareCoachingBundle with the exact analyzed source and two distinct rep IDs. Preview that packet and its returned JPEGs, use formatManualHandoff for copying, and expose torso and phase/profile details. Use getCoachingTimeline once per validated response and coachingMarkerAt on the video clock. A selection change invalidates old results."
+    "Consume experimental contracts honestly",
+    "Consume LiveSample poseDisplayFrame, analysisEligible, metricValidity, multiView and experimental viewGuard; LiveRep adds epoch and exact phase JPEGs. Reset current baselines on epochs, retain completed-rep historical AI with original view/time labels. Estimates remain experimental and missing values stay missing."
   ],
   [
-    "OpenCap frontend pickup",
-    "Offer Import OpenCap result while native execution requires external GPU setup. Require the original video, .mot, scaled model and explicit per-row mapping manifest. Show imported-unverified status and a separate coordinate trace in OpenSim units. Preserve gaps and model signs. Clear imports on clip replacement. A 3D skeleton renderer and OpenCap-specific coaching contract still require separate integration and validation."
+    "Implement two sources and temporal evidence",
+    "Root comparison currently means two reps of one recording; add separate report/source identities. Live sparse descent/bottom/ascent cache wiring now passes combined browser QA with five controlled-provider three-image requests. Real-provider phase interpretation and independent accuracy remain."
   ],
   [
-    "Full movement-analysis roadmap",
-    "Squat remains the implemented movement protocol. Additional exercises need their own capture instructions, metric definitions, phase logic, independent labels and acceptance fixtures. Shared video, raw tracking and trace review provide a base for that work. Do not present generic pose output as verified analysis of every movement."
-  ],
-  [
-    "Final release gate",
-    "Integrate the shared APIs, run product browser QA on the exact build, then run both Seldon cases together with the approved public fixture. Preserve the 14 remaining simulations until that point. Independent angle annotations, repeated-capture validation and exact source decoding remain future validation work. Native OpenCap execution is deferred per the user."
+    "Launch and final acceptance",
+    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Resolve public/device gates, run the complete final suite, reconcile the expected 13 remaining Wren simulations, and run both stable cases on one final build. Native OpenCap and broad movement expansion remain deferred."
   ]
 ];
 
@@ -205,8 +230,8 @@ const stories = [
   ],
   [
     "BE-4 · Evidence-linked interpretation",
-    "Historically live verified",
-    "GPT-6.1 Sol interpreted the six approved Full-baseline measurements and two JPEGs. Evidence IDs validated. Heavy now has a separate one-Start real-provider verification; OpenCap remains unverified."
+    "Real smoke and root verified",
+    "Current Heavy plus GPT-6.1 Sol passed bounded source evidence and playback citations. Current real images are bottoms; full temporal visual understanding is not established."
   ],
   [
     "FE-1 · Clip import",
@@ -220,13 +245,13 @@ const stories = [
   ],
   [
     "FE-3 · Rep compare and handoff",
-    "Merged · on the shared harness",
-    "Rep compare uses the shared Heavy packet and two source JPEGs; copy handoff works. measure-squat passed on Seldon (3 of 16 simulations used)."
+    "Two-rep comparison verified · two sources pending",
+    "Shared report/profile and optional developer exports work. Normal coaching is automatic. Two different video reports and matching evidence still need frontend implementation."
   ],
   [
     "FE-4 · Connected coaching",
-    "One-Start implemented · real smoke and controlled root QA passed",
-    "Smoke automatically prepares and sends evidence after Start. Root workbench adoption passed eight Chrome checks using a controlled provider. Final real-provider and hosted QA remain separate gates."
+    "Real root AI verified",
+    "Root one Start made one real GPT-6.1 Sol request with exact evidence; both rep cues visible and no inference on seek. Final redesigned product and Wren remain separate gates."
   ],
   [
     "BE-5 · Source coverage and accuracy",
@@ -235,8 +260,8 @@ const stories = [
   ],
   [
     "FE-5 · Replay and coaching cues",
-    "Root automatic coaching + traces · final QA pending",
-    "Shared overlay, steps and raw export verified. Latest smoke change makes coaching automatic from Start and hides developer packets. Root frontend uses shared tracking; automatic coaching passed controlled-provider browser checks."
+    "Root retained feed development-verified",
+    "Fifteen controlled-provider checks cover retained short cards, expanded reasoning/citations, delayed ordering, no replay duplicates, Stop/reset and source races. Historical built Trace/rate/step/seek readiness remains recorded separately."
   ],
   [
     "BE-6 · Complete sampled MediaPipe outputs",
@@ -260,18 +285,43 @@ const stories = [
   ],
   [
     "LIVE-1–3 · One-action live tracking",
-    "Browser engine verified · UI integration in progress",
-    "One Start opens the default camera and runs Heavy with bounded work. Unknown tracking stays neutral.110° is an illustrative projected depth target, not a universal good-squat threshold."
+    "Local camera + stacked feed browser verified",
+    "Heavy uses bounded frame scheduling and exact evidence. Two local AI cards persisted through Stop and reset on new Start. Target 110° is illustrative projected depth, not a universal standard."
   ],
   [
     "LIVE-4–6 · Phone and AI coaching",
-    "Browser transport verified · device validation pending",
-    "Exact-source JPEGs support bounded per-rep AI. WebRTC has separate invites and expiry; no credential service is exposed. Physical iPhone HTTPS/Wi-Fi and final real-provider sessions remain required."
+    "Local phone integration passed · public AI timeout",
+    "Two Chrome contexts passed real WebRTC and returned AI cues. Public HTTPS passed media/Heavy/local cues but not returned AI caption; physical iPhone remains unverified."
   ],
   [
     "LIVE-7–9 · Demo and acceptance",
     "Product amendment published · final QA pending",
     "Compare two attributed reliable clips against a disclosed target; capture failure is not bad posture. Finish one-action demo and rerun two final Wren workflows on the same build."
+  ],
+  [
+    "UX-1–3 · Stable feed, setup and highlights",
+    "Retained feed and responsive layout verified",
+    "Root15 checks and live/smoke browser checks pass. Seven representative-card layout checks cover desktop and mobile with stable video. Unified setup, region-specific emphasis and broader accessibility remain."
+  ],
+  [
+    "VIEW-1–3 · Gated view diagnostics",
+    "Experimental live integration browser-verified",
+    "Per-metric validity, full-body display and view epochs are integrated. Adaptive resolution recovers, current baselines clear and historical completed-rep AI survives. Real frontal/oblique annotations, calibration and cue accuracy remain."
+  ],
+  [
+    "VIEW-4–6 · Moving camera and orbit",
+    "Required target · unverified",
+    "Continuity, identity/left-right stability, bounded filtering, camera-relative versus canonical estimates and baseline reacquisition need integrated tests and independent orbit references. Full visibility alone is insufficient."
+  ],
+  [
+    "TEMP-1 · Phase-aware evidence",
+    "Live cache and phase bundle browser-verified",
+    "Three pure tests and combined live browser QA pass; five controlled requests carried three exact phase JPEGs each. Real-provider phase interpretation remains. Sparse images are not full-video upload or full-motion accuracy."
+  ],
+  [
+    "R-2 · Independent accuracy",
+    "Reference data missing",
+    "Measure error, coverage, latency, repeatability and false cues per view/metric using independent annotations/calibrated truth. Timing and same-model cross-runtime agreement are not angle accuracy."
   ]
 ];
 
@@ -298,8 +348,10 @@ export default function MoveIDEDevelopmentWorkflow() {
     <header>
       <p style={eyebrow}>MoveIDE engineering · November 7, 2026</p>
       <h1 style={{ margin: "5px 0 6px", fontSize: 24, lineHeight: 1.25, fontWeight: 650 }}>From squat video to coaching evidence</h1>
-      <p style={{ ...body, maxWidth: 680 }}>Heavy analysis, raw tracking export and decoder QA are verified and merged in PR #11. OpenCap import is verified on constructed data; real OpenCap execution still needs an external runtime. Frontend amendments are merged. The root product readiness audit fails usable measurements, model/fixture selection and same-origin assets, so product integration and final QA remain open.</p>
+      <p style={{ ...body, maxWidth: 680 }}>Recorded root Heavy and real one-Start AI pass. Root retained-feed development QA passes 15 checks; the final suite passes 86 harness and 4 launcher tests. Integrated live view/phase recovery and 7 responsive-layout checks pass. Two-video design, public real-provider return, physical iPhone and independent orbit accuracy remain. Native OpenCap stays deferred.</p>
     </header>
+
+    <Sources links={[["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />
 
     <nav aria-label="Report sections" style={{ display: "flex", flexWrap: "wrap", gap: 5, borderBottom: line, padding: "17px 0 12px" }}>
       {tabs.map(label => <button key={label} type="button" aria-pressed={tab === label} onClick={() => setTab(label)} style={{ ...button, padding: "6px 11px", background: tab === label ? theme.fill.secondary : "transparent", color: tab === label ? theme.text.primary : theme.text.secondary, fontWeight: tab === label ? 650 : 450 }}>{label}</button>)}
@@ -347,7 +399,7 @@ export default function MoveIDEDevelopmentWorkflow() {
         <p style={body}>The separate Heavy profile adds 734 / 666 ms descent and ascent for rep 1 and 733 / 600 ms for rep 2. It also exposes projected hip flexion, shin inclination, ankle-closure change and normalized depth proxies. No independent joint-angle accuracy estimate is available.</p>
       </article>}
       {entries.map(([title, description], index) => <article key={title} style={{ padding: "11px 0 13px", borderBottom: index < entries.length - 1 ? line : undefined }}><h2 style={heading}>{title}</h2><p style={body}>{description}</p></article>)}
-      <Sources links={tab === "Verification" ? [["Original sample labels", `${project}/fixtures/squat/sample-squat.labels.json`], ["Supported sample labels", `${project}/fixtures/squat/supported-squat.labels.json`], ["Clearer sample labels", `${project}/fixtures/squat/clear-squat.labels.json`], ["Clearer sample report", `${project}/harness/results/clear-squat.analysis-report.v1.json`], ["Clearer sample trace", `${project}/harness/results/clear-squat.motion-trace.v1.json`], ["Clearer sample profile", `${project}/harness/results/clear-squat.squat-profile.v1.json`], ["Historical Full replay screenshot", `${project}/docs/moveide-full-replay.png`], ["Supported regression report", `${project}/harness/results/supported-squat.analysis-report.v1.json`], ["Live ChatGPT verification", `${project}/harness/results/live-chatgpt-verification.json`], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Root product readiness result", `${project}/qa/product-readiness.json`], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Seven-fixture results", `${project}/harness/results/fixture-verification.json`], ["Decoder matrix", `${project}/harness/results/decoder-matrix.json`], ["Heavy Python agreement", `${project}/harness/results/heavy-python-agreement.json`], ["Archived Full baseline", `${project}/harness/results/full-baseline/README.md`], ["Raw pose API", `${project}/harness/motion/analyze.d.mts`], ["OpenCap import contract", `${project}/harness/opencap/README.md`], ["OpenCap host preflight", `${project}/harness/opencap/preflight-result.json`], ["Python agreement check", `${project}/harness/verify/python-agreement.py`], ["Google MediaPipe Python guide", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Python"], ["Seldon product baseline", `${project}/seldon.yml`], ["Seldon harness baseline", `${project}/qa/seldon-harness.yml`], ["Simulation ledger", `${project}/qa/seldon-ledger.md`], ["Hosted harness experiment", "https://app.seldon.com/experiments/9c9dabb7-9f02-4925-88e2-56eb9172b505"]] : tab === "Squat methodology" ? [["BMAD measurement and playback methodology", `${project}/_bmad-output/specs/spec-moveide-harness/squat-methodology.md`], ["Squat depth experiment", "https://pmc.ncbi.nlm.nih.gov/articles/PMC4064719/"], ["Squat stance experiment", "https://doi.org/10.1186/s13102-018-0103-7"], ["Google Pose Landmarker", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Web"], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Video frame callback", "https://wicg.github.io/video-rvfc/"], ["OpenCap Monocular preprint", "https://arxiv.org/html/2603.24733v1"], ["OpenCap source revision", "https://github.com/utahmobl/opencap-monocular/commit/7c5c1dd459835e2482127e55dc45e98d68a1a9f2"], ["OpenCap Monocular repository license", "https://github.com/utahmobl/opencap-monocular/blob/7c5c1dd459835e2482127e55dc45e98d68a1a9f2/LICENSE"]] : [["Frontend scaffold PR #1", "https://github.com/quinn-lgtm26/MoveIDE/pull/1"], ["Merged harness PR #2", "https://github.com/quinn-lgtm26/MoveIDE/pull/2"], ["FE-1 and FE-2 PR #3", "https://github.com/quinn-lgtm26/MoveIDE/pull/3"], ["Merged replay handoff PR #5", "https://github.com/quinn-lgtm26/MoveIDE/pull/5"], ["Merged Heavy and OpenCap harness PR #11", "https://github.com/quinn-lgtm26/MoveIDE/pull/11"], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Shared contract", `${project}/_bmad-output/specs/shared/analysis-report-v1.md`], ["Motion module", `${project}/harness/motion/analyze.mjs`], ["Coaching module", `${project}/harness/coaching/index.mjs`], ["Clearer sample coaching packet", `${project}/harness/results/clear-squat.coach-packet.v1.json`], ["Synthetic report", `${project}/_bmad-output/specs/shared/analysis-report-v1.example.json`], ["Frontend amendments", "https://github.com/quinn-lgtm26/MoveIDE/blob/6768a4adb9bdc9486d5021793ab47a1f3a48fb3b/harness/FRONTEND-HANDOFF.md"], ["Workbench implementation notes", `${project}/_bmad-output/specs/spec-moveide-frontend/workbench.md`]]} />
+      <Sources links={tab === "Verification" ? [["Original sample labels", `${project}/fixtures/squat/sample-squat.labels.json`], ["Supported sample labels", `${project}/fixtures/squat/supported-squat.labels.json`], ["Clearer sample labels", `${project}/fixtures/squat/clear-squat.labels.json`], ["Clearer sample report", `${project}/harness/results/clear-squat.analysis-report.v1.json`], ["Clearer sample trace", `${project}/harness/results/clear-squat.motion-trace.v1.json`], ["Clearer sample profile", `${project}/harness/results/clear-squat.squat-profile.v1.json`], ["Historical Full replay screenshot", `${project}/docs/moveide-full-replay.png`], ["Supported regression report", `${project}/harness/results/supported-squat.analysis-report.v1.json`], ["Live ChatGPT verification", `${project}/harness/results/live-chatgpt-verification.json`], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Root product readiness result", `${project}/qa/product-readiness.json`], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Seven-fixture results", `${project}/harness/results/fixture-verification.json`], ["Decoder matrix", `${project}/harness/results/decoder-matrix.json`], ["Heavy Python agreement", `${project}/harness/results/heavy-python-agreement.json`], ["Archived Full baseline", `${project}/harness/results/full-baseline/README.md`], ["Raw pose API", `${project}/harness/motion/analyze.d.mts`], ["OpenCap import contract", `${project}/harness/opencap/README.md`], ["OpenCap host preflight", `${project}/harness/opencap/preflight-result.json`], ["Python agreement check", `${project}/harness/verify/python-agreement.py`], ["Google MediaPipe Python guide", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Python"], ["Seldon product baseline", `${project}/seldon.yml`], ["Seldon harness baseline", `${project}/qa/seldon-harness.yml`], ["Simulation ledger", `${project}/qa/seldon-ledger.md`], ["Hosted harness experiment", "https://app.seldon.com/experiments/9c9dabb7-9f02-4925-88e2-56eb9172b505"]] : tab === "Squat methodology" ? [["BMAD measurement and playback methodology", `${project}/_bmad-output/specs/spec-moveide-harness/squat-methodology.md`], ["Squat depth experiment", "https://pmc.ncbi.nlm.nih.gov/articles/PMC4064719/"], ["Squat stance experiment", "https://doi.org/10.1186/s13102-018-0103-7"], ["Google Pose Landmarker", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Web"], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Video frame callback", "https://wicg.github.io/video-rvfc/"], ["OpenCap Monocular preprint", "https://arxiv.org/html/2603.24733v1"], ["OpenCap source revision", "https://github.com/utahmobl/opencap-monocular/commit/7c5c1dd459835e2482127e55dc45e98d68a1a9f2"], ["OpenCap Monocular repository license", "https://github.com/utahmobl/opencap-monocular/blob/7c5c1dd459835e2482127e55dc45e98d68a1a9f2/LICENSE"]] : [["Frontend scaffold PR #1", "https://github.com/quinn-lgtm26/MoveIDE/pull/1"], ["Merged harness PR #2", "https://github.com/quinn-lgtm26/MoveIDE/pull/2"], ["FE-1 and FE-2 PR #3", "https://github.com/quinn-lgtm26/MoveIDE/pull/3"], ["Merged replay handoff PR #5", "https://github.com/quinn-lgtm26/MoveIDE/pull/5"], ["Merged Heavy and OpenCap harness PR #11", "https://github.com/quinn-lgtm26/MoveIDE/pull/11"], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Shared contract", `${project}/_bmad-output/specs/shared/analysis-report-v1.md`], ["Motion module", `${project}/harness/motion/analyze.mjs`], ["Coaching module", `${project}/harness/coaching/index.mjs`], ["Clearer sample coaching packet", `${project}/harness/results/clear-squat.coach-packet.v1.json`], ["Synthetic report", `${project}/_bmad-output/specs/shared/analysis-report-v1.example.json`], ["Frontend amendments", "https://github.com/quinn-lgtm26/MoveIDE/blob/main/harness/FRONTEND-HANDOFF.md"], ["Workbench implementation notes", `${project}/_bmad-output/specs/spec-moveide-frontend/workbench.md`]]} />
     </section>}
   </main>;
 }
