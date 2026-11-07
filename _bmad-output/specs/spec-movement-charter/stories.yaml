@@ -1,0 +1,66 @@
+- id: "1"
+  title: Publish Charter v1
+  description: >-
+    Write the six Charter principles with peer-reviewed citations and the honesty rules
+    (CAP-1, charter-principles.md). Publish a versioned file that CoachPacket charterVersion resolves to.
+  spec_checkpoint: true
+  invoke_dev_with: >-
+    Quinn approves the Charter version before it is published. Every principle and its video
+    proxy needs a citation.
+- id: "2"
+  title: Protocol schema and building-block library
+  description: >-
+    Define the JSON Schema for YAML skill protocols, a loader, and the shared event detectors and
+    metric building blocks (CAP-2, CAP-3, skill-protocols.md). Each building block gets a check against synthetic landmarks.
+  spec_checkpoint: true
+  invoke_dev_with: >-
+    Protocol files are YAML validated against a JSON Schema. No skill-specific code in the library.
+- id: "3"
+  title: Move the squat onto a protocol
+  description: >-
+    Rewrite the current squat analyzer as squat.yaml built from the shared building blocks.
+    The golden fixture's report must stay unchanged.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Rep count and bottom timestamps must match the current report on fixtures/squat within
+    the existing 150 ms tolerance. Do not change the hackathon Seldon cases.
+- id: "4"
+  title: Body profile and report v1 fields
+  description: >-
+    Estimate segment lengths from the pose, divide distance metrics by a named segment length, and carry
+    the profile, skill ID, and phases in the report and packet (CAP-4).
+  spec_checkpoint: true
+  invoke_dev_with: >-
+    Add optional fields to AnalysisReport v1; existing squat reports must stay schema-valid.
+    Use de Leva segment mass fractions for the center of mass and label it an estimate.
+- id: "5"
+  title: Clip checks for view and frame rate
+  description: >-
+    Mark metrics unavailable, with a stated reason, when a clip misses the protocol's view or minFps (CAP-6).
+    Metrics that don't depend on frame rate still compute.
+  spec_checkpoint: true
+- id: "6"
+  title: Push-up protocol
+  description: >-
+    Add pushup.yaml plus a labeled side-view fixture with tolerance declared before the model runs (CAP-2 success).
+    This proves a new skill can ship as data alone.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Zero engine code changes. If a building block is missing, stop and report instead of adding push-up-specific code.
+- id: "7"
+  title: Unknown-movement mode
+  description: >-
+    A clip with no matching protocol yields a schema-valid report with pose and angle timelines and no phases,
+    interpreted under the Charter alone (CAP-5).
+  spec_checkpoint: true
+- id: "8"
+  title: Free throw protocol
+  description: >-
+    Add freethrow.yaml plus a labeled fixture of at least 60fps, using shared building blocks only (CAP-3 success).
+    Release is timed from peak wrist speed.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    No ball tracking. New building blocks are allowed only if they are general-purpose; no free-throw-specific branches.
