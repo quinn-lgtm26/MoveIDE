@@ -10,6 +10,7 @@ These clips are trimmed, encoded as muted H.264 at the source 15 fps, and preser
 - `clear-squat.mp4` · subject 010, side. The workbench demo sample, a two-rep 3.8-second trim at the original 810×1440 with better lighting and clearer lower-body landmarks. From `Dataset Exercise-wise/squat/good/side/subject_010_squat_good_side.mp4`, source frames 26 through 82 inclusive, zero-based at 15 fps. Its bottom frames were labeled visually before pose inference. [Manual fixture labels](clear-squat.labels.json)
 - `side-mirror.mp4` · subject 008, side. Reflections and busy framing.
 - `side-busy-background.mp4` · subject 016, side. Moving people in the background.
+- `sample-squat-bottom-1067ms.jpg` · still of the first labeled bottom in `sample-squat.mp4`. The permitted source image for the BE-3 ChatGPT test request.
 - `front-view-challenge.mp4` · subject 001, front. Challenge input for the side-view protocol and an example of capture guidance.
 
 The labeled clips contain bodyweight squats and provide timing references for the prototype. Surface a confidence warning or unavailable result when the required side landmarks are unreliable.
