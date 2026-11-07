@@ -1,0 +1,7 @@
+{
+  "clip": "sample-squat.mp4",
+  "method": "Manual visual review of the 15 fps derived clip before pose inference",
+  "expectedCompleteReps": 2,
+  "bottomTimestampsMs": [1067, 2667],
+  "bottomToleranceMs": 150
+}

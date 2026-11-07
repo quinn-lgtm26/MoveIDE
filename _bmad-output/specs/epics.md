@@ -10,7 +10,7 @@ Contracts · [Frontend spec](spec-moveide-frontend/SPEC.md) · [Backend and harn
 
 **As a lifter**, I can open a local clip and see whether MoveIDE can analyze it.
 
-- Given a supported file, the video plays and shows progress and ready states using the shared sample report.
+- Given a supported file or the built-in sample action, the video plays and shows progress and ready states. The built-in clip uses the same processing path as import.
 - Given a file the browser cannot decode, I get an actionable error and can choose another clip.
 - Choosing a new clip removes stale results and releases the old video resources.
 
@@ -52,7 +52,7 @@ Depends on FE-3 and BE-4. Covers frontend CAP-4. Ship only if the live connector
 
 **As a coach**, I can trust that the first displayed measurement came from an actual video frame.
 
-- Obtain a consented, stationary side-view clip with at least two complete reps and clearly visible near-side joints. Hand-label rep count and bottoms before running inference. Prepare one bad-framing example.
+- Use the bundled CC BY 4.0 sample and its two visually labeled reps. Use the other side views and the front-view challenge to inspect generalization and capture guidance.
 - The worker yields increasing frame times and 33-slot landmark sets. The actual clip yields one usable estimated knee flexion value and evidence frame that validate against AnalysisReport v1.
 - Verify the formula with straight and right-angle fixtures. A missing or low-visibility joint yields an unavailable measure. Processing stays local.
 
@@ -62,7 +62,7 @@ Depends on the shared contract. Covers backend CAP-1. Unlocks the first real-cli
 
 **As a coach**, I can compare equivalent points in two reps and share precisely the evidence I reviewed.
 
-- The golden clip matches the hand-labeled count. Bottom timestamps fall within the declared 150 ms tolerance. The bad-framing case reports unavailable data.
+- The golden clip matches the hand-labeled count. Bottom timestamps fall within the declared 150 ms tolerance. Inspect the front-view challenge for capture guidance or an unavailable value when the required landmarks are unreliable.
 - Compute knee flexion at the bottom and rep duration. Keep measurement IDs, rep IDs, and evidence timestamps consistent.
 - Assemble the selected numeric data, report summary, and timestamped, unannotated JPEG frames. The packet has no full clip, full landmark trace, or credentials.
 
@@ -90,6 +90,8 @@ Depends on BE-2 and a successful BE-3. Covers backend CAP-4. The manual packet r
 
 ## Shared final-build gate
 
-- **Wren 1 · Measure.** Open the hand-labeled clip, verify rep count and degree units, and click a measurement to reach its expected source frame. Check the bottom tolerance against the labels.
-- **Wren 2 · Compare and hand off.** Select two reps, verify the values update, then verify the packet and the source-frame preview reference that exact pair. The journey runs without account credentials.
-- Run both on the final submission build. Fix and rerun both after changes. Keep a separate smoke result for live ChatGPT sign-in and image-plus-report interpretation when available.
+[Seldon baseline](../../seldon.yml) · [16-simulation ledger](../../qa/seldon-ledger.md) · [Fixtures and labels](../../fixtures/squat/README.md)
+
+- **Seldon measure-squat.** Open the built-in sample and select the first complete rep’s knee-flexion measurement. Verify its evidence frame, skeleton, and angle in degrees. Check count and timing tolerance locally before spending simulations.
+- **Seldon compare-and-handoff.** Select the first and second complete reps. Verify their IDs, measurements, and timestamped frames in the coaching preview without account credentials.
+- Validate the baseline and smoke-test locally. Reconcile the 16-simulation allocation and keep at least four reserved for the final build and a rerun. Run both cases against the final submission build after fixes. Record the build ID, experiment ID, actual debit, both verdicts, and summary. Keep a separate local result for live ChatGPT sign-in and image-plus-report interpretation.

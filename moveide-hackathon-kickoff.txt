@@ -27,15 +27,15 @@ Frontend checkpoint. A teammate can scrub a fixture and see the correct skeleton
 
 Workstream 2 · Motion engine and local backend
 
-A. Motion engine. Run MediaPipe Tasks Vision Pose Landmarker in a browser worker. Start with the vendor-confirmed Apache-2.0 Full v1 model bundle and a pinned SDK. Use timestamps from decoded frames. Keep raw video and pose inference on the laptop. Measure knee flexion, torso lean from vertical, and rep duration. Convert landmarks to pixel coordinates before angle math. Pick a visible side consistently for a clip. Record visibility and withhold low-confidence values. The squat protocol detects complete reps and gives each a bottom-frame timestamp. It emits observations about measured movement and data quality.
+A. Motion engine. Run MediaPipe Tasks Vision Pose Landmarker in a browser worker. Start with the vendor-confirmed Apache-2.0 Full v1 model bundle and a pinned SDK. Use timestamps from decoded frames. Keep raw video and pose inference on the laptop. Start with knee flexion and add rep duration for comparison. Add torso lean after the core demo is stable. Convert landmarks to pixel coordinates before angle math. Pick a visible side consistently for a clip. Record visibility and withhold low-confidence values. The squat protocol detects complete reps and gives each a bottom-frame timestamp. It emits observations about measured movement and data quality.
 
-B. Model connection. Prototype official Sign in with ChatGPT for local open-source apps. Use a small same-origin Node service bound to loopback for the documented OAuth flow and direct Responses requests. Use PKCE, verify the callback and granted plan scope, keep credentials outside the UI, and send only the selected structured report when the user requests interpretation. Display the connection and let the user disconnect. Use OpenAI's official docs and DevKit as references. The DevKit's code is licensed noncommercially, so the MoveIDE connector is a separate implementation for a permissively licensed repository.
+B. Model connection. Prototype official Sign in with ChatGPT for local open-source apps. Use a small same-origin Node service bound to loopback for the documented OAuth flow and direct Responses requests. Use PKCE, verify the callback and granted plan scope, keep credentials outside the UI, and send the selected report and previewed timestamped source images when the user requests interpretation. Display the connection and let the user disconnect. Use OpenAI's official docs and DevKit as references. The DevKit's code is licensed noncommercially, so the MoveIDE connector is a separate implementation for a permissively licensed repository.
 
 Direct Responses is the first route because the coaching task is a bounded interpretation of a report. Codex app-server is a documented later option if MoveIDE develops an agent workflow with local tools. ChatGPT plan usage depends on account eligibility and granted permissions. Keep a live connection spike to the first hour. If access or callback integration stalls, ship Copy for my AI and run the sign-in work separately while measurement continues.
 
-C. Interpretation. Put a short versioned MoveIDE Charter beside the report. Ask for an observation, uncertainty, and one next-session focus. Require references to existing metric IDs. Validate the response before displaying it and resolve links to the report's original values and timestamps. Treat outputs as coaching guidance. The first demo uses a prompt and fixture examples.
+C. Interpretation. Put the versioned MoveIDE Magna Carta beside the report. Ask for an observation, uncertainty, and one next-session focus. Require references to existing metric or source-frame IDs. Validate the response before displaying it and resolve links to the report's original values and timestamps. Treat outputs as coaching guidance. The first demo uses a prompt and fixture examples.
 
-Backend checkpoints. A real phone clip yields a valid report with a stable angle. An eligible test account can connect through its own browser, and a user-selected report can produce a response grounded in its metric IDs. Verify that the raw video and credentials never appear in the coaching payload or browser logs.
+Backend checkpoints. A real phone clip yields a valid report with a stable angle. An eligible test account can connect through its own browser, and a user-selected report can produce a response grounded in its measurement or frame IDs. Verify that the raw video and credentials never appear in the coaching payload or browser logs.
 
 Shared contract · Freeze this in the first half hour
 
@@ -44,10 +44,10 @@ AnalysisReport v1
 - Protocol and pose-model versions.
 - Timestamped frames with normalized landmarks, visibility, and a quality state.
 - Reps with a stable ID plus start, bottom, and end in milliseconds.
-- Measurements with a stable ID, rep ID, metric name, value, unit, quality state, and evidence timestamp. Use an absent value when measurement quality is insufficient.
+- Measurements with a stable ID, rep ID, metric name, value, unit, quality state, and evidence timestamp. Use null for an unavailable value and its evidence timestamp.
 - Quality warnings that explain what the user can change.
 
-CoachPacket v1 is a selected subset of the report, the user’s goal, and the Charter version and text. It carries stable measurement and frame references. It omits video bytes, full landmark traces, and provider credentials. Use the same packet for the copy flow and the connected model.
+CoachPacket v1 is a selected subset of the report, the user’s goal, and the Magna Carta version and text. It carries stable measurement and frame references. It omits video bytes, full landmark traces, and provider credentials. Use the same packet for copy and connected inference. Send previewed source JPEGs with the connected request and offer them as separate downloads for manual handoff.
 
 Motion engine decision
 
@@ -61,13 +61,13 @@ OpenCap and OpenCap Monocular · Reuse the published data and validation methods
 
 One-day sequence
 
-First 30 minutes. Agree on AnalysisReport v1 and the sample clip. Hand-label rep count and bottom frames. Keep one occluded or cropped fixture. Assign a frontend and backend owner. Start the overlay fixture and the native sign-in spike in parallel.
+First 30 minutes. Use AnalysisReport v1 and the bundled CC BY 4.0 sample with two manually labeled reps. Keep the front-view challenge and the three other side-view clips for local checks. Assign a frontend and backend owner. Start the overlay fixture and the native sign-in spike in parallel.
 
 First two hours. Produce real landmarks on one clip, draw the skeleton, calculate one angle, and confirm the timeline remains responsive. Confirm the ChatGPT connection can complete one report-based request, or make the copy handoff the demo route and keep moving.
 
-Middle of the day. Integrate rep boundaries, evidence links, export, and the Charter. Run on a second real clip. Prefer a clear unavailable state to an untrustworthy number.
+Middle of the day. Integrate rep boundaries, evidence links, export, and the Magna Carta. Run on a second real clip. Prefer a clear unavailable state to an untrustworthy number.
 
-Final block. Freeze the demo build. Run Wren on the exact final frontend build with permitted fixtures. Use an event-approved reachable route for Wren if it runs remotely. Keep the authenticated service local. Run the actual account connection and inference separately on the demo laptop and record the outcome. Fix and rerun both required Wren journeys after changes.
+Final block. Freeze the demo build. Validate seldon.yml and run both cases against the exact final build. Check the 16-simulation balance, preserve at least four for final verification and rerun, and record per-case verdicts and the summary in qa/seldon-ledger.md. Use an event-approved reachable route for Wren if it runs remotely. Keep the authenticated service local. Run the actual account connection and inference separately on the demo laptop and record the outcome. Fix and rerun both required Wren journeys after changes.
 
 Wren journey 1 · Measure a real clip. Open the reference clip and wait for analysis. Verify its hand-labeled rep count, reported units, and that selecting an observation opens the expected rep phase. Verify timestamp error against a tolerance declared for the fixture before testing.
 
@@ -79,7 +79,7 @@ Open a real clip. Show the skeleton tracking the lifter. Select two reps and jum
 
 Implementation assumptions
 
-The recommendation is a browser workbench with a small optional loopback service. Prefer one repo and one shared contract. Use a single supported camera view and motion, a narrow set of measures, and one integrated provider. Gait, 3D, clinical validation, cloud video storage, and fine-tuning are follow-on work. This kickoff uses the installed BMAD PM defaults because the workspace has no BMAD project configuration.
+The recommendation is a browser workbench with a small optional loopback service. Prefer one repo and one shared contract. Use a single supported camera view and motion, a narrow set of measures, and one integrated provider. Gait, 3D, clinical validation, cloud video storage, and fine-tuning are follow-on work. The current implementation contract is in _bmad-output/specs and the execution order is in _bmad-output/specs/epics.md.
 
 Primary references
 

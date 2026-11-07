@@ -3,6 +3,8 @@ id: SPEC-moveide-harness
 companions:
   - harness.md
   - ../shared/analysis-report-v1.md
+  - ../../../AI.md
+  - ../../../fixtures/squat/README.md
 sources:
   - ../../../moveide-hackathon-kickoff.txt
 ---
@@ -41,7 +43,7 @@ MoveIDE needs inspectable measurements independent of an AI account. A local mot
 - The motion engine runs on the laptop and emits AnalysisReport v1. The provider accepts CoachPacket v1 plus the selected source images.
 - The first protocol supports one visible lifter, a stationary side view, and screen-plane angles. Missing evidence remains explicit.
 - Treat native plan sign-in as a parallel first-hour spike. Keep OAuth credentials in the local service and proceed with the copy flow if the spike stalls.
-- Two core journeys must run through Wren on the final submission build. Live authenticated inference is verified separately on the demo laptop.
+- Rerun both Seldon baseline cases against the final build and retain the experiment ID, case verdicts, and summary. Respect the 16-simulation allocation and record actual debit. Verify live ChatGPT inference separately on the demo laptop.
 
 ## Non-goals
 
@@ -58,4 +60,4 @@ The real clip yields a schema-valid report and a verifiable knee angle. The fina
 
 ## Open questions
 
-- Which eligible ChatGPT test account and Wren access route are available for the final build?
+- Which eligible ChatGPT test account, Seldon MCP connection, verified simulation balance, and reachable final-build URL are available?
