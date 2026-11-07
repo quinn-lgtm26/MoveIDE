@@ -1,5 +1,7 @@
 # MoveIDE agent instructions
 
+Start with [tracker.md](tracker.md) for current ownership/status and [AI-AMENDMENTS.md](AI-AMENDMENTS.md) for the one-Start coaching flow. These amendments supersede older manual preview/send requirements in the historical backlog. Update the tracker with evidence when finishing or handing off work.
+
 Read the [BMad backlog](_bmad-output/specs/epics.md) and [AnalysisReport contract](_bmad-output/specs/shared/analysis-report-v1.md) before implementing a story. MoveIDE runs movement analysis locally and uses an optional model for interpretation. Test each story locally before spending a Seldon simulation.
 
 ## Seldon MCP
