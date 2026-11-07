@@ -37,7 +37,7 @@ const milestones = [
     "title": "Integrate and verify the final build",
     "owner": "Integration + final QA · open",
     "work": "Finish final design/accessibility and physical iPhone acceptance. Two-source local comparison is implemented. The experimental continuity guard, per-metric validity and sparse phase evidence are integrated; camera-orbit accuracy is still unverified.",
-    "proof": "86 harness and4 launcher tests pass. Fresh9446951 setup-only installs locked dependencies and pinned models; TypeScript/Vite build and dist hashes pass. Physical iPhone, independent accuracy and both final Wren workflows remain."
+    "proof": "99 harness and6 launcher tests pass on65fc875. Fresh9446951 setup-only installs locked dependencies and pinned models; TypeScript/Vite build and dist hashes pass. Physical iPhone, independent accuracy and both final Wren workflows remain."
   }
 ];
 
@@ -82,7 +82,7 @@ const system = [
 const checks = [
   [
     "Geometry and missing data",
-    "Final npm test passed86 harness tests and4 launcher tests, with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
+    "Latest npm test passed99 harness tests and6 launcher tests, with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -352,7 +352,7 @@ export default function MoveIDEDevelopmentWorkflow() {
     <header>
       <p style={eyebrow}>MoveIDE engineering · November 7, 2026</p>
       <h1 style={{ margin: "5px 0 6px", fontSize: 24, lineHeight: 1.25, fontWeight: 650 }}>From squat video to coaching evidence</h1>
-      <p style={{ ...body, maxWidth: 680 }}>Recorded root Heavy and real one-Start AI pass. Latest9446951 root passes15 production checks and a visible real Heavy/GPT demo; earlier seven-check provider evidence remains recorded; the final suite passes 86 harness and 4 launcher tests. Integrated live view/phase recovery and 7 responsive-layout checks pass. Fresh checkout setup/build and public real-provider return pass; physical iPhone and independent orbit accuracy remain. Two-video local comparison is implemented. Native OpenCap stays deferred.</p>
+      <p style={{ ...body, maxWidth: 680 }}>Recorded root Heavy and real one-Start AI pass. Latest9446951 root passes15 production checks and a visible real Heavy/GPT demo; earlier seven-check provider evidence remains recorded; the latest suite passes 99 harness and 6 launcher tests. Integrated live view/phase recovery and 7 responsive-layout checks pass. Fresh checkout setup/build and public real-provider return pass; physical iPhone and independent orbit accuracy remain. Two-video local comparison is implemented. Native OpenCap stays deferred.</p>
     </header>
 
     <Sources links={[["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />

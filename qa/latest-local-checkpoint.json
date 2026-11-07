@@ -1,0 +1,40 @@
+{
+  "verifiedAtUtc": "2026-11-07T23:49:40.079215+00:00",
+  "sourceRevision": "65fc875",
+  "commands": {
+    "npm test": {
+      "harnessPassed": 99,
+      "launcherPassed": 6,
+      "failures": 0,
+      "skips": 0
+    },
+    "npm run typecheck": "passed",
+    "npx vite build --emptyOutDir false": "passed; preserved previously served assets",
+    "node harness/verify/root-coaching.mjs": "15 production-preview controlled-provider checks passed",
+    "node harness/verify/two-recordings.mjs": "21 development-source real Heavy checks passed"
+  },
+  "buildIndexSha256": "8a9d743f43ebada76512bf8421ea6e8b4b0f41a473dc0054fa6bc4043e986c4c",
+  "liveBrowser": {
+    "syntheticCamera": true,
+    "realWebRTC": true,
+    "separateBrowserContexts": true,
+    "provider": "controlled mock in regression suite; earlier public real-provider evidence remains qa/phone-https.json",
+    "localProcessingMs": 73,
+    "localAnalyzedFps": 10.0,
+    "phoneAnalyzedFps": 7.4,
+    "physicalIPhoneTested": false,
+    "adaptiveResolutionRecovery": true,
+    "historicalReplyPreserved": true,
+    "threePhaseImages": true,
+    "returnedAICaption": true,
+    "stopCleanup": true
+  },
+  "testIsolation": "Ephemeral transport ports; active user demo on4173/4176 left running. Initial attempted suite hit occupied4176 and an HMR restart; isolated stable-source rerun passed.",
+  "scopeLimits": [
+    "Synthetic/browser transport is not a physical iPhone rehearsal.",
+    "Projected and estimated3D angles lack independent anatomical/orbit ground truth.",
+    "Two-source comparison is local and descriptive; no cross-recording AI interpretation or good/bad truth is claimed.",
+    "Safari no-callback fallback uses requested seek time, not decoded frame PTS.",
+    "Final Wren two-workflow qualification remains deferred."
+  ]
+}
