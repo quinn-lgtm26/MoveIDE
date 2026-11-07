@@ -1,0 +1,19 @@
+version: 1
+name: MoveIDE
+run:
+  url: https://moveide-demo.example
+testCases:
+  - id: measure-squat
+    name: Measure a squat from the sample clip
+    steps:
+      - Open the MoveIDE workbench.
+      - Choose the built-in sample squat clip and wait for analysis to finish.
+      - Select the knee-flexion measurement for the first complete rep.
+    criteria: The selected knee-flexion measurement opens its evidence frame with the skeleton and an angle in degrees.
+  - id: compare-and-handoff
+    name: Prepare the coaching packet for two reps
+    steps:
+      - Open the MoveIDE workbench and analyze the built-in sample squat clip.
+      - Select the first and second complete reps in the comparison view.
+      - Open the coaching packet preview.
+    criteria: The preview shows both selected rep IDs with their measurements and matching timestamped source frames.
