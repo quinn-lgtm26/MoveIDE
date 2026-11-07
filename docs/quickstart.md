@@ -6,21 +6,21 @@ From the repository on your Mac:
 npm run demo
 ```
 
-The launcher checks Node/dependencies and ports, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Start coached squat** for a recording, or **Live coached squat** for a camera session. The default command opens no public tunnel.
+The launcher checks Node and ports, installs missing locked dependencies, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Start coached squat** for a recording, or **Live coached squat** for a camera session. The default command opens no public tunnel.
 
 Keep that terminal open. **Ctrl+C** stops only child processes started by the launcher. If a port is occupied, startup stops with a clear message; it never kills an existing app or test process.
 
 ## First run
 
-Use Node.js 22.18 or newer. If dependencies are missing, install the repository's locked versions once:
+Use Node.js 22.18 or newer. Run `npm run demo`, or double-click **Start MoveIDE.command** on macOS. Missing app/harness dependencies are installed with `npm ci`; model and WASM files are downloaded and checked against the pinned manifest. Large model binaries stay out of GitHub. Each computer prepares its own local assets.
+
+To prepare a fresh checkout without starting services:
 
 ```sh
-npm ci
-npm --prefix harness ci
-npm run demo
+npm run demo -- --setup-only
 ```
 
-Asset setup may need network access on the first run. The launcher uses the existing pinned setup script and does not install new tools or change account credentials. Initial ChatGPT connection happens in the app; connected sessions can automatically send bounded rep images/measurements under the Start disclosure. Local analysis still works when the coach is disconnected.
+Asset setup may need network access on the first run. The launcher uses the pinned setup script and locked npm dependencies. It does not install Node/cloudflared or change account credentials. Initial ChatGPT connection happens in the app; connected sessions can automatically send bounded rep images/measurements under the Start disclosure. Local analysis still works when the coach is disconnected.
 
 ## iPhone → MacBook
 
@@ -52,7 +52,7 @@ npm run demo -- --phone --check
 | Message / symptom | Next step |
 | --- | --- |
 | Port already in use | Stop your prior demo process or wait for its tests; retry. The launcher leaves it alone. |
-| Dependencies missing | Run both locked `npm ci` commands above. |
+| Dependencies missing during `--check` | Run `npm run demo`; it installs both dependency groups automatically. |
 | TypeScript/Vite build failed | Run `CI=1 npm run build` to see the detailed build error; fix it before starting. |
 | Pinned asset setup failed | Run `node harness/setup/pose-assets.mjs` from the repository and check network access. |
 | Phone mode needs cloudflared | Install it through the official instructions, then retry; no tunnel is started by `--check`. |
@@ -61,3 +61,5 @@ npm run demo -- --phone --check
 | Coach disconnected | Connect through the app's setup action, then start a new session; local tracking remains available. |
 
 Launcher scope: macOS/Linux. Its helper checks cover occupied-port refusal, URL parsing and owned-child cleanup. A full real phone startup is separate from those checks.
+
+The launcher may wait up to two minutes for a new phone HTTPS hostname to resolve. A transient OS DNS failure can occur even when browser DNS works; the failure message names the stage and error without printing private pairing links. Retry the same setup once DNS recovers; do not bypass browser TLS warnings.

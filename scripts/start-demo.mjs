@@ -60,13 +60,17 @@ export function createSupervisor() {
   return { start, stop };
 }
 
-async function requireDependencies() {
-  const required = ['node_modules/vite/bin/vite.js', 'node_modules/typescript/bin/tsc', 'node_modules/react/package.json',
-    'harness/node_modules/jose/package.json', 'harness/node_modules/qrcode/package.json', 'harness/node_modules/@mediapipe/tasks-vision/package.json'];
-  for (const path of required) {
-    try { await access(`${ROOT}${path}`); }
-    catch { throw new Error('Install locked dependencies first from the repository: npm ci && npm --prefix harness ci'); }
+async function missingDependencies() {
+  const groups = [
+    { name: 'app', args: ['ci'], paths: ['node_modules/vite/bin/vite.js', 'node_modules/typescript/bin/tsc', 'node_modules/react/package.json'] },
+    { name: 'harness', args: ['--prefix', 'harness', 'ci'], paths: ['harness/node_modules/jose/package.json', 'harness/node_modules/qrcode/package.json', 'harness/node_modules/@mediapipe/tasks-vision/package.json'] },
+  ];
+  const missing = [];
+  for (const group of groups) {
+    try { await Promise.all(group.paths.map(path => access(`${ROOT}${path}`))); }
+    catch { missing.push(group); }
   }
+  return missing;
 }
 
 function waitForAbort(signal) {
@@ -85,22 +89,25 @@ function pause(ms, signal) {
 
 async function waitHttp(url, check, signal, timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs;
+  let lastStatus = 'no response';
   while (Date.now() < deadline) {
     signal.throwIfAborted();
     try {
       const response = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(2000)]), redirect: 'error' });
+      lastStatus = `HTTP ${response.status}`;
       if (await check(response)) return;
-    } catch { signal.throwIfAborted(); }
+    } catch (error) { signal.throwIfAborted(); lastStatus = error.cause?.code ?? error.name ?? 'request failed'; }
     await pause(250, signal);
   }
-  throw new Error('A demo service did not become ready. Check network access and retry.');
+  const target = new URL(url);
+  throw new Error(`${target.protocol === 'https:' ? 'Public phone' : 'Local app'} readiness failed at ${target.pathname} (${lastStatus}). Check network access and retry.`);
 }
 
 export async function main(args = process.argv.slice(2)) {
-  const unknown = args.filter(arg => !['--phone', '--check', '--help'].includes(arg));
-  if (unknown.length) throw new Error('Usage: node scripts/start-demo.mjs [--phone] [--check]');
+  const unknown = args.filter(arg => !['--phone', '--check', '--setup-only', '--help'].includes(arg));
+  if (unknown.length) throw new Error('Usage: npm run demo -- [--phone] [--check] [--setup-only]');
   if (args.includes('--help')) {
-    console.log('node scripts/start-demo.mjs [--phone] [--check]\n--phone: temporary HTTPS tunnel for phone pairing service only\n--check: check prerequisites and ports without building or starting services');
+    console.log('npm run demo -- [--phone] [--check] [--setup-only]\nDefault: install missing locked dependencies, prepare pinned model assets, build and start.\n--phone: temporary HTTPS tunnel for phone pairing service only\n--check: check prerequisites and ports without installing or starting services\n--setup-only: install dependencies and verify model assets without starting services');
     return;
   }
   const [major, minor] = process.versions.node.split('.').map(Number);
@@ -111,7 +118,9 @@ export async function main(args = process.argv.slice(2)) {
   const controller = new AbortController();
   let interrupted = false;
   const cancel = () => { interrupted = true; controller.abort(new Error('Startup canceled.')); };
-  process.once('SIGINT', cancel); process.once('SIGTERM', cancel);
+  // npm and the terminal can both forward the same interrupt. Keep the handler
+  // installed through cleanup so a second signal cannot strand detached children.
+  process.on('SIGINT', cancel); process.on('SIGTERM', cancel);
   const { signal } = controller;
   const childEnvironment = { ...process.env, CI: '1' };
   // The dedicated transport/tunnel do not inherit provider flags or arbitrary credential env vars.
@@ -132,8 +141,19 @@ export async function main(args = process.argv.slice(2)) {
     return record;
   }
   try {
-    await requireDependencies();
-    await Promise.all([assertPortFree(4173), assertPortFree(4176)]);
+    if (!args.includes('--setup-only')) await Promise.all([assertPortFree(4173), assertPortFree(4176)]);
+    const missing = await missingDependencies();
+    if (args.includes('--check') && missing.length) throw new Error('Dependencies are missing. Run npm run demo to install locked versions and prepare the models automatically.');
+    if (!args.includes('--check')) for (const group of missing) {
+      console.log(`Installing locked ${group.name} dependencies…`);
+      await run('npm', group.args, `${group.name} dependency installation`);
+    }
+    if (args.includes('--setup-only')) {
+      console.log('Preparing and verifying pinned MediaPipe model assets…');
+      await run(process.execPath, ['harness/setup/pose-assets.mjs'], 'Pinned asset setup');
+      console.log('Setup complete. Run npm run demo to start MoveIDE.');
+      return;
+    }
     if (phone) {
       try { await run('cloudflared', ['--version'], 'cloudflared availability', transportEnvironment); }
       catch { throw new Error('Phone mode needs an already-installed cloudflared executable on PATH. See docs/quickstart.md; the launcher never installs it.'); }
@@ -170,7 +190,8 @@ export async function main(args = process.argv.slice(2)) {
     await waitHttp(`${APP_ORIGIN}/api/health`, async response => response.ok && (await response.json()).ok === true, signal);
     await waitHttp(`${APP_ORIGIN}/harness/live/`, async response => response.ok && (await response.text()).includes('Start coached squat'), signal);
     if (publicOrigin) {
-      await waitHttp(`${publicOrigin}/phone`, async response => response.ok && (await response.text()).includes('Start camera'), signal, 45_000);
+      console.log('Private app built. Waiting up to two minutes for the new HTTPS phone address to resolve…');
+      await waitHttp(`${publicOrigin}/phone`, async response => response.ok && (await response.text()).includes('Start camera'), signal, 120_000);
       await waitHttp(`${publicOrigin}/api/connection`, async response => response.status === 404, signal);
     }
     console.log(`Ready: ${APP_ORIGIN}/\nLive camera: ${APP_ORIGIN}/harness/live/`);

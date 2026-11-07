@@ -8,10 +8,10 @@ MoveIDE is an open-source squat analysis and coaching workbench. One Start runs 
 ## Run the demo
 
 ```sh
-npm ci
-npm --prefix harness ci
 npm run demo
 ```
+
+On macOS you can also double-click **Start MoveIDE.command**. Missing locked dependencies and pinned model assets are installed automatically. Node.js 22.18 or newer is required.
 
 Open the printed local address. For iPhone pairing, use `npm run demo -- --phone` with `cloudflared` installed. The launcher builds the app, prepares pinned assets and starts the necessary services. See the [quickstart](docs/quickstart.md) for phone setup, permissions and recovery. Stop the launcher with Ctrl+C.
 
