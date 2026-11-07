@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-07T23:11:06.771Z",
-  "status": "failed",
+  "verifiedAtUtc": "2026-11-07T23:31:55.154Z",
+  "status": "passed",
   "publicHttps": true,
   "phoneSignalling": "authenticated JSON long polling",
   "video": "real WebRTC across two Chrome contexts",
@@ -14,7 +14,9 @@
         "rep-1"
       ],
       "imageTimestampsMs": [
-        1737
+        1205,
+        1605,
+        1937
       ]
     }
   ],
@@ -27,12 +29,20 @@
     {
       "route": "/api/models",
       "status": 200
+    },
+    {
+      "route": "/api/interpret",
+      "status": 200,
+      "durationMs": 10209,
+      "observationCount": 3,
+      "nextFocusLength": 76
     }
   ],
   "checkpoints": [
     "private receiver created HTTPS phone pairing",
     "public phone video reached Heavy receiver with valid metric",
-    "local feedback returned over RTC to HTTPS phone"
+    "local feedback returned over RTC to HTTPS phone",
+    "AI review returned over RTC to HTTPS phone"
   ],
   "transportFailures": [
     {
@@ -42,23 +52,41 @@
   ],
   "errors": [],
   "claimLimits": "Local processing only; not network end-to-end latency or angle ground truth",
-  "failure": "page.waitForFunction: Timeout 150000ms exceeded.",
+  "returnedAICueVisible": true,
   "receiver": {
-    "status": "Ready to try again",
-    "error": "Video dimensions changed. Restart live analysis.",
-    "ai": "Session stopped · no AI reviews yet.",
-    "repCount": "3",
-    "aiCards": 0,
-    "processing": "74 ms · 8.0 analyzed fps",
-    "knee": "—"
+    "status": "Live · iPhone · local analysis",
+    "error": "",
+    "ai": "Historical review added · 1.6s · view 1.",
+    "repCount": "5",
+    "aiCards": 1,
+    "processing": "74 ms · 7.7 analyzed fps",
+    "knee": "92°",
+    "dimensions": [
+      {
+        "width": 180,
+        "height": 320,
+        "atMs": 1922
+      },
+      {
+        "width": 180,
+        "height": 320,
+        "atMs": 1923
+      },
+      {
+        "width": 270,
+        "height": 480,
+        "atMs": 9716
+      }
+    ]
   },
   "sender": {
-    "status": "stopped",
-    "localCaptionPresent": false,
-    "aiCaptionPresent": false,
+    "status": "Video is streaming",
+    "localCaptionPresent": true,
+    "aiCaptionPresent": true,
     "cameraCalls": 1,
     "trackStates": [
-      "ended"
+      "live"
     ]
-  }
+  },
+  "stopClearedTracksAndFeedback": true
 }

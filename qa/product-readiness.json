@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-11-07T22:45:30.390Z",
+  "testedAt": "2026-11-07T23:26:10.015Z",
   "readyForFinalQA": true,
   "readyForWrenDispatch": false,
   "outcome": "verified",
@@ -27,10 +27,10 @@
     "noPageErrors": true
   },
   "scope": "Fresh-built root recorded-video Start journey with real local MediaPipe Heavy. Developer export is diagnostic inspection, not a normal user step. No packet/copy step is required. This gate does not establish real AI, two-video comparison, phone connectivity, clinical angle accuracy, or final Wren qualification.",
-  "commit": "e953a132ff8bd347acc881ba36452d2d384fd7a3",
+  "commit": "c1c9378ebbca473bc706ca11623c5631d633e7f5",
   "sourceChanges": [],
   "build": {
-    "indexSha256": "aa0892e153d804a570c62044f2e02d8615646a3440bc5b3d33f412500e74cad3",
+    "indexSha256": "4c367a597a409d32659444457c9d0a7a70b8445c87a5034a5a57f67d5931c42c",
     "probeSha256": "f6d0fcf01fd8d6a41f91893bd9fd297a23d3025602fd1ee0d4be894f3feb0ec7"
   },
   "browser": "154.0.8037.58",
@@ -125,5 +125,5 @@
     "Physical iPhone, venue network and final two Wren workflows remain separate release gates.",
     "Timing and local geometry checks are not independent joint-angle accuracy validation."
   ],
-  "previousEvidenceArchive": "qa/archive/product-readiness-2026-11-07-617912a-d12744bb.json"
+  "previousEvidenceArchive": "qa/archive/product-readiness-2026-11-07-e953a13-d3ba6339.json"
 }

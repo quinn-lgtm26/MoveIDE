@@ -1,0 +1,129 @@
+{
+  "testedAt": "2026-11-07T22:45:30.390Z",
+  "readyForFinalQA": true,
+  "readyForWrenDispatch": false,
+  "outcome": "verified",
+  "provider": "Controlled disconnected connection; no model interpretation requested.",
+  "checks": {
+    "freshBuild": true,
+    "oneStartReady": true,
+    "honestOfflineMode": true,
+    "packetHiddenByDefault": true,
+    "clearFixture": true,
+    "heavyModel": true,
+    "labeledTiming": true,
+    "twoUsableComparisons": true,
+    "comparisonVisible": true,
+    "traceVisible": true,
+    "traceHasMetrics": true,
+    "repEvidenceSeek": true,
+    "overlayVisibleAtEvidence": true,
+    "playbackRate": true,
+    "keyboardSampleStep": true,
+    "traceClickSeek": true,
+    "noStaleOverlayAfterReplacementFailure": true,
+    "noUnrequestedInterpretation": true,
+    "sameOriginAssets": true,
+    "noPageErrors": true
+  },
+  "scope": "Fresh-built root recorded-video Start journey with real local MediaPipe Heavy. Developer export is diagnostic inspection, not a normal user step. No packet/copy step is required. This gate does not establish real AI, two-video comparison, phone connectivity, clinical angle accuracy, or final Wren qualification.",
+  "commit": "e953a132ff8bd347acc881ba36452d2d384fd7a3",
+  "sourceChanges": [],
+  "build": {
+    "indexSha256": "aa0892e153d804a570c62044f2e02d8615646a3440bc5b3d33f412500e74cad3",
+    "probeSha256": "f6d0fcf01fd8d6a41f91893bd9fd297a23d3025602fd1ee0d4be894f3feb0ec7"
+  },
+  "browser": "154.0.8037.58",
+  "sourceHash": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+  "analysis": {
+    "model": {
+      "id": "mediapipe-pose-landmarker-heavy",
+      "version": "1"
+    },
+    "samples": 57,
+    "tracked": 57,
+    "bottomTimestampsMs": [
+      1067,
+      3000
+    ],
+    "labeledBottomTimestampsMs": [
+      1067,
+      2933
+    ],
+    "timingErrorMs": [
+      0,
+      67
+    ],
+    "toleranceMs": 150,
+    "measurements": [
+      {
+        "id": "rep-1-knee-flexion",
+        "repId": "rep-1",
+        "metric": "knee_flexion",
+        "value": 117.37974675692203,
+        "unit": "deg",
+        "quality": "usable",
+        "evidenceTimestampMs": 1067
+      },
+      {
+        "id": "rep-1-duration",
+        "repId": "rep-1",
+        "metric": "rep_duration",
+        "value": 1400,
+        "unit": "ms",
+        "quality": "usable",
+        "evidenceTimestampMs": 1067
+      },
+      {
+        "id": "rep-1-torso-lean",
+        "repId": "rep-1",
+        "metric": "torso_lean",
+        "value": 41.067443534064424,
+        "unit": "deg",
+        "quality": "usable",
+        "evidenceTimestampMs": 1067
+      },
+      {
+        "id": "rep-2-knee-flexion",
+        "repId": "rep-2",
+        "metric": "knee_flexion",
+        "value": 117.52439849435467,
+        "unit": "deg",
+        "quality": "usable",
+        "evidenceTimestampMs": 3000
+      },
+      {
+        "id": "rep-2-duration",
+        "repId": "rep-2",
+        "metric": "rep_duration",
+        "value": 1333,
+        "unit": "ms",
+        "quality": "usable",
+        "evidenceTimestampMs": 3000
+      },
+      {
+        "id": "rep-2-torso-lean",
+        "repId": "rep-2",
+        "metric": "torso_lean",
+        "value": 40.713973982220615,
+        "unit": "deg",
+        "quality": "usable",
+        "evidenceTimestampMs": 3000
+      }
+    ]
+  },
+  "developerPacket": {
+    "requested": false,
+    "requiredForReadiness": false
+  },
+  "interpretationRequests": 0,
+  "externalOrigins": [],
+  "errors": [],
+  "gaps": [
+    "Actual connected-provider interpretation is verified separately.",
+    "Two clips with independent identities are not covered by this one-recording/two-rep gate.",
+    "Physical iPhone, venue network and final two Wren workflows remain separate release gates.",
+    "Timing and local geometry checks are not independent joint-angle accuracy validation."
+  ],
+  "previousEvidenceArchive": "qa/archive/product-readiness-2026-11-07-617912a-d12744bb.json"
+}

@@ -1,6 +1,7 @@
 {
-  "verifiedAtUtc": "2026-11-07T22:47:46.146Z",
-  "surface": "root product",
+  "verifiedAtUtc": "2026-11-07T23:32:14.231Z",
+  "revision": "c1c9378ebbca473bc706ca11623c5631d633e7f5",
+  "surface": "root production build",
   "fixture": "clear-squat.mp4",
   "provider": "real ChatGPT",
   "model": "gpt-6.1-sol",
@@ -20,17 +21,19 @@
   "responseEvidenceIds": [
     [
       "rep-1-knee-flexion",
-      "rep-2-knee-flexion"
-    ],
-    [
+      "rep-2-knee-flexion",
       "rep-1-torso-lean",
-      "rep-2-torso-lean",
-      "frame-1067ms",
-      "frame-3000ms"
+      "rep-2-torso-lean"
     ],
     [
       "rep-1-duration",
       "rep-2-duration"
+    ],
+    [
+      "rep-1-knee-flexion",
+      "rep-2-knee-flexion",
+      "rep-1-torso-lean",
+      "rep-2-torso-lean"
     ]
   ],
   "checks": {
@@ -38,6 +41,8 @@
     "responseValidated": true,
     "firstRepCueVisible": true,
     "secondRepCueVisible": true,
-    "noExtraSeekRequests": true
+    "noExtraSeekRequests": true,
+    "twoPersistentShortCards": true,
+    "stopRetainsCards": true
   }
 }

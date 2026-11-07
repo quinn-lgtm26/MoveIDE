@@ -1,9 +1,9 @@
 {
-  "verifiedAtUtc": "2026-11-07T23:20:58.101Z",
-  "mode": "development",
-  "checkoutRevision": "afb6fa1b40ca6010a38ba711e6101fcc476d515d",
-  "hasUncommittedSourceChanges": true,
-  "buildSurface": "Root Vite development server (current source files)",
+  "verifiedAtUtc": "2026-11-07T23:26:33.577Z",
+  "mode": "production-preview",
+  "checkoutRevision": "c1c9378ebbca473bc706ca11623c5631d633e7f5",
+  "hasUncommittedSourceChanges": false,
+  "buildSurface": "Root dist served by Vite preview (prebuilt artifact)",
   "provider": "mocked only; no account inference",
   "checks": {
     "offlineLocalOnly": true,
