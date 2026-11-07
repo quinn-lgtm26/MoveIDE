@@ -1,0 +1,632 @@
+[
+  {
+    "timestampMs": 0,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.844583697672164,
+    "torsoLeanDeg": 0.45465422506684783
+  },
+  {
+    "timestampMs": 67,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 5.4466849919786,
+    "torsoLeanDeg": 2.958330470516136
+  },
+  {
+    "timestampMs": 133,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 6.1082854962077135,
+    "torsoLeanDeg": 2.930377719988132
+  },
+  {
+    "timestampMs": 200,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 6.866048141997595,
+    "torsoLeanDeg": 2.5319243335328694
+  },
+  {
+    "timestampMs": 267,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 7.669416010475572,
+    "torsoLeanDeg": 3.735545945946018
+  },
+  {
+    "timestampMs": 333,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 11.050385091967371,
+    "torsoLeanDeg": 3.537008984995869
+  },
+  {
+    "timestampMs": 400,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 15.519070015300684,
+    "torsoLeanDeg": 3.0358090931548025
+  },
+  {
+    "timestampMs": 467,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 21.84923350522118,
+    "torsoLeanDeg": 3.0105576374906957
+  },
+  {
+    "timestampMs": 533,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 27.596805030664257,
+    "torsoLeanDeg": 3.1279159239052454
+  },
+  {
+    "timestampMs": 600,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 34.16520538306443,
+    "torsoLeanDeg": 3.4338980268775443
+  },
+  {
+    "timestampMs": 667,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 40.322799339385,
+    "torsoLeanDeg": 3.548986509809766
+  },
+  {
+    "timestampMs": 733,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 46.491777167359515,
+    "torsoLeanDeg": 4.5229420472953645
+  },
+  {
+    "timestampMs": 800,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 44.67246179345824,
+    "torsoLeanDeg": 13.315084093000301
+  },
+  {
+    "timestampMs": 867,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 43.32431749768486,
+    "torsoLeanDeg": 13.779060709660305
+  },
+  {
+    "timestampMs": 933,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 51.927202948702046,
+    "torsoLeanDeg": 15.642504622335135
+  },
+  {
+    "timestampMs": 1000,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 54.61973510950126,
+    "torsoLeanDeg": 21.297842813372302
+  },
+  {
+    "timestampMs": 1067,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 60.090418131229114,
+    "torsoLeanDeg": 23.370786518195757
+  },
+  {
+    "timestampMs": 1133,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 64.81061029818576,
+    "torsoLeanDeg": 28.2130303181208
+  },
+  {
+    "timestampMs": 1200,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 87.90510775617656,
+    "torsoLeanDeg": 26.962500704416627
+  },
+  {
+    "timestampMs": 1267,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 92.80830775339808,
+    "torsoLeanDeg": 32.04880584331991
+  },
+  {
+    "timestampMs": 1333,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 95.67792037161414,
+    "torsoLeanDeg": 33.047785643449735
+  },
+  {
+    "timestampMs": 1400,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 96.93056953409544,
+    "torsoLeanDeg": 34.04091205663684
+  },
+  {
+    "timestampMs": 1467,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 99.01073482910421,
+    "torsoLeanDeg": 35.58956505050731
+  },
+  {
+    "timestampMs": 1533,
+    "repId": "rep-1",
+    "phase": "descent",
+    "kneeFlexionDeg": 100.40995998524456,
+    "torsoLeanDeg": 36.18961716063962
+  },
+  {
+    "timestampMs": 1600,
+    "repId": "rep-1",
+    "phase": "bottom",
+    "kneeFlexionDeg": 100.82282061739214,
+    "torsoLeanDeg": 35.759216911399456
+  },
+  {
+    "timestampMs": 1667,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 101.11409639127119,
+    "torsoLeanDeg": 36.63534361635106
+  },
+  {
+    "timestampMs": 1733,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 97.84498372034842,
+    "torsoLeanDeg": 38.79447653800069
+  },
+  {
+    "timestampMs": 1800,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 95.68648147556655,
+    "torsoLeanDeg": 37.54270880638393
+  },
+  {
+    "timestampMs": 1867,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 91.50681723192024,
+    "torsoLeanDeg": 35.769045901255566
+  },
+  {
+    "timestampMs": 1933,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 83.76345859065938,
+    "torsoLeanDeg": 33.50507041563227
+  },
+  {
+    "timestampMs": 2000,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 70.12461890937882,
+    "torsoLeanDeg": 30.067921241076235
+  },
+  {
+    "timestampMs": 2067,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 58.23558015119471,
+    "torsoLeanDeg": 26.70180169667778
+  },
+  {
+    "timestampMs": 2133,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 51.62693620879293,
+    "torsoLeanDeg": 27.918660441996018
+  },
+  {
+    "timestampMs": 2200,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 48.03879377758432,
+    "torsoLeanDeg": 27.85331600536597
+  },
+  {
+    "timestampMs": 2267,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 39.89928480158457,
+    "torsoLeanDeg": 25.636000896627163
+  },
+  {
+    "timestampMs": 2333,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 34.13848930641362,
+    "torsoLeanDeg": 24.585299773130373
+  },
+  {
+    "timestampMs": 2400,
+    "repId": "rep-1",
+    "phase": "ascent",
+    "kneeFlexionDeg": 22.25134351959764,
+    "torsoLeanDeg": 20.67292425322057
+  },
+  {
+    "timestampMs": 2467,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 19.919014972528743,
+    "torsoLeanDeg": 3.140389351987123
+  },
+  {
+    "timestampMs": 2533,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 18.252009717602363,
+    "torsoLeanDeg": 0.6186595191469583
+  },
+  {
+    "timestampMs": 2600,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 14.474534906735755,
+    "torsoLeanDeg": 0.9495474812448589
+  },
+  {
+    "timestampMs": 2667,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 9.182282693155173,
+    "torsoLeanDeg": 1.453292080234327
+  },
+  {
+    "timestampMs": 2733,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 6.669504723760326,
+    "torsoLeanDeg": 2.580564903743144
+  },
+  {
+    "timestampMs": 2800,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.288076564418532,
+    "torsoLeanDeg": 3.2013256679083906
+  },
+  {
+    "timestampMs": 2867,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 3.6917354451007043,
+    "torsoLeanDeg": 4.504699912777961
+  },
+  {
+    "timestampMs": 2933,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.030774593007294,
+    "torsoLeanDeg": 4.244632932390485
+  },
+  {
+    "timestampMs": 3000,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.548262936187314,
+    "torsoLeanDeg": 4.369291939606348
+  },
+  {
+    "timestampMs": 3067,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 5.287833310744702,
+    "torsoLeanDeg": 3.9632934002790234
+  },
+  {
+    "timestampMs": 3133,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 8.81195638458675,
+    "torsoLeanDeg": 3.143504280400079
+  },
+  {
+    "timestampMs": 3200,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 14.308232914416692,
+    "torsoLeanDeg": 2.467402238199573
+  },
+  {
+    "timestampMs": 3267,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 19.526048613802374,
+    "torsoLeanDeg": 1.3188853724937992
+  },
+  {
+    "timestampMs": 3333,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 23.23227524149246,
+    "torsoLeanDeg": 3.100440775020837
+  },
+  {
+    "timestampMs": 3400,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 32.546053469030085,
+    "torsoLeanDeg": 3.388508742749923
+  },
+  {
+    "timestampMs": 3467,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 34.82115674846554,
+    "torsoLeanDeg": 10.577083642798035
+  },
+  {
+    "timestampMs": 3533,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 38.48545744763874,
+    "torsoLeanDeg": 14.836921410036279
+  },
+  {
+    "timestampMs": 3600,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 42.02065439746306,
+    "torsoLeanDeg": 19.104151600377833
+  },
+  {
+    "timestampMs": 3667,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 45.21421334491271,
+    "torsoLeanDeg": 22.00975822901661
+  },
+  {
+    "timestampMs": 3733,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 48.948964657515575,
+    "torsoLeanDeg": 22.010999210989773
+  },
+  {
+    "timestampMs": 3800,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 56.83153242207278,
+    "torsoLeanDeg": 26.769249977685917
+  },
+  {
+    "timestampMs": 3867,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 59.29870296633014,
+    "torsoLeanDeg": 26.305211829681454
+  },
+  {
+    "timestampMs": 3933,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 80.69583405093206,
+    "torsoLeanDeg": 24.206461392494695
+  },
+  {
+    "timestampMs": 4000,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 88.20368233570618,
+    "torsoLeanDeg": 26.030178431028602
+  },
+  {
+    "timestampMs": 4067,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 90.52576424517093,
+    "torsoLeanDeg": 28.751036282220177
+  },
+  {
+    "timestampMs": 4133,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 92.22347156818516,
+    "torsoLeanDeg": 31.272083828297273
+  },
+  {
+    "timestampMs": 4200,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 93.58404362389011,
+    "torsoLeanDeg": 29.224431120112335
+  },
+  {
+    "timestampMs": 4267,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 98.90459881029297,
+    "torsoLeanDeg": 31.475507747679917
+  },
+  {
+    "timestampMs": 4333,
+    "repId": "rep-2",
+    "phase": "descent",
+    "kneeFlexionDeg": 99.67816792945601,
+    "torsoLeanDeg": 32.96248320339973
+  },
+  {
+    "timestampMs": 4400,
+    "repId": "rep-2",
+    "phase": "bottom",
+    "kneeFlexionDeg": 100.2912829304447,
+    "torsoLeanDeg": 39.18337760969408
+  },
+  {
+    "timestampMs": 4467,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 99.3341204160795,
+    "torsoLeanDeg": 41.18002023335656
+  },
+  {
+    "timestampMs": 4533,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 96.86594780313548,
+    "torsoLeanDeg": 38.090758824923626
+  },
+  {
+    "timestampMs": 4600,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 93.33262488098943,
+    "torsoLeanDeg": 39.593333509558384
+  },
+  {
+    "timestampMs": 4667,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 85.6273527679753,
+    "torsoLeanDeg": 36.773331296904786
+  },
+  {
+    "timestampMs": 4733,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 75.33273747185468,
+    "torsoLeanDeg": 35.082011585445436
+  },
+  {
+    "timestampMs": 4800,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 49.54226667094352,
+    "torsoLeanDeg": 30.594251876782334
+  },
+  {
+    "timestampMs": 4867,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 16.636080321685426,
+    "torsoLeanDeg": 26.379843362482355
+  },
+  {
+    "timestampMs": 4933,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 32.04637021920789,
+    "torsoLeanDeg": 25.998910669495068
+  },
+  {
+    "timestampMs": 5000,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 35.997435627183904,
+    "torsoLeanDeg": 28.209465452641798
+  },
+  {
+    "timestampMs": 5067,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 35.216281601592385,
+    "torsoLeanDeg": 21.856945332692405
+  },
+  {
+    "timestampMs": 5133,
+    "repId": "rep-2",
+    "phase": "ascent",
+    "kneeFlexionDeg": 28.064896205977732,
+    "torsoLeanDeg": 16.611876746490342
+  },
+  {
+    "timestampMs": 5200,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 8.45117863872585,
+    "torsoLeanDeg": 20.966016430136108
+  },
+  {
+    "timestampMs": 5267,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 1.2017785011346689,
+    "torsoLeanDeg": 17.248268971543773
+  },
+  {
+    "timestampMs": 5333,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 5.869770373634964,
+    "torsoLeanDeg": 8.151192448514484
+  },
+  {
+    "timestampMs": 5400,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 2.4641882618939235,
+    "torsoLeanDeg": 2.175632387854435
+  },
+  {
+    "timestampMs": 5467,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.7863699230116765,
+    "torsoLeanDeg": 7.372126381108359
+  },
+  {
+    "timestampMs": 5533,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 7.67014597408118,
+    "torsoLeanDeg": 8.901916860219648
+  },
+  {
+    "timestampMs": 5600,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.756015403615322,
+    "torsoLeanDeg": 2.403149854787043
+  },
+  {
+    "timestampMs": 5667,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 4.690849508407041,
+    "torsoLeanDeg": 2.996130922220276
+  },
+  {
+    "timestampMs": 5733,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 1.7238279653887503,
+    "torsoLeanDeg": 4.760600400028307
+  },
+  {
+    "timestampMs": 5800,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 1.4060596753240304,
+    "torsoLeanDeg": 4.166801314618031
+  },
+  {
+    "timestampMs": 5867,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 5.316077087619249,
+    "torsoLeanDeg": 3.560016440558698
+  },
+  {
+    "timestampMs": 5933,
+    "repId": null,
+    "phase": null,
+    "kneeFlexionDeg": 9.92580554076281,
+    "torsoLeanDeg": 1.9934084588369192
+  }
+]

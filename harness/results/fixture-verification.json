@@ -12,9 +12,12 @@
   "verification": {
     "analysisReportSchema": "passed",
     "reportEvidenceAndGeometry": "passed",
+    "motionTraceAndTorsoGeometry": "passed",
     "supportedClipManualLabelCheck": "passed",
     "frontViewCaptureGuidance": "passed",
     "abortAndInvalidClip": "passed",
+    "rejectsMismatchedModel": "passed",
+    "rejectsClipRedirectAndAcceptsObjectUrl": "passed",
     "coachingPacketAndJpegs": "passed",
     "coachingEvidenceFrames": 2,
     "thirdPartyRequests": 0
@@ -51,6 +54,26 @@
           "evidenceTimestampMs": 4400
         }
       ],
+      "torsoMeasurements": [
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 35.759216911399456,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1600
+        },
+        {
+          "id": "rep-2-torso-lean",
+          "repId": "rep-2",
+          "metric": "torso_lean",
+          "value": 39.183377609694084,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 4400
+        }
+      ],
       "warnings": [],
       "manualLabelCheck": {
         "expectedCompleteReps": 2,
@@ -69,8 +92,8 @@
     {
       "clip": "sample-squat.mp4",
       "frameCount": 53,
-      "usableFrameCount": 25,
-      "side": "left",
+      "usableFrameCount": 27,
+      "side": "right",
       "completeReps": 0,
       "bottomTimestampsMs": [],
       "kneeMeasurements": [
@@ -78,12 +101,13 @@
           "id": "knee-flexion",
           "repId": null,
           "metric": "knee_flexion",
-          "value": 6.446645821681784,
+          "value": null,
           "unit": "deg",
-          "quality": "usable",
-          "evidenceTimestampMs": 133
+          "quality": "unavailable",
+          "evidenceTimestampMs": null
         }
       ],
+      "torsoMeasurements": [],
       "warnings": [
         "intermittent_pose",
         "no_complete_reps"
@@ -132,6 +156,26 @@
           "evidenceTimestampMs": 6000
         }
       ],
+      "torsoMeasurements": [
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 36.16701580763458,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 3200
+        },
+        {
+          "id": "rep-2-torso-lean",
+          "repId": "rep-2",
+          "metric": "torso_lean",
+          "value": 32.950255822078866,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 6000
+        }
+      ],
       "warnings": []
     },
     {
@@ -169,6 +213,35 @@
           "repId": "rep-3",
           "metric": "knee_flexion",
           "value": 90.15565506856143,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 6400
+        }
+      ],
+      "torsoMeasurements": [
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 56.274029433250554,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 2067
+        },
+        {
+          "id": "rep-2-torso-lean",
+          "repId": "rep-2",
+          "metric": "torso_lean",
+          "value": 50.886689973147305,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 4267
+        },
+        {
+          "id": "rep-3-torso-lean",
+          "repId": "rep-3",
+          "metric": "torso_lean",
+          "value": 59.1389589597423,
           "unit": "deg",
           "quality": "usable",
           "evidenceTimestampMs": 6400
@@ -218,6 +291,35 @@
           "evidenceTimestampMs": 7000
         }
       ],
+      "torsoMeasurements": [
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 45.6006321874455,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1933
+        },
+        {
+          "id": "rep-2-torso-lean",
+          "repId": "rep-2",
+          "metric": "torso_lean",
+          "value": 45.65735262578442,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 4333
+        },
+        {
+          "id": "rep-3-torso-lean",
+          "repId": "rep-3",
+          "metric": "torso_lean",
+          "value": 46.0989368873946,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 7000
+        }
+      ],
       "warnings": []
     },
     {
@@ -238,6 +340,7 @@
           "evidenceTimestampMs": null
         }
       ],
+      "torsoMeasurements": [],
       "warnings": [
         "unsupported_framing",
         "no_complete_reps"

@@ -26,10 +26,26 @@ function waitForVideo(video, event, signal) {
 export async function openVideo(source, { signal } = {}) {
   checkSignal(signal)
   const video = document.createElement('video')
-  const localFile = source instanceof Blob
-  const url = localFile ? URL.createObjectURL(source) : new URL(source, location.href).href
-  if (!localFile && new URL(url).origin !== location.origin) {
+  const sourceUrl = source instanceof Blob ? null : new URL(source, location.href)
+  if (sourceUrl && sourceUrl.origin !== location.origin) {
     throw new Error('Choose a local clip or use a same-origin sample.')
+  }
+  let ownedObjectUrl
+  if (!sourceUrl) {
+    ownedObjectUrl = URL.createObjectURL(source)
+  } else if (sourceUrl.protocol !== 'blob:') {
+    // Decode the same-origin response through a local URL. A media element
+    // loading an HTTP URL directly can follow redirects outside this app.
+    try {
+      const timeout = AbortSignal.timeout(15_000)
+      const downloadSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
+      const response = await fetch(sourceUrl, { mode: 'same-origin', redirect: 'error', signal: downloadSignal })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      ownedObjectUrl = URL.createObjectURL(await response.blob())
+    } catch (error) {
+      signal?.throwIfAborted()
+      throw new Error('Could not open the clip. Use a local file or a same-origin URL without redirects.', { cause: error })
+    }
   }
   video.preload = 'auto'
   video.muted = true
@@ -40,17 +56,17 @@ export async function openVideo(source, { signal } = {}) {
     video.removeAttribute('src')
     video.load()
     video.remove()
-    if (localFile) URL.revokeObjectURL(url)
+    if (ownedObjectUrl) URL.revokeObjectURL(ownedObjectUrl)
   }
 
   try {
     const loaded = waitForVideo(video, 'loadeddata', signal)
-    video.src = url
+    video.src = ownedObjectUrl ?? sourceUrl.href
     await loaded
     if (!Number.isFinite(video.duration) || video.duration <= 0 || !video.videoWidth || !video.videoHeight) {
       throw new Error('This clip has no usable video track or duration.')
     }
-    return { video, close }
+    return { video, close, sourceUrl: sourceUrl?.href }
   } catch (error) {
     close()
     throw error

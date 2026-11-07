@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "protocolVersion": "1.0.0",
   "charterVersion": "1.0.0",
-  "summary": "2 complete squat reps selected. 4 usable measurements. Knee and torso angles are estimates in the video plane.",
+  "summary": "2 complete squat reps selected. 6 usable measurements. Clip start/bottom/end in ms, in selected rep order (533/1600/2400, 3333/4400/5133). Knee and torso angles are estimates in the video plane.",
   "repIds": [
     "rep-1",
     "rep-2"
@@ -25,6 +25,14 @@
       "evidenceTimestampMs": 1600
     },
     {
+      "id": "rep-1-torso-lean",
+      "repId": "rep-1",
+      "metric": "torso_lean",
+      "value": 35.759216911399456,
+      "unit": "deg",
+      "evidenceTimestampMs": 1600
+    },
+    {
       "id": "rep-2-knee-flexion",
       "repId": "rep-2",
       "metric": "knee_flexion",
@@ -38,6 +46,14 @@
       "metric": "rep_duration",
       "value": 1800,
       "unit": "ms",
+      "evidenceTimestampMs": 4400
+    },
+    {
+      "id": "rep-2-torso-lean",
+      "repId": "rep-2",
+      "metric": "torso_lean",
+      "value": 39.183377609694084,
+      "unit": "deg",
       "evidenceTimestampMs": 4400
     }
   ],

@@ -7,6 +7,7 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { verifyCoachingFixture } from '../coaching/verify-fixture.mjs'
+import { getMotionTrace } from '../motion/analyze.mjs'
 import { kneeFlexion, VISIBILITY_THRESHOLD } from '../motion/squat.mjs'
 
 const supported = 'supported-squat'
@@ -16,6 +17,26 @@ const fixtureNames = [supported, original, 'side-gym', 'side-mirror', 'side-busy
 const readJson = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'))
 const reportSchema = await readJson('../../_bmad-output/specs/shared/analysis-report-v1.schema.json')
 const validate = new Ajv2020().compile(reportSchema)
+
+function expectedTorsoLean(frame, report) {
+  const side = report.protocol.side
+  if (!side || frame.quality !== 'usable') return null
+  const [shoulderIndex, hipIndex] = side === 'left' ? [11, 23] : [12, 24]
+  const shoulder = frame.landmarks[shoulderIndex]
+  const hip = frame.landmarks[hipIndex]
+  if (![shoulder, hip].every(point => point && point.visibility >= VISIBILITY_THRESHOLD &&
+      point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1)) return null
+  const x = (hip.x - shoulder.x) * report.clip.widthPx
+  const y = (hip.y - shoulder.y) * report.clip.heightPx
+  const length = Math.hypot(x, y)
+  if (length < 1) return null
+  return Math.acos(Math.min(1, Math.max(-1, y / length))) * 180 / Math.PI
+}
+
+function assertAngle(actual, expected) {
+  if (expected === null) assert.equal(actual, null)
+  else assert(actual !== null && Math.abs(actual - expected) < 1e-6)
+}
 
 function assertReport(report, name) {
   assert(validate(report), `${name}: ${JSON.stringify(validate.errors)}`)
@@ -46,6 +67,10 @@ function assertReport(report, name) {
     measurementIds.add(measure.id)
     const rep = repsById.get(measure.repId)
     assert(measure.repId === null || rep)
+    if (measure.metric === 'torso_lean') {
+      assert(rep, 'Torso lean measurements use a rep bottom')
+      assertAngle(measure.value, expectedTorsoLean(framesByTime.get(rep.bottomMs), report))
+    }
     if (measure.quality === 'unavailable') continue
     const frame = framesByTime.get(measure.evidenceTimestampMs)
     assert.equal(frame?.quality, 'usable')
@@ -60,6 +85,22 @@ function assertReport(report, name) {
       assert.equal(measure.value, rep.endMs - rep.startMs)
     }
   }
+  const trace = getMotionTrace(report)
+  assert.equal(trace.length, report.frames.length)
+  trace.forEach((sample, index) => {
+    const frame = report.frames[index]
+    assert.equal(sample.timestampMs, frame.timestampMs)
+    const rep = report.reps.find(({ startMs, endMs }) => startMs <= sample.timestampMs && sample.timestampMs <= endMs)
+    assert.equal(sample.repId, rep?.id ?? null)
+    if (rep) {
+      const phase = sample.timestampMs < rep.bottomMs ? 'descent' : sample.timestampMs === rep.bottomMs ? 'bottom' : 'ascent'
+      assert.equal(sample.phase, phase)
+    } else {
+      assert.equal(sample.phase, null)
+    }
+    if (frame.quality !== 'usable') assert.equal(sample.kneeFlexionDeg, null)
+    assertAngle(sample.torsoLeanDeg, expectedTorsoLean(frame, report))
+  })
 }
 
 function compareLabels(report, labels) {
@@ -90,7 +131,12 @@ async function analyzeFixture(page, name) {
 }
 
 async function assertRecoverableBrowserErrors(page) {
-  const results = await page.evaluate(async () => {
+  const redirectPath = '/harness/verify/redirect-clip.mp4'
+  await page.route(`**${redirectPath}`, route => route.fulfill({
+    status: 302,
+    headers: { location: 'https://outside.moveide.invalid/clip.mp4' },
+  }))
+  const results = await page.evaluate(async redirectPath => {
     const abort = new AbortController()
     const source = '/fixtures/squat/supported-squat.mp4'
     const canceled = window.analyzeSquat(source, {
@@ -101,10 +147,26 @@ async function assertRecoverableBrowserErrors(page) {
     }).catch(error => error.name)
     const invalid = window.analyzeSquat(new File(['invalid'], 'bad.mp4', { type: 'video/mp4' }))
       .catch(error => error.message)
-    return { canceled: await canceled, invalid: await invalid }
-  })
+    const wrongModel = window.analyzeSquat(source, { assets: { modelUrl: source } }).catch(error => error.message)
+    const redirected = window.analyzeSquat(redirectPath).catch(error => error.message)
+    const { openVideo } = await import('/harness/motion/video.mjs')
+    const objectUrl = URL.createObjectURL(await (await fetch(source)).blob())
+    let objectUrlPreserved
+    try {
+      const decoder = await openVideo(objectUrl)
+      decoder.close()
+      objectUrlPreserved = (await fetch(objectUrl)).ok
+    } finally {
+      URL.revokeObjectURL(objectUrl)
+    }
+    return { canceled: await canceled, invalid: await invalid, wrongModel: await wrongModel,
+      redirected: await redirected, objectUrlPreserved }
+  }, redirectPath)
   assert.equal(results.canceled, 'AbortError')
   assert.match(results.invalid, /could not be decoded/)
+  assert.match(results.wrongModel, /Expected the pinned MediaPipe Pose Landmarker Full v1 model/)
+  assert.match(results.redirected, /same-origin URL without redirects/)
+  assert.equal(results.objectUrlPreserved, true)
 }
 
 const writeResults = process.argv.includes('--write')
@@ -146,6 +208,7 @@ try {
       completeReps: report.reps.length,
       bottomTimestampsMs: report.reps.map(rep => rep.bottomMs),
       kneeMeasurements: report.measurements.filter(measure => measure.metric === 'knee_flexion'),
+      torsoMeasurements: report.measurements.filter(measure => measure.metric === 'torso_lean'),
       warnings: report.warnings.map(warning => warning.code),
     }
     if (name === supported || name === original) {
@@ -154,6 +217,8 @@ try {
     }
     if (name === supported) {
       assert(caseResult.manualLabelCheck.passed, JSON.stringify(caseResult.manualLabelCheck))
+      assert.equal(caseResult.torsoMeasurements.length, caseResult.completeReps)
+      assert(caseResult.torsoMeasurements.every(({ quality }) => quality === 'usable'))
       supportedReport = report
     } else if (name === original && !caseResult.manualLabelCheck.passed) {
       assert(caseResult.warnings.includes('intermittent_pose') || caseResult.warnings.includes('pose_unavailable'))
@@ -185,9 +250,12 @@ try {
       verification: {
         analysisReportSchema: 'passed',
         reportEvidenceAndGeometry: 'passed',
+        motionTraceAndTorsoGeometry: 'passed',
         supportedClipManualLabelCheck: 'passed',
         frontViewCaptureGuidance: 'passed',
         abortAndInvalidClip: 'passed',
+        rejectsMismatchedModel: 'passed',
+        rejectsClipRedirectAndAcceptsObjectUrl: 'passed',
         coachingPacketAndJpegs: 'passed',
         coachingEvidenceFrames: packet.evidence.length,
         thirdPartyRequests: externalRequests.length,
@@ -196,6 +264,7 @@ try {
       cases,
     }
     await writeFile(join(outputDir, `${supported}.analysis-report.v1.json`), `${JSON.stringify(supportedReport)}\n`)
+    await writeFile(join(outputDir, `${supported}.motion-trace.v1.json`), `${JSON.stringify(getMotionTrace(supportedReport), null, 2)}\n`)
     await writeFile(join(outputDir, 'fixture-verification.json'), `${JSON.stringify(summary, null, 2)}\n`)
   }
   console.log('Report, evidence geometry, coaching bundle, cancellation, and capture guidance verified.')

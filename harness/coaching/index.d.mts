@@ -67,6 +67,7 @@ export const COACHING_RESPONSE_SCHEMA: Record<string, unknown>;
 
 export function buildCoachPacket(report: AnalysisReport, options?: CoachingOptions): CoachPacket;
 
+/** For an imported report, supply its original clip when the source is known. */
 export function prepareCoachingBundle(
   report: AnalysisReport,
   source?: ClipSource | null,

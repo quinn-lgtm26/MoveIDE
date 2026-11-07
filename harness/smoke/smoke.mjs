@@ -11,6 +11,12 @@ let interpretation;
 let popup;
 let poll;
 
+const metricNames = {
+  knee_flexion: 'knee flexion',
+  torso_lean: 'torso lean',
+  rep_duration: 'duration',
+};
+
 function downloadUrl(blob) {
   const url = URL.createObjectURL(blob);
   urls.push(url);
@@ -23,12 +29,19 @@ function updateInterpret() {
 }
 
 async function refreshConnection() {
-  const state = await chatGPTProvider.getConnection().catch(() => ({ state: 'unavailable', enabled: false }));
+  let state = await chatGPTProvider.getConnection().catch(() => ({ state: 'unavailable', enabled: false }));
+  let models = [];
+  if (state.state === 'connected') {
+    try {
+      models = await chatGPTProvider.listModels();
+    } catch (error) {
+      if (error.code === 'reauthorize') state = { state: 'unavailable' };
+    }
+  }
   element('connection').textContent = state.state === 'connected' ? 'Using ChatGPT plan' : state.state;
   element('connect').disabled = state.enabled === false || !['disconnected', 'denied', 'unavailable'].includes(state.state);
   element('cancel').disabled = state.state !== 'connecting';
   element('disconnect').disabled = state.state !== 'connected';
-  const models = state.state === 'connected' ? await chatGPTProvider.listModels().catch(() => []) : [];
   element('model').replaceChildren(...models.map(({ id, label }) => new Option(label, id)));
   element('model').disabled = !models.length;
   updateInterpret();
@@ -43,6 +56,8 @@ element('analyze').onclick = async () => {
   element('report').hidden = true;
   element('packet').textContent = '';
   element('coaching').textContent = '';
+  element('coverage').textContent = '';
+  element('metrics').replaceChildren();
   element('evidence').replaceChildren();
   urls.splice(0).forEach((url) => URL.revokeObjectURL(url));
   bundle = null;
@@ -60,6 +75,16 @@ element('analyze').onclick = async () => {
     if (current !== generation) return;
     bundle = prepared;
     element('status').textContent = `${report.reps.length} complete reps · ${bundle.images.length} evidence JPEGs`;
+    const tracked = report.frames.filter(({ quality }) => quality === 'usable').length;
+    element('coverage').textContent = `${tracked} of ${report.frames.length} frames tracked · 33 landmark slots per frame`;
+    for (const measurement of report.measurements) {
+      const { repId, metric, quality, value, unit, evidenceTimestampMs } = measurement;
+      const row = document.createElement('li');
+      const estimate = unit === 'deg' ? `${value?.toFixed(1)}°` : `${value} ms`;
+      row.textContent = `${repId ?? 'Clip'} ${metricNames[metric]} · ${quality === 'usable'
+        ? `${estimate} at ${evidenceTimestampMs} ms` : 'unavailable'}`;
+      element('metrics').append(row);
+    }
     element('packet').textContent = formatManualHandoff(bundle.packet, bundle.images);
     for (const { blob, imageName, timestampMs } of bundle.images) {
       const link = document.createElement('a');

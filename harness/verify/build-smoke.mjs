@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 
+const labels = JSON.parse(await readFile(new URL('../../fixtures/squat/supported-squat.labels.json', import.meta.url)));
 const server = await preview({
   configFile: fileURLToPath(new URL('../vite.config.mjs', import.meta.url)),
   preview: { host: '127.0.0.1', port: 0 },
@@ -28,13 +30,22 @@ try {
     await page.locator('#connection').getByText('unavailable').waitFor();
     await page.getByRole('button', { name: 'Analyze supported squat' }).click();
     await page.getByText('2 complete reps · 2 evidence JPEGs').waitFor({ timeout: 90_000 });
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('link', { name: 'Download report' }).click(),
+    ]);
+    const report = JSON.parse(await readFile(await download.path()));
+    const bottoms = report.reps.map(({ bottomMs }) => bottomMs);
+    assert.equal(bottoms.length, labels.expectedCompleteReps);
+    bottoms.forEach((time, index) => assert(Math.abs(time - labels.bottomTimestampsMs[index]) <= labels.bottomToleranceMs));
     assert.deepEqual(await page.locator('#evidence img').evaluateAll((images) => images.map(({ alt }) => alt)),
-      ['Squat source frame at 1600 ms', 'Squat source frame at 4400 ms']);
+      bottoms.map((time) => `Squat source frame at ${time} ms`));
+    assert.equal(await page.getByText(/knee flexion · .*°/).count(), labels.expectedCompleteReps);
+    assert.equal(await page.getByText(/torso lean · .*°/).count(), labels.expectedCompleteReps);
     await page.getByRole('button', { name: 'Copy coaching handoff' }).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(copied, /MoveIDE Magna Carta v1\.0\.0/);
-    assert.match(copied, /frame-1600ms\.jpg/);
-    assert.match(copied, /frame-4400ms\.jpg/);
+    for (const time of bottoms) assert(copied.includes(`frame-${time}ms.jpg`));
     assert.equal(await page.getByRole('button', { name: 'Send previewed packet and images' }).isDisabled(), true);
     assert.deepEqual(outbound, []);
     assert.deepEqual(errors, []);

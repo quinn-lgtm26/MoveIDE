@@ -2,12 +2,21 @@ import { MAGNA_CARTA_PROMPT, MAGNA_CARTA_VERSION } from "./magna-carta-v1.mjs";
 
 const MAX_REPS = 2;
 const MAX_IMAGES = 4;
+const MAX_MEASUREMENTS = 12;
+const MAX_ID_LENGTH = 96;
+const MAX_SUMMARY_LENGTH = 512;
+const MAX_VERSION_LENGTH = 64;
 const MAX_GOAL_LENGTH = 500;
 const METRIC_UNITS = new Map([
   ["knee_flexion", "deg"],
   ["rep_duration", "ms"],
   ["torso_lean", "deg"],
 ]);
+const TRACKING_NOTES = [
+  ["unsupported_framing", "Side-view framing could not be confirmed."],
+  ["pose_unavailable", "Pose tracking was unavailable."],
+  ["intermittent_pose", "Pose tracking was intermittent in the clip."],
+];
 
 export class CoachingValidationError extends Error {
   constructor(code, message) {
@@ -21,8 +30,8 @@ function failPacket(message) {
   throw new CoachingValidationError("invalid_packet", message);
 }
 
-function nonemptyText(value) {
-  return typeof value === "string" && value.trim().length > 0;
+function nonemptyText(value, maxLength = Infinity) {
+  return typeof value === "string" && value.length <= maxLength && value.trim().length > 0;
 }
 
 function exactFields(value, required, optional = []) {
@@ -34,7 +43,7 @@ function exactFields(value, required, optional = []) {
 function distinctStrings(values, maxLength) {
   if (!Array.isArray(values) || values.length > maxLength) return false;
   const unique = new Set(values);
-  return unique.size === values.length && [...unique].every(nonemptyText);
+  return unique.size === values.length && [...unique].every((value) => nonemptyText(value, MAX_ID_LENGTH));
 }
 
 function timestamp(value) {
@@ -42,14 +51,16 @@ function timestamp(value) {
 }
 
 function imageReference(timestampMs, measurementIds) {
-  const imageName = `frame-${timestampMs}ms.jpg`;
-  let id = `frame-${timestampMs}ms`;
-  while (measurementIds.has(id)) id += "-source";
+  const base = `frame-${timestampMs}ms`;
+  const imageName = `${base}.jpg`;
+  let id = base;
+  let collision = 0;
+  while (measurementIds.has(id)) id = `${base}-source-${++collision}`;
   return { id, timestampMs, imageName };
 }
 
 export function buildCoachPacket(report, { repIds, userGoal } = {}) {
-  if (report?.schemaVersion !== 1 || !nonemptyText(report.protocol?.version) ||
+  if (report?.schemaVersion !== 1 || !nonemptyText(report.protocol?.version, MAX_VERSION_LENGTH) ||
       !Array.isArray(report.reps) || !Array.isArray(report.measurements) ||
       !Array.isArray(report.frames)) {
     failPacket("A local AnalysisReport v1 is required.");
@@ -65,16 +76,21 @@ export function buildCoachPacket(report, { repIds, userGoal } = {}) {
   }
 
   const selectedSet = new Set(selectedIds);
+  const selectedMeasurements = report.measurements.filter(({ repId }) =>
+    selectedSet.size ? selectedSet.has(repId) : repId === null,
+  );
+  const usableMeasurements = selectedMeasurements.filter(({ quality }) => quality === "usable");
+  if (usableMeasurements.length > MAX_MEASUREMENTS) {
+    failPacket(`A coaching packet can contain up to ${MAX_MEASUREMENTS} measurements.`);
+  }
   const framesByTimestamp = new Map(report.frames.map((frame) => [frame.timestampMs, frame]));
-  const measurements = report.measurements.filter((measurement) =>
-    measurement.quality === "usable" &&
-    (selectedSet.size ? selectedSet.has(measurement.repId) : measurement.repId === null),
-  ).map(({ id, repId, metric, value, unit, evidenceTimestampMs }) => {
+  const measurements = usableMeasurements.map(({ id, repId, metric, value, unit, evidenceTimestampMs }) => {
     const rep = repsById.get(repId);
     const frame = framesByTimestamp.get(evidenceTimestampMs);
-    if (!frame || (metric !== "rep_duration" && frame.quality !== "usable") ||
+    if (!nonemptyText(id, MAX_ID_LENGTH) || !frame ||
+        (metric !== "rep_duration" && frame.quality !== "usable") ||
         (rep && (evidenceTimestampMs < rep.startMs || evidenceTimestampMs > rep.endMs))) {
-      failPacket(`Measurement ${id} does not resolve to a usable source frame.`);
+      failPacket("A measurement has an invalid ID or does not resolve to a usable source frame.");
     }
     return { id, repId, metric, value, unit, evidenceTimestampMs };
   });
@@ -92,7 +108,18 @@ export function buildCoachPacket(report, { repIds, userGoal } = {}) {
     ? `${selectedIds.length} complete squat ${selectedIds.length === 1 ? "rep" : "reps"} selected.`
     : "No complete squat reps selected.";
   const counts = measurements.length === 1 ? "1 usable measurement" : `${measurements.length} usable measurements`;
-  const summary = `${selection} ${counts}. Knee and torso angles are estimates in the video plane.`;
+  const timings = selectedIds.map((id) => {
+    const { startMs, bottomMs, endMs } = repsById.get(id);
+    return `${startMs}/${bottomMs}/${endMs}`;
+  });
+  const warningCodes = new Set(report.warnings?.map(({ code }) => code));
+  const summary = [
+    `${selection} ${counts}.`,
+    timings.length ? `Clip start/bottom/end in ms, in selected rep order (${timings.join(", ")}).` : "",
+    "Knee and torso angles are estimates in the video plane.",
+    ...TRACKING_NOTES.filter(([code]) => warningCodes.has(code)).map(([, note]) => note),
+    selectedMeasurements.length > measurements.length ? "Some selected measurements were unavailable." : "",
+  ].filter(Boolean).join(" ");
   const goal = userGoal?.trim();
   return validateCoachPacket({
     schemaVersion: 1,
@@ -110,10 +137,11 @@ export function validateCoachPacket(packet) {
   if (!exactFields(packet, [
     "schemaVersion", "protocolVersion", "charterVersion", "summary", "repIds", "measurements", "evidence",
   ], ["goal"]) || packet.schemaVersion !== 1 ||
-      !nonemptyText(packet.protocolVersion) || packet.charterVersion !== MAGNA_CARTA_VERSION ||
-      !nonemptyText(packet.summary) ||
-      (Object.hasOwn(packet, "goal") && (!nonemptyText(packet.goal) || packet.goal.length > MAX_GOAL_LENGTH)) ||
+      !nonemptyText(packet.protocolVersion, MAX_VERSION_LENGTH) || packet.charterVersion !== MAGNA_CARTA_VERSION ||
+      !nonemptyText(packet.summary, MAX_SUMMARY_LENGTH) ||
+      (Object.hasOwn(packet, "goal") && !nonemptyText(packet.goal, MAX_GOAL_LENGTH)) ||
       !distinctStrings(packet.repIds, MAX_REPS) || !Array.isArray(packet.measurements) ||
+      packet.measurements.length > MAX_MEASUREMENTS ||
       !Array.isArray(packet.evidence) || packet.evidence.length > MAX_IMAGES) {
     failPacket("The coaching packet does not match CoachPacket v1.");
   }
@@ -123,7 +151,7 @@ export function validateCoachPacket(packet) {
   const measuredTimes = new Set();
   for (const measurement of packet.measurements) {
     if (!exactFields(measurement, ["id", "repId", "metric", "value", "unit", "evidenceTimestampMs"]) ||
-        !nonemptyText(measurement.id) || evidenceIds.has(measurement.id) ||
+        !nonemptyText(measurement.id, MAX_ID_LENGTH) || evidenceIds.has(measurement.id) ||
         !(repIds.size ? repIds.has(measurement.repId) : measurement.repId === null) ||
         !METRIC_UNITS.has(measurement.metric) || METRIC_UNITS.get(measurement.metric) !== measurement.unit ||
         !Number.isFinite(measurement.value) || measurement.value < 0 ||
@@ -139,7 +167,7 @@ export function validateCoachPacket(packet) {
   let previousTime = -1;
   for (const reference of packet.evidence) {
     if (!exactFields(reference, ["id", "timestampMs", "imageName"]) ||
-        !nonemptyText(reference.id) || evidenceIds.has(reference.id) ||
+        !nonemptyText(reference.id, MAX_ID_LENGTH) || evidenceIds.has(reference.id) ||
         !measuredTimes.has(reference.timestampMs) || reference.timestampMs <= previousTime ||
         reference.imageName !== `frame-${reference.timestampMs}ms.jpg`) {
       failPacket("A source image reference is invalid or does not resolve to a selected measurement.");

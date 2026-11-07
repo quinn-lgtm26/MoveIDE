@@ -61,7 +61,21 @@ export interface AnalysisOptions {
   clipId?: string
   signal?: AbortSignal
   onProgress?: (progress: AnalysisProgress) => void
-  assets?: { wasmRoot?: string; modelUrl?: string }
+  assets?: {
+    /** Trusted same-origin directory serving the pinned SDK's WASM assets directly. */
+    wasmRoot?: string
+    /** Same-origin URL serving the pinned MediaPipe Pose Landmarker Full v1 model. */
+    modelUrl?: string
+  }
+}
+
+export interface MotionTraceSample {
+  timestampMs: number
+  repId: string | null
+  phase: 'descent' | 'bottom' | 'ascent' | null
+  kneeFlexionDeg: number | null
+  torsoLeanDeg: number | null
 }
 
 export function analyzeSquat(source: ClipSource, options?: AnalysisOptions): Promise<AnalysisReport>
+export function getMotionTrace(report: AnalysisReport): MotionTraceSample[]

@@ -48,7 +48,7 @@ export function createProviderMiddleware({
   enabled = false,
   directory = join(homedir(), '.config', 'moveide'),
   fetcher = fetch,
-  verify,
+  jwks,
 }) {
   const loopback = new URL(origin);
   if (loopback.hostname !== '127.0.0.1' || loopback.protocol !== 'http:' || loopback.origin !== origin
@@ -56,7 +56,7 @@ export function createProviderMiddleware({
     throw new Error('Use an HTTP 127.0.0.1 origin and a local return path for the ChatGPT service.');
   }
 
-  const session = enabled ? createChatGPTSession({ directory, origin, fetcher, verify }) : null;
+  const session = enabled ? createChatGPTSession({ directory, origin, fetcher, jwks }) : null;
   return async (request, response, next) => {
     if (!request.url?.startsWith('/api/')) return next();
     const url = new URL(request.url, origin);
@@ -64,7 +64,7 @@ export function createProviderMiddleware({
     if (!['127.0.0.1', '::ffff:127.0.0.1'].includes(request.socket.remoteAddress)
         || request.headers.host !== loopback.host
         || (request.method !== 'GET' && request.headers.origin !== origin)
-        || (route !== 'GET /api/auth/callback' && request.headers['sec-fetch-site'] === 'cross-site')) {
+        || (route !== 'GET /api/auth/callback' && ['cross-site', 'same-site'].includes(request.headers['sec-fetch-site']))) {
       return send(response, 403, { error: 'forbidden', message: 'Use the same-origin local MoveIDE workbench.' });
     }
     if (route === 'GET /api/health') return send(response, 200, { ok: true });
@@ -78,7 +78,7 @@ export function createProviderMiddleware({
         case 'POST /api/auth/start':
           return send(response, 200, await session.start());
         case 'POST /api/auth/cancel':
-          await session.cancel();
+          session.cancel();
           return send(response, 200, await session.status());
         case 'GET /api/auth/callback':
           if (!await session.finish(url.searchParams)) {

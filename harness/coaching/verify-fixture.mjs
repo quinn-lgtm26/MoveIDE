@@ -11,24 +11,64 @@ export async function verifyCoachingFixture(page, report, resultsDirectory, fixt
   assert.equal(repIds.length, 2, "The coaching fixture expects a completed comparison.");
   const { packet, images, unavailableImages, handoff } = await page.evaluate(async ({ report, repIds, fixtureName }) => {
     const { formatManualHandoff, prepareCoachingBundle } = await import("/harness/coaching/index.mjs");
+    const { openVideo, seekVideoFrame } = await import("/harness/motion/video.mjs");
     const response = await fetch(`/fixtures/squat/${fixtureName}`);
     if (!response.ok) throw new Error("Could not load the bundled squat clip.");
     const source = new File([await response.blob()], fixtureName, { type: "video/mp4" });
     const bundle = await prepareCoachingBundle(report, source, { repIds });
-    const images = await Promise.all(bundle.images.map(async ({ blob, ...reference }) => {
-      const bitmap = await createImageBitmap(blob);
-      try {
-        return {
-          ...reference,
-          type: blob.type,
-          width: bitmap.width,
-          height: bitmap.height,
-          bytes: Array.from(new Uint8Array(await blob.arrayBuffer())),
-        };
-      } finally {
-        bitmap.close();
+    const { video, close } = await openVideo(source);
+    const images = [];
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    const pixels = (image) => {
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return context.getImageData(0, 0, canvas.width, canvas.height).data;
+    };
+    function rgbError(actual, expected) {
+      let difference = 0;
+      for (let offset = 0; offset < actual.length; offset += 4) {
+        difference += Math.abs(actual[offset] - expected[offset])
+          + Math.abs(actual[offset + 1] - expected[offset + 1])
+          + Math.abs(actual[offset + 2] - expected[offset + 2]);
       }
-    }));
+      return difference / (actual.length * 0.75);
+    }
+    async function seekPixels(timestampMs) {
+      // Use a separate decoder and confirm the requested source timestamp was actually presented.
+      const seconds = Math.min((timestampMs + 0.501) / 1000, video.duration - 0.000001);
+      const presented = await seekVideoFrame(video, seconds);
+      if (presented !== timestampMs) {
+        throw new Error(`Independently decoded ${presented} ms for ${timestampMs} ms evidence.`);
+      }
+      return pixels(video);
+    }
+    try {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const firstPixels = pixels(video);
+      for (const { blob, ...reference } of bundle.images) {
+        const bitmap = await createImageBitmap(blob);
+        try {
+          const capturedPixels = pixels(bitmap);
+          const sourcePixels = await seekPixels(reference.timestampMs);
+          const adjacent = report.frames.find(({ timestampMs }) => timestampMs > reference.timestampMs);
+          images.push({
+            ...reference,
+            type: blob.type,
+            width: bitmap.width,
+            height: bitmap.height,
+            bytes: Array.from(new Uint8Array(await blob.arrayBuffer())),
+            sourceError: rgbError(capturedPixels, sourcePixels),
+            firstFrameError: rgbError(capturedPixels, firstPixels),
+            adjacentError: adjacent ? rgbError(capturedPixels, await seekPixels(adjacent.timestampMs)) : null,
+          });
+        } finally {
+          bitmap.close();
+        }
+      }
+    } finally {
+      close();
+    }
     return {
       packet: bundle.packet,
       images,
@@ -52,12 +92,19 @@ export async function verifyCoachingFixture(page, report, resultsDirectory, fixt
   validateCoachingImages(packet, images);
   assert(handoff.startsWith(MAGNA_CARTA_PROMPT));
   assert(handoff.endsWith(JSON.stringify(packet, null, 2)));
-  for (const { type, width, height, bytes } of images) {
+  for (const { type, width, height, bytes, imageName, timestampMs, sourceError, firstFrameError, adjacentError } of images) {
     assert.equal(type, "image/jpeg");
     assert.equal(width, report.clip.widthPx);
     assert.equal(height, report.clip.heightPx);
     assert.deepEqual(bytes.slice(0, 2), [0xff, 0xd8]);
     assert.deepEqual(bytes.slice(-2), [0xff, 0xd9]);
+    assert(sourceError <= 4, `${imageName}: RGB mean absolute error ${sourceError} exceeds JPEG allowance`);
+    if (timestampMs > 0) {
+      assert(sourceError < firstFrameError, `${imageName}: captured pixels are closer to the first frame`);
+    }
+    if (adjacentError !== null) {
+      assert(sourceError < adjacentError, `${imageName}: captured pixels are closer to the next frame`);
+    }
   }
 
   const resultsPath = resultsDirectory instanceof URL ? fileURLToPath(resultsDirectory) : resultsDirectory;

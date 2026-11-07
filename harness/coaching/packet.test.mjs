@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { bindReportSource, reportSourceMatches } from "../motion/source-identity.mjs";
 import {
   buildCoachPacket,
   formatManualHandoff,
@@ -58,6 +59,42 @@ test("the four-image budget preserves both rep bottoms and includes only measure
   assert.deepEqual(packet.evidence.map(({ timestampMs }) => timestampMs), [0, 100, 500, 1500]);
 });
 
+test("CoachPacket rejects oversized summaries, identifiers and measurement lists", () => {
+  const packet = buildCoachPacket(report);
+  const oversized = "x".repeat(513);
+  const tooLongId = "x".repeat(97);
+  for (const invalid of [
+    { ...packet, summary: oversized },
+    { ...packet, protocolVersion: oversized },
+    { ...packet, repIds: [tooLongId], measurements: [], evidence: [] },
+    { ...packet, evidence: [{ ...packet.evidence[0], id: tooLongId }] },
+    { ...packet, measurements: [{ ...packet.measurements[0], id: tooLongId }, ...packet.measurements.slice(1)] },
+  ]) {
+    assert.throws(() => validateCoachPacket(invalid), { code: "invalid_packet" });
+  }
+  const measurements = Array.from({ length: 13 }, (_, index) => ({
+    ...packet.measurements[0], id: `knee-${index}`,
+  }));
+  assert.equal(validateCoachPacket({ ...packet, measurements: measurements.slice(0, 12), evidence: [] }).measurements.length, 12);
+  assert.throws(() => validateCoachPacket({ ...packet, measurements }), { code: "invalid_packet" });
+  assert.throws(() => buildCoachPacket({
+    ...report,
+    measurements: measurements.map((measurement) => ({ ...measurement, quality: "usable" })),
+  }), { code: "invalid_packet" });
+});
+
+test("summary describes selected phase timing and known tracking caveats only", () => {
+  const warnings = [
+    { code: "intermittent_pose", message: "Private untrusted warning text" },
+    { code: "unrecognized_warning", message: "Do not export this report text" },
+  ];
+  const packet = buildCoachPacket({ ...report, warnings }, { repIds: ["rep-3", "rep-1"] });
+  assert.match(packet.summary, /start\/bottom\/end.*2000\/2500\/2900, 0\/500\/900/);
+  assert.match(packet.summary, /Pose tracking was intermittent in the clip/);
+  assert.match(packet.summary, /Some selected measurements were unavailable/);
+  assert.doesNotMatch(packet.summary, /1000\/1500\/1900|Private untrusted|Do not export/);
+});
+
 test("single-frame reports can prepare a packet before rep segmentation", () => {
   const standalone = {
     ...report,
@@ -107,4 +144,21 @@ test("aborting a stale request prevents an image-free result from replacing it",
   await assert.rejects(prepareCoachingBundle(report, undefined, { signal: AbortSignal.abort() }), {
     name: "AbortError",
   });
+});
+
+test("a live report only accepts its bound clip object or equivalent URL", async () => {
+  const live = structuredClone(report);
+  const original = new File(["clip A"], "sample.mp4", { type: "video/mp4" });
+  const other = new File(["clip B"], "sample.mp4", { type: "video/mp4" });
+  bindReportSource(live, original);
+  assert(reportSourceMatches(live, original));
+  const bundle = await prepareCoachingBundle(live, other);
+  assert.equal(bundle.images.length, 0);
+  assert.equal(bundle.packet.measurements.length, 4);
+  assert(bundle.unavailableImages.every(({ message }) => message.includes("same clip")));
+  assert(reportSourceMatches(structuredClone(live), other));
+
+  bindReportSource(live, "https://example.test:443/clips/../sample.mp4");
+  assert(reportSourceMatches(live, new URL("https://example.test/sample.mp4")));
+  assert(!reportSourceMatches(live, "https://example.test/other.mp4"));
 });

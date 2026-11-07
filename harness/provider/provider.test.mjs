@@ -5,13 +5,27 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { buildCoachPacket } from '../coaching/index.mjs';
+import { generateKeyPair, SignJWT } from 'jose';
+import { createChatGPTSession } from './session.mjs';
 import { createProviderMiddleware } from './local-server.mjs';
 
-const sample = JSON.parse(await readFile(new URL('../../_bmad-output/specs/shared/analysis-report-v1.example.json', import.meta.url)));
-const packet = buildCoachPacket(sample);
+const packet = JSON.parse(await readFile(new URL('../results/supported-squat.coach-packet.v1.json', import.meta.url)));
+const { publicKey, privateKey } = await generateKeyPair('RS256');
 const model = 'gpt-6.1-sol';
-const images = packet.evidence.map((frame) => ({ ...frame, dataUrl: 'data:image/jpeg;base64,/9j//9k=' }));
+const images = packet.evidence.map((frame, index) => ({
+  ...frame,
+  dataUrl: index === 0 ? 'data:image/jpeg;base64,/9j//9k=' : 'data:image/jpeg;base64,/9j/Af/Z',
+}));
+
+function signIdentity(nonce) {
+  return new SignJWT({ nonce })
+    .setProtectedHeader({ alg: 'RS256' })
+    .setIssuer('https://auth.openai.com')
+    .setAudience('oaiapp_fixture')
+    .setSubject('verified-subject')
+    .setExpirationTime('5m')
+    .sign(privateKey);
+}
 const interpretation = {
   observations: [{ text: 'Estimated screen-plane flexion.', evidenceIds: [packet.measurements[0].id] }],
   uncertainty: 'This estimate depends on camera position.',
@@ -50,14 +64,10 @@ test('OAuth rejects invalid state, validates nonce and scope, and sends only app
   let result = interpretation;
   let terminal = true;
   let scope = 'openid';
+  let wrongNonce = true;
   const { get, post, origin, directory } = await start(t, {
     enabled: true,
-    verify: async (idToken, clientId, nonce) => {
-      assert.equal(idToken, 'fake-id');
-      assert.equal(clientId, 'oaiapp_fixture');
-      assert.equal(nonce, auth.searchParams.get('nonce'));
-      return 'verified-subject';
-    },
+    jwks: publicKey,
     fetcher: async (url, options) => {
       if (url.endsWith('/oauth/token')) {
         const fields = options.body;
@@ -69,7 +79,7 @@ test('OAuth rejects invalid state, validates nonce and scope, and sends only app
         return Response.json({
           access_token: 'fake-access',
           refresh_token: 'fake-refresh',
-          id_token: 'fake-id',
+          id_token: await signIdentity(wrongNonce ? 'unrelated-nonce' : auth.searchParams.get('nonce')),
           expires_in: 3600,
           token_type: 'Bearer',
           scope,
@@ -91,7 +101,10 @@ test('OAuth rejects invalid state, validates nonce and scope, and sends only app
       assert.equal(outgoing.stream, true);
       assert.equal(outgoing.text.format.strict, true);
       assert.deepEqual(JSON.parse(outgoing.input[0].content[0].text), packet);
-      assert.equal(outgoing.input[0].content[2].image_url, images[0].dataUrl);
+      assert.deepEqual(outgoing.input[0].content.slice(1), images.flatMap((image) => [
+        { type: 'input_text', text: `Source frame ${image.id} at ${image.timestampMs} ms.` },
+        { type: 'input_image', image_url: image.dataUrl, detail: 'auto' },
+      ]));
       const event = {
         type: terminal ? 'response.completed' : 'response.output_text.delta',
         response: {
@@ -124,11 +137,15 @@ test('OAuth rejects invalid state, validates nonce and scope, and sends only app
     return (await get('/api/connection')).json();
   }
 
+  assert.deepEqual(await connect(), { state: 'unavailable' });
+  assert.equal(JSON.parse(await readFile(join(directory, 'chatgpt.json'), 'utf8')).profile, null);
+  wrongNonce = false;
   assert.deepEqual(await connect(), { state: 'denied' });
   assert.equal((await post('/api/interpret', { model, packet, images })).status, 401);
   scope = 'openid chatgpt.tokens.use.direct resource.invoke';
   assert.deepEqual(await connect(), { state: 'connected' });
   assert.equal(auth.searchParams.get('client_id'), 'oaiapp_fixture');
+  assert.equal(auth.searchParams.get('prompt'), 'consent');
   assert.equal((await stat(join(directory, 'chatgpt.json'))).mode & 0o777, 0o600);
   assert.equal((await post('/api/interpret', { model, packet, images: [] })).status, 400);
   assert.equal((await post('/api/interpret', { model: 'unknown', packet, images })).status, 400);
@@ -141,4 +158,72 @@ test('OAuth rejects invalid state, validates nonce and scope, and sends only app
   assert.equal((await (await post('/api/interpret', { model, packet, images })).json()).error, 'incomplete');
   assert.deepEqual(await (await post('/api/disconnect')).json(), { state: 'disconnected', revocationConfirmed: true });
   assert.ok(!(await readFile(join(directory, 'chatgpt.json'), 'utf8')).includes('fake-access'));
+});
+
+async function createTestSession(t, fetcher) {
+  const directory = await mkdtemp(join(tmpdir(), 'moveide-oauth-test-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  return createChatGPTSession({ directory, origin: 'http://127.0.0.1:4173', fetcher, jwks: publicKey });
+}
+
+async function begin(session) {
+  const { authorizationUrl } = await session.start();
+  const auth = new URL(authorizationUrl);
+  return {
+    nonce: auth.searchParams.get('nonce'),
+    query: new URLSearchParams({
+      state: auth.searchParams.get('state'), code: 'fixture-code', client_id: 'oaiapp_fixture',
+    }),
+  };
+}
+
+function tokens(extra = {}) {
+  return {
+    access_token: 'initial-access',
+    refresh_token: 'initial-refresh',
+    expires_in: 1,
+    token_type: 'Bearer',
+    scope: 'openid chatgpt.tokens.use.direct resource.invoke',
+    ...extra,
+  };
+}
+
+test('canceling during OAuth exchange prevents a late token response from connecting', async (t) => {
+  const waiting = Promise.withResolvers();
+  const received = Promise.withResolvers();
+  const session = await createTestSession(t, (_url, { signal }) => {
+    received.resolve(signal);
+    return waiting.promise;
+  });
+  const { nonce, query } = await begin(session);
+  const callback = session.finish(query);
+  const signal = await received.promise;
+  session.cancel();
+  assert.equal(signal.aborted, true);
+  waiting.resolve(Response.json(tokens({ id_token: await signIdentity(nonce) })));
+  assert.equal(await callback, false);
+  assert.deepEqual(await session.status(), { state: 'disconnected' });
+  assert.equal(await session.accessToken(), null);
+});
+
+test('refresh uses the rotated token and clears a terminal rejected grant', async (t) => {
+  let nonce;
+  const used = [];
+  const session = await createTestSession(t, async (_url, { body }) => {
+    if (body.get('grant_type') === 'authorization_code') {
+      return Response.json(tokens({ id_token: await signIdentity(nonce) }));
+    }
+    used.push(body.get('refresh_token'));
+    if (used.length === 1) {
+      return Response.json(tokens({ access_token: 'rotated-access', refresh_token: 'rotated-refresh' }));
+    }
+    return Response.json({ error: 'refresh_token_reused' }, { status: 400 });
+  });
+  const auth = await begin(session);
+  nonce = auth.nonce;
+  assert.equal(await session.finish(auth.query), true);
+  assert.equal(await session.accessToken(), 'rotated-access');
+  assert.equal(await session.accessToken(), null);
+  assert.deepEqual(used, ['initial-refresh', 'rotated-refresh']);
+  assert.deepEqual(await session.status(), { state: 'disconnected' });
 });

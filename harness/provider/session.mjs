@@ -10,8 +10,12 @@ const revokeUrl = `${issuer}/api/accounts/oauth/revoke`;
 export const resource = 'https://api.openai.com/v1';
 const planScope = 'chatgpt.tokens.use.direct';
 const requestedScopes = `openid profile email offline_access resource.invoke ${planScope}`;
+const terminalRefreshErrors = new Set([
+  'invalid_grant', 'invalid_refresh_token', 'token_expired', 'refresh_token_expired',
+  'refresh_token_invalidated', 'refresh_token_reused',
+]);
 const callbackPath = '/api/auth/callback';
-const jwks = createRemoteJWKSet(new URL('/.well-known/jwks.json', issuer));
+const openAIKeys = createRemoteJWKSet(new URL('/.well-known/jwks.json', issuer));
 
 function secret() {
   return randomBytes(32).toString('base64url');
@@ -23,7 +27,7 @@ function matchesState(provided, expected) {
     && timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
 }
 
-async function verifyIdentity(idToken, clientId, nonce) {
+async function verifyIdentity(idToken, clientId, nonce, jwks) {
   const { payload } = await jwtVerify(idToken, jwks, {
     issuer,
     audience: clientId,
@@ -48,11 +52,12 @@ function normalizeTokens(body) {
   };
 }
 
-export function createChatGPTSession({ directory, origin, fetcher = fetch, verify = verifyIdentity }) {
+export function createChatGPTSession({ directory, origin, fetcher = fetch, jwks = openAIKeys }) {
   const path = join(directory, 'chatgpt.json');
   const redirectUri = new URL(callbackPath, origin).href;
   let persisted;
   let attempt;
+  let exchange;
   let failure;
   let sequence = Promise.resolve();
 
@@ -73,12 +78,13 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
     return persisted;
   }
 
-  async function save(next) {
+  async function save(next, signal) {
     await mkdir(directory, { mode: 0o700, recursive: true });
     await chmod(directory, 0o700);
     const staging = `${path}.${randomUUID()}.tmp`;
     try {
       await writeFile(staging, JSON.stringify(next), { mode: 0o600, flag: 'wx' });
+      signal?.throwIfAborted();
       await rename(staging, path);
       persisted = next;
     } finally {
@@ -86,12 +92,13 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
     }
   }
 
-  async function post(url, fields) {
+  async function post(url, fields, signal) {
+    const timeout = AbortSignal.timeout(15_000);
     return fetcher(url, {
       method: 'POST',
       body: new URLSearchParams(fields),
       redirect: 'error',
-      signal: AbortSignal.timeout(15_000),
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
     });
   }
 
@@ -109,7 +116,8 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
           && (profile.tokens.expiresAt > Date.now() || profile.tokens.refreshToken)) {
         return { state: 'connected' };
       }
-      return failure ?? { state: 'disconnected' };
+      const denied = profile?.tokens && !profile.tokens.scopes.includes(planScope);
+      return failure ?? { state: denied ? 'denied' : 'disconnected' };
     });
   }
 
@@ -120,8 +128,10 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
       const state = secret();
       const nonce = secret();
       const verifier = secret();
+      const requestConsent = failure?.state === 'denied' || (current.profile?.tokens && !current.profile.tokens.scopes.includes(planScope));
       attempt = {
         state, nonce, verifier, profile: current.profile, expiresAt: Date.now() + 10 * 60_000,
+        controller: new AbortController(),
       };
       failure = null;
       const url = new URL(authorizeUrl);
@@ -138,6 +148,7 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
         code_challenge: createHash('sha256').update(verifier).digest('base64url'),
       });
       if (!current.profile) url.searchParams.set('agent_name_hint', 'MoveIDE');
+      if (requestConsent) url.searchParams.set('prompt', 'consent');
       return { state: 'connecting', authorizationUrl: url.href };
     });
   }
@@ -153,6 +164,8 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
       }
       const returnedClientId = query.get('client_id');
       const clientId = pending.profile?.clientId ?? returnedClientId;
+      exchange = pending.controller;
+      const { signal } = exchange;
       try {
         if (!/^oaiapp_[A-Za-z0-9_-]+$/.test(clientId ?? '') || !query.get('code')
             || (returnedClientId && returnedClientId !== clientId)) throw new Error('Invalid callback');
@@ -163,33 +176,33 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
           code_verifier: pending.verifier,
           redirect_uri: redirectUri,
           resource,
-        });
+        }, signal);
         if (!response.ok) throw new Error('Token exchange failed');
         const body = await response.json();
-        const subject = await verify(body.id_token, clientId, pending.nonce);
+        const subject = await verifyIdentity(body.id_token, clientId, pending.nonce, jwks);
         if (pending.profile && subject !== pending.profile.subject) throw new Error('Account mismatch');
         const tokens = normalizeTokens(body);
         const current = await read();
-        await save({ ...current, profile: { clientId, subject, tokens } });
+        await save({ ...current, profile: { clientId, subject, tokens } }, signal);
         if (!tokens.scopes.includes(planScope)) failure = { state: 'denied' };
       } catch {
-        failure = { state: 'unavailable' };
+        if (!signal.aborted) failure = { state: 'unavailable' };
+      } finally {
+        exchange = null;
       }
-      return true;
+      return !signal.aborted;
     });
   }
 
   function cancel() {
-    return serialize(() => {
-      attempt = null;
-      failure = null;
-    });
+    exchange?.abort();
+    attempt = null;
+    failure = null;
   }
 
   function disconnect() {
+    cancel();
     return serialize(async () => {
-      attempt = null;
-      failure = null;
       const current = await read();
       const profile = current.profile;
       if (!profile?.tokens) return { state: 'disconnected' };
@@ -229,7 +242,7 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, verif
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        if (body.error === 'invalid_grant') {
+        if (terminalRefreshErrors.has(typeof body?.error === 'string' ? body.error : body?.error?.code)) {
           await save({ ...current, profile: { ...profile, tokens: null } });
           return null;
         }

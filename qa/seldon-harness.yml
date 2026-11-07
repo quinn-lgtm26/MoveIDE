@@ -1,0 +1,19 @@
+version: 1
+name: MoveIDE harness smoke
+run:
+  url: https://moveide-harness.example/harness/smoke/
+testCases:
+  - id: harness-measure-squat
+    name: Measure both reps in the bundled side-view squat
+    steps:
+      - Open the MoveIDE harness smoke test.
+      - Choose Analyze supported squat and wait for the completed analysis.
+      - Review the knee-flexion measurements and find the report download.
+    criteria: The completed analysis shows two complete reps with a numeric knee-flexion estimate in degrees for each rep and a report download.
+  - id: harness-coaching-handoff
+    name: Inspect the manual coaching handoff for the two reps
+    steps:
+      - Open the MoveIDE harness smoke test and analyze the supported squat.
+      - Review the two timestamped source image previews, then open Preview exact coaching handoff to inspect the packet text.
+      - Find the Copy coaching handoff action without connecting an account.
+    criteria: The manual handoff shows both rep IDs with matching timestamped source JPEG previews and an enabled copy action.

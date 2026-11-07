@@ -1,3 +1,4 @@
+import { reportSourceMatches } from "../motion/source-identity.mjs";
 import { openVideo, seekVideo } from "../motion/video.mjs";
 import { buildCoachPacket } from "./packet.mjs";
 
@@ -29,6 +30,9 @@ export async function prepareCoachingBundle(report, source, { repIds, userGoal, 
     return bundle;
   };
   if (source == null) return markAllUnavailable("Open the analyzed clip to attach its source frames.");
+  if (!reportSourceMatches(report, source)) {
+    return markAllUnavailable("Choose the same clip that was used to produce this analysis.");
+  }
 
   let decoder;
   try {

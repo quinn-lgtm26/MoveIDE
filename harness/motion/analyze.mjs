@@ -1,5 +1,8 @@
+import { bindReportSource } from './source-identity.mjs'
 import { buildAnalysisReport } from './squat.mjs'
 import { openVideo, seekVideoFrame } from './video.mjs'
+
+export { getMotionTrace } from './squat.mjs'
 
 const SAMPLE_RATE_HZ = 15
 const baseUrl = import.meta.env?.BASE_URL ?? '/'
@@ -76,7 +79,8 @@ export async function analyzeSquat(source, {
       !globalThis.OffscreenCanvas || !globalThis.createImageBitmap || !globalThis.Worker) {
     throw new Error('This browser cannot analyze video locally. Try a current desktop Chrome.')
   }
-  const { video, close } = await openVideo(source, { signal })
+  if (!globalThis.crypto?.subtle) throw new Error('Open MoveIDE on localhost or HTTPS to analyze video locally.')
+  const { video, close, sourceUrl } = await openVideo(source, { signal })
   let worker
   try {
     const durationMs = Math.max(1, Math.round(video.duration * 1000))
@@ -104,6 +108,7 @@ export async function analyzeSquat(source, {
     })
     signal?.throwIfAborted()
     const report = buildAnalysisReport(clip, frames)
+    bindReportSource(report, sourceUrl ?? source)
     onProgress({ stage: 'complete', progress: 1, frameCount: frames.length })
     return report
   } finally {

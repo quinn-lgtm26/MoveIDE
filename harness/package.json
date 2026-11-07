@@ -17,7 +17,8 @@
     "test": "node --test",
     "preverify:fixtures": "npm run setup:pose",
     "verify:fixtures": "node verify/fixtures.mjs",
-    "verify:build": "node verify/build-smoke.mjs"
+    "verify:build": "node verify/build-smoke.mjs",
+    "verify:live": "node verify/live-chatgpt.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.2.2",

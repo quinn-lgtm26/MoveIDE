@@ -7,17 +7,18 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const local = (path) => fileURLToPath(new URL(path, import.meta.url));
 const smokePath = '/harness/smoke/';
 
-function configureStandalone(server) {
+function configureStandalone(server, allowChatGPT = false) {
   let provider;
   server.middlewares.use((request, response, next) => {
     if (request.method === 'GET' && request.url === '/') {
       return response.writeHead(302, { Location: smokePath }).end();
     }
     if (!request.url?.startsWith('/api/')) return next();
+    const { port } = server.httpServer.address();
     provider ??= createProviderMiddleware({
-      origin: `http://127.0.0.1:${server.httpServer.address().port}`,
+      origin: `http://127.0.0.1:${port}`,
       returnPath: smokePath,
-      enabled: process.env.MOVEIDE_ENABLE_CHATGPT === '1',
+      enabled: allowChatGPT && port === 4173 && process.env.MOVEIDE_ENABLE_CHATGPT === '1',
     });
     return provider(request, response, next);
   });
@@ -37,7 +38,9 @@ export default defineConfig({
   plugins: [{
     name: 'moveide-standalone-harness',
     configureServer: configureStandalone,
-    configurePreviewServer: configureStandalone,
+    configurePreviewServer(server) {
+      configureStandalone(server, true);
+    },
     async writeBundle() {
       await mkdir(local('dist/fixtures/squat/'), { recursive: true });
       await Promise.all([

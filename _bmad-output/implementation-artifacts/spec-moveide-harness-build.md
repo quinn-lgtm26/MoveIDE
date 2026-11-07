@@ -64,6 +64,14 @@ context:
 
 ## Review Triage Log
 
+- Medium, patched. Cadence-aware gaps and continuous side selection prevent false resets and lost reps. Added right-side and low-frame-rate checks. A no-op seek helper timeout lacked a demonstrated failure in the analyzer's normal sampling path and remains outside the reported positive tests.
+- High, patched. Clip URLs refuse redirects, worker checks the exact model hash, and live report bundles bind to their source. Imported JSON relies on the caller's known source.
+- High, patched. A canceled callback cannot commit credentials. Signed JWT tests verify nonce, scope and PKCE. Refresh rotates tokens and clears terminal grant failures. Declined scope recovery requests consent, and model discovery handles reauthorization.
+- Medium, patched. The standalone native preview permits one fixed local listener for its credential directory. Embedded callers own local process isolation.
+- Medium, patched. Packet count and text limits apply at the provider boundary. Tests verify both image IDs, exact source pixels and outbound captions. The built smoke uses the independent fixture's declared tolerance.
+- Medium, patched. The frontend companion names the verified supported fixture. Chrome confirmed the real report, overlay and evidence seek using a temporary build of frontend PR #3.
+- Live verification. The eligible account and image-capable catalog were verified on loopback. GPT-6.1 Sol returned evidence-linked observations for all six submitted measurements and both JPEGs.
+
 ## Verification
 
 - `npm --prefix harness test` covers motion geometry, packet scope, and provider protocol and failure paths.
