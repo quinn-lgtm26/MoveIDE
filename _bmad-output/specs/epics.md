@@ -4,6 +4,8 @@ Two implementation tracks. The frontend owns the workbench. The backend owns Med
 
 Contracts · [Frontend spec](spec-moveide-frontend/SPEC.md) · [Backend and harness spec](spec-moveide-harness/SPEC.md) · [AnalysisReport v1](shared/analysis-report-v1.md)
 
+**Current scope amendment (2026-11-07):** the normal experience is one Start with automatic bounded coaching, a stable stack of concise timestamped cues and optional per-card explanation. Historical manual-preview story criteria below are superseded by [AI amendments](../../AI-AMENDMENTS.md) and the [current design contract](../../docs/frontend-design-amendments.md). Epic 3 records the latest user-requested full-body/view-aware work; implementation or published design is not independent accuracy validation.
+
 ## Epic 1 · Frontend workbench
 
 ### FE-1 · Open and play a clip
@@ -159,6 +161,132 @@ The user confirmed that no compatible GPU runtime/assets are available and selec
 - Deliver a short decision memo with reproducible commands, evidence and conditions for follow-on work. The shipped local side-view harness keeps its own QA gate.
 
 Depends on the BE-2 baseline and suitable approved recordings. [OpenCap research and licensing notes](spec-moveide-harness/squat-methodology.md#verification-and-opencap-research)
+
+## Epic 3 · Stable coaching and view-aware squat analysis
+
+The user explicitly rejected flickering walls of text and requested a coherent setup/phone/session flow, actionable real-time coaching, whole-body context, and front/oblique knee-path analysis. Ship the stable supported-view experience first, while the expanded-view experiments acquire evidence. All story statuses below are **specified; acceptance pending** unless a later evidence-linked update says otherwise. Parent work on the immediate stable cue must be verified before marking it complete.
+
+### UX-1 · Stack concise coaching cards without moving the player
+
+**As a person squatting**, I see actionable cues arrive one after another and retain earlier observations instead of watching them disappear.
+
+- Append timestamped concise cards to a reserved scrollable feed. Aim for 12 words/action and one body region. Highlight the newest card; per-card Why expands full reasoning and uncertainty.
+- Deduplicate semantic events across frames, seeks and replay. Proposed local-candidate persistence is 500 ms; validated completed-rep AI appends once. Retain the latest 20 cards/session with an explicit cap label; prior cards survive phase changes and loss as historical evidence.
+- Preserve scroll/focus when reading older cards, and offer New coaching rather than forcing scroll. Never move the player or controls. Source/new session resets history; Stop retains accepted cards but rejects late replies. Tracking/view loss invalidates current geometry, not the recorded history.
+- **Acceptance:** three cues remain after phase changes; replay/seek adds no duplicate or inference; threshold jitter adds no repeated semantic card; a 21st event respects the cap. Test delayed AI about a prior rep, Stop, loss, source reset, narrow viewport, reduced motion, focus retention and 200% text zoom. No text clipping or layout jump.
+
+Depends on the existing local feedback and coaching-segment APIs. This supersedes the earlier exclusive-current-cue/2-second-hold design. Presentation timing does not establish biomechanical correctness.
+
+### UX-2 · Finish the one-Start setup and phone journey
+
+**As a returning person**, I start my remembered source once and get video, local measures and connected coaching automatically.
+
+- Setup owns source, camera/account availability and goal/reference; Start owns session orchestration. Phone pairing offers a private local-generated QR and accessible link, expiry, rear-camera permission and automatic laptop continuation when the stream arrives.
+- Keep native phone Start camera/permission honest. Hide network environment variables and ports in developer setup details; expose plain recovery steps in the product.
+- **Acceptance:** first-time permission/account flow and returning session both complete without packet controls. Phone denial, expired link, disconnected peer, unsupported HTTPS and Stop each have one clear recovery action. Physical iPhone/Mac behavior is verified separately from browser simulation. QR creation must not send the private link to a third party.
+
+Depends on phone transport and the existing session controller. A design or QR alone is not a completed phone feature.
+
+### UX-3 · Highlight only the supported body region
+
+**As a person reviewing a rep**, I can see which joint chain the current cue refers to without reading technical output.
+
+- Retain a quiet full-body skeleton; accent only the cited visible joint chain/region. Use text/icon plus green target-met, amber selected-goal miss, or gray unavailable semantics.
+- Anatomical left/right survives mirroring/rotation and source replacement. Missing/occluded joints remove the dependent accent rather than drawing guessed connectors.
+- **Acceptance:** supported knee/torso cues highlight the expected points on letterboxed, mirrored and resized video; invalid IDs, missing points, stale poses and source changes show no residual accent. A full-body landmark set does not automatically color the whole body green.
+
+Depends on UX-1 and VIEW-1. Frontend uses the shared measurement/overlay coordinates, not private angle formulas.
+
+### VIEW-1 · Expose a viewpoint-specific capability and quality gate
+
+**As a person changing camera angle**, I see what can be measured in this view and what cannot.
+
+- Distinguish supported side-view projected features, experimental frontal features, experimental oblique features and optional estimated 3D inspection. Do not apply side-view targets to a different view.
+- Every new metric carries view/coordinate/side provenance, quality reason and required landmarks. Require view stability, body identity, visibility/presence where available, adequate projected limb length and sensible camera framing; unavailable is not zero.
+- Retain reliable whole-body tracking even when one measurement is unsupported. Explain a corrective camera action in the short cue.
+- **Acceptance:** front, side, oblique, changing-view, cropped-feet and unilateral-occlusion cases enable only their declared capabilities. A view change immediately clears view-dependent baselines, metrics and judgments. Tracker confidence is never displayed as angle accuracy.
+
+Depends on BE-6. Current side-view fixture checks are retained; new views require named fixtures and annotations.
+
+### VIEW-2 · Establish a stable person/view reference automatically
+
+**As a person starting a session**, I get a reference that fits this camera and my selected goal without a calibration wizard.
+
+- Collect a stable starting stance or explicitly selected reference rep inside the active session. Show a brief hold-still instruction only while needed. Record source, view, metric definition, baseline interval, goal and policy version.
+- Baseline means reference, not correct posture. Never silently adapt it while giving a correction. Invalidate on camera movement, view/person change or prolonged evidence loss.
+- **Acceptance:** jitter alone cannot repeatedly reset a valid reference; occlusion/insufficient usable frames cannot produce a fabricated baseline. A new camera angle cannot reuse old projection values. No new external inference call is required for local calibration.
+
+Depends on VIEW-1. Stability windows and normalization choices must be recorded and tested before use.
+
+### VIEW-3 · Evaluate frontal and oblique knee-path projections
+
+**As a person reviewing a front-view squat**, I can inspect whether the observed knee path changes relative to my selected camera-view reference.
+
+- Define and document a normalized image-plane knee-path change relative to the person's phase/stance baseline and observed hip–ankle line. Use a body-centered inward sign and stable anatomical sides. Name it a projection, not a clinical valgus angle.
+- Require the relevant hip/knee/ankle/foot landmarks, non-degenerate geometry, stable view, usable baseline and persistent observations. Handle stance-width and camera-roll changes explicitly. Give oblique measurements separate definitions/gates; never copy a side/front cutoff without evidence.
+- Until validation passes, label the trend experimental and withhold a confident good/bad posture verdict or corrective instruction based only on it.
+- **Acceptance:** consented, independently annotated front/oblique recordings include lateral movement, stance changes, mirrors, rotation, occlusion and stable controls. Measure event precision/recall, false cues, usable coverage and temporal persistence per view. Define threshold/error targets before selecting a winning configuration. Synthetic geometry tests verify formula/sign only, not real accuracy.
+
+Depends on VIEW-1, VIEW-2 and UX-3. Native OpenCap is not a prerequisite or a substitute for these annotations.
+
+### TEMP-1 · Ground coaching in the relevant movement phase
+
+**As a person replaying a squat**, I see the observation where it happened, with enough evidence to explain movement rather than a bottom still alone.
+
+- Preserve local source-timed trajectories and phase intervals. A bottom-depth claim can use bottom evidence; direction, pacing, sequencing and knee-path claims require source-bound temporal measurements/excerpts.
+- Extend the evidence contract deliberately for bounded descent/bottom/ascent/return references. Maintain at most four exact source images/request and the current live one-in-flight, ≥8-second, six-call/session policy. Do not claim full-video upload or interpretation.
+- Bind the short action, full rationale, body region and phase interval to validated submitted evidence IDs. Missing intervals produce explicit uncertainty, not interpolation presented as observed motion.
+- **Acceptance:** correct and reversed synthetic sequences distinguish direction; real replay cues seek to their cited phase; variable-rate clips and dropped live frames retain timestamp/image identity. A bottom-only bundle cannot yield an accepted unsupported sequencing claim. A delayed reply cannot replace another source/rep's current cue.
+
+Depends on BE-2, BE-4, BE-6 and the shared contract; add a versioned response/packet extension if the existing schema cannot express the evidence.
+
+### R-2 · Establish independent accuracy limits across views
+
+**As a maintainer**, I publish what each view and coordinate representation can actually support.
+
+- Use independent 2D annotations for image-plane measurements and appropriate calibrated 3D references for 3D claims. Include multiple people/body proportions, view angles, distances, camera heights, lighting and occlusion strata.
+- Predeclare acceptable per-metric error, event detection, repeatability and usable-coverage thresholds. Report failures and abstentions, not just aggregate means or the best clip. Compare pinned model/configuration versions on the same held-out sources.
+- Label MediaPipe world coordinates experimental 3D estimates until their claimed use is validated. Current independent joint-angle error is unmeasured, including the side view; timing agreement is not angle validation.
+- **Acceptance:** reproducible dataset/provenance, independent annotator procedure/agreement, test split, per-view results and explicit supported operating envelope. Arbitrary-angle reliable accuracy is not a completed feature without these results.
+
+Research gate; does not block shipping the truthful supported-view demo. Broad non-squat movement support and native OpenCap execution remain deferred.
+
+### VIEW-4 · Keep person and landmarks stable during camera movement
+
+**As a person being filmed**, I can remain the tracked subject as the camera moves around me.
+
+- Estimate viewpoint/camera-motion changes continuously; maintain person identity and anatomical left/right rather than selecting a new nearest pose every frame. Detect identity interruption, swaps, timestamp gaps and implausible segment jumps.
+- Use bounded temporal filters with explicitly measured maximum added latency; reset when identity, view evidence or time continuity fails. Retain raw landmarks and filter/version provenance for audit.
+- **Acceptance:** real orbit/translation/roll clips with bystanders and occlusion report identity swaps, left/right swaps, landmark jitter/drift, filter lag and recovery time. One person's trajectory must not be joined to another's. Visible whole body alone cannot bypass uncertainty gates.
+
+Depends on BE-6 and VIEW-1. Status: research implementation and real-capture acceptance pending.
+
+### VIEW-5 · Reacquire metric validity and baselines throughout an orbit
+
+**As the camera changes angle**, I see only measurements valid for the current view and know when they are reacquiring.
+
+- Separate camera-relative projected values from experimental body-canonical 3D estimates; document canonical-frame construction and its uncertainty. MediaPipe world coordinates alone are not validation of that construction.
+- Invalidate view-dependent baselines/targets across yaw changes; reacquire each metric independently using its landmark, view and calibration gates. Do not keep stale side-view values while the camera faces front.
+- Keep historical coaching cards, but clear current invalid geometry/values and show a concise reacquisition status. A newly valid cue is an event in the existing feed, not an instruction to restart capture manually.
+- **Acceptance:** continuous side→oblique→front→oblique sequences with partial occlusion show correct per-metric availability transitions, no stale baselines and bounded reacquisition time. Return-to-start repeatability and coordinate-frame consistency are measured, not assumed.
+
+Depends on VIEW-2/4. Status: specified, unverified.
+
+### VIEW-6 · Validate actionable coaching during real camera orbit
+
+**As a person using a moving camera**, I get trustworthy short observations about what the evidence supports throughout the squat.
+
+- Benchmark real fixed-side, fixed-front, fixed-oblique and continuous-orbit captures against independent truth appropriate to each projected/3D claim. Include camera heights/distances, motion speeds, people and visibility conditions.
+- Predeclare acceptable metric error, usable coverage, identity/swap rates, end-to-end delay, recovery time and false/missed cue rates. Test sustained events, intermittent occlusion and camera-induced apparent motion as negatives.
+- **Acceptance:** reproduce per-view/orbit results and publish the supported operating envelope. A view transition cannot create a false knee-path correction caused only by camera movement. No arbitrary-angle reliable-accuracy claim before this and R-2 pass. Synthetic and fixed-camera tests remain necessary but insufficient.
+
+Depends on UX-1/3, VIEW-3/4/5, TEMP-1 and R-2. Full-body visibility is necessary for some features, not sufficient proof of accuracy.
+
+### Implementation order and design review status
+
+P0: UX-1 → UX-2 and VIEW-1 in parallel → UX-3. P1: TEMP-1 and VIEW-2 → VIEW-3, while VIEW-4/5 develop the moving-camera path; VIEW-6 and R-2 govern any later accuracy/any-angle release claim. Coordinate the frontend and harness through the shared contracts; no new measurement should appear without view/quality semantics.
+
+The [reviewed design amendment](../../docs/frontend-design-amendments.md) covers setup, desktop/mobile composition, phone pairing, short stable cues, region highlighting, error states, accessibility and reduced motion. This was a headless specification review against the supplied user direction and inspected APIs; it is not rendered UI approval or proof of finished implementation. Implementation evidence is tracked separately.
 
 ## Shared final-build gate
 

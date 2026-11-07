@@ -36,3 +36,11 @@ Reuse the new live camera page and transport rather than creating another engine
 - Live UI has real Heavy/synthetic-camera verification with a **mocked** model; actual phone streaming and live-session external AI are separate remaining checks.
 - Final root acceptance must independently verify automatic coaching, matching-rep cues, source swaps/Stop, offline behavior and no inference on seek. The smoke result alone is not root acceptance.
 - Final Wren runs remain held until the integrated build is ready. Update both stable core workflows to the one-action experience, rerun on the final build, and record results in the ledger.
+
+## Latest experience and camera-motion amendment
+
+New cues **stack in a timestamped session feed** and remain across rep/phase changes. Keep cards short, expandable via Why, and deduplicated across rewind/replay; do not replace them with a disappearing paragraph panel. The newest cue may be highlighted, but older accepted guidance remains inspectable. This supersedes exclusive single-cue presentation above.
+
+The product target now includes a camera moving around the squatting person. Preserve that requirement in implementation planning, but do not claim it is already accurate: MediaPipe supplies estimated world XYZ, while the current validated measurement protocol is side-view projected geometry. Automatic view/continuity detection, temporal stability, per-metric capability gates, baseline resets and independent cross-view validation are required. Keep uncertain current values unavailable while retaining timestamped past guidance. Full-body visibility alone is not sufficient evidence of trustworthy 3D angles.
+
+See the feature-by-feature status in [tracker.md](tracker.md) and the updated [design amendment](docs/frontend-design-amendments.md). Front/oblique knee-inward diagnostics must not become a clinical label or automatic correction without supported evidence. The current bottom-only visual packet does not substantiate whole-motion claims.

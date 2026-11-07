@@ -1,5 +1,7 @@
 # Frontend implementation companion
 
+> Current amendment: [one-Start AI orchestration](../../../AI-AMENDMENTS.md), [frontend APIs](../../../docs/frontend-harness-amendments.md), [live-session design](../../../docs/frontend-design-amendments.md), and [global tracker](../../../tracker.md) supersede the historical separate preview/Interpret workflow and automatic-coaching non-goal below. Retain manual exports as optional developer tools.
+
 Use one React and TypeScript workbench in Vite. Own the import, report view, and coaching controls. Use the backend's AnalysisReport v1 and start from the shared synthetic example.
 
 - **Open and process.** Use a browser object URL for the selected file. Support the reference H.264 MP4 in Chrome on the demo laptop. Offer a visible built-in sample action that opens `fixtures/squat/clear-squat.mp4` through the same analysis path as an imported file. Show progress and an actionable error. Switching clips invalidates the old report, cancels or ignores pending results, and releases old video resources. The earlier `supported-squat.mp4` remains a regression fixture, and `sample-squat.mp4` remains a hard tracking fixture. [Frontend handoff amendments](../../../harness/FRONTEND-HANDOFF.md)

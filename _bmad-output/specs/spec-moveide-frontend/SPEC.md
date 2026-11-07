@@ -11,6 +11,8 @@ sources:
 
 # MoveIDE frontend
 
+> Current amendment: [one-Start AI orchestration](../../../AI-AMENDMENTS.md), [frontend APIs](../../../docs/frontend-harness-amendments.md), [live-session design](../../../docs/frontend-design-amendments.md), and [global tracker](../../../tracker.md) supersede the historical separate preview/Interpret workflow and automatic-coaching non-goal below. Retain manual exports as optional developer tools.
+
 ## Why
 
 Coaches and athletes need to see a movement measurement in the original footage. MoveIDE gives them a free, local workbench for opening a phone clip and inspecting its evidence. The Seldon demo uses one side-view squat.
