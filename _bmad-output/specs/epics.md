@@ -109,9 +109,46 @@ Depends on BE-2 and a successful BE-3. Covers backend CAP-4. The manual packet r
 
 Depends on BE-1 and BE-2. Covers backend CAP-1 and CAP-2. [Measurement and review methodology](spec-moveide-harness/squat-methodology.md)
 
-**BE-5 status — partial.** The clearer fixture, Full/Heavy benchmark, projected metrics, and phase trace are delivered. The independent ffprobe audit accounts for 57/57 clear-demo and 90/90 supported-regression source timestamps against hashed saved reports. Its negative tests distinguish subsampling from complete coverage and refuse ambiguous time origins or rotation. Sequential exact decode on high/variable-rate and rotated inputs, independently annotated angle errors and annotator agreement, repeated captures, and memory profiling remain open. [Reproducible timeline audit](../../harness/verify/source-timeline.mjs)
+**BE-5 status — partial.** The clearer fixture, Full/Heavy benchmark, projected metrics, and phase trace are delivered. The independent ffprobe audit accounts for 57/57 clear-demo and 90/90 supported-regression source timestamps against hashed saved reports. Its negative tests distinguish subsampling from complete coverage and refuse ambiguous time origins or rotation. Sampled decoder QA now passes generated 30 Hz, 7 Hz, variable-rate and rotated inputs with independent timestamp and pixel checks. Sequential exact decode, independently annotated angle errors and annotator agreement, repeated captures, and memory profiling remain open. [Reproducible timeline audit](../../harness/verify/source-timeline.mjs)
 
-## Optional research
+## Extended single-video analysis
+
+The user selected Heavy as the default and requested OpenCap alongside MediaPipe. Heavy's seven-fixture run and both labeled timing checks pass without changing the 150 ms tolerance. Full remains an explicit preset and its historical artifacts are retained. These stories extend the initial side-view protocol while keeping separate coordinate systems and verification states.
+
+### BE-6 · Retain complete sampled MediaPipe outputs
+
+**As an analyst**, I can export each analyzed timestamp's full model outputs and inspect their provenance.
+
+- `onPoseFrame` returns 33-slot normalized x/y/z and world x/y/z arrays, nullable visibility/presence, model ID/version, and the same decoded timestamp as AnalysisReport.
+- Missing points remain null. A consumer changing callback data cannot modify the report. Model-estimated world coordinates are labeled with their hip-centered origin and meters; they are not treated as calibrated biomechanical joint coordinates.
+- Download the raw trace locally. Keep it outside CoachPacket and optional inference requests. Verify real browser export timestamps, finite coordinates, model provenance, and privacy boundaries.
+
+**Status — verified in the harness.** Unit tests and the Heavy built-browser export check pass. Frontend exposes this optional export through the shared API.
+
+### BE-7 · Import source-bound OpenCap kinematics
+
+**As an analyst**, I can inspect separately produced OpenCap results alongside the source video.
+
+- Verify source-video, motion-text, and scaled-model SHA-256 hashes plus pinned engine revision. Require explicit source frame index and original-video timestamp per motion row.
+- Preserve named OpenSim coordinates and signs. Convert declared rotational radians to degrees while preserving translations in meters. Reject malformed data and unsupported units. Do not execute referenced model code.
+- Expose missing source intervals and an `imported-unverified` state. Hash binding and producer-declared mapping cannot establish model accuracy or prove row alignment.
+
+**Status — importer verified with constructed fixtures.** Nine tests and a Chrome File/import smoke pass with no external requests. Actual OpenCap inference and real-capture accuracy remain unverified. [API and runtime gate](../../harness/opencap/README.md)
+
+### FE-6 · Review one video with two analysis tracks
+
+**As an analyst**, I can replay one video while inspecting the MediaPipe trace and an optional OpenCap trace.
+
+- Keep a single presented-video clock and active source identity. Present model, coordinate system, units, and verification status per track. Clear traces and coaching cues when the clip changes.
+- Import OpenCap through the typed adapter. Show unavailable rows across tracker gaps. Preserve MediaPipe analysis when the optional import fails.
+- Label native OpenCap inference unavailable until a configured runtime passes its gate. Do not present a fabricated 3D skeleton or subtract incomparable projected and OpenSim angles.
+- Keep video, sample stepping, and evidence navigation usable while a reviewed coaching request runs. Explain which submitted measurements and images support each cue. Keep OpenCap data outside the current MediaPipe CoachPacket v1 until a separate interpretation contract is verified.
+
+**Status — frontend amendment published, integration pending.** [Frontend handoff](../../harness/FRONTEND-HANDOFF.md)
+
+## OpenCap inference and research gate
+
+The user confirmed that no compatible GPU runtime/assets are available and selected local Heavy plus OpenCap import as the current delivery. Native inference is deferred. R-1 records the prerequisites for resuming it and is not reported as completed inference.
 
 ### R-1 · Benchmark OpenCap Monocular as a 3D comparator
 

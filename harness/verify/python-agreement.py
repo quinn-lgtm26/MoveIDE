@@ -17,7 +17,10 @@ import numpy as np
 
 
 HARNESS = Path(__file__).resolve().parents[1]
-MODEL_SHA256 = "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+MODELS = {
+    "mediapipe-pose-landmarker-full": ("pose_landmarker_full.task", "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"),
+    "mediapipe-pose-landmarker-heavy": ("pose_landmarker_heavy.task", "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b"),
+}
 KNEE_INDICES = {"left": (23, 25, 27), "right": (24, 26, 28)}
 
 
@@ -91,17 +94,24 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--clip", type=Path, default=HARNESS.parent / "fixtures/squat/supported-squat.mp4")
     parser.add_argument("--report", type=Path, default=HARNESS / "results/supported-squat.analysis-report.v1.json")
-    parser.add_argument("--model", type=Path, default=HARNESS / "public/pose/pose_landmarker_full.task")
+    parser.add_argument("--model", type=Path, help="Defaults to the pinned model identified by the report.")
     args = parser.parse_args()
-    for required in (args.clip, args.report, args.model):
+    for required in (args.clip, args.report):
         if not required.is_file():
             parser.error(f"Missing {required}. Run npm run verify:fixtures in harness/ first.")
 
-    checksum = hashlib.sha256(args.model.read_bytes()).hexdigest()
-    if checksum != MODEL_SHA256:
-        parser.error("Model checksum differs from the pinned Pose Landmarker Full v1 asset.")
-
     report = json.loads(args.report.read_text())
+    model_info = report.get("poseModel", {})
+    if model_info.get("id") not in MODELS or model_info.get("version") != "1":
+        parser.error("The report must identify a pinned MediaPipe Full or Heavy v1 model.")
+    model_file, expected_checksum = MODELS[model_info["id"]]
+    args.model = args.model or HARNESS / "public/pose" / model_file
+    if not args.model.is_file():
+        parser.error("Missing model asset. Run npm run setup:pose in harness/ first.")
+    checksum = hashlib.sha256(args.model.read_bytes()).hexdigest()
+    if checksum != expected_checksum:
+        parser.error("Model checksum differs from the model identified by the report.")
+
     side = report["protocol"]["side"]
     measurements = [
         item for item in report["measurements"]
@@ -131,9 +141,12 @@ def main():
 
     print(json.dumps({
         "clip": args.clip.name,
+        "clipSha256": hashlib.sha256(args.clip.read_bytes()).hexdigest(),
         "report": args.report.name,
+        "reportSha256": hashlib.sha256(args.report.read_bytes()).hexdigest(),
         "pythonMediaPipeVersion": mp.__version__,
         "modelSha256": checksum,
+        "poseModel": model_info,
         "frameCount": frame_count,
         "configuration": "FFmpeg RGB decode · MediaPipe VIDEO · CPU · one pose",
         "side": side,

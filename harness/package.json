@@ -19,6 +19,7 @@
     "verify:fixtures": "node verify/fixtures.mjs",
     "verify:build": "node verify/build-smoke.mjs",
     "verify:source-timeline": "node verify/source-timeline.mjs",
+    "verify:decoder-matrix": "node verify/decoder-matrix.mjs",
     "verify:live": "node verify/live-chatgpt.mjs"
   },
   "dependencies": {

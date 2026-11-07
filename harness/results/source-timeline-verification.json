@@ -6,7 +6,7 @@
     {
       "clip": "clear-squat.mp4",
       "clipSha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
-      "reportSha256": "971dbcc14ecd555deb8de0f30d87056b25ec6cd7fe3f57859110007d455e2e03",
+      "reportSha256": "1af73ef55c3eb6054bea744a57f37f25020def89d942285141f399847a5c1963",
       "passed": true,
       "sourceFrameCount": 57,
       "analyzedFrameCount": 57,
@@ -257,7 +257,7 @@
     {
       "clip": "supported-squat.mp4",
       "clipSha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
-      "reportSha256": "bd23a85fe2eb0879746911f2daaebd625e3f805e32cf89f0c2f4949e31384799",
+      "reportSha256": "fd9f69ad18a10447e1577fd3a9d97688584c1e8e02fe1c32b924dfbc28d9ac92",
       "passed": true,
       "sourceFrameCount": 90,
       "analyzedFrameCount": 90,

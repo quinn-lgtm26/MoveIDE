@@ -1,9 +1,11 @@
-import { POSE_PRESETS } from './pose-model.mjs'
+import { DEFAULT_POSE_PRESET, POSE_PRESETS } from './pose-model.mjs'
 import { bindReportSource } from './source-identity.mjs'
 import { buildAnalysisReport } from './squat.mjs'
 import { openVideo, seekVideoFrame } from './video.mjs'
+import { rawPoseFrame } from './raw-pose.mjs'
 
 export { getMotionTrace, getSquatProfile } from './squat-profile.mjs'
+export { RAW_POSE_COORDINATES } from './raw-pose.mjs'
 
 const SAMPLE_RATE_HZ = 15
 const baseUrl = import.meta.env?.BASE_URL ?? '/'
@@ -21,7 +23,7 @@ function workerRequest(worker, data, { signal, transfer = [], timeoutMs = 30_000
       error ? reject(error) : resolve(result)
     }
     const onMessage = ({ data: result }) => {
-      result.error ? finish(new Error(result.error)) : finish(null, result.landmarks)
+      result.error ? finish(new Error(result.error)) : finish(null, result)
     }
     const onError = (event) => finish(new Error(event.message || 'The pose worker could not start.'))
     const onAbort = () => finish(signal.reason)
@@ -43,7 +45,7 @@ function poseAssetUrl(value) {
   return url.href
 }
 
-async function collectFrames(video, worker, { signal, onFrame }) {
+async function collectFrames(video, worker, { signal, onFrame, onPoseFrame, poseModel }) {
   const frames = []
   for (let index = 0; index / SAMPLE_RATE_HZ < video.duration; index++) {
     // Seek just inside the intended sample. Read the actual decoded frame time
@@ -53,11 +55,12 @@ async function collectFrames(video, worker, { signal, onFrame }) {
     if (timestampMs <= (frames.at(-1)?.timestampMs ?? -1)) continue
     const bitmap = await createImageBitmap(video)
     try {
-      const landmarks = await workerRequest(worker, { type: 'frame', timestampMs, bitmap }, {
+      const result = await workerRequest(worker, { type: 'frame', timestampMs, bitmap }, {
         signal,
         transfer: [bitmap],
       })
-      frames.push({ timestampMs, landmarks })
+      frames.push({ timestampMs, landmarks: result.landmarks })
+      onPoseFrame?.(rawPoseFrame(timestampMs, result, poseModel))
       onFrame(timestampMs, frames.length)
     } finally {
       bitmap.close()
@@ -74,8 +77,9 @@ export async function analyzeSquat(source, {
   clipId,
   signal,
   onProgress = () => {},
+  onPoseFrame,
   assets = {},
-  model = 'full',
+  model = DEFAULT_POSE_PRESET,
 } = {}) {
   if (!Object.hasOwn(POSE_PRESETS, model)) throw new Error('Choose the Full or Heavy MediaPipe pose model.')
   const preset = POSE_PRESETS[model]
@@ -107,6 +111,8 @@ export async function analyzeSquat(source, {
     onProgress({ stage: 'analyzing', progress: 0, frameCount: 0 })
     const frames = await collectFrames(video, worker, {
       signal,
+      onPoseFrame,
+      poseModel: preset.report,
       onFrame(timestampMs, frameCount) {
         onProgress({ stage: 'analyzing', progress: Math.min(1, timestampMs / durationMs), frameCount })
       },

@@ -5,24 +5,24 @@
   "reps": [
     {
       "repId": "rep-1",
-      "startMs": 533,
+      "startMs": 600,
       "bottomMs": 1600,
       "endMs": 2400,
-      "descentMs": 1067,
+      "descentMs": 1000,
       "ascentMs": 800,
       "bottom": {
-        "kneeFlexionDeg": 100.82282061739214,
-        "torsoLeanDeg": 35.759216911399456,
-        "hipFlexionDeg": 105.66552946528506,
-        "shinInclinationDeg": 30.916508063506544,
-        "ankleClosureChangeDeg": 8.853495770613776,
-        "hipDescentLegLengths": 0.40464583719919367,
-        "hipAboveKneeLegLengths": 0.15630348200986866
+        "kneeFlexionDeg": 98.90833537525161,
+        "torsoLeanDeg": 40.569606472370765,
+        "hipFlexionDeg": 108.96851177927338,
+        "shinInclinationDeg": 30.50943006834899,
+        "ankleClosureChangeDeg": 18.291252018169402,
+        "hipDescentLegLengths": 0.3851985968914528,
+        "hipAboveKneeLegLengths": 0.1629500069170091
       },
       "evidence": {
         "start": {
-          "id": "frame-533ms",
-          "timestampMs": 533
+          "id": "frame-600ms",
+          "timestampMs": 600
         },
         "bottom": {
           "id": "frame-1600ms",
@@ -36,28 +36,28 @@
     },
     {
       "repId": "rep-2",
-      "startMs": 3333,
-      "bottomMs": 4400,
+      "startMs": 3400,
+      "bottomMs": 4333,
       "endMs": 5133,
-      "descentMs": 1067,
-      "ascentMs": 733,
+      "descentMs": 933,
+      "ascentMs": 800,
       "bottom": {
-        "kneeFlexionDeg": 100.2912829304447,
-        "torsoLeanDeg": 39.18337760969408,
-        "hipFlexionDeg": 110.88984891886088,
-        "shinInclinationDeg": 28.58481162127789,
-        "ankleClosureChangeDeg": 9.245467516639266,
-        "hipDescentLegLengths": 0.37350644606862343,
-        "hipAboveKneeLegLengths": 0.14599888786726173
+        "kneeFlexionDeg": 98.32754028712357,
+        "torsoLeanDeg": 40.62776889550097,
+        "hipFlexionDeg": 109.0524361360215,
+        "shinInclinationDeg": 29.90287304660304,
+        "ankleClosureChangeDeg": 19.187026510236578,
+        "hipDescentLegLengths": 0.37901404947156875,
+        "hipAboveKneeLegLengths": 0.16911185304105047
       },
       "evidence": {
         "start": {
-          "id": "frame-3333ms",
-          "timestampMs": 3333
+          "id": "frame-3400ms",
+          "timestampMs": 3400
         },
         "bottom": {
-          "id": "frame-4400ms",
-          "timestampMs": 4400
+          "id": "frame-4333ms",
+          "timestampMs": 4333
         },
         "end": {
           "id": "frame-5133ms",

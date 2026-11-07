@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
+import { POSE_MODEL } from '../motion/pose-model.mjs';
 
 const labels = JSON.parse(await readFile(new URL('../../fixtures/squat/clear-squat.labels.json', import.meta.url)));
 const server = await preview({
@@ -35,6 +36,23 @@ try {
       page.getByRole('link', { name: 'Download report' }).click(),
     ]);
     const report = JSON.parse(await readFile(await download.path()));
+    assert.deepEqual(report.poseModel, POSE_MODEL);
+    const [rawDownload] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('link', { name: 'Full pose data' }).click(),
+    ]);
+    const raw = JSON.parse(await readFile(await rawDownload.path()));
+    assert.deepEqual(raw.clip, report.clip);
+    assert.deepEqual(raw.poseModel, report.poseModel);
+    assert.deepEqual(raw.frames.map(frame => frame.timestampMs), report.frames.map(frame => frame.timestampMs));
+    for (const frame of raw.frames) {
+      assert.deepEqual(frame.poseModel, report.poseModel);
+      for (const key of ['normalizedLandmarks', 'worldLandmarks']) {
+        assert.equal(frame[key].length, 33);
+        assert(frame[key].every(point => point === null || [point.x, point.y, point.z].every(Number.isFinite)));
+      }
+    }
+    assert(raw.frames.some(frame => frame.worldLandmarks.some(point => point !== null)));
     const bottoms = report.reps.map(({ bottomMs }) => bottomMs);
     assert.equal(bottoms.length, labels.expectedCompleteReps);
     bottoms.forEach((time, index) => assert(Math.abs(time - labels.bottomTimestampsMs[index]) <= labels.bottomToleranceMs));
@@ -61,6 +79,7 @@ try {
     await page.getByRole('button', { name: 'Copy coaching handoff' }).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(copied, /MoveIDE Magna Carta v1\.0\.0/);
+    assert(!copied.includes('worldLandmarks') && !copied.includes('normalizedLandmarks'));
     for (const time of bottoms) assert(copied.includes(`frame-${time}ms.jpg`));
     assert.equal(await page.getByRole('button', { name: 'Send previewed packet and images' }).isDisabled(), true);
     assert.deepEqual(outbound, []);

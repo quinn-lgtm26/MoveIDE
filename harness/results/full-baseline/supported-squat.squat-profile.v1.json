@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "clipId": "supported-squat",
+  "side": "left",
+  "reps": [
+    {
+      "repId": "rep-1",
+      "startMs": 533,
+      "bottomMs": 1600,
+      "endMs": 2400,
+      "descentMs": 1067,
+      "ascentMs": 800,
+      "bottom": {
+        "kneeFlexionDeg": 100.82282061739214,
+        "torsoLeanDeg": 35.759216911399456,
+        "hipFlexionDeg": 105.66552946528506,
+        "shinInclinationDeg": 30.916508063506544,
+        "ankleClosureChangeDeg": 8.853495770613776,
+        "hipDescentLegLengths": 0.40464583719919367,
+        "hipAboveKneeLegLengths": 0.15630348200986866
+      },
+      "evidence": {
+        "start": {
+          "id": "frame-533ms",
+          "timestampMs": 533
+        },
+        "bottom": {
+          "id": "frame-1600ms",
+          "timestampMs": 1600
+        },
+        "end": {
+          "id": "frame-2400ms",
+          "timestampMs": 2400
+        }
+      }
+    },
+    {
+      "repId": "rep-2",
+      "startMs": 3333,
+      "bottomMs": 4400,
+      "endMs": 5133,
+      "descentMs": 1067,
+      "ascentMs": 733,
+      "bottom": {
+        "kneeFlexionDeg": 100.2912829304447,
+        "torsoLeanDeg": 39.18337760969408,
+        "hipFlexionDeg": 110.88984891886088,
+        "shinInclinationDeg": 28.58481162127789,
+        "ankleClosureChangeDeg": 9.245467516639266,
+        "hipDescentLegLengths": 0.37350644606862343,
+        "hipAboveKneeLegLengths": 0.14599888786726173
+      },
+      "evidence": {
+        "start": {
+          "id": "frame-3333ms",
+          "timestampMs": 3333
+        },
+        "bottom": {
+          "id": "frame-4400ms",
+          "timestampMs": 4400
+        },
+        "end": {
+          "id": "frame-5133ms",
+          "timestampMs": 5133
+        }
+      }
+    }
+  ]
+}

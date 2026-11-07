@@ -9,6 +9,7 @@ import { createServer } from 'vite'
 import { verifyCoachingFixture } from '../coaching/verify-fixture.mjs'
 import { getMotionTrace, getSquatProfile } from '../motion/analyze.mjs'
 import { kneeFlexion, VISIBILITY_THRESHOLD } from '../motion/squat.mjs'
+import { POSE_MODEL, POSE_PRESETS } from '../motion/pose-model.mjs'
 
 const supported = 'supported-squat'
 const clear = 'clear-squat'
@@ -72,8 +73,9 @@ function expectedProjections(frame, start, report) {
   }
 }
 
-function assertReport(report, name) {
+function assertReport(report, name, expectedModel = POSE_MODEL) {
   assert(validate(report), `${name}: ${JSON.stringify(validate.errors)}`)
+  assert.deepEqual(report.poseModel, expectedModel)
   assert.equal(report.clip.id, name)
   assert(report.frames.length > 0, `${name}: no sampled frames`)
   const framesByTime = new Map()
@@ -217,7 +219,7 @@ async function assertRecoverableBrowserErrors(page) {
   }, redirectPath)
   assert.equal(results.canceled, 'AbortError')
   assert.match(results.invalid, /could not be decoded/)
-  assert.match(results.wrongModel, /Expected the pinned MediaPipe Pose Landmarker Full v1 model/)
+  assert.match(results.wrongModel, /Expected the pinned MediaPipe Pose Landmarker Heavy v1 model/)
   assert.match(results.redirected, /same-origin URL without redirects/)
   assert.equal(results.objectUrlPreserved, true)
 }
@@ -290,6 +292,11 @@ try {
   }
 
   await assertRecoverableBrowserErrors(page)
+  const fullReport = await page.evaluate(() => window.analyzeSquat('/fixtures/squat/supported-squat.mp4', {
+    clipId: 'supported-squat', model: 'full',
+  }))
+  assertReport(fullReport, supported, POSE_PRESETS.full.report)
+  assert(compareLabels(fullReport, await readJson('../../fixtures/squat/supported-squat.labels.json')).passed)
   await mkdir(outputDir, { recursive: true })
   const coachingEvidenceFrames = {};
   for (const [name, report] of demoReports) {
@@ -317,6 +324,7 @@ try {
         frontViewCaptureGuidance: 'passed',
         abortAndInvalidClip: 'passed',
         rejectsMismatchedModel: 'passed',
+        explicitFullPreset: 'passed',
         rejectsClipRedirectAndAcceptsObjectUrl: 'passed',
         coachingPacketAndJpegs: 'passed',
         coachingEvidenceFrames,

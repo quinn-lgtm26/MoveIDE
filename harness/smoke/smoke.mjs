@@ -1,4 +1,4 @@
-import { analyzeSquat, getMotionTrace, getSquatProfile } from '../motion/analyze.mjs';
+import { analyzeSquat, getMotionTrace, getSquatProfile, RAW_POSE_COORDINATES } from '../motion/analyze.mjs';
 import { coachingMarkerAt, formatManualHandoff, getCoachingTimeline, prepareCoachingBundle } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
 import { drawSquatOverlay, overlayFrameAt } from '../motion/overlay.mjs';
@@ -153,6 +153,7 @@ element('analyze').onclick = async () => {
   element('report').hidden = true;
   element('trace-download').hidden = true;
   element('profile-download').hidden = true;
+  element('raw-download').hidden = true;
   element('packet').textContent = '';
   element('coaching').textContent = '';
   element('coverage').textContent = '';
@@ -162,15 +163,19 @@ element('analyze').onclick = async () => {
   bundle = null;
   updateInterpret();
   try {
+    const rawFrames = [];
     const report = await analyzeSquat(sample, {
       clipId: 'clear-squat',
+      onPoseFrame: (frame) => rawFrames.push(frame),
       onProgress: ({ stage, progress }) => {
         element('status').textContent = `${stage} ${Math.round(progress * 100)}%`;
       },
     });
     element('report').href = downloadUrl(new Blob([JSON.stringify(report)], { type: 'application/json' }));
     element('report').hidden = false;
-    for (const [id, data] of [['trace-download', getMotionTrace(report)], ['profile-download', getSquatProfile(report)]]) {
+    const rawPose = { schemaVersion: 1, clip: report.clip, poseModel: report.poseModel,
+      coordinates: RAW_POSE_COORDINATES, frames: rawFrames };
+    for (const [id, data] of [['trace-download', getMotionTrace(report)], ['profile-download', getSquatProfile(report)], ['raw-download', rawPose]]) {
       element(id).href = downloadUrl(new Blob([JSON.stringify(data)], { type: 'application/json' }));
       element(id).hidden = false;
     }
