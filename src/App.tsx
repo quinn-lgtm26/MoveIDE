@@ -253,7 +253,7 @@ export function App() {
           {status === 'ready' && `Ready · ${clip?.name}`}
         </span>
       </div>
-      <p className="muted">Start analyzes the selected recording locally. When connected, your coach automatically receives selected rep measurements and up to four source images. The full video stays local. Stop ends automatic coaching.</p>
+      <p className="muted">Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
       {connection !== 'connected' && <button onClick={connect}>Connect AI coach (one-time setup)</button>}
       <p role="status" aria-live="polite">{coachStatus}</p>
 
@@ -264,7 +264,7 @@ export function App() {
           {clip && (
             <video ref={video} key={clip.src} src={clip.src} controls playsInline muted onError={onDecodeError} />
           )}
-          {!clip && <p className="empty">Start the coached squat or choose your own clip. Analysis runs on this device.</p>}
+          {!clip && <p className="empty">Choose a clip or start the coached squat.</p>}
           <canvas ref={canvas} aria-hidden />
           {coaching && cue && <div aria-label="Playback AI cue" className="cue">
             <small>AI observation · {cue.repId} · evidence {cue.evidenceTimestampsMs.join(', ')} ms</small>
@@ -294,7 +294,7 @@ export function App() {
                   <span key={r.id} className="phases">
                     {r.id}:{' '}
                     <button onClick={() => seek(r.startMs)}>start @ {r.startMs} ms</button>
-                    <button onClick={() => seek(r.bottomMs)}>{r.id} bottom @ {r.bottomMs} ms</button>
+                    <button onClick={() => seek(r.bottomMs)}>bottom @ {r.bottomMs} ms</button>
                     <button onClick={() => seek(r.endMs)}>return @ {r.endMs} ms</button>
                   </span>
                 ))}
