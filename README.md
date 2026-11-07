@@ -17,14 +17,14 @@ Hosted Seldon validation and final runs require an authenticated MCP connection 
 
 ## Develop
 
-Requires Node 22.18+ (runs the TypeScript service and tests directly).
+Requires Node 22.18+.
 
 ```bash
 npm install
-npm run server   # loopback service on 127.0.0.1:8787 (ChatGPT connector)
-npm run dev      # workbench on http://localhost:5173, proxies /api to the service
-npm test         # angle math checks
+npm run dev      # workbench on http://127.0.0.1:5173 (ChatGPT shows unavailable)
+npm test         # harness tests
 npm run build    # typecheck + production build
+MOVEIDE_ENABLE_CHATGPT=1 npm run preview   # built app on 127.0.0.1:4173 with live ChatGPT sign-in
 ```
 
-Layout: `src/contract.ts` mirrors [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) · `src/engine/` pose worker and angle math (harness spec) · `src/App.tsx` workbench (frontend spec) · `server/` loopback service. Backlog: [epics](_bmad-output/specs/epics.md).
+Layout: `src/contract.ts` mirrors [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) · `src/App.tsx` workbench (frontend spec) · `harness/` analysis engine and ChatGPT provider (`/api`, mounted in Vite). Backlog: [epics](_bmad-output/specs/epics.md).
