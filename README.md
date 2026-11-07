@@ -27,4 +27,4 @@ npm run build    # typecheck + production build
 MOVEIDE_ENABLE_CHATGPT=1 npm run preview   # built app on 127.0.0.1:4173 with live ChatGPT sign-in
 ```
 
-Layout: `src/contract.ts` mirrors [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) · `src/App.tsx` workbench (frontend spec) · `harness/` analysis engine and ChatGPT provider (`/api`, mounted in Vite). Backlog: [epics](_bmad-output/specs/epics.md).
+Layout: [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) types come from `harness/motion` · `src/App.tsx` workbench, `src/Compare.tsx` rep compare, `src/Coach.tsx` ChatGPT coaching · `harness/` analysis engine and ChatGPT provider (`/api`, mounted in Vite). Backlog: [epics](_bmad-output/specs/epics.md).

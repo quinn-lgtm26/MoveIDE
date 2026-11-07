@@ -1,7 +1,7 @@
 # Seldon simulation ledger
 
 - Hackathon allocation · **16 simulations**
-- Confirmed use recorded here · **2 simulations, 14 remaining**
+- Confirmed use recorded here · **3 simulations, 13 remaining** (the third debit still needs to be confirmed in Seldon Usage)
 - Account balance at first preflight on 2026-11-07 · **16 granted, 0 used, 0 pending, 16 remaining**
 - Final-build reserve · **4 simulations**, including room to rerun both workflows if the verified debit allows
 
@@ -24,3 +24,15 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 - Summary · `get_summary` confirmed two complete reps with displayed knee-flexion estimates and a report download. It also confirmed both timestamped preview frames and a usable manual handoff without an account. The run evaluated browser behavior and the fixture outputs.
 - Actual debit · **2 simulations**. Official account balance after the run · 16 granted, 2 used, 0 pending, 14 remaining.
 - Follow-up · Run the separate [workbench baseline](../seldon.yml) against the reachable integrated frontend and retain at least four simulations for the final build and a rerun.
+
+
+### 2026-11-07 · Workbench dispatch · measure-squat
+
+- Target · `http://localhost:5173` via Seldon tunnel · build `2e0d55e` (`feat/frontend-workbench`, clean tree)
+- Cases · `measure-squat` only. `compare-and-handoff` skipped because FE-3 was not built yet.
+- Local pre-check · passed. Knee flexion 66.6° at 500 ms opened its evidence frame with skeleton and angle.
+- Reserved debit · 1 simulation
+- Run · `92de42c1-1168-4346-9730-e7d903fe94c4` · [report](https://app.seldon.com/experiments/92de42c1-1168-4346-9730-e7d903fe94c4) · label `build-2e0d55e`
+- Verdict · `measure-squat` **PASS** (69 s)
+- Confirmed debit · **pending**. Reconcile against Seldon Usage; the CLI does not report balance. Expected balance after this run · 3 used, 13 remaining.
+- Next action · run both workbench cases on the final build, which now includes FE-3.

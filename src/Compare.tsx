@@ -4,6 +4,7 @@ import type { AnalysisReport, SquatMetrics, SquatRepProfile } from '../harness/m
 import { getSquatProfile } from '../harness/motion/analyze.mjs';
 import { formatManualHandoff, prepareCoachingBundle } from '../harness/coaching/index.mjs';
 import type { CoachingBundle } from '../harness/coaching/index.mjs';
+import { Coach } from './Coach.tsx';
 
 type Row = { label: string; unit: '°' | ' ms' | ' leg lengths'; get: (r: SquatRepProfile) => number | null };
 const bottom = (k: keyof SquatMetrics) => (r: SquatRepProfile) => r.bottom[k];
@@ -35,9 +36,9 @@ function download(href: string, name: string) {
   a.href = href; a.download = name; a.click();
 }
 
-type Props = { report: AnalysisReport; clipSrc: string; onSeek: (ms: number) => void };
+type Props = { report: AnalysisReport; clipSrc: string; playheadMs: number | null; onSeek: (ms: number) => void };
 
-export function Compare({ report, clipSrc, onSeek }: Props) {
+export function Compare({ report, clipSrc, playheadMs, onSeek }: Props) {
   const profile = useMemo(() => getSquatProfile(report), [report]);
   const ids = profile.reps.map((r) => r.repId);
   const [pair, setPair] = useState<[string, string]>([ids[0], ids[1]]);
@@ -171,6 +172,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
                 <summary>Packet text</summary>
                 <pre>{text}</pre>
               </details>
+              <Coach report={report} bundle={shots.bundle} playheadMs={playheadMs} onSeek={onSeek} />
             </>
           )}
         </div>

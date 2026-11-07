@@ -29,11 +29,9 @@ export function App() {
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [sampleMs, setSampleMs] = useState<number | null>(null); // analyzed sample under the playhead
-  const [connection, setConnection] = useState('unknown');
+  const [rate, setRate] = useState(1);
 
-  useEffect(() => {
-    fetch('/api/connection').then((r) => r.json()).then((c) => setConnection(c.state ?? 'unavailable'), () => setConnection('service offline'));
-  }, []);
+  useEffect(() => { if (video.current) video.current.playbackRate = rate; }, [rate, clip]);
 
   // Release the old clip's object URL whenever the clip changes or the app unmounts.
   useEffect(() => () => { if (clip) URL.revokeObjectURL(clip.src); }, [clip]);
@@ -111,6 +109,19 @@ export function App() {
     const next = dir > 0 ? ts.find((t) => t > now) : ts.filter((t) => t < now).pop();
     if (next !== undefined) seek(next);
   };
+  // Arrow keys step analyzed samples (overriding the native 5 s seek) unless a form control has focus.
+  useEffect(() => {
+    if (!report) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if ((e.target as HTMLElement).closest?.('input, select, textarea')) return;
+      e.preventDefault(); e.stopPropagation();
+      step(e.key === 'ArrowLeft' ? -1 : 1);
+    };
+    addEventListener('keydown', onKey, true);
+    return () => removeEventListener('keydown', onKey, true);
+  }); // re-bind each render so step sees the current report
+
   const openEvidence = (m: Measurement) => {
     setSelected(m.id);
     if (m.quality === 'usable') seek(m.evidenceTimestampMs);
@@ -123,7 +134,6 @@ export function App() {
     <main>
       <header>
         <h1>MoveIDE</h1>
-        <small>ChatGPT: {connection}</small>
       </header>
 
       <div className="toolbar">
@@ -165,10 +175,23 @@ export function App() {
             <div className="toolbar">
               <button onClick={() => step(-1)}>◀ Previous analyzed sample</button>
               <button onClick={() => step(1)}>Next analyzed sample ▶</button>
+              <label>Speed{' '}
+                <select value={rate} onChange={(e) => setRate(Number(e.target.value))}>
+                  {[1, 0.5, 0.25].map((r) => <option key={r} value={r}>{r}×</option>)}
+                </select>
+              </label>
             </div>
+            <p className="muted"><small>← → step analyzed samples</small></p>
             {report.reps.length > 0 && (
               <div className="toolbar">
-                {report.reps.map((r) => <button key={r.id} onClick={() => seek(r.bottomMs)}>{r.id} bottom @ {r.bottomMs} ms</button>)}
+                {report.reps.map((r) => (
+                  <span key={r.id} className="phases">
+                    {r.id}:{' '}
+                    <button onClick={() => seek(r.startMs)}>start @ {r.startMs} ms</button>
+                    <button onClick={() => seek(r.bottomMs)}>{r.id} bottom @ {r.bottomMs} ms</button>
+                    <button onClick={() => seek(r.endMs)}>return @ {r.endMs} ms</button>
+                  </span>
+                ))}
               </div>
             )}
             <p className="readout">
@@ -179,6 +202,8 @@ export function App() {
                 </>
               ) : 'No analyzed sample within 100 ms of this frame.'}
             </p>
+
+            <Trace trace={trace} reps={report.reps} playheadMs={sampleMs} onSeek={seek} />
 
             <h2>Measurements</h2>
             {report.measurements.length === 0 && <p>No measurements in this clip.</p>}
@@ -206,7 +231,7 @@ export function App() {
         )}
       </div>
 
-      {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} />}
+      {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} playheadMs={sampleMs} onSeek={seek} />}
 
       <footer className="muted">
         <small>
@@ -216,5 +241,41 @@ export function App() {
         </small>
       </footer>
     </main>
+  );
+}
+
+// Knee-flexion and torso-lean traces over analyzed samples. Untracked samples break the line, so gaps stay visible.
+function Trace({ trace, reps, playheadMs, onSeek }: {
+  trace: MotionTraceSample[]; reps: AnalysisReport['reps']; playheadMs: number | null; onSeek: (ms: number) => void;
+}) {
+  if (trace.length < 2) return null;
+  const W = 320, H = 120, t0 = trace[0].timestampMs, t1 = trace[trace.length - 1].timestampMs;
+  const x = (t: number) => ((t - t0) / (t1 - t0 || 1)) * W;
+  const y = (deg: number) => H - (Math.max(0, Math.min(180, deg)) / 180) * H;
+  const path = (get: (s: MotionTraceSample) => number | null) => {
+    let d = '', pen = false;
+    for (const s of trace) {
+      const v = get(s);
+      if (v === null) { pen = false; continue; }
+      d += `${pen ? 'L' : 'M'}${x(s.timestampMs).toFixed(1)},${y(v).toFixed(1)}`; pen = true;
+    }
+    return d;
+  };
+  const click = (e: React.MouseEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect(), t = t0 + ((e.clientX - r.left) / r.width) * (t1 - t0);
+    const near = trace.reduce((a, b) => (Math.abs(b.timestampMs - t) < Math.abs(a.timestampMs - t) ? b : a));
+    onSeek(near.timestampMs);
+  };
+  return (
+    <figure className="trace">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Knee flexion and torso lean over time" onClick={click}>
+        {reps.map((r) => <rect key={r.id} x={x(r.startMs)} width={x(r.endMs) - x(r.startMs)} y={0} height={H} className="rep" />)}
+        {reps.map((r) => <line key={r.id} x1={x(r.bottomMs)} x2={x(r.bottomMs)} y1={0} y2={H} className="bottom" />)}
+        <path d={path((s) => s.kneeFlexionDeg)} className="knee" />
+        <path d={path((s) => s.torsoLeanDeg)} className="torso" />
+        {playheadMs !== null && <line x1={x(playheadMs)} x2={x(playheadMs)} y1={0} y2={H} className="playhead" />}
+      </svg>
+      <figcaption><span className="knee">— knee flexion</span> · <span className="torso">— torso lean</span> · 0–180° · shaded = reps · gaps = untracked · click to seek</figcaption>
+    </figure>
   );
 }

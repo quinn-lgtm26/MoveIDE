@@ -21,14 +21,14 @@ const milestones = [
   {
     "id": "03",
     "title": "Measure two reps and preview their evidence",
-    "owner": "Harness · verified / FE-3 · merged, pickup pending",
+    "owner": "Harness · verified / FE-3 · merged on the shared harness",
     "work": "The local trace and profile expose knee, torso, hip, shin, ankle-change and normalized depth proxies with start/bottom/return anchors. Six selected report measurements and two unannotated JPEGs form the coaching packet. Keep report and raw-pose export local.",
     "proof": "Heavy produces six usable measurements and two source JPEGs for each positive fixture. Built Chrome verified replay, overlay, sample stepping and clipboard. The production comparison UI still needs the shared APIs and final browser acceptance."
   },
   {
     "id": "04",
     "title": "Verify ChatGPT sign-in and evidence interpretation",
-    "owner": "Provider · historically live verified / FE-4 · pending",
+    "owner": "Provider · live verified / FE-4 · built, live run pending",
     "work": "The eligible account completed loopback sign-in and model discovery; the updated local Heavy preview retains that connection without making a new inference request. The historical GPT-6.1 Sol request interpreted six Full-baseline measurements and two approved public JPEGs with validated evidence IDs. No new live request has been made for Heavy or OpenCap.",
     "proof": "Validated observation IDs resolve to source timestamps for replay cues. The full video, landmark arrays and raw depth remain local. The frontend must bind asynchronous results to the active clip and selected pair, preserve playback, and clear stale cues."
   },
@@ -191,7 +191,7 @@ const stories = [
   ],
   [
     "BE-3 · Eligible ChatGPT connection",
-    "Historically live verified",
+    "Passed",
     "Loopback sign-in and eligible-model discovery passed on the demo laptop. Current changes do not rerun account sign-in."
   ],
   [
@@ -201,23 +201,23 @@ const stories = [
   ],
   [
     "FE-1 · Clip import",
-    "Merged · shared-harness pickup pending",
-    "Frontend scaffold and motion PRs are merged. Adopt clear-squat.mp4, Heavy and the shared harness APIs from the pushed amendments."
+    "Merged · on the shared harness",
+    "The root workbench opens clear-squat.mp4 with Heavy through the shared harness APIs; the duplicate measuring code is removed."
   ],
   [
     "FE-2 · Synchronized overlay",
-    "Merged · product readiness failed",
-    "The standalone Heavy review is verified at http://127.0.0.1:4173/. The root product still runs the older Full path on the original hard sample, and both rep knee/duration values are unavailable. Shared-harness pickup and source-clock acceptance remain open."
+    "Merged · on the shared harness",
+    "The root product runs Heavy on clear-squat.mp4 with the shared source clock. Final Seldon acceptance remains."
   ],
   [
     "FE-3 · Rep compare and handoff",
-    "Merged · usable comparison gate failed",
-    "The actual root browser probe can preview two decoded images and copy matching text, but both rep comparison columns have unavailable knee flexion and duration. Adopt the shared Heavy packet, clear fixture and source capture before final QA."
+    "Merged · on the shared harness",
+    "Rep compare uses the shared Heavy packet and two source JPEGs; copy handoff works. measure-squat passed on Seldon (3 of 16 simulations used)."
   ],
   [
     "FE-4 · Connected coaching",
-    "Pending frontend",
-    "Bind the existing provider and approved packet to the active clip/pair. Keep playback and copy available while waiting and invalidate stale responses."
+    "Built · live run pending",
+    "src/Coach.tsx binds the provider to the active clip/pair (remounts on change), keeps playback live, supports cancel and model choice, and shows cited evidence seeks. Needs a live run on vite preview with MOVEIDE_ENABLE_CHATGPT=1. Original ask: bind the existing provider and approved packet to the active clip/pair. Keep playback and copy available while waiting and invalidate stale responses."
   ],
   [
     "BE-5 · Source coverage and accuracy",
@@ -226,7 +226,7 @@ const stories = [
   ],
   [
     "FE-5 · Replay and coaching cues",
-    "Reference verified · product integration pending",
+    "Built in root app · final QA pending",
     "Standalone replay, overlay, sample stepping and raw export pass. Generate AI analysis is now beside the player. Validated notes persist for the matching rep, label their evidence timestamps, and clear on model or clip changes. A real-Heavy browser test with controlled provider responses verifies readable cues and evidence seeks without repeated inference. The production frontend still needs these APIs and final acceptance."
   ],
   [
