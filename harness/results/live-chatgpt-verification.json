@@ -1,0 +1,40 @@
+{
+  "fixture": "supported-squat.mp4",
+  "model": "gpt-6.1-sol",
+  "verifiedAtUtc": "2026-11-07T21:25:21.248Z",
+  "httpStatus": 200,
+  "submittedMeasurementIds": [
+    "rep-1-knee-flexion",
+    "rep-1-duration",
+    "rep-1-torso-lean",
+    "rep-2-knee-flexion",
+    "rep-2-duration",
+    "rep-2-torso-lean"
+  ],
+  "submittedFrameIds": [
+    "frame-1600ms",
+    "frame-4400ms"
+  ],
+  "validatedObservationEvidence": [
+    [
+      "rep-1-knee-flexion",
+      "rep-2-knee-flexion"
+    ],
+    [
+      "rep-1-torso-lean",
+      "rep-2-torso-lean"
+    ],
+    [
+      "rep-1-duration",
+      "rep-2-duration"
+    ],
+    [
+      "frame-1600ms",
+      "frame-4400ms"
+    ]
+  ],
+  "validatedNextFocusEvidence": [
+    "rep-1-knee-flexion",
+    "rep-2-knee-flexion"
+  ]
+}

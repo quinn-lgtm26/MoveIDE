@@ -1,0 +1,87 @@
+import type { AnalysisReport, ClipSource } from "../motion/analyze.mjs";
+
+export interface EvidenceRef {
+  id: string;
+  timestampMs: number;
+  imageName: string;
+}
+
+export interface CoachingMeasurement {
+  id: string;
+  repId: string | null;
+  metric: AnalysisReport["measurements"][number]["metric"];
+  value: number;
+  unit: "deg" | "ms";
+  evidenceTimestampMs: number;
+}
+
+export interface CoachPacket {
+  schemaVersion: 1;
+  protocolVersion: string;
+  charterVersion: string;
+  goal?: string;
+  summary: string;
+  repIds: string[];
+  measurements: CoachingMeasurement[];
+  evidence: EvidenceRef[];
+}
+
+export interface CoachingImage extends EvidenceRef {
+  blob: Blob;
+}
+
+export interface UnavailableImage extends EvidenceRef {
+  message: string;
+}
+
+export interface CoachingBundle {
+  packet: CoachPacket;
+  images: CoachingImage[];
+  unavailableImages: UnavailableImage[];
+}
+
+export interface CoachingOptions {
+  repIds?: readonly string[];
+  userGoal?: string;
+}
+
+export interface CitedText {
+  text: string;
+  evidenceIds: string[];
+}
+
+export interface CoachingResponse {
+  observations: CitedText[];
+  uncertainty: string;
+  nextFocus: CitedText;
+}
+
+export class CoachingValidationError extends Error {
+  constructor(code: "invalid_packet" | "invalid_images" | "invalid_response", message: string);
+  code: "invalid_packet" | "invalid_images" | "invalid_response";
+}
+
+export const MAGNA_CARTA_VERSION: "1.0.0";
+export const MAGNA_CARTA_PROMPT: string;
+export const COACHING_RESPONSE_SCHEMA: Record<string, unknown>;
+
+export function buildCoachPacket(report: AnalysisReport, options?: CoachingOptions): CoachPacket;
+
+/** For an imported report, supply its original clip when the source is known. */
+export function prepareCoachingBundle(
+  report: AnalysisReport,
+  source?: ClipSource | null,
+  options?: CoachingOptions & { signal?: AbortSignal },
+): Promise<CoachingBundle>;
+
+export function validateCoachPacket(packet: unknown): CoachPacket;
+
+export function validateCoachingImages<T extends readonly EvidenceRef[]>(
+  packet: CoachPacket,
+  images: T,
+  options?: { requireAll?: boolean },
+): T;
+
+export function formatManualHandoff(packet: CoachPacket, images?: readonly EvidenceRef[]): string;
+
+export function validateCoachingResponse(response: unknown, packet: CoachPacket): CoachingResponse;
