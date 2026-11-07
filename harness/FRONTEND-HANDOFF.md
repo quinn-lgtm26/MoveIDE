@@ -27,6 +27,30 @@ Use `fixtures/squat/clear-squat.mp4` for the built-in sample through the same im
 - Use `getMotionTrace(report)` for the frame readout and `getSquatProfile(report)` for comparisons. Show knee flexion, hip flexion, torso lean and descent/ascent first. Put shin inclination, ankle closure change and normalized depth proxies in a details panel. Show deltas relative to a selected rep or the lifter's comparable baseline. Use neutral unavailable states and avoid an overall form score. [Definitions](motion/METRICS.md)
 - Pass the exact analyzed File or object URL to `prepareCoachingBundle`. Two chosen reps produce the selected metrics, phase timing and source JPEGs. Preview the exact packet and images before offering copy or send. Report export works with coaching disconnected. Abort extraction on clip or pair change. [Coaching API](coaching/index.mjs)
 
+### Pickup notes for the pushed FE-3 branch
+
+Reviewed `claude/fe-3-compare-handoff-797b94` at `2c57d9bf89fe4a53fd849b3dd99d1ec4a27dc449`. Its comparison layout can consume the merged harness. Before integrating that branch:
+
+- Replace `src/analyze.ts` with the shared `analyzeSquat` adapter above. Its current loop writes the requested seek time into the report; the harness records decoded presentation time and handles cancellation and decoder timeouts.
+- In `src/Compare.tsx`, replace the private `captureFrames` helper with `prepareCoachingBundle(report, clipSrc, { repIds: pair, userGoal: goal, signal })`. Use its `packet`, `images`, and `unavailableImages` together, scoped to that request generation. Create and revoke UI object URLs for the returned image blobs.
+- Replace `src/coach.ts`'s `buildPacket`, inline Charter, and `packetText` with `buildCoachPacket`, `MAGNA_CARTA_PROMPT`, and `formatManualHandoff` as appropriate. Preview and copy the exact bundle packet. The branch currently creates `frame-${t}` evidence IDs and a `magna-carta-1` version; the shared harness owns those values and validates them at the provider boundary.
+- Keep the comparison rows driven by the actual report. Include torso lean and the separate phase/profile details. Remove `withSyntheticReps` from the normal demo path. The clear clip's real segmentation already supplies two complete reps.
+- Verify replacement while decoding or capturing, a pair change while preview is open, an unavailable image, and two identical rep selections. The existing public harness APIs accept a selected set and validate its measurements; the UI should require two distinct reps for a two-rep comparison.
+
+These are integration amendments for the frontend owner. The inspected branch has not yet been merged into the final product.
+
+## Heavy and OpenCap product amendment
+
+The user has selected **MediaPipe Heavy** as the new default. The harness change and fresh fixture results are being verified in parallel. Keep a visible model label and allow an explicit Full preset for faster analysis. Use the report's `poseModel` for the displayed model and provenance. Do not relabel existing Full reports or assume Heavy improves every metric. The earlier Full-versus-Heavy benchmark remains historical evidence.
+
+Design the single-clip review around one source video and one playback clock. The first pane is MediaPipe's projected 2D trace and squat phases. The second, optional pane is OpenCap's imported 3D kinematics, with explicit coordinate names, units, provenance, and runtime status. Display a model's unavailable state without hiding the other result. Do not subtract a MediaPipe projected angle from an OpenSim joint coordinate or call their difference an accuracy score.
+
+OpenCap native inference is not available on the current Darwin arm64 machine. Upstream's tested runtime uses NVIDIA GPU tooling and separately obtained model assets. Until that runtime is available and validated, the frontend offers an **Import OpenCap result** path, with a distinct **Inference unavailable on this device** status. Import must verify the source-video hash and an explicit original-video timestamp per kinematics row. A cropped OpenCap time column alone is insufficient when its tracker filters frames. Exact importer exports and a fixture will be appended when implemented.
+
+For coaching, keep the full video and local traces playable while the explicitly approved request runs. After validation, bind the response to the clip, model, selected reps, and request generation. Use the existing evidence timeline to display and seek cues. The current model explanation covers the submitted measurements and JPEGs; it does not claim to have watched unsubmitted frames. The richer local trace remains available throughout playback. A model or clip change clears stale cues and pending requests.
+
+The release view should show actual tracking coverage, rep counts, timing error only where labeled references exist, and angle accuracy as unvalidated until independent reference annotations are available. Further movement protocols remain unsupported until their capture rules, metrics, segmentation, and reference fixtures have been implemented and verified.
+
 ## Coaching while replaying
 
 - The local trace updates during playback. Request ChatGPT once for the explicit approved selection. The optional provider returns an explanation with approved evidence IDs.
