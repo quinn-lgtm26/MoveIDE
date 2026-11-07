@@ -1,15 +1,105 @@
-import { analyzeSquat } from '../motion/analyze.mjs';
-import { formatManualHandoff, prepareCoachingBundle } from '../coaching/index.mjs';
+import { analyzeSquat, getMotionTrace, getSquatProfile } from '../motion/analyze.mjs';
+import { coachingMarkerAt, formatManualHandoff, getCoachingTimeline, prepareCoachingBundle } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
+import { drawSquatOverlay, overlayFrameAt } from '../motion/overlay.mjs';
 
 const element = (id) => document.getElementById(id);
-const sample = '/fixtures/squat/supported-squat.mp4';
+const sample = '/fixtures/squat/clear-squat.mp4';
 const urls = [];
 let bundle;
 let generation = 0;
 let interpretation;
 let popup;
 let poll;
+let releasePlayback;
+let coaching;
+let coachingTimeline = [];
+
+const projectedAngles = [
+  ['Knee', 'kneeFlexionDeg'],
+  ['Hip', 'hipFlexionDeg'],
+  ['Torso', 'torsoLeanDeg'],
+  ['Shin', 'shinInclinationDeg'],
+  ['Ankle change', 'ankleClosureChangeDeg'],
+];
+const formattedAngle = (value) => value == null ? '—' : `${value.toFixed(1)}°`;
+
+function attachPlayback(report) {
+  const video = element('clip');
+  const canvas = element('overlay');
+  const context = canvas.getContext('2d');
+  if (!context) return;
+  const trace = new Map(getMotionTrace(report).map((row) => [row.timestampMs, row]));
+  let frameCallback;
+  let displayedTime;
+  let displayedCue;
+
+  function redraw(timestampMs) {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const ratio = devicePixelRatio || 1;
+    if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) {
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+    }
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    const frame = overlayFrameAt(report.frames, timestampMs);
+    drawSquatOverlay(context, frame, {
+      side: report.protocol.side, videoWidth: video.videoWidth, videoHeight: video.videoHeight, width, height,
+    });
+    const current = frame?.timestampMs ?? null;
+    if (displayedTime !== current) {
+      displayedTime = current;
+      const row = trace.get(current);
+      element('phase').textContent = row ? `${row.timestampMs} ms${row.phase ? ` · ${row.repId} ${row.phase}` : ''}` : 'Pose unavailable';
+      const metrics = row ? projectedAngles.map(([label, key]) => `${label} ${formattedAngle(row[key])}`) : [];
+      if (row?.hipDescentLegLengths != null) metrics.push(`Hip descent ${(row.hipDescentLegLengths * 100).toFixed(1)}% of leg length`);
+      if (row?.hipAboveKneeLegLengths != null) metrics.push(`Hip above knee ${(row.hipAboveKneeLegLengths * 100).toFixed(1)}%`);
+      element('frame-metrics').textContent = metrics.join(' · ');
+    }
+    const marker = frame ? coachingMarkerAt(coachingTimeline, timestampMs) : null;
+    const cue = marker?.observationIndices.map((index) => coaching?.observations[index]?.text).filter(Boolean).join(' ')
+      || (marker?.hasNextFocus ? coaching?.nextFocus.text : '');
+    if (cue !== displayedCue) {
+      displayedCue = cue;
+      element('cue').hidden = !cue;
+      element('cue').textContent = cue;
+    }
+  }
+
+  function seekTo(timestampMs) {
+    video.pause();
+    video.currentTime = Math.min((timestampMs + .501) / 1000, video.duration - .000001);
+  }
+
+  function step(direction) {
+    const currentTime = video.currentTime * 1000;
+    const ordered = direction > 0 ? report.frames : report.frames.toReversed();
+    const next = ordered.find(({ timestampMs }) => direction * (timestampMs - currentTime) > 1);
+    if (next) seekTo(next.timestampMs);
+  }
+
+  const drawCurrent = () => redraw(Math.round(video.currentTime * 1000));
+  const nextFrame = (_now, metadata) => {
+    redraw(Math.round(metadata.mediaTime * 1000));
+    frameCallback = video.requestVideoFrameCallback(nextFrame);
+  };
+  frameCallback = video.requestVideoFrameCallback(nextFrame);
+  const observer = new ResizeObserver(drawCurrent);
+  observer.observe(video);
+  video.addEventListener('seeked', drawCurrent);
+  element('prev-frame').onclick = () => step(-1);
+  element('next-frame').onclick = () => step(1);
+  drawCurrent();
+  return () => {
+    video.cancelVideoFrameCallback(frameCallback);
+    video.removeEventListener('seeked', drawCurrent);
+    observer.disconnect();
+    element('prev-frame').onclick = null;
+    element('next-frame').onclick = null;
+  };
+}
+
 
 const metricNames = {
   knee_flexion: 'knee flexion',
@@ -52,8 +142,17 @@ element('analyze').onclick = async () => {
   const current = ++generation;
   interpretation?.abort();
   element('analyze').disabled = true;
+  releasePlayback?.();
+  releasePlayback = null;
+  coaching = null;
+  coachingTimeline = [];
+  element('replay').hidden = true;
+  element('clip').pause();
+  element('cue').hidden = true;
   element('copy').disabled = true;
   element('report').hidden = true;
+  element('trace-download').hidden = true;
+  element('profile-download').hidden = true;
   element('packet').textContent = '';
   element('coaching').textContent = '';
   element('coverage').textContent = '';
@@ -64,16 +163,24 @@ element('analyze').onclick = async () => {
   updateInterpret();
   try {
     const report = await analyzeSquat(sample, {
-      clipId: 'supported-squat',
+      clipId: 'clear-squat',
       onProgress: ({ stage, progress }) => {
         element('status').textContent = `${stage} ${Math.round(progress * 100)}%`;
       },
     });
     element('report').href = downloadUrl(new Blob([JSON.stringify(report)], { type: 'application/json' }));
     element('report').hidden = false;
+    for (const [id, data] of [['trace-download', getMotionTrace(report)], ['profile-download', getSquatProfile(report)]]) {
+      element(id).href = downloadUrl(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+      element(id).hidden = false;
+    }
     const prepared = await prepareCoachingBundle(report, sample, { repIds: report.reps.slice(0, 2).map(({ id }) => id) });
     if (current !== generation) return;
     bundle = prepared;
+    element('clip').src = sample;
+    element('replay').hidden = false;
+    releasePlayback = attachPlayback(report);
+    const profiles = new Map(getSquatProfile(report).reps.map((profile) => [profile.repId, profile]));
     element('status').textContent = `${report.reps.length} complete reps · ${bundle.images.length} evidence JPEGs`;
     const tracked = report.frames.filter(({ quality }) => quality === 'usable').length;
     element('coverage').textContent = `${tracked} of ${report.frames.length} frames tracked · 33 landmark slots per frame`;
@@ -83,6 +190,10 @@ element('analyze').onclick = async () => {
       const estimate = unit === 'deg' ? `${value?.toFixed(1)}°` : `${value} ms`;
       row.textContent = `${repId ?? 'Clip'} ${metricNames[metric]} · ${quality === 'usable'
         ? `${estimate} at ${evidenceTimestampMs} ms` : 'unavailable'}`;
+      if (metric === 'rep_duration' && profiles.has(repId)) {
+        const { descentMs, ascentMs } = profiles.get(repId);
+        row.textContent += ` · down ${descentMs ?? '—'} ms · up ${ascentMs ?? '—'} ms`;
+      }
       element('metrics').append(row);
     }
     element('packet').textContent = formatManualHandoff(bundle.packet, bundle.images);
@@ -159,7 +270,13 @@ element('interpret').onclick = async () => {
   element('coaching').textContent = 'Interpreting the approved bundle…';
   try {
     const result = await chatGPTProvider.interpret(bundle.packet, bundle.images, { model: element('model').value, signal });
-    if (current === generation && !signal.aborted) element('coaching').textContent = JSON.stringify(result, null, 2);
+    if (current === generation && !signal.aborted) {
+      coaching = result;
+      coachingTimeline = getCoachingTimeline(result, bundle.packet);
+      element('coaching').textContent = JSON.stringify(result, null, 2);
+      // Refresh the cue if playback is already paused at its evidence frame.
+      element('clip').dispatchEvent(new Event('seeked'));
+    }
   } catch (error) {
     if (current === generation && !signal.aborted) element('coaching').textContent = error.message;
   } finally {

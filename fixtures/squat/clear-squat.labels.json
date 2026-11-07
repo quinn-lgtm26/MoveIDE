@@ -1,0 +1,7 @@
+{
+  "clip": "clear-squat.mp4",
+  "method": "Manual frame-by-frame review of subject_010_squat_good_side.mp4 before pose inference. Selected two complete consecutive reps, excluding the initial partial rep and the later bystander mask. Labeled the lowest visible hip position at source frames 42 and 70, zero-based at 15 fps. The derivative starts at source frame 26.",
+  "expectedCompleteReps": 2,
+  "bottomTimestampsMs": [1067, 2933],
+  "bottomToleranceMs": 150
+}

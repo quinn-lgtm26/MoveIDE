@@ -1,8 +1,9 @@
+import { POSE_PRESETS } from './pose-model.mjs'
 import { bindReportSource } from './source-identity.mjs'
 import { buildAnalysisReport } from './squat.mjs'
 import { openVideo, seekVideoFrame } from './video.mjs'
 
-export { getMotionTrace } from './squat.mjs'
+export { getMotionTrace, getSquatProfile } from './squat-profile.mjs'
 
 const SAMPLE_RATE_HZ = 15
 const baseUrl = import.meta.env?.BASE_URL ?? '/'
@@ -74,7 +75,10 @@ export async function analyzeSquat(source, {
   signal,
   onProgress = () => {},
   assets = {},
+  model = 'full',
 } = {}) {
+  if (!Object.hasOwn(POSE_PRESETS, model)) throw new Error('Choose the Full or Heavy MediaPipe pose model.')
+  const preset = POSE_PRESETS[model]
   if (!globalThis.HTMLVideoElement?.prototype.requestVideoFrameCallback ||
       !globalThis.OffscreenCanvas || !globalThis.createImageBitmap || !globalThis.Worker) {
     throw new Error('This browser cannot analyze video locally. Try a current desktop Chrome.')
@@ -94,8 +98,9 @@ export async function analyzeSquat(source, {
     worker = new Worker(new URL('./pose-worker.mjs', import.meta.url), { type: 'module' })
     await workerRequest(worker, {
       type: 'init',
+      model,
       wasmRoot: poseAssetUrl(assets.wasmRoot ?? `${baseUrl}pose/wasm`),
-      modelUrl: poseAssetUrl(assets.modelUrl ?? `${baseUrl}pose/pose_landmarker_full.task`),
+      modelUrl: poseAssetUrl(assets.modelUrl ?? `${baseUrl}pose/${preset.fileName}`),
     }, { signal, timeoutMs: 60_000 })
 
     signal?.throwIfAborted()
@@ -107,7 +112,7 @@ export async function analyzeSquat(source, {
       },
     })
     signal?.throwIfAborted()
-    const report = buildAnalysisReport(clip, frames)
+    const report = buildAnalysisReport(clip, frames, preset.report)
     bindReportSource(report, sourceUrl ?? source)
     onProgress({ stage: 'complete', progress: 1, frameCount: frames.length })
     return report

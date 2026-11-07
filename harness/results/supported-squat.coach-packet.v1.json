@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "protocolVersion": "1.0.0",
   "charterVersion": "1.0.0",
-  "summary": "2 complete squat reps selected. 6 usable measurements. Clip start/bottom/end in ms, in selected rep order (533/1600/2400, 3333/4400/5133). Knee and torso angles are estimates in the video plane.",
+  "summary": "2 complete squat reps selected. 6 usable measurements. Clip start/bottom/end in ms, in selected rep order (533/1600/2400, 3333/4400/5133). Knee and torso angles are estimates in the video plane. Projected bottoms in selected order: hip flexion/shin tilt/ankle closure change (°), hip descent/height above knee (% leg length): 105.7/30.9/8.9/40.5/15.6, 110.9/28.6/9.2/37.4/14.6.",
   "repIds": [
     "rep-1",
     "rep-2"

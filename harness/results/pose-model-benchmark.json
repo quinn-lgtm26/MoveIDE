@@ -1,0 +1,141 @@
+{
+  "sdk": "@mediapipe/tasks-vision@1.2.2",
+  "browser": "Chromium 154.0.8037.58",
+  "delegate": "CPU",
+  "hardware": "Apple M4 Pro (arm64)",
+  "scope": "One local cold-worker timing per model and clip. Elapsed time includes worker setup, model request and checksum, decoding, and inference. The fixtures label rep timing and do not provide reference joint angles.",
+  "assets": {
+    "full": {
+      "bytes": 9398198,
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+    },
+    "heavy": {
+      "bytes": 30664242,
+      "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+      "url": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task"
+    }
+  },
+  "cases": [
+    {
+      "clip": "supported-squat.mp4",
+      "preset": "full",
+      "poseModel": {
+        "id": "mediapipe-pose-landmarker-full",
+        "version": "1"
+      },
+      "elapsedMs": 3770,
+      "side": "left",
+      "sampledFrameCount": 90,
+      "usableFrameCount": 90,
+      "usableFramePercent": 100,
+      "completeReps": 2,
+      "bottomTimestampsMs": [
+        1600,
+        4400
+      ],
+      "expectedCompleteReps": 2,
+      "expectedBottomMs": [
+        1600,
+        4400
+      ],
+      "toleranceMs": 150,
+      "absoluteBottomErrorsMs": [
+        0,
+        0
+      ],
+      "passedManualLabels": true,
+      "warnings": []
+    },
+    {
+      "clip": "supported-squat.mp4",
+      "preset": "heavy",
+      "poseModel": {
+        "id": "mediapipe-pose-landmarker-heavy",
+        "version": "1"
+      },
+      "elapsedMs": 7748,
+      "side": "left",
+      "sampledFrameCount": 90,
+      "usableFrameCount": 90,
+      "usableFramePercent": 100,
+      "completeReps": 2,
+      "bottomTimestampsMs": [
+        1600,
+        4333
+      ],
+      "expectedCompleteReps": 2,
+      "expectedBottomMs": [
+        1600,
+        4400
+      ],
+      "toleranceMs": 150,
+      "absoluteBottomErrorsMs": [
+        0,
+        67
+      ],
+      "passedManualLabels": true,
+      "warnings": []
+    },
+    {
+      "clip": "sample-squat.mp4",
+      "preset": "heavy",
+      "poseModel": {
+        "id": "mediapipe-pose-landmarker-heavy",
+        "version": "1"
+      },
+      "elapsedMs": 4507,
+      "side": "left",
+      "sampledFrameCount": 53,
+      "usableFrameCount": 28,
+      "usableFramePercent": 52.8,
+      "completeReps": 0,
+      "bottomTimestampsMs": [],
+      "expectedCompleteReps": 2,
+      "expectedBottomMs": [
+        1067,
+        2667
+      ],
+      "toleranceMs": 150,
+      "absoluteBottomErrorsMs": [
+        null,
+        null
+      ],
+      "passedManualLabels": false,
+      "warnings": [
+        "intermittent_pose",
+        "no_complete_reps"
+      ]
+    },
+    {
+      "clip": "sample-squat.mp4",
+      "preset": "full",
+      "poseModel": {
+        "id": "mediapipe-pose-landmarker-full",
+        "version": "1"
+      },
+      "elapsedMs": 2012,
+      "side": "right",
+      "sampledFrameCount": 53,
+      "usableFrameCount": 27,
+      "usableFramePercent": 50.9,
+      "completeReps": 0,
+      "bottomTimestampsMs": [],
+      "expectedCompleteReps": 2,
+      "expectedBottomMs": [
+        1067,
+        2667
+      ],
+      "toleranceMs": 150,
+      "absoluteBottomErrorsMs": [
+        null,
+        null
+      ],
+      "passedManualLabels": false,
+      "warnings": [
+        "intermittent_pose",
+        "no_complete_reps"
+      ]
+    }
+  ],
+  "thirdPartyBrowserRequests": 0
+}

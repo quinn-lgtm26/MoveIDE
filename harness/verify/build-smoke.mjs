@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 
-const labels = JSON.parse(await readFile(new URL('../../fixtures/squat/supported-squat.labels.json', import.meta.url)));
+const labels = JSON.parse(await readFile(new URL('../../fixtures/squat/clear-squat.labels.json', import.meta.url)));
 const server = await preview({
   configFile: fileURLToPath(new URL('../vite.config.mjs', import.meta.url)),
   preview: { host: '127.0.0.1', port: 0 },
@@ -28,7 +28,7 @@ try {
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(origin);
     await page.locator('#connection').getByText('unavailable').waitFor();
-    await page.getByRole('button', { name: 'Analyze supported squat' }).click();
+    await page.getByRole('button', { name: 'Analyze sample squat' }).click();
     await page.getByText('2 complete reps · 2 evidence JPEGs').waitFor({ timeout: 90_000 });
     const [download] = await Promise.all([
       page.waitForEvent('download'),
@@ -40,6 +40,22 @@ try {
     bottoms.forEach((time, index) => assert(Math.abs(time - labels.bottomTimestampsMs[index]) <= labels.bottomToleranceMs));
     assert.deepEqual(await page.locator('#evidence img').evaluateAll((images) => images.map(({ alt }) => alt)),
       bottoms.map((time) => `Squat source frame at ${time} ms`));
+    const video = page.locator('#clip');
+    await video.evaluate(async (element, timestamp) => {
+      if (element.readyState < 2) await new Promise((resolve) => element.addEventListener('loadeddata', resolve, { once: true }));
+      element.currentTime = (timestamp + .501) / 1000;
+    }, bottoms[0]);
+    await page.locator('#phase').getByText(/rep-1 bottom/).waitFor();
+    assert.match(await page.locator('#frame-metrics').innerText(), /Knee .*Hip .*Torso .*Shin .*Ankle change/);
+    await page.waitForFunction(() => {
+      const canvas = document.querySelector('#overlay');
+      const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+      return data.some((value, index) => index % 4 === 3 && value > 0);
+    });
+    await page.getByRole('button', { name: 'Next sample' }).click();
+    await page.locator('#phase').getByText(/rep-1 ascent/).waitFor();
+    await page.getByRole('button', { name: 'Previous sample' }).click();
+    await page.locator('#phase').getByText(/rep-1 bottom/).waitFor();
     assert.equal(await page.getByText(/knee flexion · .*°/).count(), labels.expectedCompleteReps);
     assert.equal(await page.getByText(/torso lean · .*°/).count(), labels.expectedCompleteReps);
     await page.getByRole('button', { name: 'Copy coaching handoff' }).click();
@@ -49,7 +65,7 @@ try {
     assert.equal(await page.getByRole('button', { name: 'Send previewed packet and images' }).isDisabled(), true);
     assert.deepEqual(outbound, []);
     assert.deepEqual(errors, []);
-    console.log('Built harness · 2 reps, 2 source JPEGs, real clipboard handoff, no outbound requests');
+    console.log('Built harness · 2 reps, 2 source JPEGs, synchronized overlay and step controls, real clipboard handoff, no outbound requests');
   } finally {
     await browser.close();
   }

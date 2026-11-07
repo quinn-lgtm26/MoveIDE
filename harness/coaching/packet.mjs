@@ -1,3 +1,4 @@
+import { getSquatProfile } from "../motion/squat-profile.mjs";
 import { MAGNA_CARTA_PROMPT, MAGNA_CARTA_VERSION } from "./magna-carta-v1.mjs";
 
 const MAX_REPS = 2;
@@ -59,6 +60,23 @@ function imageReference(timestampMs, measurementIds) {
   return { id, timestampMs, imageName };
 }
 
+function bottomProfileContext(report, selectedIds) {
+  if (!report.clip || !report.protocol.side || !selectedIds.length) return "";
+  const byId = new Map(getSquatProfile(report).reps.map((rep) => [rep.repId, rep.bottom]));
+  const projectedBottoms = selectedIds.map((id) => {
+    const bottom = byId.get(id);
+    return [
+      bottom?.hipFlexionDeg, bottom?.shinInclinationDeg, bottom?.ankleClosureChangeDeg,
+      bottom?.hipDescentLegLengths == null ? null : bottom.hipDescentLegLengths * 100,
+      bottom?.hipAboveKneeLegLengths == null ? null : bottom.hipAboveKneeLegLengths * 100,
+    ];
+  });
+  if (!projectedBottoms.some((values) => values.some(Number.isFinite))) return "";
+  const values = projectedBottoms.map((numbers) => numbers.map((number) =>
+    Number.isFinite(number) ? number.toFixed(1) : "n/a").join("/"));
+  return `Projected bottoms in selected order: hip flexion/shin tilt/ankle closure change (°), hip descent/height above knee (% leg length): ${values.join(", ")}.`;
+}
+
 export function buildCoachPacket(report, { repIds, userGoal } = {}) {
   if (report?.schemaVersion !== 1 || !nonemptyText(report.protocol?.version, MAX_VERSION_LENGTH) ||
       !Array.isArray(report.reps) || !Array.isArray(report.measurements) ||
@@ -113,13 +131,16 @@ export function buildCoachPacket(report, { repIds, userGoal } = {}) {
     return `${startMs}/${bottomMs}/${endMs}`;
   });
   const warningCodes = new Set(report.warnings?.map(({ code }) => code));
-  const summary = [
+  const baseSummary = [
     `${selection} ${counts}.`,
     timings.length ? `Clip start/bottom/end in ms, in selected rep order (${timings.join(", ")}).` : "",
     "Knee and torso angles are estimates in the video plane.",
     ...TRACKING_NOTES.filter(([code]) => warningCodes.has(code)).map(([, note]) => note),
     selectedMeasurements.length > measurements.length ? "Some selected measurements were unavailable." : "",
   ].filter(Boolean).join(" ");
+  const profileContext = bottomProfileContext(report, selectedIds);
+  const expandedSummary = profileContext ? `${baseSummary} ${profileContext}` : baseSummary;
+  const summary = expandedSummary.length <= MAX_SUMMARY_LENGTH ? expandedSummary : baseSummary;
   const goal = userGoal?.trim();
   return validateCoachPacket({
     schemaVersion: 1,

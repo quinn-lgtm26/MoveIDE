@@ -85,3 +85,16 @@ export function validateCoachingImages<T extends readonly EvidenceRef[]>(
 export function formatManualHandoff(packet: CoachPacket, images?: readonly EvidenceRef[]): string;
 
 export function validateCoachingResponse(response: unknown, packet: CoachPacket): CoachingResponse;
+
+export interface CoachingTimelineMarker {
+  timestampMs: number;
+  observationIndices: number[];
+  hasNextFocus: boolean;
+}
+
+export function getCoachingTimeline(response: CoachingResponse, packet: CoachPacket): CoachingTimelineMarker[];
+export function coachingMarkerAt(
+  timeline: readonly CoachingTimelineMarker[],
+  timestampMs: number,
+  windowMs?: number,
+): CoachingTimelineMarker | null;

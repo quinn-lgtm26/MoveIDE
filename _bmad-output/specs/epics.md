@@ -46,6 +46,16 @@ Depends on FE-2 and BE-2. Covers frontend CAP-3 and the manual portion of CAP-4.
 
 Depends on FE-3 and BE-4. Covers frontend CAP-4. Ship only if the live connector is verified.
 
+### FE-5 · Review the rep through video, trace, and coaching cues
+
+**As a coach**, I can inspect the movement from start to return and seek from an observation to its evidence.
+
+- Show the analyzed sample cadence, knee-flexion and projected torso-lean traces, and the selected reps’ start, bottom, and return. Compare equivalent phases with each rep’s source timestamp and duration. Keyboard stepping, slow playback, and phase controls use source timestamps.
+- Playback remains usable while coaching runs. A validated observation opens its approved measurement or image timestamp and synchronized overlay. A clip or selection change invalidates old cues. Low-confidence samples and coverage gaps stay visible as unavailable.
+- Run browser QA on the real combined build. Exercise frame and evidence jumps, slow playback, play/pause, rapid seeks, resize, portrait letterboxing, and clip replacement. Compare both rep-bottom overlays with their source evidence and verify no stale overlay crosses a gap.
+
+Depends on FE-2, FE-3, and BE-2. Connected observation playback also depends on FE-4. Covers frontend CAP-2 and CAP-4. [Measurement and review methodology](spec-moveide-harness/squat-methodology.md)
+
 ## Epic 2 · Backend motion and coaching harness
 
 ### BE-1 · Produce a real MediaPipe report
@@ -88,10 +98,34 @@ Depends on an eligible test account and a permitted sample image. Covers backend
 
 Depends on BE-2 and a successful BE-3. Covers backend CAP-4. The manual packet remains independently usable.
 
+### BE-5 · Verify source-frame coverage and repeated squat measurements
+
+**As a coach**, I can tell which source frames were analyzed and compare the same phases from like-for-like footage.
+
+- Report the 15 Hz baseline analysis cadence, decoded presentation timestamps, measured angles, phase durations, and tracking coverage. Keep raw geometry and phase smoothing distinguishable. Preserve evidence frame identity when seeking or capturing JPEGs.
+- Evaluate an optional sequential source-frame decoder on local high-frame-rate, variable-rate, rotated, and interrupted inputs. Compare analyzed presentation timestamps with independently decoded source frames. Report skipped or unsupported frames and keep cancellation responsive. An exact mode earns its label by accounting for every presentation frame on the supported formats.
+- Validate 2D knee flexion and trunk lean against independently annotated frames with measured annotator agreement. Report per-metric absolute error, bias, coverage, timing error, and repeated-capture differences separately. Confirm the supported clip remains within ±150 ms per labeled bottom and the hard/front fixtures surface unavailable states where evidence fails.
+- Compare pinned MediaPipe Full v1 and Heavy v1 against the same frames and labels. Include a clearer redistributable side view, preserve attribution, and measure coverage, timing, runtime, memory, and angle agreement. Keep the current default until the benchmark and Heavy asset terms support a change.
+
+Depends on BE-1 and BE-2. Covers backend CAP-1 and CAP-2. [Measurement and review methodology](spec-moveide-harness/squat-methodology.md)
+
+## Optional research
+
+### R-1 · Benchmark OpenCap Monocular as a 3D comparator
+
+**As a maintainer**, I can evaluate the accuracy and practicality of a separate 3D path before changing the default harness.
+
+- Use approved footage with paired side and approximately 45° anterolateral views where possible. Compare on synchronized rep events and name each reference and coordinate system. Measure 2D evidence against planar annotations and 3D kinematics against appropriate motion-capture references.
+- Record per-joint errors, rep timing, coverage, runtime, hardware, capture effort, and data handling. Review the pinned source, models, dependencies and dataset terms. Reconcile the preprint and repository license discrepancy before any product integration.
+- Deliver a short decision memo with reproducible commands, evidence and conditions for follow-on work. The shipped local side-view harness keeps its own QA gate.
+
+Depends on the BE-2 baseline and suitable approved recordings. [OpenCap research and licensing notes](spec-moveide-harness/squat-methodology.md#verification-and-opencap-research)
+
 ## Shared final-build gate
 
 [Seldon baseline](../../seldon.yml) · [16-simulation ledger](../../qa/seldon-ledger.md) · [Fixtures and labels](../../fixtures/squat/README.md)
 
 - **Seldon measure-squat.** Open the built-in sample and select the first complete rep’s knee-flexion measurement. Verify its evidence frame, skeleton, and angle in degrees. Check count and timing tolerance locally before spending simulations.
 - **Seldon compare-and-handoff.** Select the first and second complete reps. Verify their IDs, measurements, and timestamped frames in the coaching preview without account credentials.
+- The hosted harness smoke used two simulations and passed both cases. Hold the remaining 14 until the final integrated product is ready. The ledger separates the harness verdicts from the final product gate.
 - Validate the baseline and smoke-test locally. Reconcile the 16-simulation allocation and keep at least four reserved for the final build and a rerun. Run both cases against the final submission build after fixes. Record the build ID, experiment ID, actual debit, both verdicts, and summary. Keep a separate local result for live ChatGPT sign-in and image-plus-report interpretation.

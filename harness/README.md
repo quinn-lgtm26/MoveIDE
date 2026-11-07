@@ -21,27 +21,32 @@ The setup script installs pinned WASM from the npm lock and fetches the exact Fu
 
 ## Frontend integration
 
-The standalone package leaves the frontend's root Vite, TypeScript, and app files separate. Use the supported sample and real report below in place of the scaffold's synthetic data. TypeScript consumers can import the declared types from the same modules.
+The standalone package leaves the frontend's root Vite, TypeScript, and app files separate. [Frontend handoff amendments](FRONTEND-HANDOFF.md) Use the supported sample and real report below in place of the scaffold's synthetic data. TypeScript consumers can import the declared types from the same modules.
 
 ```js
-import { analyzeSquat, getMotionTrace } from './harness/motion/analyze.mjs';
+import { analyzeSquat, getMotionTrace, getSquatProfile } from './harness/motion/analyze.mjs';
 import { formatManualHandoff, prepareCoachingBundle } from './harness/coaching/index.mjs';
 
-const source = '/fixtures/squat/supported-squat.mp4'; // Or the original File from the user's picker.
+const source = '/fixtures/squat/clear-squat.mp4'; // Or the original File from the user's picker.
 const job = new AbortController();
 const report = await analyzeSquat(source, { signal: job.signal, onProgress: console.log });
 const trace = getMotionTrace(report); // Timestamped angles and phase for the chart or scrubber.
+const profile = getSquatProfile(report); // Rep and phase timings with source anchors.
 const repIds = report.reps.slice(0, 2).map((rep) => rep.id);
 const bundle = await prepareCoachingBundle(report, source, { repIds, signal: job.signal });
 const text = formatManualHandoff(bundle.packet, bundle.images);
 ```
 
-- **Measure.** Use the same source for the player, analysis, and bundle. `onProgress` reports `stage`, a 0–1 `progress`, and `frameCount`. Map normalized landmarks to the displayed video content rectangle. Seek to `evidenceTimestampMs` and leave a gap when a usable sample is more than 100 ms away. Render unavailable states and report warnings. The report keeps all 33 landmark slots at each sampled timestamp. `getMotionTrace` adds usable knee flexion and torso lean, the containing rep, and descent, bottom or ascent phase for every sample. The trace stays local.
-- **Compare and copy.** Pass the chosen rep IDs and optional `userGoal`. The packet includes selected rep start, bottom and end times as context. The bundle has a bounded `packet`, `images` with JPEG blobs, and `unavailableImages` with per-frame messages. Preview and download by evidence ID. Copy the Magna Carta and packet with `formatManualHandoff`. The original report can be downloaded separately.
+- **Measure.** Use the same source for the player, analysis, and bundle. `onProgress` reports `stage`, a 0–1 `progress`, and `frameCount`. Map normalized landmarks to the displayed video content rectangle. Seek to `evidenceTimestampMs` and leave a gap when a usable sample is more than 100 ms away. Render unavailable states and report warnings. The report keeps all 33 landmark slots at each sampled timestamp. `getMotionTrace` adds usable knee flexion and torso lean, the containing rep, and descent, bottom or ascent phase for every sample. The local trace also includes projected hip flexion, shin inclination, ankle closure change and two normalized depth proxies. [Metric definitions](motion/METRICS.md)
+- **Compare and copy.** Pass the chosen rep IDs and optional `userGoal`. The packet includes selected rep phases and a bounded summary of their projected bottom metrics. The bundle has a bounded `packet`, `images` with JPEG blobs, and `unavailableImages` with per-frame messages. Preview and download by evidence ID. Copy the Magna Carta and packet with `formatManualHandoff`. The original report can be downloaded separately.
 - **Handle replacement.** Abort the job when the source or pair changes and compare the completed request with the active selection before applying it. Each report owns its own evidence IDs. Retain the local report when provider, image capture, or clipboard actions fail.
 - **Provider boundary.** The [browser adapter](provider/client.mjs) exposes connection, models, and interpretation. The [server middleware](provider/local-server.mjs) can replace the scaffold stub on the same HTTP `127.0.0.1` origin. Keep the server module out of the browser bundle. Hosted frontend previews use the manual handoff.
 
 ## Evidence and accuracy
+
+- [Clear demo clip](../fixtures/squat/clear-squat.mp4) · [AnalysisReport](results/clear-squat.analysis-report.v1.json) · [Motion trace](results/clear-squat.motion-trace.v1.json) · [Squat profile](results/clear-squat.squat-profile.v1.json) · [CoachPacket](results/clear-squat.coach-packet.v1.json)
+- The 810×1440 demo tracked all 57 frames. Chrome found two rep bottoms at 1,000 and 2,933 ms, 67 and 0 ms from the blind labels. Knee flexion was 121.0° and 119.9°. Torso lean was 36.8° and 39.7°.
+- [Full versus Heavy benchmark](results/pose-model-benchmark.json) uses the same model family, local Chrome CPU and fixed fixtures. On the labeled six-second regression, both models detected two reps. Full matched both labels in 3.77 seconds. Heavy was within tolerance with a 67 ms miss on rep two and took 7.75 seconds. Full remains the default. Stage the exact verified Heavy asset separately and select `model: 'heavy'` to use the optional preset.
 
 - [Real AnalysisReport v1](results/supported-squat.analysis-report.v1.json) · [Local motion trace](results/supported-squat.motion-trace.v1.json) · [CoachPacket v1](results/supported-squat.coach-packet.v1.json) · [1,600 ms JPEG](results/supported-squat-evidence/frame-1600ms.jpg) · [4,400 ms JPEG](results/supported-squat-evidence/frame-4400ms.jpg)
 - [Fixture verification](results/fixture-verification.json) covers report schema and geometry, visibility, browser cancellation and decode failure, front-view capture guidance, and local-only coaching bundles. Run `npm --prefix harness run verify:fixtures -- --write` to regenerate the artifacts.
@@ -52,4 +57,4 @@ const text = formatManualHandoff(bundle.packet, bundle.images);
 
 The standalone adapter is available on the fixed loopback preview port 4173. Use one local service per credential directory when embedding the adapter. Start the smoke build with `MOVEIDE_ENABLE_CHATGPT=1 npm --prefix harness run start:local`, then choose **Continue with ChatGPT**. The loopback service holds credentials under `~/.config/moveide/` with owner-only permissions. The browser receives connection state and eligible models. It can request interpretation after previewing the exact packet and images. Local mocked-upstream verification covers callback state, PKCE, scope gating, model checks, response completion, and unknown evidence IDs. The live eligible-account exchange, model discovery and GPT-6.1 Sol inference with both fixture JPEGs passed. [Live verification evidence](results/live-chatgpt-verification.json). The optional `npm --prefix harness run verify:live` command uses the active plan to send the public fixture packet and both JPEGs. [OpenAI local plan protocol](https://developers.openai.com/siwc/token-sharing-open-source)
 
-The [Seldon baseline](../seldon.yml) covers sample measurement and compare-and-handoff. After the workbench uses the supported sample, validate the YAML through the connected Seldon MCP, smoke-test the exact workbench build, and record the expected debit before dispatching both cases against its reachable URL. Keep at least four of the 16 simulations for the final run and a rerun. Record the experiment ID, actual debit, both verdicts, and summary in the [ledger](../qa/seldon-ledger.md).
+The [Seldon baseline](../seldon.yml) covers sample measurement and compare-and-handoff. Hold the remaining 14 simulations until the workbench is complete. After the workbench uses the clear demo, validate the YAML through the connected Seldon MCP, smoke-test the exact workbench build, and record the expected debit before dispatching both cases against its reachable URL. Keep at least four of the 16 simulations for the final run and a rerun. Record the experiment ID, actual debit, both verdicts, and summary in the [ledger](../qa/seldon-ledger.md).
