@@ -32,7 +32,7 @@ export function App() {
   const [connection, setConnection] = useState('unknown');
 
   useEffect(() => {
-    fetch('/api/connection').then((r) => r.json()).then((c) => setConnection(c.state), () => setConnection('service offline'));
+    fetch('/api/connection').then((r) => r.json()).then((c) => setConnection(c.state ?? 'unavailable'), () => setConnection('service offline'));
   }, []);
 
   // Release the old clip's object URL whenever the clip changes or the app unmounts.
