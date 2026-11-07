@@ -1,0 +1,32 @@
+{
+  "clip": "supported-squat.mp4",
+  "clipSha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+  "report": "supported-squat.analysis-report.v1.json",
+  "reportSha256": "fd9f69ad18a10447e1577fd3a9d97688584c1e8e02fe1c32b924dfbc28d9ac92",
+  "pythonMediaPipeVersion": "1.2.2",
+  "modelSha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+  "poseModel": {
+    "id": "mediapipe-pose-landmarker-heavy",
+    "version": "1"
+  },
+  "frameCount": 90,
+  "configuration": "FFmpeg RGB decode \u00b7 MediaPipe VIDEO \u00b7 CPU \u00b7 one pose",
+  "side": "left",
+  "comparison": [
+    {
+      "measurementId": "rep-1-knee-flexion",
+      "timestampMs": 1600,
+      "browserDeg": 98.90833537525161,
+      "pythonDeg": 98.99382230772176,
+      "absDeltaDeg": 0.08548693247014683
+    },
+    {
+      "measurementId": "rep-2-knee-flexion",
+      "timestampMs": 4333,
+      "browserDeg": 98.32754028712357,
+      "pythonDeg": 97.54805994614809,
+      "absDeltaDeg": 0.779480340975482
+    }
+  ],
+  "scope": "Cross-runtime agreement using shared model weights"
+}

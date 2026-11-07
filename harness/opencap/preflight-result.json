@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "engine": "opencap-monocular",
+  "expectedRevision": "7c5c1dd459835e2482127e55dc45e98d68a1a9f2",
+  "observedRevision": "7c5c1dd459835e2482127e55dc45e98d68a1a9f2",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "nvidiaRuntimeDetected": false,
+  "status": "unsupported-runtime",
+  "capabilities": {
+    "localMotionImport": true,
+    "nativeInferenceVerified": false
+  },
+  "checks": {
+    "supportedHost": false,
+    "pinnedSource": true,
+    "cudaPythonAndOpenSim": "not-tested",
+    "modelWeightsAndSMPL": "not-provisioned-by-moveide",
+    "codeAndAssetTerms": "operator-review-required",
+    "sourceCameraAndSubjectMetadata": "required-for-inference",
+    "originalFrameAlignment": "must-be-exported-and-independently-verified"
+  },
+  "scope": "Read-only host preflight. Does not download models, accept terms, execute upstream code, or infer on video."
+}

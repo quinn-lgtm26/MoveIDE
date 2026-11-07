@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MoveIDE harness smoke test</title>
+  <title>MoveIDE · Squat review</title>
   <style>
     body { font: 1rem system-ui, sans-serif; margin: 2rem auto; padding: 0 1rem; max-width: 54rem; }
     button, select { font: inherit; }
@@ -20,17 +20,19 @@
     .readout { font-variant-numeric: tabular-nums; }
     #cue { padding-inline-start: .75rem; border-inline-start: 2px solid #00856c; }
   </style>
+  <link rel="stylesheet" href="./review.css">
 </head>
 <body>
   <main>
-    <h1>MoveIDE harness smoke test</h1>
-    <p>Run browser inference on the bundled side-view clip and inspect the evidence sent by the manual handoff.</p>
+    <h1>Squat review</h1>
+    <p>Analyze the side-view squat with MediaPipe Heavy v1, review the full sampled motion, and inspect the evidence sent by the coaching handoff.</p>
     <p><a href="/fixtures/squat/README.md">Sample attribution</a></p>
     <button id="analyze">Analyze sample squat</button>
     <button id="copy" disabled>Copy coaching handoff</button>
     <a id="report" download="clear-squat.analysis-report.v1.json" hidden>Download report</a>
     <a id="trace-download" download="clear-squat.motion-trace.v1.json" hidden>Motion trace</a>
     <a id="profile-download" download="clear-squat.squat-profile.v1.json" hidden>Squat profile</a>
+    <a id="raw-download" download="clear-squat.raw-pose.v1.json" hidden>Full pose data</a>
     <p id="status" role="status"></p>
     <section id="replay" class="replay" aria-label="Sample playback" hidden>
       <div class="stage">
@@ -50,7 +52,7 @@
     <div id="evidence"></div>
     <details><summary>Preview exact coaching handoff</summary><pre id="packet"></pre></details>
     <section aria-label="Optional local provider spike">
-      <h2>ChatGPT plan spike</h2>
+      <h2>Review with ChatGPT</h2>
       <p id="connection" role="status">Checking local service</p>
       <button id="connect" disabled>Continue with ChatGPT</button>
       <button id="cancel" disabled>Cancel sign-in</button>

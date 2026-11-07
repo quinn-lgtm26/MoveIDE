@@ -61,7 +61,9 @@ export interface AnalysisOptions {
   clipId?: string
   signal?: AbortSignal
   onProgress?: (progress: AnalysisProgress) => void
-  /** Full is staged by default. Heavy requires the same-origin pinned Heavy asset. */
+  /** Optional local-only raw model output. Never included in CoachPacket. */
+  onPoseFrame?: (frame: RawPoseFrame) => void
+  /** Heavy is the default. Both pinned Heavy and Full assets are staged by setup:pose. */
   model?: 'full' | 'heavy'
   assets?: {
     /** Trusted same-origin directory serving the pinned SDK's WASM assets directly. */
@@ -70,6 +72,23 @@ export interface AnalysisOptions {
     modelUrl?: string
   }
 }
+
+export interface RawPoseLandmark {
+  x: number
+  y: number
+  z: number
+  visibility: number | null
+  presence: number | null
+}
+
+export interface RawPoseFrame {
+  timestampMs: number
+  poseModel: { id: string; version: string }
+  normalizedLandmarks: (RawPoseLandmark | null)[]
+  worldLandmarks: (RawPoseLandmark | null)[]
+}
+
+export const RAW_POSE_COORDINATES: Readonly<{ normalized: string; world: string }>
 
 export interface SquatMetrics {
   kneeFlexionDeg: number | null

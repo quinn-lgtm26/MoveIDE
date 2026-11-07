@@ -30,7 +30,7 @@ self.onmessage = async ({ data }) => {
       self.postMessage({})
     } else if (type === 'frame') {
       const result = landmarker.detectForVideo(bitmap, data.timestampMs)
-      self.postMessage({ landmarks: result.landmarks[0] ?? [] })
+      self.postMessage({ landmarks: result.landmarks[0] ?? [], worldLandmarks: result.worldLandmarks[0] ?? [] })
     }
   } catch (error) {
     self.postMessage({ error: error.message || String(error) })

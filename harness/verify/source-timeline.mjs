@@ -23,7 +23,7 @@ export function auditSourceTimeline(report, probe) {
   })
   const samples = report.frames.map(frame => frame.timestampMs)
   if (!samples.length || samples.some((time, index) => !Number.isSafeInteger(time) || time < 0 ||
-      time >= report.clip.durationMs || (index > 0 && time <= samples[index - 1]))) {
+      time > report.clip.durationMs || (index > 0 && time <= samples[index - 1]))) {
     throw new Error('Analysis sample timestamps must strictly increase within the clip.')
   }
   const matched = samples.map(timestampMs => ({ timestampMs, sourceFrameIndex: byRoundedTime.get(timestampMs) ?? null }))

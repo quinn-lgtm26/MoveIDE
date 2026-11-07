@@ -57,7 +57,7 @@ The real clip yields a schema-valid report and a verifiable knee angle. The fina
 
 ## Assumptions
 
-- Use the named MediaPipe Full v1 model for the first spike. Treat an unavailable result as a supported outcome for poor framing.
+- The first spike used MediaPipe Full v1. The user subsequently selected Heavy v1 as the default, retaining Full as an explicit preset. Treat an unavailable result as a supported outcome for poor framing.
 - Use a provisional 150 ms bottom-frame tolerance on the golden fixture, declared before model runs.
 
 ## Open questions

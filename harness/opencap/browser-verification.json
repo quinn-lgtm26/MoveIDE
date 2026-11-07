@@ -1,0 +1,21 @@
+{
+  "scope": "Constructed parser fixtures and synthetic local file bytes. No actual video analysis, OpenCap inference or model accuracy is verified.",
+  "browser": "154.0.8037.58",
+  "passed": true,
+  "externalRequests": 0,
+  "status": "imported-unverified",
+  "frameCount": 2,
+  "coordinateSystem": "OpenSim model generalized coordinates",
+  "units": [
+    "deg",
+    "m"
+  ],
+  "sourceTimes": [
+    100,
+    167
+  ],
+  "selectedKnee": 20,
+  "gapUnavailable": true,
+  "mismatchRejected": true,
+  "beyondDurationRejected": true
+}

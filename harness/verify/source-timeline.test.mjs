@@ -20,6 +20,12 @@ test('source audit checks variable presentation times rather than inventing a co
   assert.equal(auditSourceTimeline(report([0, 67]), probe([0, .041667, .115])).passed, false)
 })
 
+test('source audit accepts a last PTS that rounds to the rounded duration', () => {
+  const result = auditSourceTimeline(report([0, 1000]), probe([0, .9996]))
+  assert.equal(result.everySourceTimestampRepresented, true)
+  assert.throws(() => auditSourceTimeline(report([0, 1001]), probe([0, 1.001])), /within the clip/)
+})
+
 test('source audit refuses ambiguous timelines and unverified orientation', () => {
   assert.throws(() => auditSourceTimeline(report([0, 0]), probe([0, .067])), /strictly increase/)
   assert.throws(() => auditSourceTimeline(report([0]), probe([0, .0004])), /collide/)

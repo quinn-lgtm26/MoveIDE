@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0.0",
+  "charterVersion": "1.0.0",
+  "summary": "2 complete squat reps selected. 6 usable measurements. Clip start/bottom/end in ms, in selected rep order (533/1600/2400, 3333/4400/5133). Knee and torso angles are estimates in the video plane. Projected bottoms in selected order: hip flexion/shin tilt/ankle closure change (°), hip descent/height above knee (% leg length): 105.7/30.9/8.9/40.5/15.6, 110.9/28.6/9.2/37.4/14.6.",
+  "repIds": [
+    "rep-1",
+    "rep-2"
+  ],
+  "measurements": [
+    {
+      "id": "rep-1-knee-flexion",
+      "repId": "rep-1",
+      "metric": "knee_flexion",
+      "value": 100.82282061739214,
+      "unit": "deg",
+      "evidenceTimestampMs": 1600
+    },
+    {
+      "id": "rep-1-duration",
+      "repId": "rep-1",
+      "metric": "rep_duration",
+      "value": 1867,
+      "unit": "ms",
+      "evidenceTimestampMs": 1600
+    },
+    {
+      "id": "rep-1-torso-lean",
+      "repId": "rep-1",
+      "metric": "torso_lean",
+      "value": 35.759216911399456,
+      "unit": "deg",
+      "evidenceTimestampMs": 1600
+    },
+    {
+      "id": "rep-2-knee-flexion",
+      "repId": "rep-2",
+      "metric": "knee_flexion",
+      "value": 100.2912829304447,
+      "unit": "deg",
+      "evidenceTimestampMs": 4400
+    },
+    {
+      "id": "rep-2-duration",
+      "repId": "rep-2",
+      "metric": "rep_duration",
+      "value": 1800,
+      "unit": "ms",
+      "evidenceTimestampMs": 4400
+    },
+    {
+      "id": "rep-2-torso-lean",
+      "repId": "rep-2",
+      "metric": "torso_lean",
+      "value": 39.183377609694084,
+      "unit": "deg",
+      "evidenceTimestampMs": 4400
+    }
+  ],
+  "evidence": [
+    {
+      "id": "frame-1600ms",
+      "timestampMs": 1600,
+      "imageName": "frame-1600ms.jpg"
+    },
+    {
+      "id": "frame-4400ms",
+      "timestampMs": 4400,
+      "imageName": "frame-4400ms.jpg"
+    }
+  ]
+}
