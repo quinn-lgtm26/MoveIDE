@@ -1,6 +1,6 @@
 // Frontend ↔ BE-1 seam. Decodes the clip locally, runs each frame through pose.worker.ts,
 // and assembles an AnalysisReport v1. Nothing leaves the browser.
-import type { AnalysisReport, Frame } from './contract.ts';
+import type { AnalysisReport, EvidenceRef, Frame } from './contract.ts';
 import type { WorkerOut } from './engine/pose.worker.ts';
 import { buildReport } from './engine/report.ts';
 
@@ -65,6 +65,36 @@ export async function analyze(src: string, { signal, onProgress }: AnalyzeOption
     );
   } finally {
     worker.terminate();
+    video.removeAttribute('src');
+    video.load();
+  }
+}
+
+/** Unannotated JPEGs of the packet's evidence frames, seeked the same way analyze() sampled them. */
+export async function captureFrames(src: string, evidence: EvidenceRef[], signal: AbortSignal): Promise<{ ref: EvidenceRef; blob: Blob }[]> {
+  const video = document.createElement('video');
+  video.muted = true;
+  video.preload = 'auto';
+  const meta = once(video, 'loadeddata', signal, 'error');
+  video.src = src;
+  try {
+    await meta;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d')!;
+    const out: { ref: EvidenceRef; blob: Blob }[] = [];
+    for (const ref of evidence) {
+      const seeked = once(video, 'seeked', signal, 'error');
+      video.currentTime = ref.timestampMs / 1000;
+      await seeked;
+      ctx.drawImage(video, 0, 0);
+      const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.9));
+      if (!blob) throw new Error(`Could not encode ${ref.imageName}`);
+      out.push({ ref, blob });
+    }
+    return out;
+  } finally {
     video.removeAttribute('src');
     video.load();
   }
