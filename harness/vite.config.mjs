@@ -48,7 +48,7 @@ export default defineConfig({
         cp(local('setup/APACHE-2.0.txt'), local('dist/APACHE-2.0.txt')),
         cp(local('setup/THIRD-PARTY-NOTICES.md'), local('dist/THIRD-PARTY-NOTICES.md')),
       ]);
-      for (const name of ['supported-squat.mp4', 'README.md']) {
+      for (const name of ['clear-squat.mp4', 'README.md']) {
         await cp(local(`../fixtures/squat/${name}`), local(`dist/fixtures/squat/${name}`));
       }
     },

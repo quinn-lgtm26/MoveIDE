@@ -1,12 +1,9 @@
 import { POSE_MODEL } from './pose-model.mjs'
 
-export const VISIBILITY_THRESHOLD = 0.5
+import { distancePx, KNEE_INDICES, kneeFlexion, torsoLean, validLandmark, visible } from './geometry.mjs'
+
+export { KNEE_INDICES, kneeFlexion, VISIBILITY_THRESHOLD } from './geometry.mjs'
 export const SQUAT_PROTOCOL = Object.freeze({ id: 'squat-side', version: '1.0.0' })
-export const KNEE_INDICES = Object.freeze({
-  left: Object.freeze([23, 25, 27]),
-  right: Object.freeze([24, 26, 28]),
-})
-const SHOULDER_INDEX = { left: 11, right: 12 }
 
 const UPRIGHT_FLEXION = 30
 const DESCENT_FLEXION = 45
@@ -16,43 +13,6 @@ const MAX_SLOW_SOURCE_GAP_MS = 200
 const CADENCE_JITTER_FACTOR = 1.15
 const MIN_REP_DURATION_MS = 500
 const MIN_TRACKING_COVERAGE = 0.75
-
-function validLandmark(point) {
-  return point && Number.isFinite(point.x) && Number.isFinite(point.y) &&
-    Number.isFinite(point.visibility)
-}
-
-function visible(point) {
-  return validLandmark(point) && point.visibility >= VISIBILITY_THRESHOLD &&
-    point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1
-}
-
-function distancePx(a, b, widthPx, heightPx) {
-  return Math.hypot((a.x - b.x) * widthPx, (a.y - b.y) * heightPx)
-}
-
-export function kneeFlexion(landmarks, side, widthPx, heightPx) {
-  const [hip, knee, ankle] = KNEE_INDICES[side].map(index => landmarks[index])
-  if (![hip, knee, ankle].every(visible)) return null
-  const hipX = (hip.x - knee.x) * widthPx
-  const hipY = (hip.y - knee.y) * heightPx
-  const ankleX = (ankle.x - knee.x) * widthPx
-  const ankleY = (ankle.y - knee.y) * heightPx
-  const denominator = Math.hypot(hipX, hipY) * Math.hypot(ankleX, ankleY)
-  if (denominator < 1) return null
-  const cosine = Math.min(1, Math.max(-1, (hipX * ankleX + hipY * ankleY) / denominator))
-  return 180 - Math.acos(cosine) * 180 / Math.PI
-}
-
-function torsoLean(landmarks, side, widthPx, heightPx) {
-  const hip = landmarks[KNEE_INDICES[side][0]]
-  const shoulder = landmarks[SHOULDER_INDEX[side]]
-  if (!visible(hip) || !visible(shoulder)) return null
-  const horizontal = Math.abs(shoulder.x - hip.x) * widthPx
-  const upward = (hip.y - shoulder.y) * heightPx
-  if (Math.hypot(horizontal, upward) < 1) return null
-  return Math.atan2(horizontal, upward) * 180 / Math.PI
-}
 
 function legSample({ timestampMs, landmarks }, side, { widthPx, heightPx }) {
   const angle = kneeFlexion(landmarks, side, widthPx, heightPx)
@@ -180,29 +140,7 @@ function kneeMeasurement(id, repId, evidence) {
   }
 }
 
-/** The sampled angles and phases from a local AnalysisReport v1. */
-export function getMotionTrace(report) {
-  const { widthPx, heightPx } = report.clip
-  const { side } = report.protocol
-  let repIndex = 0
-  return report.frames.map(({ timestampMs, landmarks, quality }) => {
-    while (report.reps[repIndex]?.endMs < timestampMs) repIndex++
-    const candidate = report.reps[repIndex]
-    const rep = candidate && timestampMs >= candidate.startMs ? candidate : null
-    let phase = null
-    if (rep) phase = timestampMs < rep.bottomMs ? 'descent' : timestampMs === rep.bottomMs ? 'bottom' : 'ascent'
-    const measurable = side && quality === 'usable'
-    return {
-      timestampMs,
-      repId: rep?.id ?? null,
-      phase,
-      kneeFlexionDeg: measurable ? kneeFlexion(landmarks, side, widthPx, heightPx) : null,
-      torsoLeanDeg: measurable ? torsoLean(landmarks, side, widthPx, heightPx) : null,
-    }
-  })
-}
-
-export function buildAnalysisReport(clip, samples) {
+export function buildAnalysisReport(clip, samples, poseModel = POSE_MODEL) {
   const frontal = isFrontal(samples, clip)
   const left = samples.map(sample => legSample(sample, 'left', clip))
   const right = samples.map(sample => legSample(sample, 'right', clip))
@@ -280,7 +218,7 @@ export function buildAnalysisReport(clip, samples) {
     schemaVersion: 1,
     clip,
     protocol: { ...SQUAT_PROTOCOL, side },
-    poseModel: POSE_MODEL,
+    poseModel,
     frames,
     reps,
     measurements,

@@ -2,6 +2,7 @@
 id: SPEC-moveide-harness
 companions:
   - harness.md
+  - squat-methodology.md
   - ../shared/analysis-report-v1.md
   - ../../../AI.md
   - ../../../fixtures/squat/README.md
@@ -42,12 +43,13 @@ MoveIDE needs inspectable measurements independent of an AI account. A local mot
 
 - The motion engine runs on the laptop and emits AnalysisReport v1. The provider accepts CoachPacket v1 plus the selected source images.
 - The first protocol supports one visible lifter, a stationary side view, and screen-plane angles. Missing evidence remains explicit.
+- Compare motion against a stated goal or matched personal baseline. Keep source-frame identity and measurement availability intact through analysis, playback, and coaching.
 - Treat native plan sign-in as a parallel first-hour spike. Keep OAuth credentials in the local service and proceed with the copy flow if the spike stalls.
 - Rerun both Seldon baseline cases against the final build and retain the experiment ID, case verdicts, and summary. Respect the 16-simulation allocation and record actual debit. Verify live ChatGPT inference separately on the demo laptop.
 
 ## Non-goals
 
-- Clinical interpretation, forces or joint moments, 3D reconstruction, gait, fine-tuning, full-clip inference through ChatGPT plan usage, and cloud-hosted auth.
+- Clinical interpretation, forces or joint moments, 3D reconstruction in the shipped protocol, gait, fine-tuning, full-clip inference through ChatGPT plan usage, and cloud-hosted auth.
 
 ## Success signal
 

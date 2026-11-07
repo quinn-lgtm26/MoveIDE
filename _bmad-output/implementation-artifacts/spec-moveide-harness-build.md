@@ -2,7 +2,7 @@
 title: 'MoveIDE local analysis and coaching harness'
 type: 'feature'
 created: '2026-11-07'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 baseline_commit: '28a96f502198e0feccf6b6c20bb3cb0e38bc9b45'
 review_loop_iteration: 0
@@ -61,6 +61,9 @@ context:
 - The built smoke verified clipboard, images and zero third-party requests. The optional Python Tasks reproduction agreed with Chrome within 0.41° on two frames. Live account inference and hosted Seldon depend on separate access and the final frontend build.
 
 ## Spec Change Log
+
+- Hosted harness smoke on `2a6511f` passed both Seldon cases with a debit of two. The final integrated frontend gate remains in the shared backlog and the remaining 14 simulations are held for it.
+- Added the brighter `clear-squat.mp4` demo, seven local projected metrics with phase anchors, an optional Heavy preset, and replay overlay and coaching timeline references. Frontend amendments and OpenCap research are tracked separately.
 
 ## Review Triage Log
 

@@ -13,16 +13,21 @@
     "analysisReportSchema": "passed",
     "reportEvidenceAndGeometry": "passed",
     "motionTraceAndTorsoGeometry": "passed",
+    "squatProfileAndProjectedGeometry": "passed",
     "supportedClipManualLabelCheck": "passed",
+    "clearClipManualLabelCheck": "passed",
     "frontViewCaptureGuidance": "passed",
     "abortAndInvalidClip": "passed",
     "rejectsMismatchedModel": "passed",
     "rejectsClipRedirectAndAcceptsObjectUrl": "passed",
     "coachingPacketAndJpegs": "passed",
-    "coachingEvidenceFrames": 2,
+    "coachingEvidenceFrames": {
+      "supported-squat": 2,
+      "clear-squat": 2
+    },
     "thirdPartyRequests": 0
   },
-  "scope": "Manual labels verify rep count and bottom timing on two fixtures. There are no reference joint angles. The three other side views are exploratory.",
+  "scope": "Manual labels check rep count and bottom timing on three fixtures. There are no reference joint angles. The three other side views are exploratory.",
   "cases": [
     {
       "clip": "supported-squat.mp4",
@@ -84,6 +89,71 @@
         "toleranceMs": 150,
         "absoluteBottomErrorsMs": [
           0,
+          0
+        ],
+        "passed": true
+      }
+    },
+    {
+      "clip": "clear-squat.mp4",
+      "frameCount": 57,
+      "usableFrameCount": 57,
+      "side": "left",
+      "completeReps": 2,
+      "bottomTimestampsMs": [
+        1000,
+        2933
+      ],
+      "kneeMeasurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 121.0460171582688,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1000
+        },
+        {
+          "id": "rep-2-knee-flexion",
+          "repId": "rep-2",
+          "metric": "knee_flexion",
+          "value": 119.87014769271606,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 2933
+        }
+      ],
+      "torsoMeasurements": [
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 36.82757372625282,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1000
+        },
+        {
+          "id": "rep-2-torso-lean",
+          "repId": "rep-2",
+          "metric": "torso_lean",
+          "value": 39.68018953837868,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 2933
+        }
+      ],
+      "warnings": [],
+      "manualLabelCheck": {
+        "expectedCompleteReps": 2,
+        "expectedBottomMs": [
+          1067,
+          2933
+        ],
+        "toleranceMs": 150,
+        "absoluteBottomErrorsMs": [
+          67,
           0
         ],
         "passed": true

@@ -11,6 +11,14 @@
     #evidence { display: flex; flex-wrap: wrap; gap: 1rem; }
     figure { margin: 0; }
     img { width: 10rem; display: block; }
+    .replay { max-width: 40rem; margin: 1rem 0; }
+    .stage { position: relative; aspect-ratio: 16 / 10; background: #10171b; border-radius: .8rem; overflow: hidden; }
+    .stage video, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .stage video { object-fit: contain; }
+    .stage canvas { pointer-events: none; }
+    .replay-tools { display: flex; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+    .readout { font-variant-numeric: tabular-nums; }
+    #cue { padding-inline-start: .75rem; border-inline-start: 2px solid #00856c; }
   </style>
 </head>
 <body>
@@ -18,10 +26,25 @@
     <h1>MoveIDE harness smoke test</h1>
     <p>Run browser inference on the bundled side-view clip and inspect the evidence sent by the manual handoff.</p>
     <p><a href="/fixtures/squat/README.md">Sample attribution</a></p>
-    <button id="analyze">Analyze supported squat</button>
+    <button id="analyze">Analyze sample squat</button>
     <button id="copy" disabled>Copy coaching handoff</button>
-    <a id="report" download="supported-squat.analysis-report.v1.json" hidden>Download report</a>
+    <a id="report" download="clear-squat.analysis-report.v1.json" hidden>Download report</a>
+    <a id="trace-download" download="clear-squat.motion-trace.v1.json" hidden>Motion trace</a>
+    <a id="profile-download" download="clear-squat.squat-profile.v1.json" hidden>Squat profile</a>
     <p id="status" role="status"></p>
+    <section id="replay" class="replay" aria-label="Sample playback" hidden>
+      <div class="stage">
+        <video id="clip" controls playsinline muted preload="metadata" aria-label="Side-view squat sample"></video>
+        <canvas id="overlay" aria-hidden="true"></canvas>
+      </div>
+      <div class="replay-tools">
+        <button id="prev-frame">Previous sample</button>
+        <button id="next-frame">Next sample</button>
+        <span id="phase" class="readout"></span>
+      </div>
+      <p id="frame-metrics" class="readout"></p>
+      <p id="cue" hidden></p>
+    </section>
     <p id="coverage"></p>
     <ul id="metrics" aria-label="Rep measurements"></ul>
     <div id="evidence"></div>

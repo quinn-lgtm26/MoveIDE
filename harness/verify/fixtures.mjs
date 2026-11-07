@@ -7,13 +7,14 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { verifyCoachingFixture } from '../coaching/verify-fixture.mjs'
-import { getMotionTrace } from '../motion/analyze.mjs'
+import { getMotionTrace, getSquatProfile } from '../motion/analyze.mjs'
 import { kneeFlexion, VISIBILITY_THRESHOLD } from '../motion/squat.mjs'
 
 const supported = 'supported-squat'
+const clear = 'clear-squat'
 const original = 'sample-squat'
 const front = 'front-view-challenge'
-const fixtureNames = [supported, original, 'side-gym', 'side-mirror', 'side-busy-background', front]
+const fixtureNames = [supported, clear, original, 'side-gym', 'side-mirror', 'side-busy-background', front]
 const readJson = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'))
 const reportSchema = await readJson('../../_bmad-output/specs/shared/analysis-report-v1.schema.json')
 const validate = new Ajv2020().compile(reportSchema)
@@ -36,6 +37,39 @@ function expectedTorsoLean(frame, report) {
 function assertAngle(actual, expected) {
   if (expected === null) assert.equal(actual, null)
   else assert(actual !== null && Math.abs(actual - expected) < 1e-6)
+}
+
+function expectedProjections(frame, start, report) {
+  const side = report.protocol.side
+  const dimensions = [report.clip.widthPx, report.clip.heightPx]
+  const indices = side === 'left' ? [11, 23, 25, 27, 29, 31] : [12, 24, 26, 28, 30, 32]
+  const projectedPoints = (sample) => indices.map(index => {
+    const point = side && sample?.quality === 'usable' ? sample.landmarks[index] : null
+    if (!point || point.visibility < VISIBILITY_THRESHOLD || point.x < 0 || point.x > 1 || point.y < 0 || point.y > 1) return null
+    return [point.x * dimensions[0], point.y * dimensions[1]]
+  })
+  const segment = (tip, base) => tip && base ? [tip[0] - base[0], tip[1] - base[1]] : null
+  const length = vector => vector ? Math.hypot(...vector) : 0
+  const angle = (a, b) => length(a) < 1 || length(b) < 1 ? null
+    : Math.atan2(Math.abs(a[0] * b[1] - a[1] * b[0]), a[0] * b[0] + a[1] * b[1]) * 180 / Math.PI
+  const ankleOpening = (shin, foot) => length(foot) < 0.1 * length(shin) ? null : angle(shin, foot)
+  const [shoulder, hip, knee, ankle, heel, toe] = projectedPoints(frame)
+  const [, startHip, startKnee, startAnkle, startHeel, startToe] = projectedPoints(start)
+  const shin = segment(knee, ankle)
+  const hipAngle = angle(segment(shoulder, hip), segment(knee, hip))
+  const opening = ankleOpening(shin, segment(toe, heel))
+  const startShin = segment(startKnee, startAnkle)
+  const startThighLength = length(segment(startKnee, startHip))
+  const hasStart = startThighLength >= 1 && length(startShin) >= 1
+  const startLeg = startThighLength + length(startShin)
+  const startOpening = ankleOpening(startShin, segment(startToe, startHeel))
+  return {
+    hipFlexionDeg: hipAngle === null ? null : 180 - hipAngle,
+    shinInclinationDeg: angle(shin, [0, -1]),
+    ankleClosureChangeDeg: hasStart && startOpening !== null && opening !== null ? startOpening - opening : null,
+    hipDescentLegLengths: hasStart && hip ? (hip[1] - startHip[1]) / startLeg : null,
+    hipAboveKneeLegLengths: hasStart && hip && knee ? (knee[1] - hip[1]) / startLeg : null,
+  }
 }
 
 function assertReport(report, name) {
@@ -100,6 +134,25 @@ function assertReport(report, name) {
     }
     if (frame.quality !== 'usable') assert.equal(sample.kneeFlexionDeg, null)
     assertAngle(sample.torsoLeanDeg, expectedTorsoLean(frame, report))
+    for (const [metric, expected] of Object.entries(expectedProjections(frame, framesByTime.get(rep?.startMs), report))) {
+      assertAngle(sample[metric], expected)
+    }
+  })
+  const profile = getSquatProfile(report)
+  assert.equal(profile.clipId, report.clip.id)
+  assert.equal(profile.side, report.protocol.side)
+  assert.equal(profile.reps.length, report.reps.length)
+  profile.reps.forEach((rep, index) => {
+    const { id, startMs, bottomMs, endMs } = report.reps[index]
+    assert.equal(rep.repId, id)
+    assert.equal(rep.descentMs, bottomMs - startMs)
+    assert.equal(rep.ascentMs, endMs - bottomMs)
+    for (const [position, timestampMs] of Object.entries({ start: startMs, bottom: bottomMs, end: endMs })) {
+      assert.deepEqual(rep.evidence[position], { id: `frame-${timestampMs}ms`, timestampMs })
+      assert.equal(framesByTime.get(timestampMs).quality, 'usable')
+    }
+    const expected = expectedProjections(framesByTime.get(bottomMs), framesByTime.get(startMs), report)
+    for (const [metric, value] of Object.entries(expected)) assertAngle(rep.bottom[metric], value)
   })
 }
 
@@ -196,7 +249,7 @@ try {
   await page.waitForFunction(() => typeof window.analyzeSquat === 'function')
 
   const cases = []
-  let supportedReport
+  const demoReports = new Map()
   for (const name of fixtureNames) {
     const report = await analyzeFixture(page, name)
     assertReport(report, name)
@@ -211,15 +264,18 @@ try {
       torsoMeasurements: report.measurements.filter(measure => measure.metric === 'torso_lean'),
       warnings: report.warnings.map(warning => warning.code),
     }
-    if (name === supported || name === original) {
+    if ([supported, clear, original].includes(name)) {
       const labels = await readJson(`../../fixtures/squat/${name}.labels.json`)
       caseResult.manualLabelCheck = compareLabels(report, labels)
     }
-    if (name === supported) {
-      assert(caseResult.manualLabelCheck.passed, JSON.stringify(caseResult.manualLabelCheck))
+    if (name === supported || name === clear) {
+      assert(caseResult.manualLabelCheck.passed, `${name}: ${JSON.stringify(caseResult.manualLabelCheck)}`)
       assert.equal(caseResult.torsoMeasurements.length, caseResult.completeReps)
-      assert(caseResult.torsoMeasurements.every(({ quality }) => quality === 'usable'))
-      supportedReport = report
+      if (name === supported) {
+        assert(caseResult.torsoMeasurements.every(({ quality }) => quality === 'usable'))
+        assert(getSquatProfile(report).reps.every(({ bottom }) => Object.values(bottom).every(Number.isFinite)))
+      }
+      demoReports.set(name, report)
     } else if (name === original && !caseResult.manualLabelCheck.passed) {
       assert(caseResult.warnings.includes('intermittent_pose') || caseResult.warnings.includes('pose_unavailable'))
     } else if (name === front) {
@@ -235,14 +291,18 @@ try {
 
   await assertRecoverableBrowserErrors(page)
   await mkdir(outputDir, { recursive: true })
-  const packet = await verifyCoachingFixture(page, supportedReport, outputDir, `${supported}.mp4`)
+  const coachingEvidenceFrames = {};
+  for (const [name, report] of demoReports) {
+    const packet = await verifyCoachingFixture(page, report, outputDir, `${name}.mp4`)
+    coachingEvidenceFrames[name] = packet.evidence.length
+  }
   assert.deepEqual(externalRequests, [], 'Local fixture verification must not make third-party requests')
 
   if (writeResults) {
     const summary = {
       engine: {
         sdk: '@mediapipe/tasks-vision@1.2.2',
-        poseModel: supportedReport.poseModel,
+        poseModel: demoReports.get(supported).poseModel,
         delegate: 'CPU',
         browser: `Chromium ${browser.version()}`,
         visibilityThreshold: VISIBILITY_THRESHOLD,
@@ -251,20 +311,25 @@ try {
         analysisReportSchema: 'passed',
         reportEvidenceAndGeometry: 'passed',
         motionTraceAndTorsoGeometry: 'passed',
+        squatProfileAndProjectedGeometry: 'passed',
         supportedClipManualLabelCheck: 'passed',
+        clearClipManualLabelCheck: 'passed',
         frontViewCaptureGuidance: 'passed',
         abortAndInvalidClip: 'passed',
         rejectsMismatchedModel: 'passed',
         rejectsClipRedirectAndAcceptsObjectUrl: 'passed',
         coachingPacketAndJpegs: 'passed',
-        coachingEvidenceFrames: packet.evidence.length,
+        coachingEvidenceFrames,
         thirdPartyRequests: externalRequests.length,
       },
-      scope: 'Manual labels verify rep count and bottom timing on two fixtures. There are no reference joint angles. The three other side views are exploratory.',
+      scope: 'Manual labels check rep count and bottom timing on three fixtures. There are no reference joint angles. The three other side views are exploratory.',
       cases,
     }
-    await writeFile(join(outputDir, `${supported}.analysis-report.v1.json`), `${JSON.stringify(supportedReport)}\n`)
-    await writeFile(join(outputDir, `${supported}.motion-trace.v1.json`), `${JSON.stringify(getMotionTrace(supportedReport), null, 2)}\n`)
+    for (const [name, report] of demoReports) {
+      await writeFile(join(outputDir, `${name}.analysis-report.v1.json`), `${JSON.stringify(report)}\n`)
+      await writeFile(join(outputDir, `${name}.motion-trace.v1.json`), `${JSON.stringify(getMotionTrace(report), null, 2)}\n`)
+      await writeFile(join(outputDir, `${name}.squat-profile.v1.json`), `${JSON.stringify(getSquatProfile(report), null, 2)}\n`)
+    }
     await writeFile(join(outputDir, 'fixture-verification.json'), `${JSON.stringify(summary, null, 2)}\n`)
   }
   console.log('Report, evidence geometry, coaching bundle, cancellation, and capture guidance verified.')
