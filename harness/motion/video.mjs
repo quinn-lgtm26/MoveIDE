@@ -86,23 +86,36 @@ export async function seekVideo(video, seconds, signal) {
 
 // Register before seeking so the callback timestamps the decoded frame,
 // which can precede the requested time when it lies between source frames.
+// Safari often skips the callback for a paused, off-screen video, so after the
+// seek completes fall back to currentTime instead of failing the clip.
+const silentFrameCallbacks = new WeakSet()
+
 export async function seekVideoFrame(video, seconds, signal) {
   signal?.throwIfAborted()
   let token
   let timer
   let abort
+  let presentedMs
   const displayed = new Promise((resolve, reject) => {
-    token = video.requestVideoFrameCallback((_now, metadata) => resolve(Math.round(metadata.mediaTime * 1000)))
-    timer = setTimeout(() => reject(new Error('The browser did not present the requested video frame.')), 3_000)
+    token = video.requestVideoFrameCallback?.((_now, metadata) => {
+      presentedMs = Math.round(metadata.mediaTime * 1000)
+      resolve()
+    })
     abort = () => reject(signal.reason)
     signal?.addEventListener('abort', abort, { once: true })
   })
+  displayed.catch(() => {})
   try {
-    const [, timestampMs] = await Promise.all([seekVideo(video, seconds, signal), displayed])
-    return timestampMs
+    await seekVideo(video, seconds, signal)
+    if (presentedMs === undefined && token !== undefined && !silentFrameCallbacks.has(video)) {
+      // ponytail: fixed 250 ms grace, once per video; Chrome normally fires well inside it.
+      await Promise.race([displayed, new Promise(resolve => { timer = setTimeout(resolve, 250) })])
+      if (presentedMs === undefined) silentFrameCallbacks.add(video)
+    }
+    return presentedMs ?? Math.round(video.currentTime * 1000)
   } finally {
     clearTimeout(timer)
-    video.cancelVideoFrameCallback(token)
+    if (token !== undefined) video.cancelVideoFrameCallback(token)
     signal?.removeEventListener('abort', abort)
   }
 }
