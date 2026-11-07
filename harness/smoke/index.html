@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoveIDE harness smoke test</title>
+  <style>
+    body { font: 1rem system-ui, sans-serif; margin: 2rem auto; padding: 0 1rem; max-width: 54rem; }
+    button, select { font: inherit; }
+    pre { overflow: auto; max-height: 24rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+    #evidence { display: flex; flex-wrap: wrap; gap: 1rem; }
+    figure { margin: 0; }
+    img { width: 10rem; display: block; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MoveIDE harness smoke test</h1>
+    <p>Run browser inference on the bundled side-view clip and inspect the evidence sent by the manual handoff.</p>
+    <p><a href="/fixtures/squat/README.md">Sample attribution</a></p>
+    <button id="analyze">Analyze supported squat</button>
+    <button id="copy" disabled>Copy coaching handoff</button>
+    <a id="report" download="supported-squat.analysis-report.v1.json" hidden>Download report</a>
+    <p id="status" role="status"></p>
+    <div id="evidence"></div>
+    <pre id="packet"></pre>
+    <section aria-label="Optional local provider spike">
+      <h2>ChatGPT plan spike</h2>
+      <p id="connection" role="status">Checking local service</p>
+      <button id="connect" disabled>Continue with ChatGPT</button>
+      <button id="cancel" disabled>Cancel sign-in</button>
+      <button id="disconnect" disabled>Disconnect</button>
+      <select id="model" aria-label="Image-capable model" disabled></select>
+      <button id="interpret" disabled>Send previewed packet and images</button>
+      <p><a href="https://chatgpt.com/settings/usage" rel="noreferrer">Manage ChatGPT usage</a></p>
+      <pre id="coaching" aria-live="polite"></pre>
+    </section>
+  </main>
+  <script type="module" src="./smoke.mjs"></script>
+</body>
+</html>

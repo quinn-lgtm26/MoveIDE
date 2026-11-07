@@ -1,0 +1,247 @@
+{
+  "engine": {
+    "sdk": "@mediapipe/tasks-vision@1.2.2",
+    "poseModel": {
+      "id": "mediapipe-pose-landmarker-full",
+      "version": "1"
+    },
+    "delegate": "CPU",
+    "browser": "Chromium 154.0.8037.58",
+    "visibilityThreshold": 0.5
+  },
+  "verification": {
+    "analysisReportSchema": "passed",
+    "reportEvidenceAndGeometry": "passed",
+    "supportedClipManualLabelCheck": "passed",
+    "frontViewCaptureGuidance": "passed",
+    "abortAndInvalidClip": "passed",
+    "coachingPacketAndJpegs": "passed",
+    "coachingEvidenceFrames": 2,
+    "thirdPartyRequests": 0
+  },
+  "scope": "Manual labels verify rep count and bottom timing on two fixtures. There are no reference joint angles. The three other side views are exploratory.",
+  "cases": [
+    {
+      "clip": "supported-squat.mp4",
+      "frameCount": 90,
+      "usableFrameCount": 90,
+      "side": "left",
+      "completeReps": 2,
+      "bottomTimestampsMs": [
+        1600,
+        4400
+      ],
+      "kneeMeasurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 100.82282061739214,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1600
+        },
+        {
+          "id": "rep-2-knee-flexion",
+          "repId": "rep-2",
+          "metric": "knee_flexion",
+          "value": 100.2912829304447,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 4400
+        }
+      ],
+      "warnings": [],
+      "manualLabelCheck": {
+        "expectedCompleteReps": 2,
+        "expectedBottomMs": [
+          1600,
+          4400
+        ],
+        "toleranceMs": 150,
+        "absoluteBottomErrorsMs": [
+          0,
+          0
+        ],
+        "passed": true
+      }
+    },
+    {
+      "clip": "sample-squat.mp4",
+      "frameCount": 53,
+      "usableFrameCount": 25,
+      "side": "left",
+      "completeReps": 0,
+      "bottomTimestampsMs": [],
+      "kneeMeasurements": [
+        {
+          "id": "knee-flexion",
+          "repId": null,
+          "metric": "knee_flexion",
+          "value": 6.446645821681784,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 133
+        }
+      ],
+      "warnings": [
+        "intermittent_pose",
+        "no_complete_reps"
+      ],
+      "manualLabelCheck": {
+        "expectedCompleteReps": 2,
+        "expectedBottomMs": [
+          1067,
+          2667
+        ],
+        "toleranceMs": 150,
+        "absoluteBottomErrorsMs": [
+          null,
+          null
+        ],
+        "passed": false
+      }
+    },
+    {
+      "clip": "side-gym.mp4",
+      "frameCount": 135,
+      "usableFrameCount": 135,
+      "side": "left",
+      "completeReps": 2,
+      "bottomTimestampsMs": [
+        3200,
+        6000
+      ],
+      "kneeMeasurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 101.52156833746369,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 3200
+        },
+        {
+          "id": "rep-2-knee-flexion",
+          "repId": "rep-2",
+          "metric": "knee_flexion",
+          "value": 100.60592714926382,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 6000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "clip": "side-mirror.mp4",
+      "frameCount": 135,
+      "usableFrameCount": 131,
+      "side": "left",
+      "completeReps": 3,
+      "bottomTimestampsMs": [
+        2067,
+        4267,
+        6400
+      ],
+      "kneeMeasurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 78.68306010125465,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 2067
+        },
+        {
+          "id": "rep-2-knee-flexion",
+          "repId": "rep-2",
+          "metric": "knee_flexion",
+          "value": 86.72624384521315,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 4267
+        },
+        {
+          "id": "rep-3-knee-flexion",
+          "repId": "rep-3",
+          "metric": "knee_flexion",
+          "value": 90.15565506856143,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 6400
+        }
+      ],
+      "warnings": [
+        "intermittent_pose"
+      ]
+    },
+    {
+      "clip": "side-busy-background.mp4",
+      "frameCount": 135,
+      "usableFrameCount": 135,
+      "side": "left",
+      "completeReps": 3,
+      "bottomTimestampsMs": [
+        1933,
+        4333,
+        7000
+      ],
+      "kneeMeasurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 122.74230832296499,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1933
+        },
+        {
+          "id": "rep-2-knee-flexion",
+          "repId": "rep-2",
+          "metric": "knee_flexion",
+          "value": 119.70024731745923,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 4333
+        },
+        {
+          "id": "rep-3-knee-flexion",
+          "repId": "rep-3",
+          "metric": "knee_flexion",
+          "value": 117.70917666567853,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 7000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "clip": "front-view-challenge.mp4",
+      "frameCount": 135,
+      "usableFrameCount": 0,
+      "side": null,
+      "completeReps": 0,
+      "bottomTimestampsMs": [],
+      "kneeMeasurements": [
+        {
+          "id": "knee-flexion",
+          "repId": null,
+          "metric": "knee_flexion",
+          "value": null,
+          "unit": "deg",
+          "quality": "unavailable",
+          "evidenceTimestampMs": null
+        }
+      ],
+      "warnings": [
+        "unsupported_framing",
+        "no_complete_reps"
+      ]
+    }
+  ]
+}

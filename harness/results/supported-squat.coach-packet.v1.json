@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0.0",
+  "charterVersion": "1.0.0",
+  "summary": "2 complete squat reps selected. 4 usable measurements. Knee and torso angles are estimates in the video plane.",
+  "repIds": [
+    "rep-1",
+    "rep-2"
+  ],
+  "measurements": [
+    {
+      "id": "rep-1-knee-flexion",
+      "repId": "rep-1",
+      "metric": "knee_flexion",
+      "value": 100.82282061739214,
+      "unit": "deg",
+      "evidenceTimestampMs": 1600
+    },
+    {
+      "id": "rep-1-duration",
+      "repId": "rep-1",
+      "metric": "rep_duration",
+      "value": 1867,
+      "unit": "ms",
+      "evidenceTimestampMs": 1600
+    },
+    {
+      "id": "rep-2-knee-flexion",
+      "repId": "rep-2",
+      "metric": "knee_flexion",
+      "value": 100.2912829304447,
+      "unit": "deg",
+      "evidenceTimestampMs": 4400
+    },
+    {
+      "id": "rep-2-duration",
+      "repId": "rep-2",
+      "metric": "rep_duration",
+      "value": 1800,
+      "unit": "ms",
+      "evidenceTimestampMs": 4400
+    }
+  ],
+  "evidence": [
+    {
+      "id": "frame-1600ms",
+      "timestampMs": 1600,
+      "imageName": "frame-1600ms.jpg"
+    },
+    {
+      "id": "frame-4400ms",
+      "timestampMs": 4400,
+      "imageName": "frame-4400ms.jpg"
+    }
+  ]
+}

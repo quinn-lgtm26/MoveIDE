@@ -1,0 +1,7 @@
+{
+  "clip": "supported-squat.mp4",
+  "method": "Manual frame-by-frame review of side-gym.mp4 before seeing pose outputs. Selected two complete middle reps with the lifter upright before and after each rep. Labeled the lowest visible hip position at source frames 48 and 90, zero-based at 15 fps. The derivative starts at source frame 24.",
+  "expectedCompleteReps": 2,
+  "bottomTimestampsMs": [1600, 4400],
+  "bottomToleranceMs": 150
+}
