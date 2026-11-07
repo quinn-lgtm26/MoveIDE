@@ -44,6 +44,9 @@ export function createConnector({
 }: Options) {
   const credFile = join(dir, 'chatgpt.json');
   const hostFile = join(dir, 'host-id');
+  // The issued client_id outlives a failed exchange: docs say retry with it, never re-register.
+  const clientFile = join(dir, 'client-id');
+  const issuedClientId = () => creds?.client_id ?? (existsSync(clientFile) ? readFileSync(clientFile, 'utf8').trim() : undefined);
   let pending: { state: string; nonce: string; verifier: string } | null = null;
   let creds: Credentials | null = existsSync(credFile) ? JSON.parse(readFileSync(credFile, 'utf8')) : null;
   // ponytail: no refresh-token rotation; an expired access token means sign in again. Add refresh (30-day RT) after the spike.
@@ -74,7 +77,7 @@ export function createConnector({
     start(): string {
       pending = { state: rand(), nonce: rand(), verifier: rand() };
       const params = new URLSearchParams({
-        client_id: creds?.client_id ?? FIRST_CLIENT_ID,
+        client_id: issuedClientId() ?? FIRST_CLIENT_ID,
         ext_agent_host_id: hostId(),
         response_type: 'code',
         redirect_uri: redirectUri,
@@ -85,7 +88,7 @@ export function createConnector({
         code_challenge_method: 'S256',
         code_challenge: b64url(createHash('sha256').update(pending.verifier).digest()),
       });
-      if (!creds) params.set('agent_name_hint', 'MoveIDE');
+      if (!issuedClientId()) params.set('agent_name_hint', 'MoveIDE');
       connection = { state: 'connecting' };
       return `${AUTH}/api/accounts/authorize?${params}`;
     },
@@ -99,7 +102,8 @@ export function createConnector({
       if (error === 'access_denied') return outcome({ state: 'denied', reason: 'plan use declined' });
       if (error) return outcome({ state: 'unavailable', reason: error });
 
-      const clientId = q.get('client_id') ?? creds?.client_id;
+      const clientId = q.get('client_id') ?? issuedClientId();
+      if (q.get('client_id')) write(clientFile, q.get('client_id')!);
       const code = q.get('code');
       if (!clientId || !code) return outcome({ state: 'unavailable', reason: 'callback missing code or client_id' });
 
@@ -112,7 +116,7 @@ export function createConnector({
         }),
       });
       const tok = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-      if (!res.ok) return outcome({ state: 'unavailable', reason: `token exchange ${res.status} ${String(tok.error ?? '')}`.trim() });
+      if (!res.ok) return outcome({ state: 'unavailable', reason: `token exchange ${res.status} ${[tok.error, tok.error_description].filter(Boolean).join(': ')}`.trim() });
 
       const scopes = String(tok.scope ?? '').split(' ').filter(Boolean);
       if (!scopes.includes(PLAN_SCOPE)) return outcome({ state: 'denied', reason: 'plan scope not granted' });

@@ -92,6 +92,10 @@ test('success → connected, verifier matches challenge, credentials 0600, nothi
   // Restart reads the saved credential; disconnect removes it.
   assert.equal(createConnector({ redirectUri: REDIRECT, dir, log: () => {} }).state().state, 'connected');
   assert.equal(c.disconnect().state, 'disconnected');
+  // Re-auth keeps the issued client ID and skips registration.
+  const again = new URL(c.start()).searchParams;
+  assert.equal(again.get('client_id'), 'oaiapp_test');
+  assert.equal(again.get('agent_name_hint'), null);
   assert.equal(createConnector({ redirectUri: REDIRECT, dir, log: () => {} }).state().state, 'disconnected');
 });
 
