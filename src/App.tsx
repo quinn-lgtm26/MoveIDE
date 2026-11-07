@@ -246,36 +246,47 @@ export function App() {
   return (
     <main>
       <header>
-        <h1>MoveIDE</h1>
+        <a className="wordmark" href="/">MOVE<span>IDE</span></a>
         <nav aria-label="Session source" className="source-nav">
           <a href="/" aria-current="page">Recorded clip</a>
           <a href="/harness/live/">Live camera</a>
         </nav>
       </header>
 
-      <div className="toolbar">
-        <label className="button">
-          Start with your clip
-          <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
-        </label>
-        <button className="primary" onClick={openSample}>Start coached squat</button>
-        {active && <button onClick={stop}>Stop session</button>}
-        <label>
-          Model{' '}
-          <select value={model} onChange={(e) => { invalidateSession(); setModel(e.target.value as PoseModel); }} disabled={active}>
-            <option value="heavy">Heavy (default)</option>
-            <option value="full">Full (faster)</option>
-          </select>
-        </label>
-        <span role="status">
-          {status === 'loading' && 'Loading clip…'}
-          {status === 'analyzing' && <>Analyzing <progress value={progress} /> {Math.round(progress * 100)}%</>}
-          {status === 'ready' && `Ready · ${clip?.name}`}
-        </span>
-      </div>
-      <p className="muted">Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
-      {connection !== 'connected' && <button onClick={connect}>Connect AI coach (one-time setup)</button>}
-      <p role="status" aria-live="polite">{coachStatus}</p>
+      <section className="intro">
+        <div>
+          <p className="eyebrow">RECORDED CLIP</p>
+          <h1>Review a recorded squat.</h1>
+          <p className="subhead">Use the sample or your own side-on clip. Step through each rep and compare the angles.</p>
+        </div>
+        <div className="actions">
+          <div className="toolbar">
+            <label className="button">
+              Start with your clip
+              <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
+            </label>
+            <label className="model-select">
+              Model{' '}
+              <select value={model} onChange={(e) => { invalidateSession(); setModel(e.target.value as PoseModel); }} disabled={active}>
+                <option value="heavy">Heavy (default)</option>
+                <option value="full">Full (faster)</option>
+              </select>
+            </label>
+          </div>
+          <p className="start-disclosure">Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
+          <div className="toolbar">
+            <button className="primary" onClick={openSample}>Start coached squat</button>
+            {active && <button onClick={stop}>Stop session</button>}
+            {connection !== 'connected' && <button onClick={connect}>Connect AI coach (one-time setup)</button>}
+          </div>
+          <span role="status" className="fine">
+            {status === 'loading' && 'Loading clip…'}
+            {status === 'analyzing' && <>Analyzing <progress value={progress} /> {Math.round(progress * 100)}%</>}
+            {status === 'ready' && `Ready · ${clip?.name}`}
+          </span>
+        </div>
+      </section>
+      <p role="status" aria-live="polite" className="fine">{coachStatus}</p>
 
       {error && <p role="alert" className="error">{error} Choose another clip — an H.264 MP4 works in Chrome.</p>}
 
@@ -383,7 +394,7 @@ export function App() {
 
       {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} />}
 
-      <footer className="muted">
+      <footer>
         <small>
           Sample clip: subject 010 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
           Prashanth et al. · <a href="https://doi.org/10.17632/kgbb3yn47p.3">Dataset and DOI</a> ·{' '}
