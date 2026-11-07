@@ -1,0 +1,411 @@
+{
+  "fixture": "clear-squat.mp4",
+  "transport": "HTMLVideoElement.captureStream → received HTMLVideoElement",
+  "playbackRate": 1,
+  "model": {
+    "id": "mediapipe-pose-landmarker-heavy",
+    "version": "1"
+  },
+  "stats": {
+    "presentedFrames": 111,
+    "acceptedFrames": 37,
+    "droppedBusy": 72,
+    "droppedCadence": 2,
+    "droppedNonMonotonic": 0,
+    "inFlight": false,
+    "stopped": false,
+    "lastAcceptedTimestampMs": 3670,
+    "processedFrames": 37,
+    "elapsedMs": 4251.20000000298,
+    "analyzedHz": 8.703424915311926,
+    "meanProcessingLatencyMs": 76.8189189192411,
+    "maxProcessingLatencyMs": 164.60000000149012,
+    "retainedFrames": 37,
+    "retainedEvidenceImages": 37
+  },
+  "finalStats": {
+    "presentedFrames": 111,
+    "acceptedFrames": 37,
+    "droppedBusy": 72,
+    "droppedCadence": 2,
+    "droppedNonMonotonic": 0,
+    "inFlight": false,
+    "stopped": true,
+    "lastAcceptedTimestampMs": 3670,
+    "processedFrames": 37,
+    "elapsedMs": 4251.4000000059605,
+    "analyzedHz": 8.70301547724235,
+    "meanProcessingLatencyMs": 76.8189189192411,
+    "maxProcessingLatencyMs": 164.60000000149012,
+    "retainedFrames": 37,
+    "retainedEvidenceImages": 0
+  },
+  "reportRepCount": 2,
+  "events": [
+    {
+      "key": "c3f72576-6ce3-4c80-9033-0d93cca59fd3:201:1702",
+      "rep": {
+        "id": "rep-1",
+        "startMs": 201,
+        "bottomMs": 999,
+        "endMs": 1702
+      },
+      "feedback": {
+        "state": "target-met",
+        "targetKneeFlexionDeg": 110,
+        "measuredKneeFlexionDeg": 119.25900373967598,
+        "evidenceTimestampMs": 999,
+        "label": "119.3° at the rep bottom meets the chosen 110° projected knee-flexion target."
+      },
+      "images": [
+        {
+          "timestampMs": 999,
+          "size": 48058,
+          "type": "image/jpeg"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "afterStop": 0,
+  "updates": [
+    {
+      "timestampMs": 0,
+      "sourceMediaTimeMs": 302,
+      "knee": 19.740504534318035,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 201,
+      "sourceMediaTimeMs": 503,
+      "knee": 21.886964364157365,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 301,
+      "sourceMediaTimeMs": 603,
+      "knee": 33.32776919447562,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 402,
+      "sourceMediaTimeMs": 704,
+      "knee": 43.23052170165613,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 500,
+      "sourceMediaTimeMs": 802,
+      "knee": 64.75392210065212,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 602,
+      "sourceMediaTimeMs": 904,
+      "knee": 77.10133347879291,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 699,
+      "sourceMediaTimeMs": 1001,
+      "knee": 97.9440338005155,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 803,
+      "sourceMediaTimeMs": 1105,
+      "knee": 107.6949279720462,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 904,
+      "sourceMediaTimeMs": 1206,
+      "knee": 118.71781968005436,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 999,
+      "sourceMediaTimeMs": 1301,
+      "knee": 119.25900373967598,
+      "quality": "usable",
+      "phase": "near-bottom",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1102,
+      "sourceMediaTimeMs": 1404,
+      "knee": 115.04260993181921,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "target-met"
+    },
+    {
+      "timestampMs": 1202,
+      "sourceMediaTimeMs": 1504,
+      "knee": 107.84027153480574,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "target-met"
+    },
+    {
+      "timestampMs": 1302,
+      "sourceMediaTimeMs": 1604,
+      "knee": 85.36523520578372,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1403,
+      "sourceMediaTimeMs": 1705,
+      "knee": 61.911629277344005,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1499,
+      "sourceMediaTimeMs": 1801,
+      "knee": 48.66694679958812,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1601,
+      "sourceMediaTimeMs": 1903,
+      "knee": 32.64366939246716,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1702,
+      "sourceMediaTimeMs": 2004,
+      "knee": 22.486847399824228,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1802,
+      "sourceMediaTimeMs": 2104,
+      "knee": 17.667741590533666,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 1902,
+      "sourceMediaTimeMs": 2204,
+      "knee": 20.065596384065202,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2001,
+      "sourceMediaTimeMs": 2303,
+      "knee": 20.73044077331707,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2102,
+      "sourceMediaTimeMs": 2404,
+      "knee": 24.44626268868481,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2200,
+      "sourceMediaTimeMs": 2502,
+      "knee": 31.438853393301912,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2304,
+      "sourceMediaTimeMs": 2606,
+      "knee": 50.97857830202696,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2399,
+      "sourceMediaTimeMs": 2701,
+      "knee": 62.954096120925456,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2500,
+      "sourceMediaTimeMs": 2802,
+      "knee": 86.30279754763856,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2601,
+      "sourceMediaTimeMs": 2903,
+      "knee": 98.6351215486169,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2702,
+      "sourceMediaTimeMs": 3004,
+      "knee": 111.03003410651674,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2802,
+      "sourceMediaTimeMs": 3104,
+      "knee": 114.31761344668797,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 2901,
+      "sourceMediaTimeMs": 3203,
+      "knee": 117.57761017475019,
+      "quality": "usable",
+      "phase": "descent",
+      "feedback": "target-met"
+    },
+    {
+      "timestampMs": 3003,
+      "sourceMediaTimeMs": 3305,
+      "knee": 113.0583222594234,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "target-met"
+    },
+    {
+      "timestampMs": 3102,
+      "sourceMediaTimeMs": 3404,
+      "knee": 102.87068355305597,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 3204,
+      "sourceMediaTimeMs": 3506,
+      "knee": 93.45488070534384,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 3299,
+      "sourceMediaTimeMs": 3601,
+      "knee": 67.91244189008857,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 3404,
+      "sourceMediaTimeMs": 3706,
+      "knee": 54.71899500148331,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 3500,
+      "sourceMediaTimeMs": 3802,
+      "knee": 30.855348397846484,
+      "quality": "usable",
+      "phase": "ascent",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 3601,
+      "sourceMediaTimeMs": 3903,
+      "knee": 19.70393407987865,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    },
+    {
+      "timestampMs": 3670,
+      "sourceMediaTimeMs": 3972,
+      "knee": 14.96322525271367,
+      "quality": "usable",
+      "phase": "standing",
+      "feedback": "tracking"
+    }
+  ],
+  "synthetic": {
+    "source": "blank synthetic canvas camera (no human)",
+    "beforeStop": {
+      "presentedFrames": 43,
+      "acceptedFrames": 16,
+      "droppedBusy": 3,
+      "droppedCadence": 24,
+      "droppedNonMonotonic": 0,
+      "inFlight": true,
+      "stopped": false,
+      "lastAcceptedTimestampMs": 1385,
+      "processedFrames": 15,
+      "elapsedMs": 1410.5,
+      "analyzedHz": 10.634526763559021,
+      "meanProcessingLatencyMs": 21.75999999990066,
+      "maxProcessingLatencyMs": 84.39999999850988,
+      "retainedFrames": 10,
+      "retainedEvidenceImages": 0
+    },
+    "afterStopStats": {
+      "presentedFrames": 43,
+      "acceptedFrames": 16,
+      "droppedBusy": 3,
+      "droppedCadence": 24,
+      "droppedNonMonotonic": 0,
+      "inFlight": false,
+      "stopped": true,
+      "lastAcceptedTimestampMs": 1385,
+      "processedFrames": 15,
+      "elapsedMs": 1410.5,
+      "analyzedHz": 10.634526763559021,
+      "meanProcessingLatencyMs": 21.75999999990066,
+      "maxProcessingLatencyMs": 84.39999999850988,
+      "retainedFrames": 10,
+      "retainedEvidenceImages": 0
+    },
+    "errors": [],
+    "afterStop": 0,
+    "nonUnknown": 0
+  },
+  "browserErrors": [],
+  "runAt": "2026-11-07T22:32:16.540Z"
+}

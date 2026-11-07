@@ -1,0 +1,14 @@
+{
+  "provider": "mocked only; no account inference",
+  "checks": {
+    "offlineLocalOnly": true,
+    "packetHiddenByDefault": true,
+    "oneStartAutoInterpret": true,
+    "cuesFollowRepWithoutRequests": true,
+    "stopRejectsPendingResponse": true,
+    "overlayClearedOnSourceChange": true,
+    "uploadWinsSampleRace": true,
+    "noPageErrors": true
+  },
+  "errors": []
+}

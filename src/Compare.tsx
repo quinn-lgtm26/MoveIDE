@@ -124,6 +124,8 @@ export function Compare({ report, clipSrc, playheadMs, onSeek }: Props) {
         <p className="muted">Estimated in the video plane from a single side view. Depth proxies are in leg lengths, not centimetres. No overall score.</p>
       </details>
 
+      <details>
+      <summary>Developer tools: report and coaching packet</summary>
       <div className="toolbar">
         <button aria-expanded={preview} onClick={() => setPreview((p) => !p)} disabled={!distinct}>
           {preview ? 'Hide coaching packet' : 'Preview coaching packet'}
@@ -133,7 +135,7 @@ export function Compare({ report, clipSrc, playheadMs, onSeek }: Props) {
 
       {preview && distinct && (
         <div className="packet">
-          <p className="muted">Nothing is sent from here. This is exactly what you copy and attach to your AI tool.</p>
+          <p className="muted">Developer tools: inspect or copy this selected bundle. The manual AI controls below send only when you explicitly request them; the normal session coaches automatically.</p>
           <label>
             Goal (optional){' '}
             <input value={draftGoal} onChange={(e) => setDraftGoal(e.target.value)} onBlur={() => setGoal(draftGoal.trim())}
@@ -177,6 +179,7 @@ export function Compare({ report, clipSrc, playheadMs, onSeek }: Props) {
           )}
         </div>
       )}
+      </details>
     </section>
   );
 }

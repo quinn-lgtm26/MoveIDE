@@ -1,3 +1,9 @@
+# Current one-Start verification
+
+The one-Start integration supersedes the separate Generate action described in the historical notes below. `verify:coaching-playback` now checks automatic inference after Start, matching-rep cue persistence, evidence seeks, zero new calls on playback, model reset and reanalysis. Controlled-provider Chrome check passes. `qa/one-start-heavy-live.json` separately records the successful real Heavy + real GPT-6.1 Sol one-Start request and visible cue on the clear fixture. The full local suite passes 54 tests, including the live UI and WebRTC browser checks.
+
+## Historical readable-coaching implementation
+
 # Readable coaching playback
 
 The previous harness UI rendered a cue only within 150 ms of a cited timestamp and put the interpretation behind raw JSON below the player. Connection status alone also did not explain that an explicit generation request was required. The production React workbench still needs the provider and playback integration described in the frontend handoff.

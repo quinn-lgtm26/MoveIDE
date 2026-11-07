@@ -1,0 +1,52 @@
+<!doctype html><meta charset="utf-8"><title>Live Heavy verification</title>
+<body><video id="source" muted playsinline style="width:320px"></video><video id="received" muted playsinline style="width:320px"></video><script type="module">
+import { startLiveSquat } from './index.mjs';
+window.verifyLive = async () => {
+  const source = document.querySelector('#source'), received = document.querySelector('#received');
+  source.src='/fixtures/squat/clear-squat.mp4';
+  await new Promise((resolve,reject) => { source.onloadeddata=resolve; source.onerror=reject; });
+  const stream=source.captureStream(); received.srcObject=stream;
+  await source.play(); await received.play();
+  await new Promise(resolve=>received.requestVideoFrameCallback(resolve));
+  source.pause();
+  const errors=[], events=[], updates=[]; let last=-1; let afterStop=0; let stopped=false;
+  const session=await startLiveSquat(received,{targetKneeFlexionDeg:110,captureEvidence:true,
+    onSample(update) {
+      if(stopped) afterStop++;
+      if(update.timestampMs<=last) errors.push('Non-increasing timestamp'); last=update.timestampMs;
+      updates.push({timestampMs:update.timestampMs,sourceMediaTimeMs:update.sourceMediaTimeMs,knee:update.metrics.kneeFlexionDeg,quality:update.frame.quality,phase:update.phase,feedback:update.feedback.state});
+    },
+    onRepComplete(event) { events.push({key:event.key,rep:event.rep,feedback:event.feedback,images:event.evidenceImages.map(image=>({timestampMs:image.timestampMs,size:image.blob.size,type:image.blob.type}))}); },
+    onError(error) {errors.push(String(error));}
+  });
+  await source.play();
+  await new Promise(resolve=>{source.onended=resolve;});
+  await new Promise(resolve=>setTimeout(resolve,500));
+  const stats=session.getStats(), report=session.getReport();
+  stopped=true; session.stop();
+  await new Promise(resolve=>setTimeout(resolve,200));
+  stream.getTracks().forEach(track=>track.stop());
+  return {fixture:'clear-squat.mp4',transport:'HTMLVideoElement.captureStream → received HTMLVideoElement',playbackRate:source.playbackRate,model:report?.poseModel,
+    stats,finalStats:session.getStats(),reportRepCount:report?.reps.length??0,events,errors,afterStop,updates};
+};
+window.verifySynthetic = async () => {
+  const canvas=document.createElement('canvas'); canvas.width=640; canvas.height=480;
+  const ctx=canvas.getContext('2d'); let tick=0;
+  const draw=setInterval(()=>{ctx.fillStyle=tick++%2?'#ddd':'#eee';ctx.fillRect(0,0,640,480);},33);
+  const stream=canvas.captureStream(30), video=document.createElement('video');
+  video.muted=true; video.playsInline=true; document.body.append(video); video.srcObject=stream;
+  await video.play(); await new Promise(resolve=>video.requestVideoFrameCallback(resolve));
+  const errors=[]; let count=0,afterStop=0,stopped=false,nonUnknown=0;
+  const session=await startLiveSquat(video,{maxFrames:10,historyMs:2000,targetKneeFlexionDeg:110,
+    onSample(sample){count++;if(stopped) afterStop++;if(sample.feedback.state!=='unknown') nonUnknown++;},
+    onError(error){errors.push(String(error));}
+  });
+  const deadline=performance.now()+5000;
+  while(count<15&&performance.now()<deadline) await new Promise(resolve=>setTimeout(resolve,20));
+  while(!session.getStats().inFlight&&performance.now()<deadline) await new Promise(resolve=>setTimeout(resolve,5));
+  const beforeStop=session.getStats(); stopped=true;session.stop();
+  await new Promise(resolve=>setTimeout(resolve,300));
+  clearInterval(draw);stream.getTracks().forEach(track=>track.stop());video.remove();
+  return {source:'blank synthetic canvas camera (no human)',beforeStop,afterStopStats:session.getStats(),errors,afterStop,nonUnknown};
+};
+</script>

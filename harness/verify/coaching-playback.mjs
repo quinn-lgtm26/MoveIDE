@@ -68,10 +68,13 @@ try {
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
   await page.goto(origin);
-  await page.locator('#connection').getByText('Using ChatGPT plan').waitFor();
-  await page.getByRole('button', { name: 'Analyze sample squat', exact: true }).click();
+  await page.locator('#connection').getByText('Using ChatGPT plan').waitFor({ state: 'attached' });
+  await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
   await page.getByText('2 complete reps · 2 evidence JPEGs', { exact: true }).waitFor({ timeout: 90_000 });
-  assert.equal(calls.length, 0, 'Analysis and playback must not implicitly request interpretation');
+  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor();
+  assert.equal(calls.length, 1, 'One Start must automatically analyze and coach');
+  assert.equal(await page.locator('#interpret').isVisible(), false);
+  await page.locator('#developer-details > summary').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'), page.getByRole('link', { name: 'Download report', exact: true }).click(),
   ]);
@@ -79,7 +82,6 @@ try {
   assert.equal(report.poseModel.id, 'mediapipe-pose-landmarker-heavy');
   assert.equal(report.reps.length, 2);
 
-  await page.getByRole('button', { name: 'Generate AI analysis', exact: true }).click();
   await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor();
   await page.locator('#coaching-observations').getByText(secondText, { exact: true }).waitFor();
   assert.equal(calls.length, 1);
@@ -132,23 +134,20 @@ try {
   await page.waitForFunction(time => document.querySelector('#clip').currentTime * 1000 > time, ascentTime);
   await page.locator('#clip').evaluate(video => video.pause());
   assert.equal(calls.length, 1, 'Playback must reuse the completed response without new requests');
+  await page.locator('#settings > summary').click();
   await page.locator('#model').selectOption('mock-alternative');
   assert.equal(await page.locator('#coaching-observations').textContent(), '');
   assert.equal(await page.locator('#cue').isVisible(), false);
   assert.equal(calls.length, 1, 'Changing model must not implicitly request interpretation');
-  await page.getByRole('button', { name: 'Generate AI analysis', exact: true }).click();
-  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor();
-  assert.equal(calls.length, 2);
-  assert.equal(calls[1].model, 'mock-alternative');
-  await page.getByRole('button', { name: 'Analyze sample squat', exact: true }).click();
+  await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
   assert.equal(await page.locator('#coaching-observations').textContent(), '');
   assert.equal(await page.locator('#cue').isVisible(), false);
-  await page.getByText('2 complete reps · 2 evidence JPEGs', { exact: true }).waitFor({ timeout: 90_000 });
+  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor({ timeout: 90_000 });
   assert.equal(calls.length, 2);
-  assert.equal(await page.locator('#coaching-observations').textContent(), '');
+  assert.equal(calls[1].model, 'mock-alternative');
   assert.deepEqual(externalRequests, []);
   assert.deepEqual(pageErrors, []);
-  console.log('Readable coaching playback passed: explicit request only, both rep phases, rep transitions, evidence seek, no repeated inference, model-change reset, and reanalysis reset. Provider response was mocked; no live AI/Seldon request.');
+  console.log('Readable coaching playback passed: one Start automatically analyzes and coaches, both rep phases, rep transitions, evidence seek, no repeated inference, model-change reset, and reanalysis reset. Provider response was mocked; no live AI/Seldon request.');
 } finally {
   await browser?.close();
   await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));

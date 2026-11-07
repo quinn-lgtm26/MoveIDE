@@ -6,9 +6,9 @@ const tabs = ["Workflow", "Story status", "System", "Verification", "Squat metho
 const milestones = [
   {
     "id": "01",
-    "title": "Freeze the handoff contract",
+    "title": "One Start, one coached session",
     "owner": "Shared · contracts established",
-    "work": "Use the BMAD stories, AnalysisReport v1 and CoachPacket v1 contracts. Motion analysis, manual evidence handoff and optional connected interpretation have distinct acceptance gates. Frontend amendments in merged PR #9 describe Heavy, raw pose capture and the optional OpenCap import.",
+    "work": "Start coordinates local Heavy tracking, timestamped measurements, exact source JPEGs, coaching principles and asynchronous interpretation. Evidence packets remain internal, with optional developer exports. The session amendment replaces the old manual preview/send workflow.",
     "proof": "The clear sample has independent rep-bottom labels at 1,067 and 2,933 ms; the supported regression uses 1,600 and 4,400 ms. Each declares a 150 ms tolerance. Joint-angle reference annotations remain unavailable."
   },
   {
@@ -21,23 +21,23 @@ const milestones = [
   {
     "id": "03",
     "title": "Measure two reps and preview their evidence",
-    "owner": "Harness · verified / FE-3 · merged on the shared harness",
+    "owner": "Shared harness integrated in PR #13",
     "work": "The local trace and profile expose knee, torso, hip, shin, ankle-change and normalized depth proxies with start/bottom/return anchors. Six selected report measurements and two unannotated JPEGs form the coaching packet. Keep report and raw-pose export local.",
-    "proof": "Heavy produces six usable measurements and two source JPEGs for each positive fixture. Built Chrome verified replay, overlay, sample stepping and clipboard. The production comparison UI still needs the shared APIs and final browser acceptance."
+    "proof": "Heavy yields six usable measurements and two source JPEGs for each positive fixture. PR #13 adopts the shared Heavy engine and clear fixture in the root frontend. The one-Start integration is being verified separately from the historical readiness result."
   },
   {
     "id": "04",
     "title": "Verify ChatGPT sign-in and evidence interpretation",
-    "owner": "Provider · live verified / FE-4 · built, live run pending",
-    "work": "The eligible account completed loopback sign-in and model discovery; the updated local Heavy preview retains that connection without making a new inference request. The historical GPT-6.1 Sol request interpreted six Full-baseline measurements and two approved public JPEGs with validated evidence IDs. No new live request has been made for Heavy or OpenCap.",
+    "owner": "Provider · real Heavy smoke verified / FE-4 · controlled root QA passed",
+    "work": "The eligible account completed loopback sign-in and model discovery; the updated local Heavy preview retains that connection without making a new inference request. The historical GPT-6.1 Sol request interpreted six Full-baseline measurements and two approved public JPEGs with validated evidence IDs. A new one-Start Heavy clear-fixture request passed with GPT-6.1 Sol: six measurements, two JPEGs and validated playback cues. OpenCap has no live inference claim.",
     "proof": "Validated observation IDs resolve to source timestamps for replay cues. The full video, landmark arrays and raw depth remain local. The frontend must bind asynchronous results to the active clip and selected pair, preserve playback, and clear stale cues."
   },
   {
     "id": "05",
     "title": "Integrate and verify the final build",
     "owner": "Integration + final QA · open",
-    "work": "The Heavy/raw-pose/decoder/OpenCap-import increment is verified and merged in PR #11 at 5225a3d. PR #9 frontend amendments are merged. PR #8 comparison layout is merged; adoption of the shared Heavy harness remains open. The final reachable product build must use the shared harness before hosted QA.",
-    "proof": "The historical Full harness smoke passed both Seldon cases on 2a6511f and spent two simulations. The remaining 14 stay on hold until the complete integrated product is ready. Native OpenCap inference is deferred by the user because compatible GPU setup and assets are unavailable."
+    "work": "PR #13 is merged at e5dea78 and adopts the shared Heavy harness. Current scope is a one-action recorded review, two-video target-relative demo, and real-time squat capture on iPhone/Mac. Native OpenCap and broad movement expansion remain deferred.",
+    "proof": "The historical Full harness smoke passed both Seldon cases on 2a6511f and spent two simulations. The last confirmed14 balance now has an additional frontend run pending reconciliation (expected13); further dispatch stays on hold until the complete integrated product is ready. Native OpenCap inference is deferred by the user because compatible GPU setup and assets are unavailable."
   }
 ];
 
@@ -45,7 +45,7 @@ const system = [
   {
     "title": "Browser workbench",
     "stack": "React · TypeScript · Vite · Canvas 2D",
-    "body": "Sample and imported video share one analysis path. Use the presented media clock for skeleton, sample readout and evidence cues, including seek, resize and letterboxing. Keep the video usable while coaching runs. Rep comparison and connected coaching remain production integration work."
+    "body": "A single Start action coordinates analysis and coaching. Local tracking and slower interpretation run asynchronously, with timestamped notes reused during playback. Keep evidence exports under developer details and expose account setup once."
   },
   {
     "title": "Local measurement engine",
@@ -60,19 +60,24 @@ const system = [
   {
     "title": "Optional provider",
     "stack": "Node loopback · OAuth with PKCE · Responses · validated output",
-    "body": "Credentials remain in the local service. The browser receives connection state and model choices. Explicit interpretation sends the previewed packet and images; failures preserve analysis and copy. Historical live verification used the Full supported fixture. Heavy and OpenCap have no new live inference claim."
+    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers new inference; Stop cancels late work. Live requests are capped and evidence-bound. No full-video upload is claimed."
   },
   {
     "title": "Optional OpenCap research import",
     "stack": "Text .mot parser · scaled-model/video hashes · explicit source-row mapping",
     "body": "The importer accepts separately produced OpenSim kinematics and labels them imported-unverified. It preserves source frame indices, coordinate units and model signs. It does not execute OpenCap or turn MediaPipe depth into OpenSim kinematics. Native execution is unavailable on this Darwin arm64 machine without a compatible NVIDIA runtime, approved assets and calibrated capture metadata."
+  },
+  {
+    "title": "Live squat capture",
+    "stack": "MediaStream · Heavy worker · bounded history · optional WebRTC",
+    "body": "One inference frame in flight; drop work instead of queueing latency. Exact accepted pixels supply cached JPEGs. iPhone WebRTC needs trusted HTTPS; Continuity Camera is an alternative Mac source. Browser transport passes; physical iPhone validation remains pending."
   }
 ];
 
 const checks = [
   [
     "Geometry and missing data",
-    "Straight leg → 0° flexion; right angle → 90°. Missing or low-visibility required joints yield unavailable measures. Pixel aspect ratio, selected-side continuity and tracking gaps have automated coverage. The combined local suite now passes 44 tests. These formula checks do not establish anatomical angle accuracy."
+    "Straight leg → 0° flexion; right angle → 90°. Missing or low-visibility required joints yield unavailable measures. Pixel aspect ratio, selected-side continuity and tracking gaps have automated coverage. The combined local suite now passes 54 tests, including live transport and backpressure. These formula checks do not establish anatomical angle accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -107,23 +112,27 @@ const checks = [
     "The archived Full baseline preserves the old reports and JPEGs. That supported clip supplied the successful local ChatGPT request and earlier hosted harness run. The live response cited six approved measurement IDs and both image IDs. Do not substitute the current Heavy numbers into that historical result."
   ],
   [
-    "Actual product readiness audit",
-    "The built root workbench at 5225a3d reaches Ready, decodes both evidence images and copies text matching its preview with no page errors. It still uses the older Full path and original hard sample. Heavy selection, the clear fixture, labeled timing, two usable comparisons and same-origin assets fail. Both reps show unavailable knee flexion and duration. The probe reports readyForFinalQA=false; passing 25 root tests and a build does not close this integration gate."
+    "Historical product readiness audit",
+    "The built root workbench at 5225a3d reaches Ready, decodes both evidence images and copies text matching its preview with no page errors. It still uses the older Full path and original hard sample. Heavy selection, the clear fixture, labeled timing, two usable comparisons and same-origin assets fail. Both reps show unavailable knee flexion and duration. The probe reports readyForFinalQA=false; passing 25 root tests and a build does not close this integration gate. PR #13 has since integrated shared Heavy; this old verdict is not the current build verdict. Final product QA must be rerun."
   ],
   [
     "Final hosted acceptance",
-    "Both historical harness-only Seldon cases passed on 2a6511f in experiment 9c9dabb7-9f02-4925-88e2-56eb9172b505. Actual debit was two, leaving 14. The two final product cases still require one reachable integrated build, and all remaining simulations are held until it is complete."
+    "Both historical harness-only Seldon cases passed on 2a6511f in experiment 9c9dabb7-9f02-4925-88e2-56eb9172b505. Harness debit was two, leaving a last-confirmed14. The merged frontend ledger records another run with debit pending; expected remaining13. The two final product cases still require one reachable integrated build, and all remaining simulations are held until it is complete."
+  ],
+  [
+    "Live browser evidence",
+    "Heavy real-clip captureStream processed37 frames with72 busy drops, mean76.8ms/max164.6ms local processing latency and one stabilized rep callback with its exact JPEG. Two reps were reconstructed; the final event lacked later samples and was withheld. This is not phone-to-Mac latency. Two Chrome contexts also verified real WebRTC decoded pixels and Stop cleanup."
   ]
 ];
 
 const handoff = [
   [
     "Latest repository state",
-    "PRs #1 through #9 and #11 are merged; the latest backend merge is 5225a3d. PR #8 adds comparison layout, PR #9 publishes amendments, and PR #11 delivers verified Heavy, raw tracking, decoder checks and OpenCap import. The root frontend passes 25 tests, including six server tests, and its build. The actual product readiness probe on 5225a3d fails the shared-harness gate: it reaches Ready with the older Full path and difficult original sample, but both reps have unavailable knee and duration values. The frontend owner must adopt the shared harness so the app and verification use the same measurements."
+    "Main includes PR #13 at e5dea78: shared Heavy engine, clear sample and overlay. Automatic coaching follows the one-action amendment. Smoke review no longer exposes a handoff step. Final production acceptance and Wren reruns remain open."
   ],
   [
-    "Reproduce the product integration gap",
-    "PR #12 publishes the readiness probe, result and frontend amendment. Run its documented command against the exact root build, then replace the independent engine, difficult sample and remote assets with the shared Heavy harness, clear fixture and same-origin assets. The standalone local Heavy preview remains verified. Re-run the gate before spending the 14 held Seldon simulations."
+    "Verify the integrated product",
+    "Rerun readiness against the latest exact root build. Verify automatic AI, timestamped playback cues, cancellation and source replacement. Historical failures remain as history. Reconcile the last-confirmed14 balance against the newly recorded frontend run (expected13); hold further Seldon dispatch until the complete build is ready."
   ],
   [
     "Run the harness locally",
@@ -197,7 +206,7 @@ const stories = [
   [
     "BE-4 · Evidence-linked interpretation",
     "Historically live verified",
-    "GPT-6.1 Sol interpreted the six approved Full-baseline measurements and two JPEGs. Evidence IDs validated. Heavy/OpenCap have no new live inference claim."
+    "GPT-6.1 Sol interpreted the six approved Full-baseline measurements and two JPEGs. Evidence IDs validated. Heavy now has a separate one-Start real-provider verification; OpenCap remains unverified."
   ],
   [
     "FE-1 · Clip import",
@@ -216,8 +225,8 @@ const stories = [
   ],
   [
     "FE-4 · Connected coaching",
-    "Built · live run pending",
-    "src/Coach.tsx binds the provider to the active clip/pair (remounts on change), keeps playback live, supports cancel and model choice, and shows cited evidence seeks. Needs a live run on vite preview with MOVEIDE_ENABLE_CHATGPT=1. Original ask: bind the existing provider and approved packet to the active clip/pair. Keep playback and copy available while waiting and invalidate stale responses."
+    "One-Start implemented · real smoke and controlled root QA passed",
+    "Smoke automatically prepares and sends evidence after Start. Root workbench adoption passed eight Chrome checks using a controlled provider. Final real-provider and hosted QA remain separate gates."
   ],
   [
     "BE-5 · Source coverage and accuracy",
@@ -226,8 +235,8 @@ const stories = [
   ],
   [
     "FE-5 · Replay and coaching cues",
-    "Built in root app · final QA pending",
-    "Standalone replay, overlay, sample stepping and raw export pass. Generate AI analysis is now beside the player. Validated notes persist for the matching rep, label their evidence timestamps, and clear on model or clip changes. A real-Heavy browser test with controlled provider responses verifies readable cues and evidence seeks without repeated inference. The production frontend still needs these APIs and final acceptance."
+    "Root automatic coaching + traces · final QA pending",
+    "Shared overlay, steps and raw export verified. Latest smoke change makes coaching automatic from Start and hides developer packets. Root frontend uses shared tracking; automatic coaching passed controlled-provider browser checks."
   ],
   [
     "BE-6 · Complete sampled MediaPipe outputs",
@@ -248,6 +257,21 @@ const stories = [
     "R-1 · OpenCap Monocular benchmark",
     "Native inference deferred",
     "The user selected Heavy plus OpenCap import for current delivery. Resume native inference only with compatible runtime/assets, appropriate capture metadata, original-frame mapping and independent accuracy references. No real OpenCap inference or accuracy benchmark has been completed."
+  ],
+  [
+    "LIVE-1–3 · One-action live tracking",
+    "Browser engine verified · UI integration in progress",
+    "One Start opens the default camera and runs Heavy with bounded work. Unknown tracking stays neutral.110° is an illustrative projected depth target, not a universal good-squat threshold."
+  ],
+  [
+    "LIVE-4–6 · Phone and AI coaching",
+    "Browser transport verified · device validation pending",
+    "Exact-source JPEGs support bounded per-rep AI. WebRTC has separate invites and expiry; no credential service is exposed. Physical iPhone HTTPS/Wi-Fi and final real-provider sessions remain required."
+  ],
+  [
+    "LIVE-7–9 · Demo and acceptance",
+    "Product amendment published · final QA pending",
+    "Compare two attributed reliable clips against a disclosed target; capture failure is not bad posture. Finish one-action demo and rerun two final Wren workflows on the same build."
   ]
 ];
 

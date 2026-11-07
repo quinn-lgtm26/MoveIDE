@@ -29,8 +29,9 @@ try {
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(origin);
     await page.locator('#connection').getByText('unavailable').waitFor();
-    await page.getByRole('button', { name: 'Analyze sample squat' }).click();
+    await page.getByRole('button', { name: 'Start coached squat' }).click();
     await page.getByText('2 complete reps · 2 evidence JPEGs').waitFor({ timeout: 90_000 });
+    await page.locator('#developer-details > summary').click();
     const [download] = await Promise.all([
       page.waitForEvent('download'),
       page.getByRole('link', { name: 'Download report' }).click(),
@@ -59,6 +60,7 @@ try {
     assert.deepEqual(await page.locator('#evidence img').evaluateAll((images) => images.map(({ alt }) => alt)),
       bottoms.map((time) => `Squat source frame at ${time} ms`));
     const video = page.locator('#clip');
+    await video.evaluate(element => element.pause());
     await video.evaluate(async (element, timestamp) => {
       if (element.readyState < 2) await new Promise((resolve) => element.addEventListener('loadeddata', resolve, { once: true }));
       element.currentTime = (timestamp + .501) / 1000;
@@ -76,12 +78,12 @@ try {
     await page.locator('#phase').getByText(/rep-1 bottom/).waitFor();
     assert.equal(await page.getByText(/knee flexion · .*°/).count(), labels.expectedCompleteReps);
     assert.equal(await page.getByText(/torso lean · .*°/).count(), labels.expectedCompleteReps);
-    await page.getByRole('button', { name: 'Copy coaching handoff' }).click();
+    await page.getByRole('button', { name: 'Copy evidence packet' }).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(copied, /MoveIDE Magna Carta v1\.0\.0/);
     assert(!copied.includes('worldLandmarks') && !copied.includes('normalizedLandmarks'));
     for (const time of bottoms) assert(copied.includes(`frame-${time}ms.jpg`));
-    assert.equal(await page.getByRole('button', { name: 'Generate AI analysis' }).isDisabled(), true);
+    assert.equal(await page.getByRole('button', { name: 'Retry AI coaching', includeHidden: true }).isDisabled(), true);
     assert.deepEqual(outbound, []);
     assert.deepEqual(errors, []);
     console.log('Built harness · 2 reps, 2 source JPEGs, synchronized overlay and step controls, real clipboard handoff, no outbound requests');

@@ -33,7 +33,7 @@ export default defineConfig({
   preview: { host: '127.0.0.1', port: 4173, strictPort: true },
   build: {
     outDir: local('dist/'),
-    rollupOptions: { input: local('smoke/index.html') },
+    rollupOptions: { input: [local('smoke/index.html'), local('live/index.html')] },
   },
   plugins: [{
     name: 'moveide-standalone-harness',

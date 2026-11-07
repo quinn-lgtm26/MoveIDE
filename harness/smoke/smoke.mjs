@@ -15,6 +15,8 @@ let releasePlayback;
 let coaching;
 let coachingSegments = [];
 let activeReport;
+let analysisRunning = false;
+let sessionCoachingAllowed = false;
 
 const projectedAngles = [
   ['Knee', 'kneeFlexionDeg'],
@@ -138,7 +140,11 @@ async function refreshConnection() {
   element('cancel').disabled = state.state !== 'connecting';
   element('disconnect').disabled = state.state !== 'connected';
   element('model').replaceChildren(...models.map(({ id, label }) => new Option(label, id)));
-  element('model').disabled = !models.length;
+  element('model').disabled = !models.length || analysisRunning;
+  element('connect').hidden = state.state === 'connected';
+  element('cancel').hidden = state.state !== 'connecting';
+  element('disconnect').hidden = state.state !== 'connected';
+  element('settings').open = state.state !== 'connected';
   updateInterpret();
   return state.state;
 }
@@ -146,20 +152,27 @@ async function refreshConnection() {
 element('analyze').onclick = async () => {
   const current = ++generation;
   interpretation?.abort();
+  interpretation = null;
+  analysisRunning = true;
+  sessionCoachingAllowed = Boolean(element('model').value);
+  element('model').disabled = true;
   element('analyze').disabled = true;
+  element('interpret').hidden = true;
   releasePlayback?.();
   releasePlayback = null;
   coaching = null;
   coachingSegments = [];
   activeReport = null;
-  element('replay').hidden = true;
+  element('overlay').getContext('2d')?.clearRect(0, 0, element('overlay').width, element('overlay').height);
   element('clip').pause();
+  element('phase').textContent = 'Measuring…';
+  element('frame-metrics').textContent = '';
   element('cue').hidden = true;
   element('cue-context').hidden = true;
   element('coaching-observations').replaceChildren();
   element('coaching-next-focus').textContent = '';
   element('coaching-uncertainty').textContent = '';
-  element('coaching-status').textContent = 'No AI analysis yet. Review the packet, then generate an explanation.';
+  element('coaching-status').textContent = 'Measuring your squat. AI coaching will follow automatically when connected.';
   element('copy').disabled = true;
   element('report').hidden = true;
   element('trace-download').hidden = true;
@@ -225,9 +238,19 @@ element('analyze').onclick = async () => {
       element('evidence').append(link);
     }
     element('copy').disabled = false;
+    element('clip').play().catch(() => {});
+    updateInterpret();
+    if (sessionCoachingAllowed && !element('interpret').disabled) await generateCoaching();
+    else element('coaching-status').textContent = element('model').value
+      ? 'Local analysis ready. AI coaching needs usable measurements and matching source images.'
+      : 'Local analysis ready. Connect ChatGPT in settings, then Start again to include AI coaching.';
   } catch (error) {
     element('status').textContent = error.message;
+    element('phase').textContent = 'Analysis unavailable';
+    element('coaching-status').textContent = 'Analysis could not complete. Start again to retry.';
   } finally {
+    analysisRunning = false;
+    element('model').disabled = !element('model').options.length;
     element('analyze').disabled = false;
     updateInterpret();
   }
@@ -271,6 +294,7 @@ element('cancel').onclick = async () => {
 };
 
 element('disconnect').onclick = async () => {
+  sessionCoachingAllowed = false;
   if (interpretation) element('coaching-status').textContent = 'AI request canceled. Local measurements and any earlier notes remain available.';
   interpretation?.abort();
   const result = await chatGPTProvider.disconnect();
@@ -289,13 +313,13 @@ element('model').onchange = () => {
   element('coaching-next-focus').textContent = '';
   element('coaching-uncertainty').textContent = '';
   element('coaching').textContent = '';
-  element('coaching-status').textContent = 'Model changed. Generate a new analysis for the selected model.';
+  element('coaching-status').textContent = 'Model changed. Start coached squat to review with this model.';
   element('clip').dispatchEvent(new Event('seeked'));
   updateInterpret();
 };
 
-element('interpret').onclick = async () => {
-  if (!bundle || !activeReport || interpretation) return;
+async function generateCoaching() {
+  if (!bundle || !activeReport || interpretation || !sessionCoachingAllowed) return;
   const current = generation;
   const request = new AbortController();
   interpretation = request;
@@ -304,7 +328,8 @@ element('interpret').onclick = async () => {
   const report = activeReport;
   updateInterpret();
   element('coaching-status').textContent = 'Generating AI analysis… You can keep playing the video.';
-  element('coaching').textContent = 'Interpreting the approved bundle…';
+  element('interpret').hidden = true;
+  element('coaching').textContent = 'Interpreting source evidence…';
   try {
     const result = await chatGPTProvider.interpret(approvedBundle.packet, approvedBundle.images, { model: element('model').value, signal });
     if (current === generation && !signal.aborted) {
@@ -342,12 +367,15 @@ element('interpret').onclick = async () => {
   } catch (error) {
     if (current === generation && !signal.aborted) {
       element('coaching').textContent = error.message;
+      element('interpret').hidden = false;
       element('coaching-status').textContent = `AI analysis could not complete: ${error.message}. Your local measurements are still available.`;
     }
   } finally {
     if (interpretation === request) interpretation = null;
     updateInterpret();
   }
-};
+}
+element('interpret').onclick = generateCoaching;
 
 await refreshConnection();
+element('analyze').disabled = false;

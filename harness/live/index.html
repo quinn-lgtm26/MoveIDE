@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MoveIDE · Coached squat</title><link rel="stylesheet" href="./app.css"></head>
+<body><main>
+  <header><a class="wordmark" href="../smoke/">MOVE<span>IDE</span></a><span class="tag">LIVE / SQUAT</span></header>
+  <section class="intro"><div><p class="eyebrow">A little feedback. A better next rep.</p><h1>Find your rhythm.</h1><p class="subhead">Set your camera side-on, keep your whole body in frame, and move at your own pace.</p></div><div class="actions"><p class="start-disclosure">With ChatGPT connected, Start also sends selected rep images + metrics for AI coaching.</p><button id="start">Start coached squat <span aria-hidden="true">↗</span></button><button id="stop" hidden>Stop session</button></div></section>
+  <div class="workspace">
+    <section class="stage" aria-label="Live camera and pose tracking">
+      <video id="video" autoplay muted playsinline></video><canvas id="overlay" aria-hidden="true"></canvas>
+      <div id="empty"><span class="camera-mark" aria-hidden="true">◎</span><h2>Your space to move.</h2><p>Your camera stays local.<br>Choose your Mac camera or iPhone Continuity Camera in the browser.</p></div>
+      <div class="stage-top"><span id="status" role="status">Ready when you are</span><span class="model">MEDIAPIPE HEAVY</span></div>
+      <div class="stage-bottom"><span id="phase">Awaiting movement</span><span id="age">No pose yet</span></div>
+    </section>
+    <aside>
+      <section id="feedback" class="panel feedback" data-state="unknown"><p class="eyebrow">LOCAL MOVEMENT FEEDBACK</p><h2 id="cue">One rep at a time.</h2><p id="detail">Start when ready. Tracking and projected angles appear automatically.</p></section>
+      <section class="panel"><div class="panel-heading"><h2>In this moment</h2><span>PROJECTED 2D</span></div><dl class="metrics"><div><dt>Knee flexion</dt><dd id="knee">—</dd></div><div><dt>Hip flexion</dt><dd id="hip">—</dd></div><div><dt>Torso lean</dt><dd id="torso">—</dd></div><div><dt>Complete reps</dt><dd id="count">0</dd></div></dl><p class="fine">Angles depend on the camera view. Visibility is tracking confidence, not measurement accuracy.</p></section>
+      <section class="panel target"><p class="eyebrow">TODAY’S DEMO GOAL</p><p><strong>110°</strong> projected knee flexion</p><p class="fine">An illustrative depth target, not a universal definition of a good squat. Green means this target was reached; amber applies only to a completed rep below it.</p></section>
+    </aside>
+  </div>
+  <section class="session-strip"><div><span class="eyebrow">LATEST COMPLETE REP</span><p id="rep">Your completed-rep feedback will appear here.</p></div><div><span class="eyebrow">LOCAL PROCESSING</span><p id="latency">—</p></div><div><span class="eyebrow">AI NARRATION</span><p id="ai">Starts with your connected ChatGPT plan</p></div></section>
+  <footer><p id="error" role="alert"></p><p>Start enables local video analysis and, when ChatGPT is connected, sends selected rep-frame JPEGs and metrics using your plan (up to 6 requests per session). Full video stays local.</p><a href="../smoke/">Open video analysis →</a></footer>
+</main><script type="module" src="./app.mjs"></script></body></html>

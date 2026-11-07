@@ -1,5 +1,8 @@
 # MoveIDE
 
+Current delivery: [global tracker](tracker.md) · [AI integration amendments](AI-AMENDMENTS.md) · [workflow status](workflow.html)
+
+
 MoveIDE is a free, open-source workbench for human movement. The hackathon build starts with a side-view squat clip. The plan is to measure movement locally, show the frames behind each measurement, and let the user choose an AI model to interpret the evidence.
 
 ## Development status

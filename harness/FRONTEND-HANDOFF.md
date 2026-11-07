@@ -1,5 +1,7 @@
 # Workbench amendments
 
+> **Current priority:** follow [AI-AMENDMENTS.md](../AI-AMENDMENTS.md) and [tracker.md](../tracker.md). One Start now orchestrates analysis and coaching automatically. Earlier manual preview/copy/Generate requirements below are historical developer-tool guidance, not the normal product journey. See [current frontend API amendment](../docs/frontend-harness-amendments.md).
+
 Apply these on top of the merged frontend scaffold and synced overlay. Use the shared harness for pose, segmentation, geometry, coaching and evidence extraction so the product and QA use one implementation.
 
 ## Replace the synthetic analysis seam

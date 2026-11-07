@@ -1,0 +1,45 @@
+{
+  "verifiedAtUtc": "2026-11-07T22:35:58.058Z",
+  "fixture": "clear-squat.mp4",
+  "poseModel": "mediapipe-pose-landmarker-heavy",
+  "workflow": "single Start: real Heavy + exact source JPEGs + real ChatGPT + playback cues",
+  "requests": [
+    {
+      "model": "gpt-6.1-sol",
+      "measurementIds": [
+        "rep-1-knee-flexion",
+        "rep-1-duration",
+        "rep-1-torso-lean",
+        "rep-2-knee-flexion",
+        "rep-2-duration",
+        "rep-2-torso-lean"
+      ],
+      "imageTimestampsMs": [
+        1067,
+        3000
+      ]
+    }
+  ],
+  "observationEvidenceIds": [
+    [
+      "rep-1-knee-flexion",
+      "rep-2-knee-flexion"
+    ],
+    [
+      "rep-1-torso-lean",
+      "rep-2-torso-lean",
+      "frame-1067ms",
+      "frame-3000ms"
+    ],
+    [
+      "rep-1-duration",
+      "rep-2-duration"
+    ]
+  ],
+  "nextFocusEvidenceIds": [
+    "rep-1-knee-flexion",
+    "rep-2-knee-flexion",
+    "rep-1-torso-lean",
+    "rep-2-torso-lean"
+  ]
+}
