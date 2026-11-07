@@ -18,6 +18,7 @@
     "preverify:fixtures": "npm run setup:pose",
     "verify:fixtures": "node verify/fixtures.mjs",
     "verify:build": "node verify/build-smoke.mjs",
+    "verify:source-timeline": "node verify/source-timeline.mjs",
     "verify:live": "node verify/live-chatgpt.mjs"
   },
   "dependencies": {

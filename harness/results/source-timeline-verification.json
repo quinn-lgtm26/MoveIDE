@@ -1,0 +1,641 @@
+{
+  "schemaVersion": 1,
+  "oracle": "ffprobe version 8.0.1 Copyright (c) 2007-2025 the FFmpeg developers",
+  "scope": "Recorded report timestamps versus independently decoded source presentation timestamps, rounded to integer milliseconds. Checks timeline coverage only. Does not prove pixel identity, angle accuracy, orientation, or exact decoding for other files. The analyzer remains a 15 Hz sampler.",
+  "cases": [
+    {
+      "clip": "clear-squat.mp4",
+      "clipSha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "reportSha256": "971dbcc14ecd555deb8de0f30d87056b25ec6cd7fe3f57859110007d455e2e03",
+      "passed": true,
+      "sourceFrameCount": 57,
+      "analyzedFrameCount": 57,
+      "matchedSourceFrameCount": 57,
+      "sourceFrameCoverage": 1,
+      "everySourceTimestampRepresented": true,
+      "sourceIntervals": {
+        "minMs": 66.66599999999926,
+        "maxMs": 66.66700000000037
+      },
+      "analyzedIntervals": {
+        "minMs": 66,
+        "maxMs": 67
+      },
+      "omittedSourceFrameIndices": [],
+      "unmatchedAnalysisTimestampsMs": [],
+      "matches": [
+        {
+          "timestampMs": 0,
+          "sourceFrameIndex": 0
+        },
+        {
+          "timestampMs": 67,
+          "sourceFrameIndex": 1
+        },
+        {
+          "timestampMs": 133,
+          "sourceFrameIndex": 2
+        },
+        {
+          "timestampMs": 200,
+          "sourceFrameIndex": 3
+        },
+        {
+          "timestampMs": 267,
+          "sourceFrameIndex": 4
+        },
+        {
+          "timestampMs": 333,
+          "sourceFrameIndex": 5
+        },
+        {
+          "timestampMs": 400,
+          "sourceFrameIndex": 6
+        },
+        {
+          "timestampMs": 467,
+          "sourceFrameIndex": 7
+        },
+        {
+          "timestampMs": 533,
+          "sourceFrameIndex": 8
+        },
+        {
+          "timestampMs": 600,
+          "sourceFrameIndex": 9
+        },
+        {
+          "timestampMs": 667,
+          "sourceFrameIndex": 10
+        },
+        {
+          "timestampMs": 733,
+          "sourceFrameIndex": 11
+        },
+        {
+          "timestampMs": 800,
+          "sourceFrameIndex": 12
+        },
+        {
+          "timestampMs": 867,
+          "sourceFrameIndex": 13
+        },
+        {
+          "timestampMs": 933,
+          "sourceFrameIndex": 14
+        },
+        {
+          "timestampMs": 1000,
+          "sourceFrameIndex": 15
+        },
+        {
+          "timestampMs": 1067,
+          "sourceFrameIndex": 16
+        },
+        {
+          "timestampMs": 1133,
+          "sourceFrameIndex": 17
+        },
+        {
+          "timestampMs": 1200,
+          "sourceFrameIndex": 18
+        },
+        {
+          "timestampMs": 1267,
+          "sourceFrameIndex": 19
+        },
+        {
+          "timestampMs": 1333,
+          "sourceFrameIndex": 20
+        },
+        {
+          "timestampMs": 1400,
+          "sourceFrameIndex": 21
+        },
+        {
+          "timestampMs": 1467,
+          "sourceFrameIndex": 22
+        },
+        {
+          "timestampMs": 1533,
+          "sourceFrameIndex": 23
+        },
+        {
+          "timestampMs": 1600,
+          "sourceFrameIndex": 24
+        },
+        {
+          "timestampMs": 1667,
+          "sourceFrameIndex": 25
+        },
+        {
+          "timestampMs": 1733,
+          "sourceFrameIndex": 26
+        },
+        {
+          "timestampMs": 1800,
+          "sourceFrameIndex": 27
+        },
+        {
+          "timestampMs": 1867,
+          "sourceFrameIndex": 28
+        },
+        {
+          "timestampMs": 1933,
+          "sourceFrameIndex": 29
+        },
+        {
+          "timestampMs": 2000,
+          "sourceFrameIndex": 30
+        },
+        {
+          "timestampMs": 2067,
+          "sourceFrameIndex": 31
+        },
+        {
+          "timestampMs": 2133,
+          "sourceFrameIndex": 32
+        },
+        {
+          "timestampMs": 2200,
+          "sourceFrameIndex": 33
+        },
+        {
+          "timestampMs": 2267,
+          "sourceFrameIndex": 34
+        },
+        {
+          "timestampMs": 2333,
+          "sourceFrameIndex": 35
+        },
+        {
+          "timestampMs": 2400,
+          "sourceFrameIndex": 36
+        },
+        {
+          "timestampMs": 2467,
+          "sourceFrameIndex": 37
+        },
+        {
+          "timestampMs": 2533,
+          "sourceFrameIndex": 38
+        },
+        {
+          "timestampMs": 2600,
+          "sourceFrameIndex": 39
+        },
+        {
+          "timestampMs": 2667,
+          "sourceFrameIndex": 40
+        },
+        {
+          "timestampMs": 2733,
+          "sourceFrameIndex": 41
+        },
+        {
+          "timestampMs": 2800,
+          "sourceFrameIndex": 42
+        },
+        {
+          "timestampMs": 2867,
+          "sourceFrameIndex": 43
+        },
+        {
+          "timestampMs": 2933,
+          "sourceFrameIndex": 44
+        },
+        {
+          "timestampMs": 3000,
+          "sourceFrameIndex": 45
+        },
+        {
+          "timestampMs": 3067,
+          "sourceFrameIndex": 46
+        },
+        {
+          "timestampMs": 3133,
+          "sourceFrameIndex": 47
+        },
+        {
+          "timestampMs": 3200,
+          "sourceFrameIndex": 48
+        },
+        {
+          "timestampMs": 3267,
+          "sourceFrameIndex": 49
+        },
+        {
+          "timestampMs": 3333,
+          "sourceFrameIndex": 50
+        },
+        {
+          "timestampMs": 3400,
+          "sourceFrameIndex": 51
+        },
+        {
+          "timestampMs": 3467,
+          "sourceFrameIndex": 52
+        },
+        {
+          "timestampMs": 3533,
+          "sourceFrameIndex": 53
+        },
+        {
+          "timestampMs": 3600,
+          "sourceFrameIndex": 54
+        },
+        {
+          "timestampMs": 3667,
+          "sourceFrameIndex": 55
+        },
+        {
+          "timestampMs": 3733,
+          "sourceFrameIndex": 56
+        }
+      ]
+    },
+    {
+      "clip": "supported-squat.mp4",
+      "clipSha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+      "reportSha256": "bd23a85fe2eb0879746911f2daaebd625e3f805e32cf89f0c2f4949e31384799",
+      "passed": true,
+      "sourceFrameCount": 90,
+      "analyzedFrameCount": 90,
+      "matchedSourceFrameCount": 90,
+      "sourceFrameCoverage": 1,
+      "everySourceTimestampRepresented": true,
+      "sourceIntervals": {
+        "minMs": 66.66599999999926,
+        "maxMs": 66.66700000000037
+      },
+      "analyzedIntervals": {
+        "minMs": 66,
+        "maxMs": 67
+      },
+      "omittedSourceFrameIndices": [],
+      "unmatchedAnalysisTimestampsMs": [],
+      "matches": [
+        {
+          "timestampMs": 0,
+          "sourceFrameIndex": 0
+        },
+        {
+          "timestampMs": 67,
+          "sourceFrameIndex": 1
+        },
+        {
+          "timestampMs": 133,
+          "sourceFrameIndex": 2
+        },
+        {
+          "timestampMs": 200,
+          "sourceFrameIndex": 3
+        },
+        {
+          "timestampMs": 267,
+          "sourceFrameIndex": 4
+        },
+        {
+          "timestampMs": 333,
+          "sourceFrameIndex": 5
+        },
+        {
+          "timestampMs": 400,
+          "sourceFrameIndex": 6
+        },
+        {
+          "timestampMs": 467,
+          "sourceFrameIndex": 7
+        },
+        {
+          "timestampMs": 533,
+          "sourceFrameIndex": 8
+        },
+        {
+          "timestampMs": 600,
+          "sourceFrameIndex": 9
+        },
+        {
+          "timestampMs": 667,
+          "sourceFrameIndex": 10
+        },
+        {
+          "timestampMs": 733,
+          "sourceFrameIndex": 11
+        },
+        {
+          "timestampMs": 800,
+          "sourceFrameIndex": 12
+        },
+        {
+          "timestampMs": 867,
+          "sourceFrameIndex": 13
+        },
+        {
+          "timestampMs": 933,
+          "sourceFrameIndex": 14
+        },
+        {
+          "timestampMs": 1000,
+          "sourceFrameIndex": 15
+        },
+        {
+          "timestampMs": 1067,
+          "sourceFrameIndex": 16
+        },
+        {
+          "timestampMs": 1133,
+          "sourceFrameIndex": 17
+        },
+        {
+          "timestampMs": 1200,
+          "sourceFrameIndex": 18
+        },
+        {
+          "timestampMs": 1267,
+          "sourceFrameIndex": 19
+        },
+        {
+          "timestampMs": 1333,
+          "sourceFrameIndex": 20
+        },
+        {
+          "timestampMs": 1400,
+          "sourceFrameIndex": 21
+        },
+        {
+          "timestampMs": 1467,
+          "sourceFrameIndex": 22
+        },
+        {
+          "timestampMs": 1533,
+          "sourceFrameIndex": 23
+        },
+        {
+          "timestampMs": 1600,
+          "sourceFrameIndex": 24
+        },
+        {
+          "timestampMs": 1667,
+          "sourceFrameIndex": 25
+        },
+        {
+          "timestampMs": 1733,
+          "sourceFrameIndex": 26
+        },
+        {
+          "timestampMs": 1800,
+          "sourceFrameIndex": 27
+        },
+        {
+          "timestampMs": 1867,
+          "sourceFrameIndex": 28
+        },
+        {
+          "timestampMs": 1933,
+          "sourceFrameIndex": 29
+        },
+        {
+          "timestampMs": 2000,
+          "sourceFrameIndex": 30
+        },
+        {
+          "timestampMs": 2067,
+          "sourceFrameIndex": 31
+        },
+        {
+          "timestampMs": 2133,
+          "sourceFrameIndex": 32
+        },
+        {
+          "timestampMs": 2200,
+          "sourceFrameIndex": 33
+        },
+        {
+          "timestampMs": 2267,
+          "sourceFrameIndex": 34
+        },
+        {
+          "timestampMs": 2333,
+          "sourceFrameIndex": 35
+        },
+        {
+          "timestampMs": 2400,
+          "sourceFrameIndex": 36
+        },
+        {
+          "timestampMs": 2467,
+          "sourceFrameIndex": 37
+        },
+        {
+          "timestampMs": 2533,
+          "sourceFrameIndex": 38
+        },
+        {
+          "timestampMs": 2600,
+          "sourceFrameIndex": 39
+        },
+        {
+          "timestampMs": 2667,
+          "sourceFrameIndex": 40
+        },
+        {
+          "timestampMs": 2733,
+          "sourceFrameIndex": 41
+        },
+        {
+          "timestampMs": 2800,
+          "sourceFrameIndex": 42
+        },
+        {
+          "timestampMs": 2867,
+          "sourceFrameIndex": 43
+        },
+        {
+          "timestampMs": 2933,
+          "sourceFrameIndex": 44
+        },
+        {
+          "timestampMs": 3000,
+          "sourceFrameIndex": 45
+        },
+        {
+          "timestampMs": 3067,
+          "sourceFrameIndex": 46
+        },
+        {
+          "timestampMs": 3133,
+          "sourceFrameIndex": 47
+        },
+        {
+          "timestampMs": 3200,
+          "sourceFrameIndex": 48
+        },
+        {
+          "timestampMs": 3267,
+          "sourceFrameIndex": 49
+        },
+        {
+          "timestampMs": 3333,
+          "sourceFrameIndex": 50
+        },
+        {
+          "timestampMs": 3400,
+          "sourceFrameIndex": 51
+        },
+        {
+          "timestampMs": 3467,
+          "sourceFrameIndex": 52
+        },
+        {
+          "timestampMs": 3533,
+          "sourceFrameIndex": 53
+        },
+        {
+          "timestampMs": 3600,
+          "sourceFrameIndex": 54
+        },
+        {
+          "timestampMs": 3667,
+          "sourceFrameIndex": 55
+        },
+        {
+          "timestampMs": 3733,
+          "sourceFrameIndex": 56
+        },
+        {
+          "timestampMs": 3800,
+          "sourceFrameIndex": 57
+        },
+        {
+          "timestampMs": 3867,
+          "sourceFrameIndex": 58
+        },
+        {
+          "timestampMs": 3933,
+          "sourceFrameIndex": 59
+        },
+        {
+          "timestampMs": 4000,
+          "sourceFrameIndex": 60
+        },
+        {
+          "timestampMs": 4067,
+          "sourceFrameIndex": 61
+        },
+        {
+          "timestampMs": 4133,
+          "sourceFrameIndex": 62
+        },
+        {
+          "timestampMs": 4200,
+          "sourceFrameIndex": 63
+        },
+        {
+          "timestampMs": 4267,
+          "sourceFrameIndex": 64
+        },
+        {
+          "timestampMs": 4333,
+          "sourceFrameIndex": 65
+        },
+        {
+          "timestampMs": 4400,
+          "sourceFrameIndex": 66
+        },
+        {
+          "timestampMs": 4467,
+          "sourceFrameIndex": 67
+        },
+        {
+          "timestampMs": 4533,
+          "sourceFrameIndex": 68
+        },
+        {
+          "timestampMs": 4600,
+          "sourceFrameIndex": 69
+        },
+        {
+          "timestampMs": 4667,
+          "sourceFrameIndex": 70
+        },
+        {
+          "timestampMs": 4733,
+          "sourceFrameIndex": 71
+        },
+        {
+          "timestampMs": 4800,
+          "sourceFrameIndex": 72
+        },
+        {
+          "timestampMs": 4867,
+          "sourceFrameIndex": 73
+        },
+        {
+          "timestampMs": 4933,
+          "sourceFrameIndex": 74
+        },
+        {
+          "timestampMs": 5000,
+          "sourceFrameIndex": 75
+        },
+        {
+          "timestampMs": 5067,
+          "sourceFrameIndex": 76
+        },
+        {
+          "timestampMs": 5133,
+          "sourceFrameIndex": 77
+        },
+        {
+          "timestampMs": 5200,
+          "sourceFrameIndex": 78
+        },
+        {
+          "timestampMs": 5267,
+          "sourceFrameIndex": 79
+        },
+        {
+          "timestampMs": 5333,
+          "sourceFrameIndex": 80
+        },
+        {
+          "timestampMs": 5400,
+          "sourceFrameIndex": 81
+        },
+        {
+          "timestampMs": 5467,
+          "sourceFrameIndex": 82
+        },
+        {
+          "timestampMs": 5533,
+          "sourceFrameIndex": 83
+        },
+        {
+          "timestampMs": 5600,
+          "sourceFrameIndex": 84
+        },
+        {
+          "timestampMs": 5667,
+          "sourceFrameIndex": 85
+        },
+        {
+          "timestampMs": 5733,
+          "sourceFrameIndex": 86
+        },
+        {
+          "timestampMs": 5800,
+          "sourceFrameIndex": 87
+        },
+        {
+          "timestampMs": 5867,
+          "sourceFrameIndex": 88
+        },
+        {
+          "timestampMs": 5933,
+          "sourceFrameIndex": 89
+        }
+      ]
+    }
+  ]
+}

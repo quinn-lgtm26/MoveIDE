@@ -35,6 +35,7 @@ Use `fixtures/squat/clear-squat.mp4` for the built-in sample through the same im
 
 ## Release checks
 
+- Describe the engine as analyzing at up to 15 Hz. The independent ffprobe audit accounts for all 57 clear-demo and all 90 supported-regression source timestamps. Higher-rate uploads can have unanalysed source frames. Stepping controls should say “analyzed sample” unless exact source-frame coverage has been verified for that file. [Audit and scope](results/source-timeline-verification.json)
 - Chrome must show a real knee angle on the selected source frame, a letterbox-correct skeleton, and a playback gap when evidence is missing. Check playback, paused stepping, seek, resize and an invalid upload.
 - Compare two reps, preview both timestamped JPEGs and copy the approved handoff with the provider disconnected.
 - When the integrated workbench build is ready and reachable, run the two existing product Seldon cases against that exact build. Hold the remaining 14 simulations until that point. [Seldon ledger](../qa/seldon-ledger.md)
