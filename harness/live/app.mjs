@@ -1,3 +1,5 @@
+import QRCode from 'qrcode';
+import { createPairing, connectReceiver, revokePairing } from './transport/client.mjs';
 import { startLiveSquat } from './motion/index.mjs';
 import { drawSquatOverlay } from '../motion/overlay.mjs';
 import { buildCoachPacket, validateCoachingResponse } from '../coaching/index.mjs';
@@ -5,11 +7,34 @@ import { chatGPTProvider } from '../provider/client.mjs';
 
 const $ = id => document.getElementById(id);
 const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d');
-let controller, media, analysis, latest, lastArrived = 0, animation, completed = 0;
+let controller, media, analysis, receiver, pairing, phoneFeedback, latest, lastArrived = 0, animation, completed = 0;
 const degrees = value => Number.isFinite(value) ? `${value.toFixed(0)}°` : '—';
 const elapsed = milliseconds => `${(milliseconds / 1000).toFixed(1)}s`;
 
-function liveCoach(signal) {
+const briefFocus = text => text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
+
+function appendCoachingCard(event, result, cite, signal) {
+  const feed = $('ai-feed');
+  if (signal.aborted || controller?.signal !== signal || feed.children.length >= 6 ||
+      [...feed.children].some(card => card.dataset.repKey === event.key)) return false;
+  const followLatest = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 48;
+  const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key;
+  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.textContent = `Evidence at ${elapsed(event.rep.bottomMs)} · delayed AI review`;
+  const focus = document.createElement('p'); focus.className = 'coaching-focus'; focus.textContent = briefFocus(result.nextFocus.text);
+  const why = document.createElement('details'), summary = document.createElement('summary'); summary.textContent = 'Why';
+  const observations = document.createElement('ul');
+  for (const observation of result.observations) {
+    const item = document.createElement('li'); item.textContent = cite(observation); observations.append(item);
+  }
+  const fullFocus = document.createElement('p'); fullFocus.textContent = `Next focus: ${cite(result.nextFocus)}`;
+  const limits = document.createElement('p'); limits.className = 'coaching-limits'; limits.textContent = `Limits: ${result.uncertainty}`;
+  why.append(summary, observations, fullFocus, limits); card.append(stamp, focus, why); feed.append(card);
+  $('ai-empty').hidden = true;
+  if (followLatest) feed.scrollTop = feed.scrollHeight;
+  return true;
+}
+
+function liveCoach(signal, onResult = () => {}) {
   let model, busy = false, sent = 0, lastSent = -Infinity;
   const seen = new Set();
   void (async () => {
@@ -32,13 +57,16 @@ function liveCoach(signal) {
       if (!packet.measurements.length || !images.length || images.some(image => !image.blob)) return;
     } catch { return; }
     busy = true; sent++; lastSent = performance.now(); seen.add(event.key);
+    if (sent >= 6) $('ai-limit').hidden = false;
     $('ai').textContent = `AI reviewing rep at ${elapsed(event.rep.bottomMs)}… Keep moving.`;
     try {
       const result = validateCoachingResponse(await chatGPTProvider.interpret(packet, images, { model, signal }), packet);
       if (signal.aborted) return;
       const evidence = new Map([...packet.measurements.map(item => [item.id, item.evidenceTimestampMs]), ...packet.evidence.map(item => [item.id, item.timestampMs])]);
       const cite = item => `${item.text} [${[...new Set(item.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
-      $('ai').textContent = [...result.observations.slice(0, 2).map(cite), `Next focus: ${cite(result.nextFocus)}`, result.uncertainty].join(' ');
+      if (!appendCoachingCard(event, result, cite, signal)) return;
+      $('ai').textContent = `Next focus: ${briefFocus(result.nextFocus.text)}`;
+      onResult({ kind: 'ai', text: briefFocus(result.nextFocus.text), sourceTimestampMs: event.rep.bottomMs });
     } catch (error) { if (!signal.aborted) $('ai').textContent = 'AI feedback unavailable for this rep. Local tracking continues.'; }
     finally { busy = false; }
   };
@@ -54,9 +82,10 @@ function render() {
   animation = requestAnimationFrame(render);
   const age = latest ? performance.now() - lastArrived + latest.processingLatencyMs : Infinity;
   const usable = latest?.frame.quality === 'usable' && age <= 500;
-  $('age').textContent = latest ? `Pose age ${Math.round(age)} ms` : 'Waiting for pose';
+  $('age').textContent = latest ? `Local pose age ${Math.round(age)} ms` : 'Waiting for pose';
   if (!usable) {
     clearTracking();
+    phoneFeedback?.({ kind: 'status', text: 'Tracking unavailable. Keep your whole body visible and wait for a fresh pose.', sourceTimestampMs: latest?.timestampMs ?? null });
     $('feedback').dataset.state = 'unknown';
     $('phase').textContent = 'Tracking unavailable';
     if (latest) {
@@ -85,20 +114,31 @@ function render() {
 }
 
 function stop(message = 'Session stopped') {
-  controller?.abort(); controller = null;
+  const previous = controller; controller = null; phoneFeedback = null;
+  const oldReceiver = receiver, oldPairing = pairing; receiver = null; pairing = null;
+  previous?.abort();
+  if (oldReceiver) void oldReceiver.stop().catch(() => {});
+  else if (oldPairing) void revokePairing(oldPairing).catch(() => {});
   analysis?.stop(); analysis = null;
   media?.getTracks().forEach(track => track.stop()); media = null;
   video.srcObject = null;
   cancelAnimationFrame(animation);
   latest = null; clearTracking();
+  $('source').disabled = false;
+  $('pairing').hidden = true; $('phone-url').value = ''; $('pairing-expiry').textContent = '';
+  $('pairing-qr').hidden = true; $('phone-qr').width = 0; $('phone-qr').height = 0;
+  $('copy-phone').textContent = 'Copy link';
   $('start').disabled = false; $('start').hidden = false; $('stop').hidden = true;
   $('empty').hidden = false; $('status').textContent = message;
   $('feedback').dataset.state = 'unknown'; $('cue').textContent = 'One rep at a time.';
   $('detail').textContent = 'Start a new session whenever you are ready.';
   $('phase').textContent = 'Awaiting movement'; $('age').textContent = 'No pose yet';
+  const reviews = $('ai-feed').children.length;
+  $('ai').textContent = reviews ? `Session stopped · ${reviews} AI ${reviews === 1 ? 'review' : 'reviews'} saved below.` : 'Session stopped · no AI reviews yet.';
 }
 
 async function waitForVideo(signal) {
+  signal.throwIfAborted();
   if (video.readyState >= 2 && video.videoWidth) return;
   await new Promise((resolve, reject) => {
     const finish = error => {
@@ -112,41 +152,143 @@ async function waitForVideo(signal) {
   });
 }
 
-$('start').onclick = async () => {
-  if (controller) return;
-  const own = new AbortController(); controller = own;
-  const coachRep = liveCoach(own.signal);
-  $('error').textContent = ''; $('start').disabled = true; $('stop').hidden = false;
-  $('status').textContent = 'Allow camera access';
-  completed = 0; $('count').textContent = '0'; $('rep').textContent = 'Your completed-rep feedback will appear here.';
+async function showPairingQr(own, created) {
+  // Render off-screen: a late encoder cannot redraw an expired/stopped invite.
+  const drawing = document.createElement('canvas');
   try {
-    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera access requires HTTPS or this app’s localhost address.');
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 30 } } });
-    if (own.signal.aborted) { stream.getTracks().forEach(track => track.stop()); return; }
+    await QRCode.toCanvas(drawing, created.phoneUrl, { width: 220, margin: 4, errorCorrectionLevel: 'M' });
+    if (controller !== own || own.signal.aborted || pairing !== created || $('phone-url').value !== created.phoneUrl) return;
+    const destination = $('phone-qr'); destination.width = drawing.width; destination.height = drawing.height;
+    destination.getContext('2d').drawImage(drawing, 0, 0); $('pairing-qr').hidden = false;
+  } catch { /* The readable private link remains available if QR generation fails. */ }
+}
+
+function sessionFailed(own, error) {
+  if (controller !== own || own.signal.aborted) return;
+  stop('Ready to try again');
+  $('error').textContent = error.name === 'NotAllowedError'
+    ? 'Camera access was not granted. Allow camera access in your browser, then try again.'
+    : error.message || String(error);
+}
+
+async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
+  if (own.signal.aborted || controller !== own) { stream.getTracks().forEach(track => track.stop()); return; }
+  try {
     media = stream;
-    stream.getVideoTracks().forEach(track => track.addEventListener('ended', () => { if (controller === own) stop('Camera disconnected. Start a new session.'); }, { once: true }));
+    stream.getVideoTracks().forEach(track => track.addEventListener('ended', () => {
+      if (controller === own) stop('Camera disconnected. Start a new session.');
+    }, { once: true }));
     video.srcObject = stream; await video.play(); await waitForVideo(own.signal); own.signal.throwIfAborted();
     $('empty').hidden = true; $('status').textContent = 'Preparing Heavy pose model';
+    $('pairing-title').textContent = 'iPhone connected.';
+    $('pairing-help').textContent = 'Keep Safari in the foreground and your phone awake. Tracking and coaching start here automatically.';
     $('cue').textContent = 'Finding your movement.'; $('detail').textContent = 'Stand side-on with your whole body visible.';
     $('start').hidden = true;
     const session = await startLiveSquat(video, {
       model: 'heavy', targetKneeFlexionDeg: 110, signal: own.signal, captureEvidence: true,
-      onSample(sample) { latest = sample; lastArrived = performance.now(); $('latency').textContent = `${Math.round(sample.processingLatencyMs)} ms · ${sample.stats.analyzedHz.toFixed(1)} analyzed fps`; },
+      onSample(sample) {
+        if (controller !== own || own.signal.aborted) return;
+        latest = sample; lastArrived = performance.now();
+        $('latency').textContent = `${Math.round(sample.processingLatencyMs)} ms · ${sample.stats.analyzedHz.toFixed(1)} analyzed fps`;
+        if (sample.frame.quality === 'usable' && sample.processingLatencyMs <= 500) sendFeedback({ kind: 'local', text: `${degrees(sample.metrics.kneeFlexionDeg)} projected knee flexion · ${sample.phase.replaceAll('-', ' ')} (provisional). ${sample.feedback.label}`, sourceTimestampMs: sample.timestampMs });
+      },
       onRepComplete(event) {
+        if (controller !== own || own.signal.aborted) return;
         completed++; $('count').textContent = String(completed);
         $('rep').textContent = `Rep ${completed} · ${elapsed(event.rep.bottomMs)}: ${event.feedback.label}`;
         $('rep').dataset.state = event.feedback.state;
         void coachRep(event);
       },
-      onError(error) { if (controller === own) { stop('Tracking stopped'); $('error').textContent = error.message || String(error); } },
+      onError(error) { sessionFailed(own, error); },
     });
-    if (own.signal.aborted) { session.stop(); return; }
+    if (own.signal.aborted || controller !== own) { session.stop(); return; }
     analysis = session;
-    $('status').textContent = 'Live · local analysis'; render();
-  } catch (error) {
-    if (controller !== own) return;
-    stop('Ready to try again'); $('error').textContent = error.name === 'NotAllowedError' ? 'Camera access was not granted. Allow camera access in your browser, then try again.' : error.message || String(error);
+    $('status').textContent = source === 'phone' ? 'Live · iPhone · local analysis' : 'Live · local analysis'; render();
+  } catch (error) { sessionFailed(own, error); }
+}
+
+$('start').onclick = async () => {
+  if (controller) return;
+  const own = new AbortController(); controller = own;
+  const source = $('source').value;
+  let lastFeedbackAt = -Infinity, lastFeedbackKind = null, aiRetry, pendingAi = null;
+  own.signal.addEventListener('abort', () => { clearTimeout(aiRetry); pendingAi = null; }, { once: true });
+  const sendFeedback = (payload, attempts = 10) => {
+    if (controller !== own || own.signal.aborted || source !== 'phone' || !receiver) return;
+    const now = performance.now();
+    if (payload.kind !== 'ai' && (pendingAi || now - lastFeedbackAt < 500 || payload.kind === 'status' && lastFeedbackKind === 'status')) return;
+    if (receiver.sendFeedback(payload)) {
+      lastFeedbackAt = now; lastFeedbackKind = payload.kind;
+      if (payload.kind === 'ai') { clearTimeout(aiRetry); pendingAi = null; }
+    } else if (payload.kind === 'ai' && attempts > 0) {
+      // One bounded pending narration; a recent local update must not drop the AI result.
+      clearTimeout(aiRetry); pendingAi = payload;
+      aiRetry = setTimeout(() => sendFeedback(payload, attempts - 1), 150);
+    } else if (payload.kind === 'ai') pendingAi = null;
+  };
+  phoneFeedback = sendFeedback;
+  const coachRep = liveCoach(own.signal, sendFeedback);
+  $('error').textContent = ''; $('phone-setup').hidden = true;
+  $('start').disabled = true; $('stop').hidden = false; $('source').disabled = true;
+  $('status').textContent = source === 'phone' ? 'Creating private phone link' : 'Allow camera access';
+  completed = 0; $('count').textContent = '0'; $('rep').textContent = 'Your completed-rep feedback will appear here.';
+  $('rep').removeAttribute('data-state'); $('latency').textContent = '—';
+  $('ai').textContent = 'Checking ChatGPT connection…'; $('ai-limit').hidden = true;
+  $('ai-feed').replaceChildren(); $('ai-feed').scrollTop = 0; $('ai-empty').hidden = false;
+  try {
+    if (source === 'phone') {
+      const created = await createPairing({ signal: own.signal });
+      if (own.signal.aborted || controller !== own) { await revokePairing(created); return; }
+      pairing = created;
+      if (new URL(created.phoneUrl).protocol !== 'https:') {
+        stop('Phone setup needed'); $('phone-setup').hidden = false;
+        $('error').textContent = 'A trusted HTTPS phone address has not been configured. Choose Mac / Continuity Camera to start now.';
+        return;
+      }
+      $('pairing').hidden = false; $('phone-url').value = created.phoneUrl;
+      void showPairingQr(own, created);
+      $('pairing-title').textContent = 'Open your private camera link.';
+      $('pairing-help').textContent = 'Keep both devices on the same Wi-Fi. Open this link in iPhone Safari, then allow the camera. Tracking starts here automatically.';
+      $('pairing-expiry').textContent = `Private link · expires at ${new Date(created.expiresAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. Share only with your own phone.`;
+      $('status').textContent = 'Waiting for your iPhone';
+      let attached = false;
+      const connected = await connectReceiver(created, {
+        signal: own.signal,
+        onStream(stream) {
+          if (!stream) return;
+          if (own.signal.aborted || controller !== own) { stream.getTracks().forEach(track => track.stop()); return; }
+          if (attached) return;
+          attached = true;
+          void analyzeStream(own, stream, coachRep, source, sendFeedback);
+        },
+        onState({ status, detail }) {
+          if (own.signal.aborted || controller !== own) return;
+          if (status === 'closed') {
+            stop('Phone disconnected. Start a new session.');
+            $('error').textContent = detail === 'expired' ? 'Your private phone session expired. Start again to create a fresh link.' : `${detail || 'Phone connection ended.'} Start again for a fresh private link.`;
+          } else if (!attached) $('status').textContent = status === 'connecting' ? 'Connecting your iPhone' : 'Waiting for your iPhone';
+        },
+      });
+      if (own.signal.aborted || controller !== own) { await connected.stop(); return; }
+      receiver = connected;
+    } else {
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera access requires HTTPS or this app’s localhost address.');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 30 } } });
+      await analyzeStream(own, stream, coachRep, source, sendFeedback);
+    }
+  } catch (error) { sessionFailed(own, error); }
+};
+$('copy-phone').onclick = async () => {
+  const url = $('phone-url').value;
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    if ($('phone-url').value === url) $('copy-phone').textContent = 'Copied';
+  } catch {
+    $('phone-url').focus(); $('phone-url').select();
+    $('pairing-expiry').textContent = 'Copy the selected private link and open it on your iPhone.';
   }
 };
+$('source').onchange = () => { $('phone-setup').hidden = true; $('error').textContent = ''; };
 $('stop').onclick = () => stop();
 window.addEventListener('pagehide', () => stop());

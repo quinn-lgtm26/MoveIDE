@@ -20,7 +20,7 @@ try {
   const response = JSON.parse(await page.locator('#coaching').textContent());
   const evidence = {verifiedAtUtc:new Date().toISOString(),fixture:'clear-squat.mp4',poseModel:'mediapipe-pose-landmarker-heavy',workflow:'single Start: real Heavy + exact source JPEGs + real ChatGPT + playback cues',requests:calls,observationEvidenceIds:response.observations.map(x=>x.evidenceIds),nextFocusEvidenceIds:response.nextFocus.evidenceIds};
   await page.locator('#clip').evaluate(v=>{v.pause();v.currentTime=1.0675;});
-  await page.locator('#cue').waitFor({state:'visible'});
+  await page.locator('#cue-history > li').first().waitFor({state:'visible'});
   await page.screenshot({path:'qa/one-start-heavy-live.png',fullPage:true});
   await writeFile('qa/one-start-heavy-live.json',JSON.stringify(evidence,null,2)+'\n');
   console.log(JSON.stringify(evidence));

@@ -2,7 +2,9 @@
   "name": "moveide",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.18" },
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "predev": "[ -n \"$CI\" ] || git pull --ff-only && npm --prefix harness run setup:pose",
     "dev": "vite",
@@ -10,7 +12,8 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "test": "npm --prefix harness test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "demo": "node scripts/start-demo.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.2.2",

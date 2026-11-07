@@ -71,7 +71,7 @@ try {
   await page.locator('#connection').getByText('Using ChatGPT plan').waitFor({ state: 'attached' });
   await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
   await page.getByText('2 complete reps · 2 evidence JPEGs', { exact: true }).waitFor({ timeout: 90_000 });
-  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor();
+  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor({ state: 'attached' });
   assert.equal(calls.length, 1, 'One Start must automatically analyze and coach');
   assert.equal(await page.locator('#interpret').isVisible(), false);
   await page.locator('#developer-details > summary').click();
@@ -82,8 +82,8 @@ try {
   assert.equal(report.poseModel.id, 'mediapipe-pose-landmarker-heavy');
   assert.equal(report.reps.length, 2);
 
-  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor();
-  await page.locator('#coaching-observations').getByText(secondText, { exact: true }).waitFor();
+  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor({ state: 'attached' });
+  await page.locator('#coaching-observations').getByText(secondText, { exact: true }).waitFor({ state: 'attached' });
   assert.equal(calls.length, 1);
 
   async function seek(timestampMs) {
@@ -104,23 +104,20 @@ try {
   const ascentTime = sampleBetween(firstRep.bottomMs + 150, firstRep.endMs);
   const secondTime = sampleBetween(secondRep.startMs, secondRep.bottomMs - 150);
   assert(Number.isFinite(descentTime) && Number.isFinite(ascentTime) && Number.isFinite(secondTime));
+  const firstCue = 'Mock focus: revisit the first evidence frame.';
   for (const time of [descentTime, ascentTime]) {
     await seek(time);
-    await page.waitForFunction(text => document.querySelector('#cue').textContent.includes(text), firstText);
-    assert.equal(await page.locator('#cue').isVisible(), true);
-    assert.match(await page.locator('#cue-context').innerText(), new RegExp(String(firstRep.bottomMs)));
-    assert(!(await page.locator('#cue').innerText()).includes(secondText));
+    await page.locator('#cue-history').getByText(firstCue, { exact: true }).waitFor();
   }
   await seek(secondTime);
-  await page.waitForFunction(text => document.querySelector('#cue').textContent.includes(text), secondText);
-  assert.equal(await page.locator('#cue').isVisible(), true);
-  assert(!(await page.locator('#cue').innerText()).includes(firstText));
-
-  for (const time of [0, report.clip.durationMs - 2]) {
+  await page.locator('#cue-history > li > p').getByText(secondText, { exact: true }).waitFor();
+  assert.equal(await page.locator('#cue-history > li').count(), 2);
+  for (const time of [0, report.clip.durationMs - 2, descentTime, secondTime]) {
     await seek(time);
-    await page.locator('#cue').waitFor({ state: 'hidden' });
-    assert.equal(await page.locator('#cue-context').isVisible(), false);
+    assert.equal(await page.locator('#cue').isVisible(), true, 'Cue area must not collapse between reps');
+    assert.equal(await page.locator('#cue-history > li').count(), 2, 'Replaying must not duplicate or remove coaching cards');
   }
+  await page.locator('#coaching-reasoning > summary').click();
 
   const evidenceButton = page.locator('#coaching-observations').getByRole('button', {
     name: new RegExp(String(firstRep.bottomMs)),
@@ -137,17 +134,19 @@ try {
   await page.locator('#settings > summary').click();
   await page.locator('#model').selectOption('mock-alternative');
   assert.equal(await page.locator('#coaching-observations').textContent(), '');
-  assert.equal(await page.locator('#cue').isVisible(), false);
+  assert.equal(await page.locator('#cue-history > li').count(), 0);
+  assert.equal(await page.locator('#cue').isVisible(), true);
   assert.equal(calls.length, 1, 'Changing model must not implicitly request interpretation');
   await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
   assert.equal(await page.locator('#coaching-observations').textContent(), '');
-  assert.equal(await page.locator('#cue').isVisible(), false);
-  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor({ timeout: 90_000 });
+  assert.equal(await page.locator('#cue-history > li').count(), 0);
+  assert.equal(await page.locator('#cue').isVisible(), true);
+  await page.locator('#coaching-observations').getByText(firstText, { exact: true }).waitFor({ state: 'attached', timeout: 90_000 });
   assert.equal(calls.length, 2);
   assert.equal(calls[1].model, 'mock-alternative');
   assert.deepEqual(externalRequests, []);
   assert.deepEqual(pageErrors, []);
-  console.log('Readable coaching playback passed: one Start automatically analyzes and coaches, both rep phases, rep transitions, evidence seek, no repeated inference, model-change reset, and reanalysis reset. Provider response was mocked; no live AI/Seldon request.');
+  console.log('Readable coaching playback passed: one Start automatically analyzes and coaches, persistent stacked cards, no duplicates on seek or replay, no disappearing cue panel, evidence seek, no repeated inference, model-change reset, and reanalysis reset. Provider response was mocked; no live AI/Seldon request.');
 } finally {
   await browser?.close();
   await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve()));

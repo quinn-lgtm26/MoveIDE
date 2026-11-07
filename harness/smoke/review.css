@@ -69,3 +69,12 @@ section[aria-label="Optional local provider spike"] { padding-top: 1.5rem; margi
   #evidence > a { flex-basis: calc(50% - .5rem); }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+.cue-card { min-height: 7rem; margin: 1rem 0; }
+#cue { font-size: 1.1rem; max-width: 48rem; margin: .4rem 0; }
+#cue-history { list-style: none; padding: 0; max-height: 24rem; overflow: auto; scrollbar-gutter: stable; }
+#cue-history li { padding: .8rem 1rem; margin: .6rem 0; background: #fff; border: 1px solid #cbd7cf; border-radius: .5rem; }
+#cue-history strong { font-size: .8rem; color: #536363; }
+#cue-history p { margin: .4rem 0; }
+#cue-history details { margin: .6rem 0 0; padding: .4rem 0; border-bottom: 0; }
+#cue-history:empty { display: none; }

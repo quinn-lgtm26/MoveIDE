@@ -44,11 +44,14 @@
         <h2>AI coaching</h2>
         <p id="coaching-status" role="status">Ready when you are. Start runs tracking and AI coaching automatically.</p>
         <button id="interpret" disabled hidden>Retry AI coaching</button>
-        <p id="cue-context" hidden></p>
-        <p id="cue" hidden></p>
+        <div class="cue-card"><p id="cue-context">Session guide</p>
+        <p id="cue">Start to build your coaching timeline.</p></div>
+        <ol id="cue-history" aria-label="Coaching timeline" aria-live="polite"></ol>
+        <details id="coaching-reasoning"><summary>Why? Full analysis and evidence</summary>
         <ul id="coaching-observations"></ul>
         <p id="coaching-next-focus"></p>
         <p id="coaching-uncertainty"></p>
+        </details>
       </section>
     </section>
     <details id="settings"><summary>ChatGPT connection and model</summary>

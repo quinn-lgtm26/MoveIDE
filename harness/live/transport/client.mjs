@@ -1,4 +1,5 @@
 /** Video-only local-network transport. The analysis owner consumes onStream(MediaStream). */
+import { encodeFeedback, decodeFeedback } from './feedback.mjs';
 const ROOM = /^[a-f0-9]{32}$/;
 const INVITE = /^[A-Za-z0-9_-]{43}$/;
 
@@ -18,11 +19,25 @@ function baseUrl(value = location.origin) {
   return url.origin;
 }
 
-export async function createPairing({ baseUrl: base } = {}) {
-  const pairing = await (await api(baseUrl(base), '/rooms', { method: 'POST' })).json();
+export async function createPairing({ baseUrl: base, signal } = {}) {
+  signal?.throwIfAborted();
+  // Drain the bounded creation response after UI cancellation so we can revoke its room.
+  // A lost network response can still leave a room until its short server-side expiry.
+  const request = new AbortController();
+  const timer = setTimeout(() => request.abort(), 10_000);
+  let pairing;
+  try { pairing = await (await api(baseUrl(base), '/rooms', { method: 'POST', signal: request.signal })).json(); }
+  finally { clearTimeout(timer); }
+  if (signal?.aborted) { await revokePairing(pairing, { baseUrl: base }).catch(() => {}); signal.throwIfAborted(); }
   const phoneUrl = new URL('/phone', pairing.publicOrigin);
   phoneUrl.hash = new URLSearchParams({ room: pairing.roomId, invite: pairing.senderInvite });
   return { ...pairing, phoneUrl: phoneUrl.href };
+}
+
+/** Cancel a room before receiver join, including a failed HTTPS setup check. */
+export async function revokePairing(pairing, { baseUrl: base } = {}) {
+  if (!ROOM.test(pairing?.roomId ?? '') || !INVITE.test(pairing?.receiverInvite ?? '')) throw new Error('Invalid pairing invite.');
+  await api(baseUrl(base), `/rooms/${pairing.roomId}`, { method: 'DELETE', token: pairing.receiverInvite });
 }
 
 export function readPhoneInvite(url = location.href) {
@@ -41,13 +56,15 @@ export function connectPhone(invite, options = {}) {
 }
 
 async function connectPeer({ roomId, invite }, role, {
-  baseUrl: base, onState = () => {}, onStream = () => {}, signal, stream: suppliedStream,
+  baseUrl: base, onState = () => {}, onStream = () => {}, onFeedback = () => {}, signal, stream: suppliedStream,
 } = {}) {
   if (!ROOM.test(roomId ?? '') || !INVITE.test(invite ?? '')) throw new Error('Invalid pairing invite.');
   const origin = baseUrl(base), path = `/rooms/${roomId}`;
   const abort = new AbortController();
   let token, peer, stream, connectionTimer, stopped = false, sendTail = Promise.resolve(), eventTail = Promise.resolve();
   const pendingCandidates = [];
+  let feedbackChannel, sequence = 0, receivedSequence = 0, sentAt = -Infinity;
+  const receivedTimes = [];
   const state = (status, detail = '') => onState({ status, detail });
   const stop = async (reason = 'stopped') => {
     if (stopped) return;
@@ -58,9 +75,11 @@ async function connectPeer({ roomId, invite }, role, {
     abort.abort();
     signal?.removeEventListener('abort', externalStop);
     peer?.close();
+    feedbackChannel?.close();
     for (const track of stream?.getTracks() ?? []) track.stop();
     for (const receiver of peer?.getReceivers() ?? []) receiver.track?.stop();
     onStream(null);
+    onFeedback(null);
     state('closed', reason);
     await revoke;
   };
@@ -72,10 +91,34 @@ async function connectPeer({ roomId, invite }, role, {
     return sendTail;
   };
   const fail = error => { if (!stopped) void stop(error.message || 'Connection failed. Start a new session.'); };
+  const attachFeedback = channel => {
+    if (feedbackChannel || channel.label !== 'moveide-feedback-v1') { channel.close(); return; }
+    feedbackChannel = channel;
+    channel.onmessage = event => {
+      if (stopped || role !== 'sender') return;
+      const value = decodeFeedback(event.data, receivedSequence);
+      if (!value) return;
+      receivedSequence = value.sequence;
+      const now = performance.now();
+      while (receivedTimes.length && now - receivedTimes[0] >= 1000) receivedTimes.shift();
+      if (receivedTimes.length >= 10) return;
+      receivedTimes.push(now); onFeedback(value);
+    };
+  };
+  const sendFeedback = payload => {
+    if (stopped || role !== 'receiver' || feedbackChannel?.readyState !== 'open' ||
+        feedbackChannel.bufferedAmount > 16_384 || performance.now() - sentAt < 100) return false;
+    const encoded = encodeFeedback(payload, sequence + 1);
+    if (!encoded) return false;
+    try { feedbackChannel.send(encoded); sequence++; sentAt = performance.now(); return true; }
+    catch { return false; }
+  };
   try {
     state('pairing', role === 'sender' ? 'Connecting to laptop' : 'Waiting for phone');
     ({ token } = await (await api(origin, `${path}/join`, { token: invite, method: 'POST', body: { role }, signal: abort.signal })).json());
     peer = new RTCPeerConnection({ iceServers: [] });
+    if (role === 'sender') attachFeedback(peer.createDataChannel('moveide-feedback-v1', { ordered: true }));
+    else peer.ondatachannel = event => attachFeedback(event.channel);
     peer.onicecandidate = event => { if (event.candidate && !stopped) void send({ type: 'candidate', candidate: event.candidate.toJSON() }).catch(fail); };
     peer.ontrack = event => { stream = event.streams[0] ?? new MediaStream([event.track]); onStream(stream); };
     peer.onconnectionstatechange = () => {
@@ -108,7 +151,7 @@ async function connectPeer({ roomId, invite }, role, {
         }
       }
     };
-    const events = await api(origin, `${path}/events`, { token, signal: abort.signal });
+    const events = role === 'receiver' ? await api(origin, `${path}/events`, { token, signal: abort.signal }) : null;
     const readEvents = async () => {
       const reader = events.body.getReader(), decoder = new TextDecoder();
       let buffer = '';
@@ -128,7 +171,26 @@ async function connectPeer({ roomId, invite }, role, {
         }
       }
     };
-    void readEvents().catch(fail);
+    const pollEvents = async () => {
+      while (!stopped) {
+        const poll = new AbortController();
+        const cancelPoll = () => poll.abort();
+        abort.signal.addEventListener('abort', cancelPoll, { once: true });
+        const timeout = setTimeout(() => poll.abort(), 20_000);
+        try {
+          const batch = await (await api(origin, `${path}/poll`, { token, signal: poll.signal })).json();
+          if (!Array.isArray(batch.events) || batch.events.length > 128) throw new Error('Invalid signalling batch.');
+          for (const event of batch.events) await handle(event);
+        } catch (error) {
+          if (poll.signal.aborted && !abort.signal.aborted) throw new Error('Phone signalling timed out. Start a new session.');
+          throw error;
+        } finally {
+          clearTimeout(timeout); abort.signal.removeEventListener('abort', cancelPoll);
+        }
+      }
+    };
+    // Public quick tunnels do not support SSE. Phone polling starts without blocking camera permission.
+    void (role === 'receiver' ? readEvents() : pollEvents()).catch(fail);
     if (role === 'sender') {
       if (!suppliedStream && !navigator.mediaDevices?.getUserMedia) throw new Error('Open the HTTPS phone link to enable the camera.');
       state('permission', 'Allow camera access; microphone stays off');
@@ -145,7 +207,7 @@ async function connectPeer({ roomId, invite }, role, {
       await peer.setLocalDescription(await peer.createOffer());
       await send({ type: 'offer', sdp: peer.localDescription.sdp });
     }
-    return { stop, peer, get stream() { return stream; } };
+    return { stop, sendFeedback, peer, get stream() { return stream; } };
   } catch (error) {
     await stop(error.message);
     throw error;

@@ -14,7 +14,7 @@
     "prebuild": "npm run setup:pose",
     "build": "vite build",
     "start:local": "vite preview --host 127.0.0.1 --strictPort",
-    "test": "node --test",
+    "test": "node --test --test-concurrency=1",
     "preverify:fixtures": "npm run setup:pose",
     "verify:fixtures": "node verify/fixtures.mjs",
     "verify:build": "node verify/build-smoke.mjs",
@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.2.2",
-    "jose": "6.2.15"
+    "jose": "6.2.15",
+    "qrcode": "1.5.4"
   },
   "devDependencies": {
     "ajv": "8.20.0",

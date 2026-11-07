@@ -123,7 +123,7 @@ export async function interpretWithChatGPT(accessToken, { model, packet, images 
       model,
       store: false,
       stream: true,
-      instructions: MAGNA_CARTA_PROMPT,
+      instructions: `${MAGNA_CARTA_PROMPT}\n\nMoveIDE presentation policy v1: Write nextFocus.text as ONE practical, evidence-supported action in at most 12 words. Write at most three observations, each at most 25 words. Put qualifications and camera limits in uncertainty, not repeated in every observation. Do not invent a fault to produce a correction: forward torso inclination alone does not establish poor form, spinal curvature or core engagement. If the evidence shows consistency rather than a fault, suggest maintaining that consistency. Never claim to have watched motion phases absent from the attached evidence.`,
       input: [{ role: 'user', content }],
       text: { format: { type: 'json_schema', name: 'moveide_coaching_v1', strict: true, schema: COACHING_RESPONSE_SCHEMA } },
     }),

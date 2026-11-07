@@ -22,17 +22,21 @@ async function jsonBody(request) {
 }
 
 /** Dedicated, credential-free signalling server. No app/OAuth middleware is mounted. */
-export function createTransportServer({ host = '127.0.0.1', port = 4176, publicOrigin, staticFiles = {}, ttlMs = 600_000 } = {}) {
+export function createTransportServer({ host = '127.0.0.1', port = 4176, publicOrigin, staticFiles = {}, ttlMs = 600_000, pollWaitMs = 15_000, phoneLeaseMs = 45_000 } = {}) {
   if (publicOrigin && new URL(publicOrigin).origin !== publicOrigin) throw new Error('publicOrigin must be an origin without a path.');
   if (publicOrigin && new URL(publicOrigin).protocol !== 'https:' &&
       !['localhost', '127.0.0.1', '[::1]'].includes(new URL(publicOrigin).hostname)) throw new Error('A public phone origin must use HTTPS.');
   if (!Number.isInteger(ttlMs) || ttlMs < 100 || ttlMs > 600_000) throw new Error('Room expiry must be between 100 ms and 10 minutes.');
+  if (!Number.isInteger(pollWaitMs) || pollWaitMs < 10 || pollWaitMs > 15_000 ||
+      !Number.isInteger(phoneLeaseMs) || phoneLeaseMs <= pollWaitMs || phoneLeaseMs > 45_000) throw new Error('Phone polling must wait at most 15 seconds with a longer lease of at most 45 seconds.');
   const rooms = new Map();
   const emit = (peer, event) => {
     if (!peer) return;
     if (peer.events) {
       if (peer.events.writableLength > 140_000) throw reject(429, 'Signalling receiver is too slow.');
       peer.events.write(`data: ${JSON.stringify(event)}\n\n`);
+    } else if (peer.waiter) {
+      peer.waiter.respond([event]);
     } else {
       if (peer.queue.length >= 128) throw reject(429, 'Signalling queue is full.');
       peer.queue.push(event);
@@ -45,6 +49,8 @@ export function createTransportServer({ host = '127.0.0.1', port = 4176, publicO
     clearTimeout(room.timer);
     for (const peer of Object.values(room.peers)) {
       clearInterval(peer.heartbeat);
+      clearTimeout(peer.lease);
+      peer.waiter?.respond([{ type: 'closed', reason }]);
       if (peer.events) {
         peer.events.end(`data: ${JSON.stringify({ type: 'closed', reason })}\n\n`);
       }
@@ -67,7 +73,7 @@ export function createTransportServer({ host = '127.0.0.1', port = 4176, publicO
       if ((request.headers.origin && request.headers.origin !== origin && request.headers.origin !== localOrigin) ||
           request.headers['sec-fetch-site'] === 'cross-site') throw reject(403, 'Use the same-origin pairing page.');
       const url = new URL(request.url, localOrigin);
-      const assets = { '/': 'receiver.html', '/phone': 'phone.html', '/client.mjs': 'client.mjs', '/demo.mjs': 'demo.mjs' };
+      const assets = { '/': 'receiver.html', '/phone': 'phone.html', '/client.mjs': 'client.mjs', '/demo.mjs': 'demo.mjs', '/feedback.mjs': 'feedback.mjs' };
       if (request.method === 'GET' && Object.hasOwn(staticFiles, url.pathname)) {
         const asset = staticFiles[url.pathname];
         response.writeHead(200, { 'Content-Type': asset.contentType });
@@ -91,12 +97,17 @@ export function createTransportServer({ host = '127.0.0.1', port = 4176, publicO
         reply(201, { roomId: id, receiverInvite, senderInvite, expiresAt, publicOrigin: origin });
         return;
       }
-      const match = /^\/rooms\/([a-f0-9]{32})(?:\/(join|events|signal))?$/.exec(url.pathname);
+      const match = /^\/rooms\/([a-f0-9]{32})(?:\/(join|events|poll|signal))?$/.exec(url.pathname);
       if (!match) throw reject(404, 'Not found.');
       const [, id, action] = match;
       const room = rooms.get(id);
       if (!room || room.expiresAt <= Date.now()) throw reject(410, 'Pairing expired. Start a new session.');
       const auth = /^Bearer ([A-Za-z0-9_-]{43})$/.exec(request.headers.authorization ?? '')?.[1];
+      if (request.method === 'DELETE' && !action && same(auth, room.receiverInvite)) {
+        revoke(id);
+        reply(200, { stopped: true });
+        return;
+      }
       if (request.method === 'POST' && action === 'join') {
         const body = await jsonBody(request);
         const role = body?.role;
@@ -116,7 +127,7 @@ export function createTransportServer({ host = '127.0.0.1', port = 4176, publicO
         return;
       }
       if (request.method === 'GET' && action === 'events') {
-        if (peer.events) throw reject(409, 'An event stream is already open.');
+        if (peer.events || peer.waiter) throw reject(409, 'A signalling reader is already open.');
         response.writeHead(200, { 'Content-Type': 'text/event-stream', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });
         response.write(': connected\n\n');
         peer.events = response;
@@ -127,6 +138,26 @@ export function createTransportServer({ host = '127.0.0.1', port = 4176, publicO
         peer.heartbeat.unref();
         for (const item of peer.queue.splice(0)) emit(peer, item);
         response.on('close', () => { if (rooms.has(id)) revoke(id, 'peer-disconnected'); });
+        return;
+      }
+      if (request.method === 'GET' && action === 'poll') {
+        if (role !== 'sender') throw reject(403, 'Long polling is for the phone sender.');
+        if (peer.events || peer.waiter) throw reject(409, 'A signalling reader is already open.');
+        clearTimeout(peer.lease);
+        peer.lease = setTimeout(() => revoke(id, 'phone-disconnected'), phoneLeaseMs);
+        peer.lease.unref();
+        if (peer.queue.length) { reply(200, { events: peer.queue.splice(0) }); return; }
+        const waiter = { respond: events => {
+          if (peer.waiter !== waiter) return;
+          clearTimeout(waiter.timer); peer.waiter = null;
+          reply(200, { events });
+        } };
+        peer.waiter = waiter;
+        waiter.timer = setTimeout(() => waiter.respond([]), pollWaitMs);
+        waiter.timer.unref();
+        response.on('close', () => {
+          if (peer.waiter === waiter) { clearTimeout(waiter.timer); peer.waiter = null; }
+        });
         return;
       }
       if (request.method === 'POST' && action === 'signal') {

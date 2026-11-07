@@ -14,6 +14,7 @@ let poll;
 let releasePlayback;
 let coaching;
 let coachingSegments = [];
+const seenCues = new Set();
 let activeReport;
 let analysisRunning = false;
 let sessionCoachingAllowed = false;
@@ -35,7 +36,6 @@ function attachPlayback(report) {
   const trace = new Map(getMotionTrace(report).map((row) => [row.timestampMs, row]));
   let frameCallback;
   let displayedTime;
-  let displayedCue;
 
   function redraw(timestampMs) {
     const width = canvas.clientWidth;
@@ -60,17 +60,32 @@ function attachPlayback(report) {
       if (row?.hipAboveKneeLegLengths != null) metrics.push(`Hip above knee ${(row.hipAboveKneeLegLengths * 100).toFixed(1)}%`);
       element('frame-metrics').textContent = metrics.join(' · ');
     }
-    const marker = frame ? coachingSegmentAt(coachingSegments, timestampMs) : null;
-    const cue = marker?.observationIndices.map((index) => coaching?.observations[index]?.text).filter(Boolean).join(' ')
-      || (marker?.hasNextFocus ? coaching?.nextFocus.text : '');
-    const contextLabel = marker ? `${marker.repId} · Based on evidence at ${marker.evidenceTimestampsMs.join(', ')} ms` : '';
-    const displayKey = `${contextLabel}\n${cue}`;
-    if (displayKey !== displayedCue) {
-      displayedCue = displayKey;
-      element('cue').hidden = !cue;
-      element('cue').textContent = cue;
-      element('cue-context').hidden = !cue;
-      element('cue-context').textContent = contextLabel;
+    const marker = coachingSegmentAt(coachingSegments, timestampMs);
+    if (coaching && marker && !seenCues.has(marker.repId)) {
+      seenCues.add(marker.repId);
+      const text = marker.hasNextFocus ? coaching.nextFocus.text
+        : marker.observationIndices.map(index => coaching.observations[index]?.text).find(Boolean);
+      if (text) {
+        // Keep past cues. Moving out of a rep or rewinding never removes or repeats a card.
+        const compact = text.length <= 180 ? text : `${text.slice(0, 177).trimEnd()}…`;
+        const label = `AI · ${marker.repId} · evidence ${marker.evidenceTimestampsMs.join(', ')} ms`;
+        element('cue').textContent = compact;
+        element('cue-context').textContent = label;
+        const item = document.createElement('li');
+        const heading = document.createElement('strong'); heading.textContent = label;
+        const cueText = document.createElement('p'); cueText.textContent = compact;
+        const why = document.createElement('details');
+        const summary = document.createElement('summary'); summary.textContent = 'Why?';
+        const explanation = document.createElement('p');
+        explanation.textContent = marker.observationIndices.map(index => coaching.observations[index]?.text).filter(Boolean).join(' ');
+        why.append(summary, explanation);
+        for (const time of marker.evidenceTimestampsMs) {
+          const button = document.createElement('button'); button.textContent = `See ${time} ms`;
+          button.onclick = () => seekTo(time); why.append(button);
+        }
+        item.append(heading, cueText, why); element('cue-history').append(item);
+        while (element('cue-history').children.length > 12) element('cue-history').firstElementChild.remove();
+      }
     }
   }
 
@@ -167,8 +182,10 @@ element('analyze').onclick = async () => {
   element('clip').pause();
   element('phase').textContent = 'Measuring…';
   element('frame-metrics').textContent = '';
-  element('cue').hidden = true;
-  element('cue-context').hidden = true;
+  seenCues.clear(); element('cue-history').replaceChildren();
+  element('cue').hidden = false; element('cue-context').hidden = false;
+  element('cue').textContent = 'Measuring your squat…';
+  element('cue-context').textContent = 'Session guide';
   element('coaching-observations').replaceChildren();
   element('coaching-next-focus').textContent = '';
   element('coaching-uncertainty').textContent = '';
@@ -309,6 +326,9 @@ element('model').onchange = () => {
   interpretation = null;
   coaching = null;
   coachingSegments = [];
+  seenCues.clear(); element('cue-history').replaceChildren();
+  element('cue').textContent = 'Start to coach with the selected model.';
+  element('cue-context').textContent = 'Session guide';
   element('coaching-observations').replaceChildren();
   element('coaching-next-focus').textContent = '';
   element('coaching-uncertainty').textContent = '';

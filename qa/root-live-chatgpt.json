@@ -1,0 +1,43 @@
+{
+  "verifiedAtUtc": "2026-11-07T22:47:46.146Z",
+  "surface": "root product",
+  "fixture": "clear-squat.mp4",
+  "provider": "real ChatGPT",
+  "model": "gpt-6.1-sol",
+  "requestCount": 1,
+  "sourceImageTimestampsMs": [
+    1067,
+    3000
+  ],
+  "measurementIds": [
+    "rep-1-knee-flexion",
+    "rep-1-duration",
+    "rep-1-torso-lean",
+    "rep-2-knee-flexion",
+    "rep-2-duration",
+    "rep-2-torso-lean"
+  ],
+  "responseEvidenceIds": [
+    [
+      "rep-1-knee-flexion",
+      "rep-2-knee-flexion"
+    ],
+    [
+      "rep-1-torso-lean",
+      "rep-2-torso-lean",
+      "frame-1067ms",
+      "frame-3000ms"
+    ],
+    [
+      "rep-1-duration",
+      "rep-2-duration"
+    ]
+  ],
+  "checks": {
+    "oneStart": true,
+    "responseValidated": true,
+    "firstRepCueVisible": true,
+    "secondRepCueVisible": true,
+    "noExtraSeekRequests": true
+  }
+}

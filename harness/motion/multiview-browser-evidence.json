@@ -1,0 +1,172 @@
+{
+  "beforeConfidenceFix": {
+    "fixture": "clear-squat.mp4",
+    "declaredView": "side",
+    "width": 810,
+    "height": 1440,
+    "model": {
+      "id": "mediapipe-pose-landmarker-heavy",
+      "version": "1"
+    },
+    "counts": {
+      "rawFrames": 57,
+      "normalized": {
+        "points": 1881,
+        "visibility": 1881,
+        "presence": 1881
+      },
+      "world": {
+        "points": 1881,
+        "visibility": 1881,
+        "presence": 1881
+      }
+    },
+    "metrics": {
+      "leftKneeFlexion3d": {
+        "estimated": 57,
+        "unavailable": 0,
+        "reasons": {
+          "monocular_world_estimate": 57
+        }
+      },
+      "leftHipFlexion3d": {
+        "estimated": 57,
+        "unavailable": 0,
+        "reasons": {
+          "monocular_world_estimate": 57
+        }
+      },
+      "leftKneeMedialOffsetLegLengths": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      },
+      "leftKneeMedialOffsetHipSpans": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      },
+      "rightKneeFlexion3d": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "low_confidence": 57
+        }
+      },
+      "rightHipFlexion3d": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "low_confidence": 57
+        }
+      },
+      "rightKneeMedialOffsetLegLengths": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      },
+      "rightKneeMedialOffsetHipSpans": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      }
+    },
+    "browser": "154.0.8037.58",
+    "runAt": "2026-11-07T23:01:00.033Z",
+    "externalRequestCount": 0,
+    "scope": "Actual pinned Heavy SDK outputs; formula availability only, not joint-angle accuracy or front/oblique validation. No raw landmarks retained."
+  },
+  "afterConfidenceFix": {
+    "fixture": "clear-squat.mp4",
+    "declaredView": "side",
+    "width": 810,
+    "height": 1440,
+    "model": {
+      "id": "mediapipe-pose-landmarker-heavy",
+      "version": "1"
+    },
+    "counts": {
+      "rawFrames": 57,
+      "normalized": {
+        "points": 1881,
+        "visibility": 1881,
+        "presence": 1881
+      },
+      "world": {
+        "points": 1881,
+        "visibility": 1881,
+        "presence": 1881
+      }
+    },
+    "metrics": {
+      "leftKneeFlexion3d": {
+        "estimated": 57,
+        "unavailable": 0,
+        "reasons": {
+          "monocular_world_estimate": 57
+        }
+      },
+      "leftHipFlexion3d": {
+        "estimated": 57,
+        "unavailable": 0,
+        "reasons": {
+          "monocular_world_estimate": 57
+        }
+      },
+      "leftKneeMedialOffsetLegLengths": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      },
+      "leftKneeMedialOffsetHipSpans": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      },
+      "rightKneeFlexion3d": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "low_confidence": 57
+        }
+      },
+      "rightHipFlexion3d": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "low_confidence": 57
+        }
+      },
+      "rightKneeMedialOffsetLegLengths": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      },
+      "rightKneeMedialOffsetHipSpans": {
+        "estimated": 0,
+        "unavailable": 57,
+        "reasons": {
+          "front_view_required": 57
+        }
+      }
+    },
+    "browser": "154.0.8037.58",
+    "runAt": "2026-11-07T23:01:52.906Z",
+    "externalRequestCount": 0,
+    "scope": "Actual pinned Heavy SDK outputs; formula availability only, not joint-angle accuracy or front/oblique validation. No raw landmarks retained."
+  }
+}
