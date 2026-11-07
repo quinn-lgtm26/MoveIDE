@@ -2,6 +2,10 @@
 
 MoveIDE is a free, open-source workbench for human movement. The hackathon build starts with a side-view squat clip. The plan is to measure movement locally, show the frames behind each measurement, and let the user choose an AI model to interpret the evidence.
 
+## Development status
+
+Open [workflow.html](workflow.html) for the development workflow, story status, verification results, and remaining frontend integration. Download the HTML and open it in a browser to use its tabs. The [harness guide](harness/README.md) documents the verified Heavy analysis and OpenCap import APIs; [frontend amendments](harness/FRONTEND-HANDOFF.md) describe the pending product pickup.
+
 ## Build handoff
 
 - Read the [epics and stories](_bmad-output/specs/epics.md) for the frontend and backend workstreams.
