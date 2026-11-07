@@ -107,6 +107,24 @@
         .stage { height: auto; aspect-ratio: 3 / 4; } aside { padding: 16px; }
         select { font-size: 16px; } .source-nav a { min-height: 44px; } button, .button { min-height: 44px; }
       }
+      .recordings-comparison { margin-top: 24px; }
+      .recording-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 18px 0; }
+      .recording-card { min-width: 0; border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: var(--panel); }
+      .recording-card h3 { font-size: 14px; font-weight: 600; margin: 0; }
+      .recording-card .toolbar { justify-content: space-between; margin-bottom: 12px; }
+      .recording-card label { font-size: 12px; color: var(--muted); }
+      .recording-stage { height: 420px; min-height: 0; }
+      .recordings-comparison table { width: 100%; font-size: 13px; }
+      .recordings-comparison th { text-align: left; }
+      .recordings-comparison td, .recordings-comparison th { padding: 10px 6px; border-bottom: 1px solid var(--line); }
+      .recordings-comparison details { margin-top: 16px; overflow-wrap: anywhere; }
+      .recordings-comparison summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+      @media (max-width: 650px) {
+        .recording-pair { grid-template-columns: 1fr; }
+        .recording-stage { height: 380px; }
+        .recordings-comparison table { font-size: 11px; }
+        .recordings-comparison td, .recordings-comparison th { padding: 8px 3px; }
+      }
     </style>
   </head>
   <body>

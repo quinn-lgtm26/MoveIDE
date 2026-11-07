@@ -22,7 +22,7 @@ New source/session/model invalidates pending work and clears the applicable hist
 
 Phone video arrives over the existing WebRTC transport and enters the same Heavy controller. Local cues and AI text return through the bounded data-channel messages. Phone sender uses authenticated JSON long polling for temporary HTTPS tunnels; the private laptop receiver uses its local connection/proxy. Only dedicated4176 is exposed; the credential-bearing provider on4173 remains loopback-only. QR generation is local and pairing invitations must not enter logs or external QR services.
 
-Two-context browser checks passed, including return feedback and cleanup. The public HTTPS test passed video, Heavy and local return feedback but timed out waiting for a returned AI caption. The failure is traced to WebRTC resolution adaptation aborting the analysis session and real AI request, not sign-in. Recovery passed local real-Heavy browser tests; the public AI-return path remains unresolved until a complete rerun passes. Physical iPhone/venue behavior has not been verified.
+Public HTTPS, real WebRTC, Heavy and returned real ChatGPT captions passed across two Chrome contexts after adaptive-resolution recovery. One request carried three phase images and returned in 10.209 seconds; its original-view historical card remained valid. See [phone evidence](qa/phone-https.json). This used a fixture-backed synthetic camera; physical iPhone/venue behavior remains unverified.
 
 ## Viewpoints, experimental metrics and motion evidence
 
@@ -30,14 +30,14 @@ Green means a disclosed goal met with usable evidence; amber means a supported s
 
 The requested orbiting-camera feature requires identity/left-right continuity, bounded filter delay, per-metric view validity and baseline reacquisition. `createViewGuard` is integrated into the live per-metric validity/epoch path and passed combined browser checks; it remains an experimental image-continuity heuristic. `analyzeMultiViewFrame` returns experimental estimates/projection reasons; it does not modify AnalysisReport v1. Estimated world-XYZ knee/hip angles and front-only medial offsets are not calibrated 3D or clinical valgus. Preserve nulls and uncertainty; never infer arbitrary-angle accuracy from33 landmarks.
 
-Current real-provider evidence uses bottom JPEGs and bounded report measurements. The new `buildLiveCoachBundle` helper adds selected cached descent/bottom/ascent images and measured phase samples within the existing v1 contract; three focused tests and live cache/browser wiring passed, with five controlled-provider requests carrying three phase JPEGs each; real-provider phase interpretation remains pending. Direction, sequencing or knee-path claims still require adequate temporal evidence; bottom stills alone do not prove whole motion. Keep phase images exact and bounded, and do not describe this as full-video upload.
+Current real-provider evidence uses bottom JPEGs and bounded report measurements. The new `buildLiveCoachBundle` helper adds selected cached descent/bottom/ascent images and measured phase samples within the existing v1 contract; four focused tests and live cache/browser wiring passed, with five controlled-provider requests carrying three phase JPEGs each. The public real-provider request also returned validated interpretation from three phase images. Direction, sequencing or knee-path claims still require adequate temporal evidence; bottom stills alone do not prove whole motion. Keep phase images exact and bounded, and do not describe this as full-video upload.
 
 ## Evidence and remaining gates
 
 - Real Heavy + real ChatGPT passed smoke and [root](qa/root-live-chatgpt.json), with one request and source images1067/3000 ms; root replay showed both rep cues without extra requests.
-- Smoke stacked playback passed its controlled-provider check. Live stacked feed passed a two-card local-camera browser check. Root's designed feed adoption remains work.
+- Smoke stacked playback passed its controlled-provider check. Live stacked feed passed a two-card local-camera browser check. Root's designed retained feed passed fifteen production-preview checks and a user-visible real-provider demo on 9446951.
 - [Root readiness](qa/product-readiness.json) has20 passing local checks on its recorded build; [archived evidence](qa/product-readiness.md) keeps the old preview/copy result separate.
-- Physical phone, public resolution-adaptation/AI-return recovery, independent cross-view/orbit accuracy and both final Wren workflows remain distinct gates. No historical test should be relabeled as those results.
+- Physical phone, independent cross-view/orbit accuracy and both final Wren workflows remain distinct gates. No historical test should be relabeled as those results.
 
 Root retained-feed integration now passes fifteen controlled-provider development checks: short cards, delayed rep ordering, expanded reasons/limits/citations, Stop/reset, replay deduplication and source races. Per-rep accessible labels are preserved. Earlier built readiness and real-provider passes remain scoped to their recorded builds.
 
@@ -45,4 +45,8 @@ Root retained-feed integration now passes fifteen controlled-provider developmen
 
 A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
 
-Final automated suite checkpoint: `npm test` passed86 harness tests and4 launcher tests with no failures, cancellations or skips. Public real-provider, physical-device and independent-accuracy acceptance remain separate.
+Final automated suite checkpoint: `npm test` passed86 harness tests and4 launcher tests with no failures, cancellations or skips. Public real-provider return now passes; physical-device and independent-accuracy acceptance remain separate.
+
+## Two independent recordings
+
+**Compare examples** is a local comparison action using the same selected pose model for both attributed recordings. It retains separate source hashes, reports, rep IDs and media clocks. Compare bottoms seeks each selected rep to its own bottom. It does not dispatch an AI request or label one person good/bad. See the [comparison amendment](docs/two-recording-comparison-amendment.md) and shared `compareRecordings` API. Normal single-recording Start continues to orchestrate connected AI automatically.

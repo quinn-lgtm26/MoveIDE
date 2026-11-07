@@ -88,6 +88,9 @@ export async function seekVideo(video, seconds, signal) {
 // which can precede the requested time when it lies between source frames.
 // Safari often skips the callback for a paused, off-screen video, so after the
 // seek completes fall back to currentTime instead of failing the clip.
+// That fallback is the requested seek position, NOT a decoded-frame presentation
+// timestamp. It may repeat source pixels at different times; do not claim frame-
+// exact timing or deduplication on browsers taking this compatibility path.
 const silentFrameCallbacks = new WeakSet()
 
 export async function seekVideoFrame(video, seconds, signal) {
@@ -107,11 +110,13 @@ export async function seekVideoFrame(video, seconds, signal) {
   displayed.catch(() => {})
   try {
     await seekVideo(video, seconds, signal)
+    checkSignal(signal)
     if (presentedMs === undefined && token !== undefined && !silentFrameCallbacks.has(video)) {
       // ponytail: fixed 250 ms grace, once per video; Chrome normally fires well inside it.
       await Promise.race([displayed, new Promise(resolve => { timer = setTimeout(resolve, 250) })])
       if (presentedMs === undefined) silentFrameCallbacks.add(video)
     }
+    checkSignal(signal)
     return presentedMs ?? Math.round(video.currentTime * 1000)
   } finally {
     clearTimeout(timer)

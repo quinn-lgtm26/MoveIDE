@@ -1,15 +1,19 @@
 import { request as httpRequest } from 'node:http';
 import { Transform } from 'node:stream';
 
-const UPSTREAM = 'http://127.0.0.1:4176';
+const DEFAULT_UPSTREAM = 'http://127.0.0.1:4176';
 const MAX_BODY = 70_000;
 const LOCAL_PEERS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 
 /** Mount on the private local receiver server. Never mount the provider on the public phone server. */
-export function createReceiverProxy({ origin } = {}) {
+export function createReceiverProxy({ origin, upstreamOrigin = DEFAULT_UPSTREAM } = {}) {
   const local = new URL(origin);
   if (local.origin !== origin || local.protocol !== 'http:' || local.hostname !== '127.0.0.1') {
     throw new Error('Receiver origin must be an exact http://127.0.0.1:PORT origin.');
+  }
+  const target = new URL(upstreamOrigin);
+  if (target.origin !== upstreamOrigin || target.protocol !== 'http:' || target.hostname !== '127.0.0.1' || !target.port || Number(target.port) <= 0) {
+    throw new Error('Upstream must be an exact http://127.0.0.1:PORT origin.');
   }
   return function receiverProxy(request, response, next) {
     const path = request.url ?? '';
@@ -36,7 +40,7 @@ export function createReceiverProxy({ origin } = {}) {
     if (!Number.isSafeInteger(declaredLength) || declaredLength < 0 || declaredLength > MAX_BODY) {
       reply(413, 'Signalling message is too large.'); return;
     }
-    const headers = { Host: new URL(UPSTREAM).host, Origin: UPSTREAM, 'Sec-Fetch-Site': 'same-origin' };
+    const headers = { Host: target.host, Origin: upstreamOrigin, 'Sec-Fetch-Site': 'same-origin' };
     // Deliberately do not forward cookies, proxy headers, OAuth data or arbitrary destinations.
     for (const name of ['authorization', 'content-type', 'content-length']) {
       if (request.headers[name] !== undefined) headers[name] = request.headers[name];
@@ -48,7 +52,7 @@ export function createReceiverProxy({ origin } = {}) {
         callback(receivedBytes > MAX_BODY ? new Error('body-limit') : null, chunk);
       },
     });
-    const upstream = httpRequest(`${UPSTREAM}${path}`, { method: request.method, headers, agent: false }, remote => {
+    const upstream = httpRequest(`${upstreamOrigin}${path}`, { method: request.method, headers, agent: false }, remote => {
       upstreamResponse = remote;
       upstream.setTimeout(route[2] === 'events' ? 30_000 : 10_000);
       const responseHeaders = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { access } from 'node:fs/promises';
+import { installCancellationSignals } from './start-demo-signals.mjs';
+import { readFile, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { connect } from 'node:net';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -60,15 +62,48 @@ export function createSupervisor() {
   return { start, stop };
 }
 
-async function missingDependencies() {
+function declaredEntries(installed, name) {
+  const entries = new Set();
+  const add = value => {
+    if (typeof value === 'string' && value.trim() && !value.includes('*')) entries.add(value);
+    else if (value && typeof value === 'object') Object.values(value).forEach(add);
+  };
+  for (const field of ['main', 'module', 'types', 'typings', 'bin']) add(installed[field]);
+  // Browser replacements may disable imports with false; only file replacements are required.
+  if (typeof installed.browser === 'string') add(installed.browser);
+  else if (installed.browser) Object.values(installed.browser).filter(value => typeof value === 'string' && value.startsWith('.')).forEach(add);
+  const rootExport = installed.exports?.['.'] ?? (installed.exports && !Object.keys(installed.exports).some(key => key.startsWith('.')) ? installed.exports : null);
+  add(rootExport);
+  if (name === '@mediapipe/tasks-vision') {
+    for (const file of ['vision_wasm_internal.js', 'vision_wasm_internal.wasm', 'vision_wasm_module_internal.js', 'vision_wasm_module_internal.wasm']) entries.add(`wasm/${file}`);
+  }
+  return [...entries];
+}
+
+/** Read-only repair detection: missing/stale direct deps or entry files require locked npm ci. */
+export async function missingDependencies(root = ROOT) {
   const groups = [
-    { name: 'app', args: ['ci'], paths: ['node_modules/vite/bin/vite.js', 'node_modules/typescript/bin/tsc', 'node_modules/react/package.json'] },
-    { name: 'harness', args: ['--prefix', 'harness', 'ci'], paths: ['harness/node_modules/jose/package.json', 'harness/node_modules/qrcode/package.json', 'harness/node_modules/@mediapipe/tasks-vision/package.json'] },
+    { name: 'app', args: ['ci'], directory: root },
+    { name: 'harness', args: ['--prefix', 'harness', 'ci'], directory: join(root, 'harness') },
   ];
   const missing = [];
-  for (const group of groups) {
-    try { await Promise.all(group.paths.map(path => access(`${ROOT}${path}`))); }
-    catch { missing.push(group); }
+  for (const { directory, ...group } of groups) {
+    try {
+      const [manifest, lock] = await Promise.all(['package.json', 'package-lock.json'].map(async file => JSON.parse(await readFile(join(directory, file), 'utf8'))));
+      if (!lock.packages || !Object.hasOwn(lock.packages, '')) throw new Error('A package lock with direct dependency metadata is required.');
+      const expected = { ...manifest.dependencies, ...manifest.devDependencies };
+      const declared = { ...lock.packages?.['']?.dependencies, ...lock.packages?.['']?.devDependencies };
+      if (Object.keys(expected).length !== Object.keys(declared).length || Object.entries(expected).some(([name, spec]) => declared[name] !== spec)) throw new Error('Manifest and lockfile differ.');
+      await Promise.all(Object.keys(expected).map(async name => {
+        const lockedVersion = lock.packages?.[`node_modules/${name}`]?.version;
+        const folder = join(directory, 'node_modules', name);
+        const installed = JSON.parse(await readFile(join(folder, 'package.json'), 'utf8'));
+        if (typeof lockedVersion !== 'string' || installed.name !== name || installed.version !== lockedVersion) throw new Error('Installed dependency differs from lockfile.');
+        await Promise.all(declaredEntries(installed, name).map(async file => {
+          if (!(await stat(join(folder, file))).isFile()) throw new Error('Dependency entry point is missing.');
+        }));
+      }));
+    } catch { missing.push(group); }
   }
   return missing;
 }
@@ -107,7 +142,7 @@ export async function main(args = process.argv.slice(2)) {
   const unknown = args.filter(arg => !['--phone', '--check', '--setup-only', '--help'].includes(arg));
   if (unknown.length) throw new Error('Usage: npm run demo -- [--phone] [--check] [--setup-only]');
   if (args.includes('--help')) {
-    console.log('npm run demo -- [--phone] [--check] [--setup-only]\nDefault: install missing locked dependencies, prepare pinned model assets, build and start.\n--phone: temporary HTTPS tunnel for phone pairing service only\n--check: check prerequisites and ports without installing or starting services\n--setup-only: install dependencies and verify model assets without starting services');
+    console.log('npm run demo -- [--phone] [--check] [--setup-only]\nDefault: install missing or stale locked dependencies, prepare pinned model assets, build and start.\n--phone: temporary HTTPS tunnel for phone pairing service only\n--check: check prerequisites and ports without installing or starting services\n--setup-only: install dependencies and verify model assets without starting services');
     return;
   }
   const [major, minor] = process.versions.node.split('.').map(Number);
@@ -117,10 +152,7 @@ export async function main(args = process.argv.slice(2)) {
   const supervisor = createSupervisor();
   const controller = new AbortController();
   let interrupted = false;
-  const cancel = () => { interrupted = true; controller.abort(new Error('Startup canceled.')); };
-  // npm and the terminal can both forward the same interrupt. Keep the handler
-  // installed through cleanup so a second signal cannot strand detached children.
-  process.on('SIGINT', cancel); process.on('SIGTERM', cancel);
+  const disposeSignals = installCancellationSignals(controller, () => { interrupted = true; });
   const { signal } = controller;
   const childEnvironment = { ...process.env, CI: '1' };
   // The dedicated transport/tunnel do not inherit provider flags or arbitrary credential env vars.
@@ -143,7 +175,7 @@ export async function main(args = process.argv.slice(2)) {
   try {
     if (!args.includes('--setup-only')) await Promise.all([assertPortFree(4173), assertPortFree(4176)]);
     const missing = await missingDependencies();
-    if (args.includes('--check') && missing.length) throw new Error('Dependencies are missing. Run npm run demo to install locked versions and prepare the models automatically.');
+    if (args.includes('--check') && missing.length) throw new Error('Dependencies are missing or differ from the lockfiles. Run npm run demo to install locked versions and prepare the models automatically.');
     if (!args.includes('--check')) for (const group of missing) {
       console.log(`Installing locked ${group.name} dependencies…`);
       await run('npm', group.args, `${group.name} dependency installation`);
@@ -203,7 +235,7 @@ export async function main(args = process.argv.slice(2)) {
     if (!interrupted) throw error;
   } finally {
     await supervisor.stop();
-    process.removeListener('SIGINT', cancel); process.removeListener('SIGTERM', cancel);
+    disposeSignals();
   }
 }
 

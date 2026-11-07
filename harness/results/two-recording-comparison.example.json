@@ -1,0 +1,639 @@
+{
+  "scope": "Deterministic example from two different existing fixture files and saved Heavy reports. No new inference. Imported report/video associations are caller-supplied, not restored live bindings. Neither clip is a gold-standard good/bad label.",
+  "fixtures": [
+    "fixtures/squat/clear-squat.mp4",
+    "fixtures/squat/supported-squat.mp4"
+  ],
+  "comparison": {
+    "schemaVersion": 1,
+    "metricDefinitionVersion": "squat-side-profile-1",
+    "deltaDirection": "b_minus_a",
+    "sources": [
+      {
+        "slot": "a",
+        "clipId": "clear-squat",
+        "repId": "rep-1",
+        "startMs": 333,
+        "bottomMs": 1067,
+        "endMs": 1733,
+        "anchors": {
+          "start": {
+            "sourceSlot": "a",
+            "clipId": "clear-squat",
+            "repId": "rep-1",
+            "frameId": "frame-333ms",
+            "timestampMs": 333,
+            "phase": "start"
+          },
+          "bottom": {
+            "sourceSlot": "a",
+            "clipId": "clear-squat",
+            "repId": "rep-1",
+            "frameId": "frame-1067ms",
+            "timestampMs": 1067,
+            "phase": "bottom"
+          },
+          "end": {
+            "sourceSlot": "a",
+            "clipId": "clear-squat",
+            "repId": "rep-1",
+            "frameId": "frame-1733ms",
+            "timestampMs": 1733,
+            "phase": "end"
+          }
+        },
+        "protocol": {
+          "id": "squat-side",
+          "version": "1.0.0",
+          "side": "left"
+        },
+        "poseModel": {
+          "id": "mediapipe-pose-landmarker-heavy",
+          "version": "1"
+        },
+        "sourceBinding": "unverified-import",
+        "sourceSha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+        "selectionReason": null,
+        "clip": {
+          "id": "clear-squat",
+          "widthPx": 810,
+          "heightPx": 1440,
+          "durationMs": 3800
+        },
+        "warnings": []
+      },
+      {
+        "slot": "b",
+        "clipId": "supported-squat",
+        "repId": "rep-1",
+        "startMs": 600,
+        "bottomMs": 1600,
+        "endMs": 2400,
+        "anchors": {
+          "start": {
+            "sourceSlot": "b",
+            "clipId": "supported-squat",
+            "repId": "rep-1",
+            "frameId": "frame-600ms",
+            "timestampMs": 600,
+            "phase": "start"
+          },
+          "bottom": {
+            "sourceSlot": "b",
+            "clipId": "supported-squat",
+            "repId": "rep-1",
+            "frameId": "frame-1600ms",
+            "timestampMs": 1600,
+            "phase": "bottom"
+          },
+          "end": {
+            "sourceSlot": "b",
+            "clipId": "supported-squat",
+            "repId": "rep-1",
+            "frameId": "frame-2400ms",
+            "timestampMs": 2400,
+            "phase": "end"
+          }
+        },
+        "protocol": {
+          "id": "squat-side",
+          "version": "1.0.0",
+          "side": "left"
+        },
+        "poseModel": {
+          "id": "mediapipe-pose-landmarker-heavy",
+          "version": "1"
+        },
+        "sourceBinding": "unverified-import",
+        "sourceSha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+        "selectionReason": null,
+        "clip": {
+          "id": "supported-squat",
+          "widthPx": 540,
+          "heightPx": 960,
+          "durationMs": 6000
+        },
+        "warnings": []
+      }
+    ],
+    "eligibility": {
+      "comparable": true,
+      "reason": null,
+      "sameProtocol": true,
+      "sameModel": true,
+      "distinctSources": true,
+      "identityEvidence": "different_supplied_sha256"
+    },
+    "metrics": [
+      {
+        "key": "kneeFlexionDeg",
+        "label": "Knee flexion at bottom",
+        "unit": "deg",
+        "a": {
+          "value": 117.37974675692203,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 98.90833537525161,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": -18.47141138167042,
+        "reason": null
+      },
+      {
+        "key": "hipFlexionDeg",
+        "label": "Hip flexion at bottom",
+        "unit": "deg",
+        "a": {
+          "value": 137.36591449031087,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 108.96851177927338,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": -28.397402711037486,
+        "reason": null
+      },
+      {
+        "key": "torsoLeanDeg",
+        "label": "Torso lean at bottom",
+        "unit": "deg",
+        "a": {
+          "value": 41.067443534064424,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 40.569606472370765,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": -0.4978370616936587,
+        "reason": null
+      },
+      {
+        "key": "shinInclinationDeg",
+        "label": "Shin inclination at bottom",
+        "unit": "deg",
+        "a": {
+          "value": 21.08127580067558,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 30.50943006834899,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": 9.42815426767341,
+        "reason": null
+      },
+      {
+        "key": "ankleClosureChangeDeg",
+        "label": "Ankle closure change",
+        "unit": "deg",
+        "a": {
+          "value": 18.178451139872323,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-333ms",
+              "timestampMs": 333,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 18.291252018169402,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-600ms",
+              "timestampMs": 600,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": 0.11280087829707952,
+        "reason": null
+      },
+      {
+        "key": "hipDescentLegLengths",
+        "label": "Hip descent from start",
+        "unit": "leg_lengths",
+        "a": {
+          "value": 0.5746713495046674,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-333ms",
+              "timestampMs": 333,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 0.3851985968914528,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-600ms",
+              "timestampMs": 600,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": -0.18947275261321456,
+        "reason": null
+      },
+      {
+        "key": "hipAboveKneeLegLengths",
+        "label": "Hip above knee at bottom",
+        "unit": "leg_lengths",
+        "a": {
+          "value": -0.05355929377456401,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-333ms",
+              "timestampMs": 333,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 0.1629500069170091,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-600ms",
+              "timestampMs": 600,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": 0.2165093006915731,
+        "reason": null
+      },
+      {
+        "key": "descentMs",
+        "label": "Descent duration",
+        "unit": "ms",
+        "a": {
+          "value": 734,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-333ms",
+              "timestampMs": 333,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "b": {
+          "value": 1000,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-600ms",
+              "timestampMs": 600,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            }
+          ]
+        },
+        "delta": 266,
+        "reason": null
+      },
+      {
+        "key": "ascentMs",
+        "label": "Ascent duration",
+        "unit": "ms",
+        "a": {
+          "value": 666,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1733ms",
+              "timestampMs": 1733,
+              "phase": "end"
+            }
+          ]
+        },
+        "b": {
+          "value": 800,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-2400ms",
+              "timestampMs": 2400,
+              "phase": "end"
+            }
+          ]
+        },
+        "delta": 134,
+        "reason": null
+      },
+      {
+        "key": "repDurationMs",
+        "label": "Complete rep duration",
+        "unit": "ms",
+        "a": {
+          "value": 1400,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1067,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-333ms",
+              "timestampMs": 333,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1067ms",
+              "timestampMs": 1067,
+              "phase": "bottom"
+            },
+            {
+              "sourceSlot": "a",
+              "clipId": "clear-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1733ms",
+              "timestampMs": 1733,
+              "phase": "end"
+            }
+          ]
+        },
+        "b": {
+          "value": 1800,
+          "status": "available",
+          "reason": null,
+          "evidenceTimestampMs": 1600,
+          "evidenceRefs": [
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-600ms",
+              "timestampMs": 600,
+              "phase": "start"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-1600ms",
+              "timestampMs": 1600,
+              "phase": "bottom"
+            },
+            {
+              "sourceSlot": "b",
+              "clipId": "supported-squat",
+              "repId": "rep-1",
+              "frameId": "frame-2400ms",
+              "timestampMs": 2400,
+              "phase": "end"
+            }
+          ]
+        },
+        "delta": 400,
+        "reason": null
+      }
+    ],
+    "cautions": [
+      "Descriptive differences between recordings, not good/bad form scores or reference-angle accuracy.",
+      "Projected angles and normalized distances depend on camera view, anatomy and capture conditions.",
+      "Evidence preserves exact report sample timestamps; decoder compatibility fallbacks may approximate the actual source-frame presentation time.",
+      "Imported report/video associations are caller-supplied and unverified; JSON does not retain live source bindings.",
+      "SHA-256 digests are supplied by the caller and must be computed from the corresponding analyzed source bytes."
+    ]
+  }
+}

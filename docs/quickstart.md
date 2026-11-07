@@ -6,13 +6,13 @@ From the repository on your Mac:
 npm run demo
 ```
 
-The launcher checks Node and ports, installs missing locked dependencies, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Start coached squat** for a recording, or **Live coached squat** for a camera session. The default command opens no public tunnel.
+The launcher checks Node and ports, installs missing or version-mismatched locked dependencies, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Start coached squat** for a recording, or **Live coached squat** for a camera session. The default command opens no public tunnel.
 
 Keep that terminal open. **Ctrl+C** stops only child processes started by the launcher. If a port is occupied, startup stops with a clear message; it never kills an existing app or test process.
 
 ## First run
 
-Use Node.js 22.18 or newer. Run `npm run demo`, or double-click **Start MoveIDE.command** on macOS. Missing app/harness dependencies are installed with `npm ci`; model and WASM files are downloaded and checked against the pinned manifest. Large model binaries stay out of GitHub. Each computer running the analysis app prepares its own local assets. The iPhone sender does not install MediaPipe or download the Heavy model: it sends camera video to the Mac, where analysis runs.
+Use Node.js 22.18 or newer. Run `npm run demo`, or double-click **Start MoveIDE.command** on macOS. Missing or version-mismatched app/harness dependencies are installed with `npm ci`; model and WASM files are downloaded and checked against the pinned manifest. Large model binaries stay out of GitHub. Each computer running the analysis app prepares its own local assets. The iPhone sender does not install MediaPipe or download the Heavy model: it sends camera video to the Mac, where analysis runs.
 
 To prepare a fresh checkout without starting services:
 
@@ -71,3 +71,9 @@ A fresh detached checkout of `9446951` with no installed dependencies or generat
 The public HTTPS phone workflow passed real WebRTC video, Heavy analysis and returned **real ChatGPT** coaching across two Chrome contexts, using a fixture-backed synthetic camera. One request carried three phase images; the response returned in10.209 seconds and appeared as a historical review after adaptive resolution changed. This is not a physical iPhone test or a latency guarantee. [Phone evidence](../qa/phone-https.json). Production root checks on `c1c9378` passed15 controlled-provider lifecycle checks,7 real-provider checks and20 readiness checks; subsequent UI changes require their own affected-gate rerun. Physical iPhone/venue rehearsal, independent angle/orbit accuracy and the final two Wren workflows remain separate gates.
 
 Latest designed root checkpoint (`9446951`): [15 production-preview checks](../qa/root-one-start.json) pass. The [user-visible demo](../qa/user-visible-demo.json) also ran real Heavy (57/57 tracked samples, two reps) and real GPT-6.1 Sol, showing two retained short cards with Why collapsed. Fresh setup and built asset hashes pass on the same revision. The earlier seven-check real-provider and twenty-check readiness records retain their exact `c1c9378` scope.
+
+## Compare the two included recordings
+
+On the recorded page choose **Compare examples**. Both videos run through the selected Heavy/Full model locally. Use **Compare bottoms** or choose each recording’s rep to inspect corresponding phases. The three primary measurements have expandable detail; the recordings keep separate source clocks and hashes. This action does not send an AI request or declare either person’s technique good/bad. **Start coached squat** returns to the integrated single-recording AI workflow.
+
+If Safari reported “did not present the requested video frame,” update to include `6c1bae0` or later: that was a decoder callback problem, not a missing model. Its fallback uses the seeked media time when Safari omits the decoded-frame callback. Physical iPhone and HEVC decoder coverage remain separate.

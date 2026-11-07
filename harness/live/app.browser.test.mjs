@@ -3,7 +3,27 @@ import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { createTransportServer } from './transport/server.mjs';
 import { createReceiverProxy } from './transport/receiver-proxy.mjs';
-const server = await createServer({ configFile: new URL('../vite.config.mjs', import.meta.url).pathname, server: { host: '127.0.0.1', port: 0, strictPort: false, watch: null }, plugins: [{ name: 'integrated-receiver-test', configureServer(vite) { let proxy; vite.middlewares.use((request, response, next) => { proxy ??= createReceiverProxy({ origin: `http://127.0.0.1:${vite.httpServer.address().port}` }); proxy(request, response, next); }); } }] });
+let testTransportOrigin = null;
+const server = await createServer({
+  configFile: new URL('../vite.config.mjs', import.meta.url).pathname,
+  server: { host: '127.0.0.1', port: 0, strictPort: false, watch: null },
+  plugins: [{
+    name: 'integrated-receiver-test', enforce: 'pre',
+    configureServer(vite) {
+      let proxy, proxiedOrigin;
+      // Intercept before the production proxy. Never fall through to a running user demo.
+      vite.middlewares.use((request, response, next) => {
+        if (!/^\/rooms(?:\/|\?|$)/.test(request.url ?? '')) return next();
+        if (!testTransportOrigin) { response.writeHead(503, { 'Content-Type': 'application/json' }); response.end(JSON.stringify({ error: 'Isolated test transport is not running.' })); return; }
+        if (proxiedOrigin !== testTransportOrigin) {
+          proxy = createReceiverProxy({ origin: `http://127.0.0.1:${vite.httpServer.address().port}`, upstreamOrigin: testTransportOrigin });
+          proxiedOrigin = testTransportOrigin;
+        }
+        proxy(request, response, next);
+      });
+    },
+  }],
+});
 let browser, transport;
 try {
   await server.listen();
@@ -86,22 +106,22 @@ try {
     console.log(JSON.stringify({ result: 'passed', localOnly: true, aiRequests: sends.length, stackedCards: cards, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, threePhaseJpegs: true, preservedOnStop: true, resetOnNewSession: true, stalePoseCleared: true, tracksStopped: true }));
   } else {
   const localRequests = sends.length;
-  // Real dedicated signalling + fixed local receiver proxy; no physical camera or external tunnel.
-  transport = createTransportServer({ port: 4176 });
-  await transport.listen();
+  // Real dedicated signalling + isolated ephemeral receiver proxy; no physical camera or external tunnel.
+  transport = createTransportServer({ port: 0 });
+  testTransportOrigin = await transport.listen();
   await page.locator('#source').selectOption('phone');
   await page.locator('#start').click();
   await page.locator('#phone-setup').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#start').isEnabled(), true);
   assert.equal(await page.locator('#phone-url').inputValue(), '');
-  await transport.close(); transport = null;
+  await transport.close(); transport = null; testTransportOrigin = null;
 
   // A reserved HTTPS label exercises UI configuration; actual test sender uses local HTTP.
   // This deliberately makes no claim about trusted iPhone HTTPS or physical Wi-Fi performance.
-  transport = createTransportServer({ port: 4176, publicOrigin: 'https://phone.moveide.test', staticFiles: {
+  transport = createTransportServer({ port: 0, publicOrigin: 'https://phone.moveide.test', staticFiles: {
     '/sample.mp4': { path: new URL('../../fixtures/squat/clear-squat.mp4', import.meta.url).pathname, contentType: 'video/mp4' },
   } });
-  const transportOrigin = await transport.listen();
+  const transportOrigin = await transport.listen(); testTransportOrigin = transportOrigin;
   await page.setViewportSize({ width: 1400, height: 1100 });
   await page.locator('#start').click();
   await page.waitForFunction(() => document.querySelector('#phone-url').value.startsWith('https://'));

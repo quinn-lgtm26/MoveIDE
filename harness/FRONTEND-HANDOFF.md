@@ -81,3 +81,9 @@ After `npm ci`, `npm --prefix harness ci`, and `npm run build`, run `node harnes
 - Chrome must show a real knee angle on the selected source frame, a letterbox-correct skeleton, and a playback gap when evidence is missing. Check playback, paused stepping, seek, resize and an invalid upload.
 - Compare two reps, preview both timestamped JPEGs and copy the approved handoff with the provider disconnected.
 - When the integrated workbench build is ready and reachable, run the two existing product Seldon cases against that exact build. Hold the remaining 14 simulations until that point. [Seldon ledger](../qa/seldon-ledger.md)
+
+## Latest two-recording and setup bundle
+
+The root `Compare examples` action now consumes `motion/compare-recordings.mjs` with two independently analyzed, byte-hashed sources. Reuse its `.d.mts` contract rather than joining reports by `rep-1` or a shared timestamp. Values and evidence refs retain source slot, clip ID, selected rep and phase; unavailable/incompatible differences stay null. See [comparison UX amendment](../docs/two-recording-comparison-amendment.md) and [saved fixture example](results/two-recording-comparison.example.json). Saved imported examples remain unverified source associations.
+
+For a new computer, `npm run demo` (or macOS `Start MoveIDE.command`) installs locked dependencies and prepares pinned Heavy/Full models and runtime assets automatically. Only the analysis computer needs pose assets; the iPhone sender streams video. [Quickstart](../docs/quickstart.md) covers phone HTTPS, one-time account connection and recovery. Keep the same shared live controller and provider boundary.

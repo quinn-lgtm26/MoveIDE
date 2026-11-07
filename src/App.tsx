@@ -4,6 +4,7 @@ import { getMotionTrace } from '../harness/motion/analyze.mjs';
 import { drawSquatOverlay, overlayFrameAt } from '../harness/motion/overlay.mjs';
 import { analyze, type PoseModel } from './analyze.ts';
 import { Compare } from './Compare.tsx';
+import { CompareRecordings } from './CompareRecordings.tsx';
 import sampleUrl from '../fixtures/squat/clear-squat.mp4';
 import { prepareCoachingBundle, getCoachingSegments, coachingSegmentAt } from '../harness/coaching/index.mjs';
 import type { CoachingBundle, CoachingResponse, CoachingSegment } from '../harness/coaching/index.mjs';
@@ -31,6 +32,7 @@ export function App() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [clip, setClip] = useState<{ name: string; src: string } | null>(null);
   const [model, setModel] = useState<PoseModel>('heavy');
+  const [comparisonMode, setComparisonMode] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -126,11 +128,13 @@ export function App() {
 
   const open = (file: File | undefined) => {
     if (!file) return;
+    setComparisonMode(false);
     invalidateSession(); setActive(true); setCoachStatus('Local analysis starting…');
     setClip({ name: file.name, src: URL.createObjectURL(file) });
   };
 
   const openSample = async () => {
+    setComparisonMode(false);
     invalidateSession(); setClip(null); setActive(true); setError(null);
     const ctrl = new AbortController(); sampleRequest.current = ctrl;
     setStatus('loading');
@@ -276,6 +280,7 @@ export function App() {
           <p className="start-disclosure">Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
           <div className="toolbar">
             <button className="primary" onClick={openSample}>Start coached squat</button>
+            <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Compare examples uses local measurements.'); setComparisonMode(true); }}>Compare examples</button>
             {active && <button onClick={stop}>Stop session</button>}
             {connection !== 'connected' && <button onClick={connect}>Connect AI coach (one-time setup)</button>}
           </div>
@@ -290,6 +295,7 @@ export function App() {
 
       {error && <p role="alert" className="error">{error} Choose another clip — an H.264 MP4 works in Chrome.</p>}
 
+      {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus('Start a session for local tracking and connected AI coaching.'); }} /> : <>
       <div className="workbench">
         <div className="stage">
           {clip && (
@@ -393,10 +399,11 @@ export function App() {
       )}
 
       {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} />}
+      </>}
 
       <footer>
         <small>
-          Sample clip: subject 010 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
+          Sample clips: subjects 010 and 004 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
           Prashanth et al. · <a href="https://doi.org/10.17632/kgbb3yn47p.3">Dataset and DOI</a> ·{' '}
           <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · trimmed and re-encoded.
         </small>

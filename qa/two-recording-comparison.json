@@ -1,0 +1,233 @@
+{
+  "verifiedAtUtc": "2026-11-07T23:46:21.343Z",
+  "revision": "78569d6e784a49c92a91d3235bd3b90143135ed0",
+  "surface": "Isolated Vite development source on4189; real local MediaPipe Heavy, disconnected provider stub",
+  "sourceChanges": [
+    "M index.html",
+    " M src/App.tsx",
+    "?? harness/motion/compare-recordings.mjs",
+    "?? src/CompareRecordings.tsx"
+  ],
+  "checks": {
+    "oneActionTwoRecordings": true,
+    "distinctActualSourceHashes": true,
+    "sameHeavyAndLocalDisclosure": true,
+    "independentFirstBottoms": true,
+    "realHeavyCoverage": true,
+    "threePrimaryMetrics": true,
+    "correspondingPhaseNavigation": true,
+    "repASelectionKeepsB": true,
+    "independentSecondBottoms": true,
+    "phaseNavigationUsesSelectedReps": true,
+    "overlaysDrawn": true,
+    "mobileExpandedNoOverflow": true,
+    "noAIOnCompareRepSelectionOrSeek": true,
+    "closeRevokesSourceUrls": true,
+    "cancelRejectsLateResult": true,
+    "sourceReplacementWinsPendingComparison": true,
+    "failedBRetainsUsableA": true,
+    "retryBDoesNotReanalyzeA": true,
+    "allAnalysesUseSelectedHeavy": true,
+    "noProviderRequests": true,
+    "noPageErrors": true
+  },
+  "errors": [],
+  "gaps": [
+    "Development-source scope; final built/Wren acceptance separate.",
+    "Different people/cameras are not an annotated good/bad comparison or independent angle truth.",
+    "Physical iPhone, orbit accuracy and AI cross-recording interpretation are not covered.",
+    "Model-change-during-analysis needs separate acceptance. Phase navigation allows one15Hz decoded-frame tolerance; requested media time is recorded separately from the displayed decoded clock."
+  ],
+  "sources": [
+    {
+      "name": "clear-squat",
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d"
+    },
+    {
+      "name": "supported-squat",
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2"
+    }
+  ],
+  "phaseChecks": [
+    {
+      "anchorMs": [
+        1067,
+        1600
+      ],
+      "requestedVideoClockMs": [
+        1067,
+        1600
+      ],
+      "displayedDecodedClockMs": [
+        1067,
+        1600
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        333,
+        600
+      ],
+      "requestedVideoClockMs": [
+        333,
+        600
+      ],
+      "displayedDecodedClockMs": [
+        267,
+        600
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        1733,
+        2400
+      ],
+      "requestedVideoClockMs": [
+        1733,
+        2400
+      ],
+      "displayedDecodedClockMs": [
+        1667,
+        2400
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        1067,
+        1600
+      ],
+      "requestedVideoClockMs": [
+        1067,
+        1600
+      ],
+      "displayedDecodedClockMs": [
+        1067,
+        1600
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        3000,
+        1600
+      ],
+      "requestedVideoClockMs": [
+        3000,
+        1600
+      ],
+      "displayedDecodedClockMs": [
+        3000,
+        1600
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        3000,
+        4333
+      ],
+      "requestedVideoClockMs": [
+        3000,
+        4333
+      ],
+      "displayedDecodedClockMs": [
+        3000,
+        4267
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        2267,
+        3400
+      ],
+      "requestedVideoClockMs": [
+        2267,
+        3400
+      ],
+      "displayedDecodedClockMs": [
+        2267,
+        3400
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        3000,
+        4333
+      ],
+      "requestedVideoClockMs": [
+        3000,
+        4333
+      ],
+      "displayedDecodedClockMs": [
+        3000,
+        4267
+      ],
+      "toleranceMs": 67
+    }
+  ],
+  "firstBottomTimesMs": [
+    1067,
+    1600
+  ],
+  "tracking": [
+    "Recording A · 1.07s · 57/57 samples tracked",
+    "Recording B · 1.60s · 90/90 samples tracked"
+  ],
+  "primaryRows": [
+    "Knee flexion at bottom117.4°98.9°-18.5°",
+    "Torso lean at bottom41.1°40.6°-0.5°",
+    "Complete rep duration1400 ms1800 ms+400 ms"
+  ],
+  "secondBottomTimesMs": [
+    3000,
+    4333
+  ],
+  "mobile": [
+    {
+      "viewport": 375,
+      "bodyWidth": 375,
+      "cards": [
+        {
+          "left": 16,
+          "right": 359,
+          "top": 15.28125
+        },
+        {
+          "left": 16,
+          "right": 359,
+          "top": 512.875
+        }
+      ]
+    },
+    {
+      "viewport": 390,
+      "bodyWidth": 390,
+      "cards": [
+        {
+          "left": 16,
+          "right": 374,
+          "top": 15.28125
+        },
+        {
+          "left": 16,
+          "right": 374,
+          "top": 512.875
+        }
+      ]
+    }
+  ],
+  "poseModelInitializations": [
+    "heavy",
+    "heavy",
+    "heavy",
+    "heavy",
+    "heavy"
+  ],
+  "interpretationRequests": 0,
+  "status": "passed"
+}
