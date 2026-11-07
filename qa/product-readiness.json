@@ -1,0 +1,34 @@
+{
+  "commit": "5225a3d70b29f952fa599e638d4554a0a72de8a4",
+  "browser": "154.0.8037.58",
+  "outcome": "ready",
+  "sourceHash": "9f78d7c85e0c288ff643879d57ea2199978b316ddd8f98e75812224a88d51762",
+  "checks": {
+    "ready": true,
+    "heavyModel": false,
+    "clearFixture": false,
+    "labeledTiming": false,
+    "twoUsableComparisons": false,
+    "bothEvidenceImages": true,
+    "copyMatchesPreview": true,
+    "sameOriginAssets": false,
+    "noPageErrors": true
+  },
+  "readyForFinalQA": false,
+  "status": [
+    "Ready · sample-squat.mp4",
+    "Copied the Magna Carta and packet."
+  ],
+  "compareText": [
+    "Compare repsRep A rep-1rep-2Rep B rep-1rep-2rep-1rep-2B − AKnee flexionunavailableunavailable—Durationunavailableunavailable—EvidenceBottom frame @ 867 msBottom frame @ 2333 msHide coaching packetExport report JSONNothing is sent from here. This is exactly what you copy and attach to your AI tool.Goal (optional) Reps: rep-1, rep-2Summary: Squat reps rep-1 and rep-2: knee flexion at bottom unavailable vs unavailable; rep duration unavailable vs unavailable. Estimated 2D values from one side-view clip.frame-867 · 867 msframe-2333 · 2333 msCopy Magna Carta + packetDownload imagesCopied the Magna Carta and packet.Packet textMoveIDE Magna Carta (magna-carta-1)\nYou are reviewing estimated 2D squat measurements from a single phone clip.\n- Explain only the evidence provided: the measurements below and the attached frames, referenced by their IDs.\n- Keep observations (what the numbers and frames show) separate from interpretation (what it might mean).\n- Flag uncertainty: values are estimates in the video plane and may be affected by camera angle or tracking.\n- Suggest one coaching focus grounded in the submitted evidence.\n- No clinical diagnosis, treatment, or injury advice.\n\nCoaching packet (CoachPacket v1):\n{\n  \"schemaVersion\": 1,\n  \"protocolVersion\": \"1.1.0\",\n  \"charterVersion\": \"magna-carta-1\",\n  \"summary\": \"Squat reps rep-1 and rep-2: knee flexion at bottom unavailable vs unavailable; rep duration unavailable vs unavailable. Estimated 2D values from one side-view clip.\",\n  \"repIds\": [\n    \"rep-1\",\n    \"rep-2\"\n  ],\n  \"measurements\": [],\n  \"evidence\": [\n    {\n      \"id\": \"frame-867\",\n      \"timestampMs\": 867,\n      \"imageName\": \"b4cb67d8-7f79-4686-b731-210ae55a0a6e-867ms.jpg\"\n    },\n    {\n      \"id\": \"frame-2333\",\n      \"timestampMs\": 2333,\n      \"imageName\": \"b4cb67d8-7f79-4686-b731-210ae55a0a6e-2333ms.jpg\"\n    }\n  ]\n}\n\nAttached images (one JPEG per evidence ID):\n- frame-867: b4cb67d8-7f79-4686-b731-210ae55a0a6e-867ms.jpg @ 867 ms\n- frame-2333: b4cb67d8-7f79-4686-b731-210ae55a0a6e-2333ms.jpg @ 2333 ms"
+  ],
+  "measurements": [
+    "MeasurementsKnee flexion · rep-1 · unavailableRep duration · rep-1 · unavailableKnee flexion · rep-2 · unavailableRep duration · rep-2 · unavailablePose tracked at this frame.⚠ The left leg was tracked in 23 of 53 frames, so values may miss the true bottom. Use brighter light and keep the whole body in frame.⚠ Tracking dropped out for longer than the 150 ms bottom tolerance in rep-1 (533 ms), rep-2 (667 ms). The bottom could be in the gap, so knee flexion and duration are unavailable for those reps."
+  ],
+  "externalOrigins": [
+    "https://cdn.jsdelivr.net",
+    "https://storage.googleapis.com"
+  ],
+  "errors": [],
+  "scope": "Built root workbench public-sample readiness probe with disconnected auth. UI selectors may need updating when the frontend design changes. Does not cover all final Seldon workflows, authenticate, send coaching, or dispatch Seldon."
+}
