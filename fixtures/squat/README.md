@@ -8,6 +8,7 @@ These derivatives are trimmed from the start, scaled to 540×960, encoded as H.2
 - `side-gym.mp4` · subject 004, side. Clearer lighting and a different lifter.
 - `side-mirror.mp4` · subject 008, side. Reflections and busy framing.
 - `side-busy-background.mp4` · subject 016, side. Moving people in the background.
+- `sample-squat-bottom-1067ms.jpg` · still of the first labeled bottom in `sample-squat.mp4`. The permitted source image for the BE-3 ChatGPT test request.
 - `front-view-challenge.mp4` · subject 001, front. Challenge input for the side-view protocol and an example of capture guidance.
 
 The first, repeatable sample contains bodyweight squats. These clips are fixtures for the prototype, with no lab reference angles. Surface a confidence warning or unavailable result when the required side landmarks are unreliable.
