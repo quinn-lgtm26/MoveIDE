@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { AnalysisReport, Measurement } from './contract.ts';
 import { analyze } from './analyze.ts';
+import { Compare } from './Compare.tsx';
+import { withSyntheticReps } from './coach.ts';
 import { contentRect, drawFrame, frameAt } from './overlay.ts';
 import sampleUrl from '../fixtures/squat/sample-squat.mp4';
+
+// ?synthetic: stand-in reps on the real clip until BE-2's segmentation lands.
+const SYNTHETIC = new URLSearchParams(location.search).has('synthetic');
 
 type Status = 'idle' | 'loading' | 'analyzing' | 'ready' | 'error';
 
@@ -56,7 +61,7 @@ export function App() {
     job.current = ctrl;
     setStatus('analyzing');
     analyze(clip.src, { signal: ctrl.signal, onProgress: (p) => !ctrl.signal.aborted && setProgress(p) }).then(
-      (r) => { if (job.current === ctrl) { setReport(r); setStatus('ready'); } },
+      (r) => { if (job.current === ctrl) { setReport(SYNTHETIC ? withSyntheticReps(r) : r); setStatus('ready'); } },
       (e) => { if (job.current === ctrl && e?.name !== 'AbortError') { setStatus('error'); setError(`Analysis failed: ${e?.message ?? e}`); } },
     );
   };
@@ -93,10 +98,13 @@ export function App() {
     return () => { v.cancelVideoFrameCallback(handle); ro.disconnect(); v.removeEventListener('seeked', redraw); };
   }, [report]);
 
+  const seek = (ms: number) => {
+    const v = video.current;
+    if (v) { v.pause(); v.currentTime = ms / 1000; }
+  };
   const openEvidence = (m: Measurement) => {
     setSelected(m.id);
-    const v = video.current;
-    if (v && m.evidenceTimestampMs !== null) { v.pause(); v.currentTime = m.evidenceTimestampMs / 1000; }
+    if (m.evidenceTimestampMs !== null) seek(m.evidenceTimestampMs);
   };
 
   const sel = report?.measurements.find((m) => m.id === selected);
@@ -168,6 +176,8 @@ export function App() {
           </aside>
         )}
       </div>
+
+      {report && clip && <Compare key={clip.src} report={report} clipSrc={clip.src} selected={selected} onOpen={openEvidence} onSeek={seek} />}
     </main>
   );
 }

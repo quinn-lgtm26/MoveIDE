@@ -21,6 +21,14 @@
       aside ul { list-style: none; padding: 0; }
       aside button { width: 100%; text-align: left; padding: 6px 8px; margin-bottom: 4px; }
       aside button[aria-pressed='true'] { outline: 2px solid #facc15; }
+      .compare table { border-collapse: collapse; margin: 8px 0; }
+      .compare th, .compare td { text-align: left; padding: 4px 10px 4px 0; }
+      .compare td button[aria-pressed='true'] { outline: 2px solid #facc15; }
+      .packet { border: 1px solid #8884; border-radius: 6px; padding: 12px; }
+      .packet pre { white-space: pre-wrap; font-size: 12px; max-height: 300px; overflow: auto; }
+      .frames { display: flex; gap: 8px; flex-wrap: wrap; }
+      .frames figure { margin: 0; width: 180px; }
+      .thumb { width: 180px; aspect-ratio: 9 / 16; object-fit: contain; background: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; text-align: center; }
       .muted { opacity: 0.65; }
       .error { color: #ef4444; }
       .warning { color: #f59e0b; }
