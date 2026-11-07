@@ -4,8 +4,10 @@
   "type": "module",
   "engines": { "node": ">=22.18" },
   "scripts": {
+    "predev": "[ -n \"$CI\" ] || git pull --ff-only && npm --prefix harness run setup:pose",
     "dev": "vite",
     "server": "node server/index.ts",
+    "prebuild": "[ -n \"$CI\" ] || git pull --ff-only && npm --prefix harness run setup:pose",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "test": "node --test 'src/**/*.test.ts' 'server/**/*.test.ts'",
