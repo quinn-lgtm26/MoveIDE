@@ -12,7 +12,7 @@ Keep that terminal open. **Ctrl+C** stops only child processes started by the la
 
 ## First run
 
-Use Node.js 22.18 or newer. Run `npm run demo`, or double-click **Start MoveIDE.command** on macOS. Missing app/harness dependencies are installed with `npm ci`; model and WASM files are downloaded and checked against the pinned manifest. Large model binaries stay out of GitHub. Each computer prepares its own local assets.
+Use Node.js 22.18 or newer. Run `npm run demo`, or double-click **Start MoveIDE.command** on macOS. Missing app/harness dependencies are installed with `npm ci`; model and WASM files are downloaded and checked against the pinned manifest. Large model binaries stay out of GitHub. Each computer running the analysis app prepares its own local assets. The iPhone sender does not install MediaPipe or download the Heavy model: it sends camera video to the Mac, where analysis runs.
 
 To prepare a fresh checkout without starting services:
 
@@ -63,3 +63,11 @@ npm run demo -- --phone --check
 Launcher scope: macOS/Linux. Its helper checks cover occupied-port refusal, URL parsing and owned-child cleanup. A full real phone startup is separate from those checks.
 
 The launcher may wait up to two minutes for a new phone HTTPS hostname to resolve. A transient OS DNS failure can occur even when browser DNS works; the failure message names the stage and error without printing private pairing links. Retry the same setup once DNS recovers; do not bypass browser TLS warnings.
+
+## Verified setup and current demo evidence
+
+A fresh detached checkout of `9446951` with no installed dependencies or generated assets passed `npm run demo -- --setup-only`, followed by `CI=1 npm run build`. Both locked dependency groups installed automatically. Full/Heavy task files matched their pinned SHA-256 values, all four WASM/runtime files matched the locked dependency, and the built `dist/pose` copies matched too. See [fresh setup evidence](../qa/fresh-setup.json). This acceptance did not start services or use the occupied demo ports.
+
+The public HTTPS phone workflow passed real WebRTC video, Heavy analysis and returned **real ChatGPT** coaching across two Chrome contexts, using a fixture-backed synthetic camera. One request carried three phase images; the response returned in10.209 seconds and appeared as a historical review after adaptive resolution changed. This is not a physical iPhone test or a latency guarantee. [Phone evidence](../qa/phone-https.json). Production root checks on `c1c9378` passed15 controlled-provider lifecycle checks,7 real-provider checks and20 readiness checks; subsequent UI changes require their own affected-gate rerun. Physical iPhone/venue rehearsal, independent angle/orbit accuracy and the final two Wren workflows remain separate gates.
+
+Latest designed root checkpoint (`9446951`): [15 production-preview checks](../qa/root-one-start.json) pass. The [user-visible demo](../qa/user-visible-demo.json) also ran real Heavy (57/57 tracked samples, two reps) and real GPT-6.1 Sol, showing two retained short cards with Why collapsed. Fresh setup and built asset hashes pass on the same revision. The earlier seven-check real-provider and twenty-check readiness records retain their exact `c1c9378` scope.

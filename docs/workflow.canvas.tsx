@@ -23,21 +23,21 @@ const milestones = [
     "title": "Review two reps and source evidence",
     "owner": "Shared harness integrated in PR #13",
     "work": "Local phase traces, projected metrics and source evidence support review. Start dispatches bounded coaching automatically; packet/copy controls are developer-only. Timestamped concise cards stack in smoke/live and retain accepted history.",
-    "proof": "Historical built readiness passed20 checks on e953a13. Latest root retained-feed probe passes15 controlled-provider development checks, including short cards, expanded reasons/citations, Stop/reset, replay deduplication and source races. Two different video sources remain."
+    "proof": "Production c1c9378 passed20 fresh-build readiness checks,15 controlled-provider lifecycle checks and7 real-provider checks. Retained short cards, Why, Stop/reset and source races pass. Latest9446951 restyle also passes15 production checks and the user-visible real Heavy/GPT demo shows two short retained cards. Two different video sources remain."
   },
   {
     "id": "04",
     "title": "Verify ChatGPT sign-in and evidence interpretation",
-    "owner": "Real root AI verified · public phone AI return unresolved",
-    "work": "The root and smoke have independent real Heavy + ChatGPT evidence. Phone media, Heavy processing and local feedback passed over the public HTTPS path; that run timed out awaiting the returned AI caption. Two local browser contexts already passed AI return.",
-    "proof": "The phone sender now uses authenticated JSON long polling; the local receiver stays private. The provider/OAuth service is never exposed. A physical iPhone and venue latency have not been tested."
+    "owner": "Real root and public phone-path AI verified",
+    "work": "Public HTTPS phone delivery, real WebRTC, Heavy and real ChatGPT feedback return passed across two Chrome contexts using a fixture-backed camera. One request carried three phase JPEGs; the10.209-second response appeared as historical coaching after adaptive resize.",
+    "proof": "qa/phone-https.json records returned AI, local captions and Stop cleanup. This is browser-based phone-path evidence, not a physical iPhone test or network latency guarantee."
   },
   {
     "id": "05",
     "title": "Integrate and verify the final build",
     "owner": "Integration + final QA · open",
     "work": "Finish two-source comparison, final design/accessibility and physical iPhone acceptance. The experimental continuity guard, per-metric validity and sparse phase evidence are integrated; camera-orbit accuracy is still unverified.",
-    "proof": "Final npm test:86 harness tests plus4 launcher tests passed, no failures/cancellations/skips. Combined real-Heavy browser QA covers adaptive dimensions, historical/fresh-view cards and real WebRTC return. Public real-provider rerun and both final Wren workflows remain."
+    "proof": "86 harness and4 launcher tests pass. Fresh9446951 setup-only installs locked dependencies and pinned models; TypeScript/Vite build and dist hashes pass. Physical iPhone, independent accuracy and both final Wren workflows remain."
   }
 ];
 
@@ -45,7 +45,7 @@ const system = [
   {
     "title": "Browser workbench",
     "stack": "React · TypeScript · Vite · Canvas 2D",
-    "body": "One Start coordinates analysis and coaching. Root, smoke and live retain concise timestamped cards with expandable reasons. Root passes15 controlled-provider development checks. Preserve the shared controller, source resets and root/live navigation during design work."
+    "body": "One Start coordinates analysis and coaching. Root, smoke and live retain concise timestamped cards with expandable reasons. Root passes15 controlled-provider production-preview checks. Preserve the shared controller, source resets and root/live navigation during design work."
   },
   {
     "title": "Local measurement engine",
@@ -70,7 +70,7 @@ const system = [
   {
     "title": "Live squat capture",
     "stack": "MediaStream · Heavy worker · bounded history · optional WebRTC",
-    "body": "One pose frame in flight and no backlog; exact accepted pixels supply live JPEGs. Phone video enters the same Heavy controller; local/AI feedback returns by data channel. Dedicated HTTPS signaling uses phone long polling, while provider credentials stay local. Physical device and public AI-return acceptance remain."
+    "body": "One pose frame in flight and no backlog; exact accepted pixels supply live JPEGs. Phone video enters the same Heavy controller; local/AI feedback returns by data channel. Dedicated HTTPS signaling uses phone long polling, while provider credentials stay local. Physical device and physical venue acceptance remains."
   },
   {
     "title": "Experimental view and 3D diagnostics",
@@ -118,7 +118,7 @@ const checks = [
   ],
   [
     "Current root readiness and retained history",
-    "The refreshed one-Start probe passed 20 local gates on e953a13 with Heavy and the exact clear fixture: 57/57 samples, 0/67 ms bottom errors, usable comparisons, trace/rate/keyboard/evidence seeking, same-origin assets and stale-overlay cleanup. Old 617912a evidence is archived. This scoped pass is not final Wren or independent angle accuracy."
+    "Production c1c9378 passed20 fresh-build readiness gates with Heavy,57/57 samples and0/67ms bottom errors. It also passed15 controlled-provider lifecycle and7 real-provider checks. These are scoped results; subsequent restyles need affected-gate reruns. No angle-accuracy or Wren qualification claim."
   ],
   [
     "Final hosted acceptance",
@@ -141,16 +141,20 @@ const checks = [
     "Actual Heavy output had 57 frames and observed confidence for 1,881 points per coordinate representation. Left knee/hip estimates were available; occluded right joints and front-only proxies on this side view were withheld. This proves schema/abstention compatibility, not angle accuracy."
   ],
   [
-    "Phone HTTPS partial result",
-    "Public HTTPS passed video, Heavy and local return before adaptive resolution aborted AI. That root cause is fixed and covered by combined local real-Heavy browser QA, including real WebRTC AI return. Public real-provider rerun, physical iPhone and venue/end-to-end latency remain."
+    "Public HTTPS real coaching passed",
+    "Public phone page, real WebRTC, Heavy and real ChatGPT/local feedback return pass across two Chrome contexts with a fixture-backed camera. One request uses phase JPEGs1205/1605/1937ms; response returns in10.209s as historical view1 coaching after resize. Stop clears tracks/captions. Physical iPhone and venue latency remain."
   ],
   [
     "Latest integrated browser checks",
-    "Root15 controlled-provider development checks pass. Combined live QA passes adaptive dimensions, old-view historical AI and subsequent fresh reps, five requests with three exact phase JPEGs, offline zero requests, QR cleanup and real WebRTC feedback. Processing means74/77ms are local processing, not network latency."
+    "Root15 controlled-provider production-preview checks pass. Combined live QA passes adaptive dimensions, old-view historical AI and subsequent fresh reps, five requests with three exact phase JPEGs, offline zero requests, QR cleanup and real WebRTC feedback. Processing means74/77ms are local processing, not network latency."
   ],
   [
     "Stable live layout",
     "Seven layout checks pass with representative cards and real fixture playback. Desktop1400/1280 uses a stable520px stage and390px feed. Mobile390×844 uses405.11px stage; first card ends834.20px, inside viewport. No overflow or page errors. These are layout checks, not live inference or physical-device results."
+  ],
+  [
+    "Fresh checkout setup",
+    "Clean9446951 checkout passes npm run demo -- --setup-only with automatic locked root/harness installs, pinned Full/Heavy hashes and all4 runtime files. CI=1 npm run build passes TypeScript/Vite; dist copies match. No services, demo ports or provider calls started. Phone sender needs no model installation."
   ]
 ];
 
@@ -165,11 +169,11 @@ const handoff = [
   ],
   [
     "Finish the designed session",
-    "Preserve the root retained-feed integration now covered by15 development checks: source timestamps, short action, Why details, Stop history, deduplicated replay and rejected stale results. Complete unified setup, region highlighting and full accessibility without duplicating inference."
+    "Preserve the root retained-feed integration now covered by15 production-preview checks: source timestamps, short action, Why details, Stop history, deduplicated replay and rejected stale results. Complete unified setup, region highlighting and full accessibility without duplicating inference."
   ],
   [
     "Reuse phone and live infrastructure",
-    "Use startLiveSquat on the received MediaStream, exact cached completed-rep images, connectReceiver and the local proxy. Phone uses authenticated polling; QR generation stays local. Never expose the credential provider. Public returned-AI caption timeout and physical-device acceptance remain."
+    "Use startLiveSquat on the received MediaStream, exact cached completed-rep images, connectReceiver and the local proxy. Phone uses authenticated polling; QR generation stays local. Never expose the credential provider. Public real-provider return passes; physical-device acceptance remains."
   ],
   [
     "Consume experimental contracts honestly",
@@ -177,11 +181,11 @@ const handoff = [
   ],
   [
     "Implement two sources and temporal evidence",
-    "Root comparison currently means two reps of one recording; add separate report/source identities. Live sparse descent/bottom/ascent cache wiring now passes combined browser QA with five controlled-provider three-image requests. Real-provider phase interpretation and independent accuracy remain."
+    "Root comparison currently means two reps of one recording; add separate report/source identities. Live sparse descent/bottom/ascent cache wiring now passes combined browser QA with five controlled-provider three-image requests. Real-provider phase return passes; independent accuracy remains."
   ],
   [
     "Launch and final acceptance",
-    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Resolve public/device gates, run the complete final suite, reconcile the expected 13 remaining Wren simulations, and run both stable cases on one final build. Native OpenCap and broad movement expansion remain deferred."
+    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Resolve physical-device gates, run the complete final suite, reconcile the expected 13 remaining Wren simulations, and run both stable cases on one final build. Native OpenCap and broad movement expansion remain deferred."
   ]
 ];
 
@@ -290,8 +294,8 @@ const stories = [
   ],
   [
     "LIVE-4–6 · Phone and AI coaching",
-    "Local phone integration passed · public AI timeout",
-    "Two Chrome contexts passed real WebRTC and returned AI cues. Public HTTPS passed media/Heavy/local cues but not returned AI caption; physical iPhone remains unverified."
+    "Public browser phone-path real AI verified",
+    "HTTPS, real WebRTC, Heavy, three-phase real ChatGPT request, returned historical coaching and cleanup pass. Physical iPhone remains unverified."
   ],
   [
     "LIVE-7–9 · Demo and acceptance",
@@ -316,7 +320,7 @@ const stories = [
   [
     "TEMP-1 · Phase-aware evidence",
     "Live cache and phase bundle browser-verified",
-    "Three pure tests and combined live browser QA pass; five controlled requests carried three exact phase JPEGs each. Real-provider phase interpretation remains. Sparse images are not full-video upload or full-motion accuracy."
+    "Three pure tests and combined browser QA pass. Public real ChatGPT request now includes three exact phase JPEGs and returns historical coaching. Sparse images are not full-video upload or independent phase-angle validation."
   ],
   [
     "R-2 · Independent accuracy",
@@ -348,7 +352,7 @@ export default function MoveIDEDevelopmentWorkflow() {
     <header>
       <p style={eyebrow}>MoveIDE engineering · November 7, 2026</p>
       <h1 style={{ margin: "5px 0 6px", fontSize: 24, lineHeight: 1.25, fontWeight: 650 }}>From squat video to coaching evidence</h1>
-      <p style={{ ...body, maxWidth: 680 }}>Recorded root Heavy and real one-Start AI pass. Root retained-feed development QA passes 15 checks; the final suite passes 86 harness and 4 launcher tests. Integrated live view/phase recovery and 7 responsive-layout checks pass. Two-video design, public real-provider return, physical iPhone and independent orbit accuracy remain. Native OpenCap stays deferred.</p>
+      <p style={{ ...body, maxWidth: 680 }}>Recorded root Heavy and real one-Start AI pass. Latest9446951 root passes15 production checks and a visible real Heavy/GPT demo; earlier seven-check provider evidence remains recorded; the final suite passes 86 harness and 4 launcher tests. Integrated live view/phase recovery and 7 responsive-layout checks pass. Fresh checkout setup/build and public real-provider return pass; two-video design, physical iPhone and independent orbit accuracy remain. Native OpenCap stays deferred.</p>
     </header>
 
     <Sources links={[["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />

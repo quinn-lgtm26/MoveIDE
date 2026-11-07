@@ -1,0 +1,22 @@
+{
+  "verifiedAtUtc": "2026-11-07T23:35:12.679Z",
+  "revision": "9446951cf39694b9a2770aa13eb904b38870071a",
+  "surface": "User-visible Codex in-app browser, latest designed recorded page",
+  "fixture": "clear-squat.mp4",
+  "provider": "real connected ChatGPT, GPT-6.1-Sol",
+  "observationMethod": "UI Start action followed by accessibility state observation",
+  "checks": {
+    "ready": true,
+    "heavyModel": true,
+    "trackedSamples": 57,
+    "totalSamples": 57,
+    "completeReps": 2,
+    "persistentShortCards": 2,
+    "collapsedWhyDetails": true,
+    "sourceTimestampsMs": [
+      1067,
+      3000
+    ]
+  },
+  "limits": "No physical camera was opened in this visible sample test. Rep and angle accuracy remain scoped to fixture checks."
+}

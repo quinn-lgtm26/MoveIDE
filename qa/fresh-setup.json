@@ -1,0 +1,84 @@
+{
+  "verifiedAtUtc": "2026-11-07T23:34:04.442Z",
+  "commit": "9446951cf39694b9a2770aa13eb904b38870071a",
+  "node": "v26.13.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "surface": "Fresh detached worktree; no node_modules or generated pose assets at creation",
+  "commands": [
+    {
+      "command": "npm run demo -- --setup-only",
+      "exitCode": 0
+    },
+    {
+      "command": "CI=1 npm run build",
+      "exitCode": 0
+    }
+  ],
+  "checks": {
+    "automaticLockedAppInstall": true,
+    "automaticLockedHarnessInstall": true,
+    "pinnedModelHashes": true,
+    "wasmMatchesLockedDependency": true,
+    "freshTypeScriptBuild": true,
+    "freshViteBuild": true,
+    "noServicesStarted": true,
+    "noDemoPortsBound": true,
+    "distModelsAndWasmVerified": true
+  },
+  "models": [
+    {
+      "name": "full",
+      "bytes": 9398198,
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1",
+      "expectedSha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1",
+      "verified": true,
+      "distSha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1",
+      "distVerified": true
+    },
+    {
+      "name": "heavy",
+      "bytes": 30664242,
+      "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+      "expectedSha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+      "verified": true,
+      "distSha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+      "distVerified": true
+    }
+  ],
+  "runtime": [
+    {
+      "file": "vision_wasm_internal.js",
+      "bytes": 334128,
+      "sha256": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b",
+      "matchesLockedDependency": true,
+      "distSha256": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b",
+      "distVerified": true
+    },
+    {
+      "file": "vision_wasm_internal.wasm",
+      "bytes": 14603354,
+      "sha256": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab",
+      "matchesLockedDependency": true,
+      "distSha256": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab",
+      "distVerified": true
+    },
+    {
+      "file": "vision_wasm_module_internal.js",
+      "bytes": 334166,
+      "sha256": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f",
+      "matchesLockedDependency": true,
+      "distSha256": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f",
+      "distVerified": true
+    },
+    {
+      "file": "vision_wasm_module_internal.wasm",
+      "bytes": 14603372,
+      "sha256": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5",
+      "matchesLockedDependency": true,
+      "distSha256": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5",
+      "distVerified": true
+    }
+  ],
+  "limits": "Setup/build acceptance only. No services, tunnel, sign-in, provider calls or physical phone test were started."
+}

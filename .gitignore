@@ -3,6 +3,9 @@ dist/
 *.tsbuildinfo
 .env*
 
+# Recreated and hash-verified by the demo launcher; never commit local asset symlinks.
+/harness/public/pose
+
 # Local BMad / agent skill installs
 .agents/
 .claude/skills/
