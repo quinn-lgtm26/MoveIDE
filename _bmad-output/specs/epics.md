@@ -109,6 +109,8 @@ Depends on BE-2 and a successful BE-3. Covers backend CAP-4. The manual packet r
 
 Depends on BE-1 and BE-2. Covers backend CAP-1 and CAP-2. [Measurement and review methodology](spec-moveide-harness/squat-methodology.md)
 
+**BE-5 status — partial.** The clearer fixture, Full/Heavy benchmark, projected metrics, and phase trace are delivered. The independent ffprobe audit accounts for 57/57 clear-demo and 90/90 supported-regression source timestamps against hashed saved reports. Its negative tests distinguish subsampling from complete coverage and refuse ambiguous time origins or rotation. Sequential exact decode on high/variable-rate and rotated inputs, independently annotated angle errors and annotator agreement, repeated captures, and memory profiling remain open. [Reproducible timeline audit](../../harness/verify/source-timeline.mjs)
+
 ## Optional research
 
 ### R-1 · Benchmark OpenCap Monocular as a 3D comparator
