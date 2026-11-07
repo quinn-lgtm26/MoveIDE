@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MoveIDE AnalysisReport v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "clip",
+    "protocol",
+    "poseModel",
+    "frames",
+    "reps",
+    "measurements",
+    "warnings"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "clip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "widthPx",
+        "heightPx",
+        "durationMs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "widthPx": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "heightPx": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "side"
+      ],
+      "properties": {
+        "id": {
+          "const": "squat-side"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "side": {
+          "enum": [
+            "left",
+            "right",
+            null
+          ]
+        }
+      }
+    },
+    "poseModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/frame"
+      }
+    },
+    "reps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rep"
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/measurement"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "landmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "visibility"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "visibility": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timestampMs",
+        "landmarks",
+        "quality"
+      ],
+      "properties": {
+        "timestampMs": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "landmarks": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/landmark"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "minItems": 33,
+          "maxItems": 33
+        },
+        "quality": {
+          "enum": [
+            "usable",
+            "unavailable"
+          ]
+        }
+      }
+    },
+    "rep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "startMs",
+        "bottomMs",
+        "endMs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "startMs": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "bottomMs": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "endMs": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "repId",
+        "metric",
+        "value",
+        "unit",
+        "quality",
+        "evidenceTimestampMs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "metric": {
+          "enum": [
+            "knee_flexion",
+            "rep_duration",
+            "torso_lean"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "enum": [
+            "deg",
+            "ms"
+          ]
+        },
+        "quality": {
+          "enum": [
+            "usable",
+            "unavailable"
+          ]
+        },
+        "evidenceTimestampMs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "quality": {
+                "const": "usable"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "evidenceTimestampMs": {
+                "$ref": "#/$defs/timestamp"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "type": "null"
+              },
+              "evidenceTimestampMs": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "rep_duration"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ms"
+              },
+              "repId": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "unit": {
+                "const": "deg"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "maximum": 180
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+MoveIDE · Seldon hackathon kickoff
+Product plan and two parallel workstreams · November 7, 2026
+
+Product decision
+
+MoveIDE is a free, open-source workbench for human movement. Open phone footage on a laptop, see measurable movement alongside the frames that support it, and optionally use your own AI to interpret what you see. Squat is the first motion protocol. The workbench and report format are designed to take another protocol later.
+
+Subscription target. Markerless AI’s $29/month plan includes range-of-motion measurement and data export. MoveIDE’s demo replaces the core measurement and export workflow for one motion. The intended switching reason is free, inspectable, local analysis with a model connection the user controls.
+
+First user. A coach or athlete who already reviews filmed movement. Demo input is a short, stationary side-view squat clip with a single visible lifter. Use an H.264 MP4 as the reference fixture. Accept additional formats when the browser can decode them and give an actionable message when it cannot.
+
+Competition definition of done
+
+A new user can open a real phone clip, see a synchronized pose overlay and supported measurements, and jump from a report item to the source frame. They can export a report or send that report for interpretation. The integrated model path uses the user's eligible ChatGPT plan when it is connected. The copyable coaching packet provides an immediate route to their existing AI account.
+
+Originality comes from separating open measurement from a choice of model and tying the explanation to evidence. Usefulness is visible when a user can see what changed and where. Reliability is visible on a known good clip and one that cannot be measured confidently. Prize eligibility requires a working product and two Wren results rerun against the final build.
+
+Workstream 1 · Frontend
+
+Build a single React and TypeScript workbench with Vite. The first screen is an import or sample-clip action. The loaded view pairs the video and its overlay with the rep list, selected metric values, quality warnings, and coaching controls. Include processing and unsupported-video states.
+
+Use a standard video element with a canvas overlay. MediaPipe DrawingUtils supplies landmarks and skeleton connectors. Draw a custom arc and label for the selected joint angle. Match the overlay to the decoded frame's media timestamp using requestVideoFrameCallback where supported, and update it on seek. Map the overlay to the displayed video rectangle so letterboxing and resizing stay aligned.
+
+Start from a hand-labeled analysis fixture agreed with the backend track. The UI should play, seek, switch between reps, reveal the evidence frame behind a number, and show unavailable measurements before the engine is integrated. Keep the coaching packet visible and copyable. Show connection, progress, disconnect, and recovery states for ChatGPT. Keep video processing and report export available without a connection.
+
+Frontend checkpoint. A teammate can scrub a fixture and see the correct skeleton and angle for the selected time, then select a different rep and copy the updated packet.
+
+Workstream 2 · Motion engine and local backend
+
+A. Motion engine. Run MediaPipe Tasks Vision Pose Landmarker in a browser worker. Start with the vendor-confirmed Apache-2.0 Full v1 model bundle and a pinned SDK. Use timestamps from decoded frames. Keep raw video and pose inference on the laptop. Measure knee flexion, torso lean from vertical, and rep duration. Convert landmarks to pixel coordinates before angle math. Pick a visible side consistently for a clip. Record visibility and withhold low-confidence values. The squat protocol detects complete reps and gives each a bottom-frame timestamp. It emits observations about measured movement and data quality.
+
+B. Model connection. Prototype official Sign in with ChatGPT for local open-source apps. Use a small same-origin Node service bound to loopback for the documented OAuth flow and direct Responses requests. Use PKCE, verify the callback and granted plan scope, keep credentials outside the UI, and send only the selected structured report when the user requests interpretation. Display the connection and let the user disconnect. Use OpenAI's official docs and DevKit as references. The DevKit's code is licensed noncommercially, so the MoveIDE connector is a separate implementation for a permissively licensed repository.
+
+Direct Responses is the first route because the coaching task is a bounded interpretation of a report. Codex app-server is a documented later option if MoveIDE develops an agent workflow with local tools. ChatGPT plan usage depends on account eligibility and granted permissions. Keep a live connection spike to the first hour. If access or callback integration stalls, ship Copy for my AI and run the sign-in work separately while measurement continues.
+
+C. Interpretation. Put a short versioned MoveIDE Charter beside the report. Ask for an observation, uncertainty, and one next-session focus. Require references to existing metric IDs. Validate the response before displaying it and resolve links to the report's original values and timestamps. Treat outputs as coaching guidance. The first demo uses a prompt and fixture examples.
+
+Backend checkpoints. A real phone clip yields a valid report with a stable angle. An eligible test account can connect through its own browser, and a user-selected report can produce a response grounded in its metric IDs. Verify that the raw video and credentials never appear in the coaching payload or browser logs.
+
+Shared contract · Freeze this in the first half hour
+
+AnalysisReport v1
+- Clip dimensions and duration in milliseconds, with a clip-local identifier.
+- Protocol and pose-model versions.
+- Timestamped frames with normalized landmarks, visibility, and a quality state.
+- Reps with a stable ID plus start, bottom, and end in milliseconds.
+- Measurements with a stable ID, rep ID, metric name, value, unit, quality state, and evidence timestamp. Use an absent value when measurement quality is insufficient.
+- Quality warnings that explain what the user can change.
+
+CoachPacket v1 is a selected subset of the report, the user’s goal, and the Charter version and text. It carries stable measurement and frame references. It omits video bytes, full landmark traces, and provider credentials. Use the same packet for the copy flow and the connected model.
+
+Motion engine decision
+
+MediaPipe Pose Landmarker · Use first. It has a browser implementation, a published worker example, drawing helpers, and 33 landmarks. It supplies pose data. The squat protocol supplies phase detection, estimates, and reporting.
+
+MoveNet · Benchmark if MediaPipe struggles with speed or a common recording setup. TensorFlow provides Lightning and Thunder variants with 17 keypoints. Those points include the joints required for the side-view squat. Compare complete rep count, landmark availability, and processing time on the same clips before switching.
+
+RTMPose through MMPose · An additional model to benchmark when testing a Python or ONNX inference path makes sense. Keep it outside the day-one dependency set.
+
+OpenCap and OpenCap Monocular · Reuse the published data and validation methods as references. Original OpenCap is a multi-video 3D pipeline. The newer Monocular research path supports single-phone 3D and includes squat validation. Its setup and measurement goals differ from a local 2D overlay, so evaluate it when the product needs 3D.
+
+One-day sequence
+
+First 30 minutes. Agree on AnalysisReport v1 and the sample clip. Hand-label rep count and bottom frames. Keep one occluded or cropped fixture. Assign a frontend and backend owner. Start the overlay fixture and the native sign-in spike in parallel.
+
+First two hours. Produce real landmarks on one clip, draw the skeleton, calculate one angle, and confirm the timeline remains responsive. Confirm the ChatGPT connection can complete one report-based request, or make the copy handoff the demo route and keep moving.
+
+Middle of the day. Integrate rep boundaries, evidence links, export, and the Charter. Run on a second real clip. Prefer a clear unavailable state to an untrustworthy number.
+
+Final block. Freeze the demo build. Run Wren on the exact final frontend build with permitted fixtures. Use an event-approved reachable route for Wren if it runs remotely. Keep the authenticated service local. Run the actual account connection and inference separately on the demo laptop and record the outcome. Fix and rerun both required Wren journeys after changes.
+
+Wren journey 1 · Measure a real clip. Open the reference clip and wait for analysis. Verify its hand-labeled rep count, reported units, and that selecting an observation opens the expected rep phase. Verify timestamp error against a tolerance declared for the fixture before testing.
+
+Wren journey 2 · Compare and hand off. Select two reps, verify the visible angle and duration fields update, then open the evidence for one difference. Generate the coaching packet and verify that its rep IDs and measurement references match the selected pair. This path needs no model credentials. Where native sign-in is live, demonstrate the real authenticated explanation in addition.
+
+Demo script
+
+Open a real clip. Show the skeleton tracking the lifter. Select two reps and jump to the measured difference. Show the exact frames and the structured export. Connect ChatGPT or use the copy handoff to turn the report into a next-session focus. End on the two final-build Wren results.
+
+Implementation assumptions
+
+The recommendation is a browser workbench with a small optional loopback service. Prefer one repo and one shared contract. Use a single supported camera view and motion, a narrow set of measures, and one integrated provider. Gait, 3D, clinical validation, cloud video storage, and fine-tuning are follow-on work. This kickoff uses the installed BMAD PM defaults because the workspace has no BMAD project configuration.
+
+Primary references
+
+Markerless AI pricing · https://markerless.ai/pricing
+MediaPipe Web pose detection · https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker/web_js
+MediaPipe Web Worker example · https://github.com/google-ai-edge/mediapipe-samples-web/blob/main/src/workers/pose-landmarker.worker.ts
+MediaPipe DrawingUtils · https://developers.google.com/edge/api/mediapipe/js/tasks-vision.drawingutils
+MediaPipe Full v1 license clarification · https://github.com/google-ai-edge/mediapipe/issues/6306
+Video frame callbacks · https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback
+MoveNet · https://www.tensorflow.org/hub/tutorials/movenet
+MMPose and RTMPose · https://github.com/open-mmlab/mmpose
+OpenCap original pipeline · https://github.com/opencap-org/opencap-core
+OpenCap Monocular · https://utahmobl.github.io/OpenCap-monocular-project-page/
+Official OpenAI plan usage integration · https://developers.openai.com/siwc/token-sharing-open-source
+Official OpenAI registration and sign-in · https://developers.openai.com/siwc/token-sharing-open-source/sign-in
+Official OpenAI models and inference · https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference
+Official OpenAI Codex app-server option · https://developers.openai.com/siwc/token-sharing-open-source/codex-app-server
+Official OpenAI DevKit and license · https://github.com/openai/sign-in-with-chatgpt-devkit

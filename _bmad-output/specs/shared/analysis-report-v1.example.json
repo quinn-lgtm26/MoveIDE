@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "clip": {
+    "id": "synthetic-contract-example",
+    "widthPx": 1280,
+    "heightPx": 720,
+    "durationMs": 2100
+  },
+  "protocol": {
+    "id": "squat-side",
+    "version": "1.0.0",
+    "side": "right"
+  },
+  "poseModel": {
+    "id": "synthetic-fixture",
+    "version": "1"
+  },
+  "frames": [
+    {
+      "timestampMs": 500,
+      "landmarks": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        {
+          "x": 0.48,
+          "y": 0.3,
+          "visibility": 0.98
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        {
+          "x": 0.46,
+          "y": 0.52,
+          "visibility": 0.98
+        },
+        null,
+        {
+          "x": 0.55,
+          "y": 0.65,
+          "visibility": 0.98
+        },
+        null,
+        {
+          "x": 0.52,
+          "y": 0.84,
+          "visibility": 0.98
+        },
+        null,
+        null,
+        null,
+        null
+      ],
+      "quality": "usable"
+    }
+  ],
+  "reps": [],
+  "measurements": [
+    {
+      "id": "m-knee-1",
+      "repId": null,
+      "metric": "knee_flexion",
+      "value": 66.59,
+      "unit": "deg",
+      "quality": "usable",
+      "evidenceTimestampMs": 500
+    }
+  ],
+  "warnings": []
+}
