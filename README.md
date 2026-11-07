@@ -10,3 +10,17 @@ MoveIDE is a free, open-source workbench for human movement. The hackathon build
 - Use [AI.md](AI.md) for Seldon setup, [seldon.yml](seldon.yml) for the two submission cases, and the [simulation ledger](qa/seldon-ledger.md) to track the 16-simulation allocation.
 
 Hosted Seldon validation and final runs require an authenticated MCP connection and a reachable build.
+
+## Develop
+
+Requires Node 22.18+ (runs the TypeScript service and tests directly).
+
+```bash
+npm install
+npm run server   # loopback service on 127.0.0.1:8787 (ChatGPT connector)
+npm run dev      # workbench on http://localhost:5173, proxies /api to the service
+npm test         # angle math checks
+npm run build    # typecheck + production build
+```
+
+Layout: `src/contract.ts` mirrors [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) · `src/engine/` pose worker and angle math (harness spec) · `src/App.tsx` workbench (frontend spec) · `server/` loopback service. Backlog: [epics](_bmad-output/specs/epics.md).
