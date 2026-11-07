@@ -353,7 +353,7 @@ export function App() {
         </section>
       )}
 
-      {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} playheadMs={mediaMs} onSeek={seek} />}
+      {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} />}
 
       <footer className="muted">
         <small>

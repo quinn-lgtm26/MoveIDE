@@ -20,6 +20,7 @@ Read [AI amendments](AI-AMENDMENTS.md), [frontend API amendment](docs/frontend-h
 | Real AI evidence from current clear fixture | Passed 2026-11-07 | GPT-6.1 Sol; exactly one request; six measurements and JPEGs at 1067/3000 ms; validated citations and visible playback cue |
 | Playback reuse and evidence navigation | Browser verified with controlled provider | `harness/verify/coaching-playback.mjs`; no new inference on play/seek |
 | Root one-Start automatic AI | Implemented in this increment; Chrome root acceptance passed with controlled provider | `src/App.tsx`, `src/Compare.tsx`; 8 checks cover offline behavior, automatic AI, replay, Stop, source replacement and races |
+| Manual Generate panel removed | Done 2026-11-07; `src/Coach.tsx` deleted so developer tools only preview/copy/export (nothing sent) | typecheck clean, 54/54 tests, `root-coaching.mjs` 8/8 on the resulting main |
 | Live Heavy engine | Browser verified with real-clip `captureStream` | `harness/live/motion/`; bounded frame/JPEG cache, one inference in flight, no queued frames |
 | Live local camera page + automatic per-rep AI | Implemented; synthetic-camera UI and controlled-provider test passed | `harness/live/`; local camera only on Start; Stop releases tracks and aborts requests |
 | Live AI rate/evidence bounds | Implemented | Max 6 requests/session, ≥8 seconds between starts, one in flight; skip while busy; only exact cached completed-rep pixels |
