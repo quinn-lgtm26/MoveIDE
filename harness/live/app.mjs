@@ -5,10 +5,91 @@ import { buildLiveCoachBundle } from './motion/phase-evidence.mjs';
 import { drawSquatOverlay } from '../motion/overlay.mjs';
 import { validateCoachingResponse } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
+import { createLiveRecorder, createLiveArchive } from '../history/live-recorder.mjs';
+import { createSessionId, saveSession } from '../history/index.mjs';
 
 const $ = id => document.getElementById(id);
 const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d');
 let controller, media, analysis, receiver, pairing, phoneFeedback, currentCoach, coachingPauseKey, latest, lastArrived = 0, animation, completed = 0;
+let capture;
+const unsaved = new Set();
+
+function saveCapture(owned, finalRecording) {
+  const row = document.createElement('div'); row.className = 'save-result';
+  const status = document.createElement('span'), retry = document.createElement('button'), discard = document.createElement('button');
+  const recovery = document.createElement('div'); recovery.className = 'save-recovery'; recovery.hidden = true;
+  let finalized, recoveryReady = false;
+  const downloadUrls = new Set();
+  const download = (blob, filename) => {
+    const url = URL.createObjectURL(blob); downloadUrls.add(url);
+    const link = document.createElement('a'); link.href = url; link.download = filename; link.click();
+    setTimeout(() => { URL.revokeObjectURL(url); downloadUrls.delete(url); }, 1000);
+  };
+  const clearRecovery = () => {
+    for (const url of downloadUrls) URL.revokeObjectURL(url);
+    downloadUrls.clear(); recovery.replaceChildren(); recovery.remove(); finalized = null; finalRecording = null;
+  };
+  const showRecovery = () => {
+    if (!finalized || !owned.archive) return;
+    recovery.hidden = false;
+    if (recoveryReady) return;
+    recoveryReady = true;
+    if (finalized.videoBlob) {
+      const videoDownload = document.createElement('button'); videoDownload.textContent = 'Download unsaved video';
+      videoDownload.onclick = () => download(finalized.videoBlob, `moveide-${owned.id}.${finalized.videoBlob.type.includes('mp4') ? 'mp4' : 'webm'}`);
+      recovery.append(videoDownload);
+    }
+    const jsonDownload = document.createElement('button'); jsonDownload.textContent = 'Download session JSON';
+    jsonDownload.onclick = () => {
+      const { evidence, source, startedAt, ...live } = owned.archive.live;
+      const data = { schemaVersion: 1, id: owned.id, kind: 'live', createdAt: owned.startedAt, savedLocally: false,
+        video: finalized.videoBlob ? { bytes: finalized.videoBlob.size, mimeType: finalized.videoBlob.type, storedSeparately: true } : null,
+        live: { ...live, recording: finalized.recording, timing: { alignment: finalized.recording.alignment, timingNote: finalized.recording.timingNote, firstSampleMapping: finalized.recording.firstSampleMapping } },
+        metadata: { source, sessionDurationMs: owned.durationMs },
+        evidenceImages: evidence.map(({ blob, ...image }) => ({ ...image, bytes: blob.size, mimeType: blob.type, storedSeparately: true })) };
+      download(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `moveide-${owned.id}-session.json`);
+    };
+    recovery.append(jsonDownload);
+    if (owned.archive.live.evidence.length) {
+      const evidence = document.createElement('details'), summary = document.createElement('summary');
+      summary.textContent = 'Download evidence JPEGs'; evidence.append(summary);
+      for (const image of owned.archive.live.evidence) {
+        const button = document.createElement('button'); button.textContent = `${image.phase} · ${image.timestampMs} ms · view ${image.viewEpoch + 1}`;
+        button.onclick = () => download(image.blob, `moveide-${owned.id}-view${image.viewEpoch + 1}-${image.timestampMs}ms.jpg`); evidence.append(button);
+      }
+      recovery.append(evidence);
+    }
+  };
+  retry.textContent = 'Retry save'; discard.textContent = 'Discard unsaved session'; retry.hidden = discard.hidden = true;
+  row.append(status, retry, discard, recovery); $('saved-sessions').prepend(row);
+  unsaved.add(owned);
+  let pending = false;
+  const run = async () => {
+    if (pending) return;
+    pending = true; retry.hidden = discard.hidden = recovery.hidden = true; status.textContent = 'Saving session on this computer…';
+    try {
+      const recorded = await finalRecording;
+      finalized = recorded;
+      const { evidence, source, startedAt, samplesTruncated, repsTruncated, ...data } = owned.archive.live;
+      const saved = await saveSession({ id: owned.id, kind: 'live', title: `${source === 'phone' ? 'iPhone' : 'Camera'} squat · ${new Date(owned.startedAt).toLocaleString()}`,
+        createdAt: owned.startedAt, video: recorded.videoBlob, report: null, evidenceImages: evidence,
+        live: { ...data, timing: { alignment: recorded.recording.alignment, timingNote: recorded.recording.timingNote, firstSampleMapping: recorded.recording.firstSampleMapping }, recording: recorded.recording },
+        metadata: { source, samplesTruncated, repsTruncated, sessionDurationMs: owned.durationMs, evidenceTimestamps: evidence.map(({ blob, ...reference }) => reference) } });
+      unsaved.delete(owned); owned.archive = null;
+      status.textContent = recorded.videoBlob ? `Saved on this computer · ${(recorded.recording.durationMs / 1000).toFixed(0)}s recorded${recorded.recording.stopReason.endsWith('limit') ? ' (session prefix)' : ''}. ` : 'Measurements and notes saved on this computer; video unavailable. ';
+      const link = document.createElement('a'); link.href = `/?session=${encodeURIComponent(saved.id)}`; link.textContent = 'Open saved session'; row.append(link);
+      clearRecovery();
+      retry.onclick = discard.onclick = null; retry.remove(); discard.remove();
+    } catch (error) {
+      status.textContent = `Not saved: ${error.message || 'Storage unavailable'}. Download your session or keep this page open to retry.`;
+      retry.hidden = discard.hidden = false;
+      showRecovery();
+    } finally { pending = false; }
+  };
+  retry.onclick = run;
+  discard.onclick = () => { unsaved.delete(owned); owned.archive = null; clearRecovery(); row.remove(); };
+  void run();
+}
 const degrees = value => Number.isFinite(value) ? `${value.toFixed(0)}°` : '—';
 const elapsed = milliseconds => `${(milliseconds / 1000).toFixed(1)}s`;
 
@@ -72,6 +153,7 @@ function liveCoach(signal, onResult = () => {}) {
       const evidence = new Map([...packet.measurements.map(item => [item.id, item.evidenceTimestampMs]), ...packet.evidence.map(item => [item.id, item.timestampMs])]);
       const cite = item => `${item.text} [${[...new Set(item.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
       if (!appendCoachingCard(event, result, cite, signal)) return;
+      if (capture?.own.signal === signal) capture.archive.note(event, result, packet);
       coachState = 'reviewed';
       $('ai').textContent = stillCurrent ? `Next focus: ${briefFocus(result.nextFocus.text)}` : `Historical review added · ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1}.`;
       onResult({ kind: 'ai', text: briefFocus(stillCurrent ? result.nextFocus.text : `Earlier view ${event.epoch + 1}: ${result.nextFocus.text}`), sourceTimestampMs: event.rep.bottomMs }, event.epoch);
@@ -139,7 +221,14 @@ function render() {
   $('detail').textContent = latest.feedback.label;
 }
 
-function stop(message = 'Session stopped') {
+function stop(message = 'Session stopped', { persist = true } = {}) {
+  const ownedCapture = capture; capture = null;
+  if (ownedCapture) {
+    ownedCapture.durationMs = performance.now() - ownedCapture.startClock;
+    const recorded = ownedCapture.recorder.stop();
+    ownedCapture.recorder = null;
+    if (persist) saveCapture(ownedCapture, recorded);
+  }
   const previous = controller; controller = null; phoneFeedback = null; currentCoach = null; coachingPauseKey = null;
   const oldReceiver = receiver, oldPairing = pairing; receiver = null; pairing = null;
   previous?.abort();
@@ -151,6 +240,8 @@ function stop(message = 'Session stopped') {
   cancelAnimationFrame(animation);
   latest = null; clearTracking(); $('view-status').textContent = 'Measurements resume after a stable side view is established.';
   $('source').disabled = false;
+  $('save-local').disabled = false;
+  $('recording-status').textContent = ownedCapture ? (persist ? 'Recording ended. Saving status appears below.' : 'Session ended. Saving was not completed.') : 'Stop the session to save. Closing this tab may lose the current session.';
   $('pairing').hidden = true; $('phone-url').value = ''; $('pairing-expiry').textContent = '';
   $('pairing-qr').hidden = true; $('phone-qr').width = 0; $('phone-qr').height = 0;
   $('copy-phone').textContent = 'Copy link';
@@ -160,7 +251,7 @@ function stop(message = 'Session stopped') {
   $('detail').textContent = 'Start a new session whenever you are ready.';
   $('phase').textContent = 'Awaiting movement'; $('age').textContent = 'No pose yet';
   const reviews = $('ai-feed').children.length;
-  $('ai').textContent = reviews ? `Session stopped · ${reviews} AI ${reviews === 1 ? 'review' : 'reviews'} saved below.` : 'Session stopped · no AI reviews yet.';
+  $('ai').textContent = reviews ? `Session stopped · ${reviews} AI ${reviews === 1 ? 'review' : 'reviews'} remain below.` : 'Session stopped · no AI reviews yet.';
 }
 
 async function waitForVideo(signal) {
@@ -205,6 +296,15 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
       if (controller === own) stop('Camera disconnected. Start a new session.');
     }, { once: true }));
     video.srcObject = stream; await video.play(); await waitForVideo(own.signal); own.signal.throwIfAborted();
+    if ($('save-local').checked) {
+      const owned = { own, id: createSessionId(), startedAt: Date.now(), startClock: performance.now(), archive: createLiveArchive({ source }) };
+      capture = owned;
+      owned.recorder = createLiveRecorder(stream, { onStatus(state) {
+        if (capture !== owned || controller !== own) return;
+        $('recording-status').textContent = state.state === 'recording' ? 'Recording on this computer · Stop to save. Up to 5 minutes / 100 MiB.'
+          : state.error || 'Recording limit reached. Tracking continues; Stop saves the recorded prefix and session notes.';
+      } });
+    } else $('recording-status').textContent = 'Saving is off. Video, measurements and notes will not be kept after this page closes.';
     $('empty').hidden = true; $('status').textContent = 'Preparing Heavy pose model';
     $('pairing-title').textContent = 'iPhone connected.';
     $('pairing-help').textContent = 'Keep Safari in the foreground and your phone awake. Tracking and coaching start here automatically.';
@@ -216,6 +316,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
         if (controller !== own || own.signal.aborted) return;
         const changedEpoch = latest && latest.viewGuard.epoch !== sample.viewGuard.epoch;
         latest = sample; lastArrived = performance.now();
+        if (capture?.own === own) { capture.recorder.markSample(sample); capture.archive.sample(sample); }
         video.dataset.analysisEpoch = String(sample.viewGuard.epoch);
         $('view-status').textContent = sample.analysisEligible ? 'Stable side view · estimated angles' : sample.viewGuard.state !== 'stable' ? 'Hold a clear view while tracking settles.' : 'Turn side-on for squat measurements.';
         for (const [id, key] of [['knee', 'kneeFlexionDeg'], ['hip', 'hipFlexionDeg'], ['torso', 'torsoLeanDeg']]) { $(id).dataset.validity = sample.metricValidity[key].status; $(id).title = sample.metricValidity[key].reason.replaceAll('_', ' '); }
@@ -227,6 +328,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
       onRepComplete(event) {
         if (controller !== own || own.signal.aborted) return;
         completed++; $('count').textContent = String(completed);
+        if (capture?.own === own) capture.archive.rep(event);
         $('rep').textContent = `Rep ${completed} · ${elapsed(event.rep.bottomMs)}: ${event.feedback.label}`;
         $('rep').dataset.state = event.feedback.state;
         void coachRep(event);
@@ -241,6 +343,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
 
 $('start').onclick = async () => {
   if (controller) return;
+  if (unsaved.size >= 2) { $('error').textContent = 'Retry saving or discard an unsaved session below before starting another.'; return; }
   const own = new AbortController(); controller = own;
   const source = $('source').value;
   let lastFeedbackAt = -Infinity, lastFeedbackKind = null, aiRetry, pendingAi = null;
@@ -265,6 +368,8 @@ $('start').onclick = async () => {
   currentCoach = coachRep; coachingPauseKey = null;
   $('error').textContent = ''; $('phone-setup').hidden = true;
   $('start').disabled = true; $('stop').hidden = false; $('source').disabled = true;
+  $('save-local').disabled = true;
+  $('recording-status').textContent = $('save-local').checked ? 'Recording starts when your camera connects. Stop to save on this computer.' : 'Saving is off for this session.';
   $('status').textContent = source === 'phone' ? 'Creating private phone link' : 'Allow camera access';
   completed = 0; $('count').textContent = '0'; $('rep').textContent = 'Your completed-rep feedback will appear here.';
   $('rep').removeAttribute('data-state'); $('latency').textContent = '—';
@@ -326,4 +431,5 @@ $('copy-phone').onclick = async () => {
 };
 $('source').onchange = () => { $('phone-setup').hidden = true; $('error').textContent = ''; };
 $('stop').onclick = () => stop();
-window.addEventListener('pagehide', () => stop());
+window.addEventListener('beforeunload', event => { if (capture || unsaved.size) { event.preventDefault(); event.returnValue = ''; } });
+window.addEventListener('pagehide', () => stop('Session ended', { persist: false }));

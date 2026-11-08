@@ -1,0 +1,23 @@
+# Local session history
+
+`index.mjs` stores recordings, AnalysisReport v1 data, accepted coaching and bounded live telemetry in browser IndexedDB. It makes no network requests and stores no provider credentials. History belongs to the current browser profile and exact origin; changing hostname/port creates a different history. Browser clearing, private browsing, or eviction can remove local data. Export important recordings and JSON data separately.
+
+## Integration
+
+Create a session with `createSessionId()` and `saveSession({id, kind, title, video, report, metadata})`. Save accepted coaching with `saveSession({id, coaching:{packet,response,segments}})`. Omitted or undefined fields preserve existing values; coaching/live fields may be cleared explicitly. A saved nonnull video's SHA-256 and a saved nonnull report's serialized content are immutable: a different recording or analysis requires a new session ID. Use `deleteSession` to remove saved data. An initially null video/report may be populated once recording/analysis finishes. Identical video bytes and report content may be saved again.
+
+Patches merge inside one IndexedDB read/write transaction, including asset and size accounting writes. Concurrent metadata and coaching patches preserve each other's omitted fields. `expectedRevision` is an optional optimistic lock. The caller must suppress obsolete asynchronous results from a different capture/source generation. A nested field such as `metadata` replaces that entire field when supplied.
+
+`getSession(id)` verifies video and JPEG hashes before returning assets. Reports are validated for complete v1 structure and internal timestamp/rep/measurement references on save and read. Accepted recorded coaching is checked against its packet and saved report using `getCoachingSegments`; supplied replay segments must match those derived from the report. These checks detect corruption and structural mismatch; a digest does **not** establish that an initial report was inferred from those bytes, or validate model accuracy. Callers must save report, video and coaching from the same accepted source generation. Only after a successful read should the caller bind the restored report to its newly created video Blob/object URL for replay.
+
+`listSessions()` reads summary/report metadata without reading video/JPEG assets, newest update first. `exportSessionData(session)` produces JSON descriptors instead of embedding video or JPEG bytes. `storageStatus()` reports app accounting, browser estimate and persisted status; it does not request persistence permission. Storage failures have actionable `HistoryError.code` values (`storage_unavailable`, `blocked`, `quota_exceeded`, `limit_exceeded`, `source_changed`, `conflict`, `invalid_input`, `integrity_error`). No automatic deletion or eviction is performed by this module.
+
+## Limits and live evidence
+
+The application soft limit is 500 MiB, including metadata and assets; each video is limited to 100 MiB and metadata to 8 MiB. Evidence is at most 18 JPEG Blobs, each at most 1 MiB, identified by timestamp, phase, rep key and view epoch. Live telemetry accepts up to 10,000 samples, 512 notes and 2,000 reps. Limit failures preserve existing sessions atomically. Telemetry fields must be finite plain JSON; binary assets have dedicated fields. Samples retain validity/epoch information, and live recording alignment must remain explicitly approximate when clocks are not frame synchronized.
+
+## Verification
+
+Run `node harness/history/history.browser.test.mjs` for actual Chromium IndexedDB save/reload/video replay, atomic patch/conflict, immutable video, export descriptors, live evidence, corruption rejection and delete checks. It uses an ephemeral localhost origin, no camera and no external requests. Quota failure, app accounting boundary and unavailable IndexedDB are deliberately injected; this is not a Safari/private-mode or real disk-full certification. Results are recorded in `browser-verification.json`.
+
+Run `node --test harness/history/report-validation.test.mjs harness/history/live-recorder.test.mjs` for report consistency and bounded recording checks. The report validator checks saved Heavy and Full reports from both real fixture recordings; it does not rerun inference or provide accuracy ground truth.

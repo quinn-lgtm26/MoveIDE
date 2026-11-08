@@ -1,0 +1,18 @@
+{
+  "verifiedAtUtc": "2026-11-08T00:10:17.213Z",
+  "surface": "isolated Chromium IndexedDB on ephemeral localhost origin",
+  "checks": {
+    "reloadPreservesOriginalVideoReportAndReplay": true,
+    "atomicPatchesPreserveVideoAndRejectStaleRevision": true,
+    "jsonExportSeparatesBinaryAssets": true,
+    "savedVideoAndReportIdentityIsImmutable": true,
+    "applicationLimitsAndSimulatedQuotaRollback": true,
+    "simulatedAppCapRejectsWithoutEviction": true,
+    "coachingMustMatchSavedReportAndDerivedSegments": true,
+    "liveDataAndEvidenceAssetsPersist": true,
+    "corruptionRejectedAndExplicitDeletionClearsAssets": true,
+    "unavailableStorageHasActionableStatus": true
+  },
+  "limits": "Browser quota fault and app accounting boundary injected; unavailable IndexedDB simulated. Not an actual Safari/private-mode or disk-full test.",
+  "externalRequests": 0
+}

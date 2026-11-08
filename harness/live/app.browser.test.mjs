@@ -27,6 +27,8 @@ const server = await createServer({
 let browser, transport;
 try {
   await server.listen();
+  // Source edits in other work streams must not reload a running motion fixture.
+  await server.watcher.close();
   browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--autoplay-policy=no-user-gesture-required'] });
   const page = await browser.newPage({ viewport: { width: 1400, height: 1100 } });
   const errors = [], sends = [];
@@ -93,12 +95,28 @@ try {
   assert.equal(await page.evaluate(() => window.syntheticStream.getTracks().every(track => track.readyState === 'ended')), true);
   assert.equal(await page.locator('#start').isEnabled(), true);
   assert.equal(await page.locator('#ai-feed > li').count(), cards, 'Stop preserves accepted coaching cards');
+  await page.locator('#saved-sessions a').first().waitFor({ timeout: 15000 });
+  const persisted = await page.evaluate(async () => {
+    const { getSession } = await import('/harness/history/index.mjs');
+    const id = new URL(document.querySelector('#saved-sessions a').href).searchParams.get('session');
+    const saved = await getSession(id);
+    return { bytes: saved.video?.size, samples: saved.live.samples.length, notes: saved.live.notes.length, reps: saved.live.reps.length,
+      evidence: saved.evidenceImages.length, approximate: saved.live.timing.alignment, mapping: saved.live.timing.firstSampleMapping,
+      epochs: [...new Set(saved.live.samples.map(sample => sample.viewEpoch))], source: saved.metadata.source };
+  });
+  assert.ok(persisted.bytes > 0 && persisted.samples > 0 && persisted.reps > 0);
+  assert.equal(persisted.notes, cards); assert.ok(persisted.evidence >= cards && persisted.evidence <= 18);
+  assert.equal(persisted.approximate, 'approximate'); assert.ok(persisted.mapping); assert.ok(persisted.epochs.length >= 2);
+  assert.equal(persisted.source, 'local');
+  await page.locator('#save-local').uncheck();
   connectionState = 'disconnected';
   await page.locator('#start').click();
   assert.equal(await page.locator('#ai-feed > li').count(), 0, 'New session clears previous cards');
   await page.waitForFunction(() => document.querySelector('#knee').textContent !== '—', null, { timeout: 60000 });
   assert.ok((await page.locator('#ai').innerText()).includes('Connect the AI coach'), 'Stable local tracking must not promise AI when disconnected');
   await page.locator('#stop').click(); connectionState = 'connected';
+  assert.equal(await page.locator('#saved-sessions .save-result').count(), 1, 'Opting out saves no new session');
+  await page.locator('#save-local').check();
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Mobile layout must fit the viewport');
   assert.deepEqual(errors, []);

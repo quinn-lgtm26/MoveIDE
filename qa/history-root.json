@@ -1,0 +1,59 @@
+{
+  "verifiedAtUtc": "2026-11-08T00:07:23.190Z",
+  "revision": "0eff9f74b3d04d2329790db95e9d263fe587cc7c",
+  "surface": "Isolated development source; real Heavy; mocked AI; new browser profile/IndexedDB",
+  "checks": {
+    "saveDefaultOn": true,
+    "reportAndAcceptedCoachingShareOneID": true,
+    "originalVideoHashMatches": true,
+    "renamePersists": true,
+    "searchTitle": true,
+    "reopenRestoresReviewsWithoutAnalysis": true,
+    "reloadRouteRestoresWithoutInference": true,
+    "savedOverlayTraceEvidenceUsable": true,
+    "downloadOriginalBytes": true,
+    "downloadAnalysisIncludesCoaching": true,
+    "concreteDeleteConfirmation": true,
+    "mobileNoOverflow": true,
+    "deleteRemovesSession": true,
+    "optOutStoresNothing": true,
+    "storageFailurePreservesAnalysisAndExport": true,
+    "retrySaveRecovers": true,
+    "liveHistoryOpensWithoutAnalysisOrOverlay": true,
+    "liveShortNotesAndFullReason": true,
+    "retainedEvidenceDisplayedWithOriginalClock": true,
+    "liveMetricsHonorValidityAndUnits": true,
+    "liveExpandedMobileNoOverflow": true,
+    "noPageErrors": true
+  },
+  "errors": [],
+  "session": {
+    "summary": {
+      "id": "5347b56a-abb7-4b58-8d36-2b100105911c",
+      "kind": "recorded",
+      "title": "clear-squat",
+      "createdAt": 1794096443496,
+      "updatedAt": 1794096448846,
+      "revision": 2,
+      "hasVideo": true,
+      "videoBytes": 1344215,
+      "videoSha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "evidenceImageCount": 0,
+      "repCount": 2,
+      "durationMs": 3800,
+      "model": "mediapipe-pose-landmarker-heavy",
+      "hasCoaching": true
+    },
+    "reps": 2,
+    "hasCoaching": true,
+    "sourceHash": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d"
+  },
+  "status": "passed",
+  "interpretationRequests": 3,
+  "limits": [
+    "Controlled provider only; real account verification is separate.",
+    "Physical phone and live MediaRecorder behavior are verified separately.",
+    "Same browser origin storage only; no cloud synchronization or backup guarantee."
+  ],
+  "liveViewerFixture": "Seeded synthetic live metadata and JPEG with existing fixture video; actual MediaRecorder acceptance is separate."
+}

@@ -5,11 +5,17 @@ import { drawSquatOverlay, overlayFrameAt } from '../harness/motion/overlay.mjs'
 import { analyze, type PoseModel } from './analyze.ts';
 import { Compare } from './Compare.tsx';
 import { CompareRecordings } from './CompareRecordings.tsx';
+import { History, SessionDownloads, download } from './History.tsx';
+import type { SavedSession } from './History.tsx';
+import { createSessionId, saveSession } from '../harness/history/index.mjs';
+import { bindReportSource } from '../harness/motion/source-identity.mjs';
 import sampleUrl from '../fixtures/squat/clear-squat.mp4';
 import { prepareCoachingBundle, getCoachingSegments, coachingSegmentAt } from '../harness/coaching/index.mjs';
 import type { CoachingBundle, CoachingResponse, CoachingSegment } from '../harness/coaching/index.mjs';
 import { chatGPTProvider } from '../harness/provider/client.mjs';
 
+type SavedCoach = { packet: CoachingBundle['packet']; response: CoachingResponse; segments: CoachingSegment[] };
+type SaveDraft = { id: string; title: string; video: Blob; videoName: string; createdAt: number; report?: AnalysisReport; coaching?: SavedCoach; queue: Promise<unknown>; persisted?: boolean };
 type Status = 'idle' | 'loading' | 'analyzing' | 'ready' | 'error';
 
 const METRIC_LABEL: Record<Measurement['metric'], string> = {
@@ -30,9 +36,16 @@ const MODEL_LABEL: Record<string, string> = {
 export function App() {
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [clip, setClip] = useState<{ name: string; src: string } | null>(null);
+  const [clip, setClip] = useState<{ name: string; src: string; blob: Blob } | null>(null);
   const [model, setModel] = useState<PoseModel>('heavy');
   const [comparisonMode, setComparisonMode] = useState(false);
+  const [historyMode, setHistoryMode] = useState(() => window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session'));
+  const [historySessionId, setHistorySessionId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('session'));
+  const [saveEnabled, setSaveEnabled] = useState(true);
+  const [saveStatus, setSaveStatus] = useState('');
+  const [saveFailed, setSaveFailed] = useState(false);
+  const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
+  const saveDraft = useRef<SaveDraft | null>(null);
   const [status, setStatus] = useState<Status>('idle');
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +73,7 @@ export function App() {
 
   const invalidateSession = () => {
     playbackGeneration.current++;
+    saveDraft.current = null; setSavedSession(null); setSaveStatus(''); setSaveFailed(false);
     sampleRequest.current?.abort();
     sessionRequest.current?.abort();
     sessionRequest.current = new AbortController();
@@ -76,6 +90,20 @@ export function App() {
   // Release the old clip's object URL whenever the clip changes or the app unmounts.
   useEffect(() => () => { if (clip) URL.revokeObjectURL(clip.src); }, [clip]);
 
+  const persist = (draft: SaveDraft) => {
+    if (!draft.report) return;
+    const data = { id: draft.id, kind: 'recorded' as const, title: draft.title, createdAt: draft.createdAt, video: draft.video, report: draft.report,
+      coaching: draft.coaching ?? null, metadata: { videoName: draft.videoName, durationMs: draft.report.clip.durationMs, model: draft.report.poseModel.id } };
+    if (saveDraft.current === draft) { setSaveStatus('Saving on this device…'); setSaveFailed(false); }
+    // Serialize initial report and accepted coaching writes under this immutable source/session ID.
+    draft.queue = draft.queue.catch(() => {}).then(() => saveSession(draft.persisted ? { id: draft.id, coaching: data.coaching } : data)).then(saved => {
+      draft.persisted = true;
+      if (saveDraft.current === draft) { setSavedSession(saved); setSaveStatus('Saved on this device'); setSaveFailed(false); }
+    }, failure => {
+      if (saveDraft.current === draft) { setSaveStatus(`Could not save locally: ${failure instanceof Error ? failure.message : String(failure)}. Analysis remains available. Download or retry before leaving.`); setSaveFailed(true); }
+    });
+  };
+
   // One analysis per clip + model; a newer clip or model aborts the old run so a late result can't land.
   useEffect(() => {
     if (!clip || !active) return;
@@ -84,7 +112,7 @@ export function App() {
     setReport(null); setSelected(null); setSampleMs(null); setError(null); setProgress(0);
     setStatus('analyzing');
     analyze(clip.src, { signal, model, onProgress: (p) => !signal.aborted && setProgress(p) }).then(
-      (r) => { if (!signal.aborted) { setReport(r); setStatus('ready'); } },
+      (r) => { if (!signal.aborted) { setReport(r); setStatus('ready'); const draft = saveDraft.current; if (draft && draft.video === clip.blob) { draft.report = r; persist(draft); } } },
       (e) => { if (!signal.aborted) { setStatus('error'); setError(`Analysis failed: ${e?.message ?? e}`); setCoachStatus('Local analysis failed; no coaching evidence was sent.'); } },
     );
     return () => ctrl.abort();
@@ -118,6 +146,7 @@ export function App() {
         signal.throwIfAborted();
         const segments = getCoachingSegments(response, bundle.packet, report);
         setCoaching({ bundle, response, segments });
+        const draft = saveDraft.current; if (draft?.report === report) { draft.coaching = { packet: bundle.packet, response, segments }; persist(draft); }
         setCoachStatus(`AI analysis ready · ${coachModel.label} · short reviews stay saved as you play.`);
       } catch (e) {
         if (!signal.aborted) setCoachStatus(`AI coach unavailable — ${e instanceof Error ? e.message : String(e)} Local measurements remain available.`);
@@ -128,13 +157,14 @@ export function App() {
 
   const open = (file: File | undefined) => {
     if (!file) return;
-    setComparisonMode(false);
+    setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); window.history.replaceState(null, '', window.location.pathname);
     invalidateSession(); setActive(true); setCoachStatus('Local analysis starting…');
-    setClip({ name: file.name, src: URL.createObjectURL(file) });
+    if (saveEnabled) saveDraft.current = { id: createSessionId(), title: file.name.replace(/\.[^.]+$/, ''), video: file, videoName: file.name, createdAt: Date.now(), queue: Promise.resolve() };
+    setClip({ name: file.name, src: URL.createObjectURL(file), blob: file });
   };
 
   const openSample = async () => {
-    setComparisonMode(false);
+    setComparisonMode(false); setHistoryMode(false);
     invalidateSession(); setClip(null); setActive(true); setError(null);
     const ctrl = new AbortController(); sampleRequest.current = ctrl;
     setStatus('loading');
@@ -171,6 +201,29 @@ export function App() {
     } catch (e) { setCoachStatus(`Coach connection unavailable — ${e instanceof Error ? e.message : String(e)}`); }
   };
 
+  const showHistory = () => { stop(); setComparisonMode(false); setHistorySessionId(null); setHistoryMode(true); window.history.replaceState(null, '', `${window.location.pathname}#history`); };
+  const closeHistory = () => { setHistoryMode(false); setHistorySessionId(null); window.history.replaceState(null, '', window.location.pathname); };
+  const openSaved = (saved: SavedSession) => {
+    if (!saved.report || !saved.video) return;
+    stop(); invalidateSession(); setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null);
+    const src = URL.createObjectURL(saved.video);
+    bindReportSource(saved.report, src); // getSession verified the persisted original video's SHA before this association.
+    setClip({ name: String(saved.metadata?.videoName ?? saved.title), src, blob: saved.video });
+    setReport(saved.report); setActive(false); setStatus('ready'); setError(null); setSavedSession(saved); setSaveStatus('Saved session · replay only');
+    setModel(saved.report.poseModel.id.includes('heavy') ? 'heavy' : 'full');
+    if (saved.coaching) {
+      try { const {packet,response}=saved.coaching; const segments=getCoachingSegments(response,packet,saved.report); setCoaching({bundle:{packet,images:[],unavailableImages:[]},response,segments}); setFurthestMs(saved.report.clip.durationMs); }
+      catch { setCoachStatus('Saved video and measurements restored. Stored coaching could not be validated.'); window.history.replaceState(null, '', `?session=${encodeURIComponent(saved.id)}`); return; }
+    }
+    setCoachStatus('Saved session restored. Playback uses stored measurements and notes; no new analysis or AI request.');
+    window.history.replaceState(null, '', `?session=${encodeURIComponent(saved.id)}`);
+  };
+  useEffect(() => {
+    const route = () => { if (window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session')) { stop(); setHistorySessionId(new URLSearchParams(window.location.search).get('session')); setHistoryMode(true); } };
+    window.addEventListener('hashchange', route); window.addEventListener('popstate', route);
+    return () => { window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route); };
+  }, []);
+
   // Overlay: one clock (the video's mediaTime). Redraw on every presented frame, on seek, and on resize.
   useEffect(() => {
     const v = video.current, c = canvas.current;
@@ -199,7 +252,7 @@ export function App() {
     v.addEventListener('loadeddata', redraw);
     redraw();
     return () => { v.cancelVideoFrameCallback(handle); ro.disconnect(); v.removeEventListener('seeked', redraw); v.removeEventListener('loadeddata', redraw); clearOverlay(); };
-  }, [report]);
+  }, [report, historyMode, comparisonMode]);
 
   const trace = useMemo(() => (report ? getMotionTrace(report) : []), [report]);
   const here: MotionTraceSample | undefined = trace.find((s) => s.timestampMs === sampleMs);
@@ -218,7 +271,7 @@ export function App() {
   };
   // Arrow keys step analyzed samples (overriding the native 5 s seek) unless a form control has focus.
   useEffect(() => {
-    if (!report) return;
+    if (!report || historyMode || comparisonMode) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       if ((e.target as HTMLElement).closest?.('input, select, textarea')) return;
@@ -252,11 +305,13 @@ export function App() {
       <header>
         <a className="wordmark" href="/">MOVE<span>IDE</span></a>
         <nav aria-label="Session source" className="source-nav">
-          <a href="/" aria-current="page">Recorded clip</a>
+          <a href="/" aria-current={!historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); closeHistory(); }}>Recorded clip</a>
           <a href="/harness/live/">Live camera</a>
+          <a href="#history" aria-current={historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); showHistory(); }}>History</a>
         </nav>
       </header>
 
+      {historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={openSaved} onBack={closeHistory} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
       <section className="intro">
         <div>
           <p className="eyebrow">RECORDED CLIP</p>
@@ -277,7 +332,8 @@ export function App() {
               </select>
             </label>
           </div>
-          <p className="start-disclosure">Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
+          <label className="save-preference"><input type="checkbox" checked={saveEnabled} disabled={active} onChange={event => setSaveEnabled(event.target.checked)} /> Save on this device</label>
+          <p className="start-disclosure">When enabled, your original video, analysis and accepted notes are saved in this browser at this app address. Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
           <div className="toolbar">
             <button className="primary" onClick={openSample}>Start coached squat</button>
             <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Compare examples uses local measurements.'); setComparisonMode(true); }}>Compare examples</button>
@@ -293,6 +349,7 @@ export function App() {
       </section>
       <p role="status" aria-live="polite" className="fine">{coachStatus}</p>
 
+      {saveStatus && <div className="save-status" role="status"><p>{saveStatus}</p>{saveFailed && <div className="toolbar"><button onClick={() => { if(saveDraft.current) persist(saveDraft.current); }}>Retry save</button>{clip && <button onClick={() => download(clip.blob, clip.name)}>Download unsaved video</button>}{report && <button onClick={() => download(new Blob([JSON.stringify({report,coaching:coaching ? {packet:coaching.bundle.packet,response:coaching.response,segments:coaching.segments}:null},null,2)],{type:'application/json'}),'unsaved-analysis.json')}>Download unsaved analysis</button>}</div>}{savedSession && <SessionDownloads session={savedSession} />}</div>}
       {error && <p role="alert" className="error">{error} Choose another clip — an H.264 MP4 works in Chrome.</p>}
 
       {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus('Start a session for local tracking and connected AI coaching.'); }} /> : <>
@@ -401,6 +458,7 @@ export function App() {
       {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} />}
       </>}
 
+      </>}
       <footer>
         <small>
           Sample clips: subjects 010 and 004 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
