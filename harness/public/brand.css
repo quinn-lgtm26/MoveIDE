@@ -4,3 +4,8 @@
 .moveide-brand { display: inline-flex; align-items: center; min-height: 44px; color: #193e30; text-decoration: none; font: 800 20px system-ui, sans-serif; letter-spacing: -1px; }
 .moveide-brand span { font-weight: 400; }
 .moveide-brand:focus-visible { outline: 3px solid #58ac76; outline-offset: 4px; border-radius: 6px; }
+
+/* Live camera is a separate page: cross-fade page loads and hold the shared header still. */
+@view-transition { navigation: auto; }
+.moveide-header { view-transition-name: moveide-header; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
