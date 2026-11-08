@@ -1,6 +1,17 @@
 # MoveIDE
 
-Copy this into **Claude or Codex** to set up the existing app:
+<img src="harness/public/moveide-mark.svg" alt="MoveIDE movement logo" width="48" height="48">
+
+**Measure your squat. Understand your next rep.**
+
+Free, open-source squat analysis on your laptop, with optional coaching through your own ChatGPT account. Watch your movement, compare reps, and see the images and measurements behind each coaching note.
+
+[Get started](#get-started) · [Try the saved demo](#try-the-saved-demo) · [Read the pitch](docs/PITCH.md) · [Presentation](docs/PITCH.md#presentation) · [For judges](docs/JUDGES-START-HERE.md)
+
+**Measurement should be free. Knowing what to do about it is the product.**
+
+<details>
+<summary><strong>Set it up with Claude or Codex — copy this prompt</strong></summary>
 
 ```text
 Set up and run https://github.com/quinn-lgtm26/MoveIDE.git for me.
@@ -28,85 +39,126 @@ only the dedicated phone service may be public, never the account/provider servi
 Leave the working app running. Report the URL, revision and any remaining setup step.
 ```
 
-An open-source squat analysis and coaching app. Start with a recorded clip or a camera: MediaPipe Heavy measures motion locally, and an optional connected ChatGPT coach reviews bounded source images and measurements. Short coaching notes stay visible alongside the video.
+[More setup prompts, including iPhone pairing →](docs/AI-SETUP.md)
 
-**[Judges: download, connect and try the demo →](docs/JUDGES-START-HERE.md)**
+</details>
 
-[Set up with Claude or Codex](docs/AI-SETUP.md) · [Quickstart](docs/quickstart.md) · [Developer guide](docs/DEVELOPMENT.md) · [Current status and evidence](tracker.md)
+![MoveIDE: squat videos, pose overlays, movement comparisons and ChatGPT connection controls](docs/images/homepage.png)
 
-![MoveIDE homepage with the included squat examples and persistent ChatGPT connection controls](docs/images/homepage.png)
+*Homepage with bundled examples and a simulated disconnected account. [Screenshot details](docs/images/homepage.capture.json).*
 
-Current production homepage, captured in a fresh browser with the coach explicitly mocked as **Not connected**. The image uses bundled public examples; no personal history, camera or AI inference was used. [Capture details](docs/images/homepage.capture.json).
+<sub>Presentation link: awaiting the supplied URL.</sub>
 
-## Run it
+## Why MoveIDE
 
-Install [Node.js 22.18 or newer](https://nodejs.org/en/download) and Chrome. From a parent folder on macOS/Linux where `MoveIDE` does not already exist, run:
+Coaches and athletes already film their lifts. Turning that footage into measurements can mean another subscription and a cloud upload. Markerless AI’s Basic plan, for example, is $29/month; it also offers pay-as-you-go pricing. [Pricing](https://markerless.ai/pricing) · [Video processing](https://markerless.ai/privacy), checked November 7, 2026 Pacific.
+
+MoveIDE makes the measurement layer free and open source. See how far you lowered, how your body moved, how long each rep took, and what changed between reps. Local measurement needs no MoveIDE subscription or AI account.
+
+Google’s MediaPipe Heavy pose model estimates 33 body landmarks on your laptop. MoveIDE turns those points into squat measurements, graphs and video overlays. Connect your own eligible ChatGPT account for short, rep-by-rep coaching based on selected source images and measurements. Open **Why** to inspect the evidence behind a suggestion.
+
+[The pitch, product explanation and presentation notes →](docs/PITCH.md)
+
+## What you can do
+
+| Feature | What you see |
+| --- | --- |
+| **Review a recording** | Play, pause, slow down and step through a squat with a body overlay and estimated angles. |
+| **Measure your movement** | Knee bend, hip bend, chest lean, rep timing and a graph showing how they change. |
+| **Compare reps** | Compare your own reps or the two included examples at matching points in the movement. |
+| **Get optional AI coaching** | Short tips, an explanation and the saved images behind them. This version reviews up to six completed reps per live session. |
+| **Use a live camera** | Track on a Mac camera, or send iPhone video to the laptop using a private QR link and WebRTC. |
+| **Save and replay** | Keep recordings, measurements and accepted coaching in local History. Export a complete session and import it on another computer. |
+
+Current measurement support focuses on side-view squats. The movement logo represents the broader vision; gait and other exercises are not finished features.
+
+## Get started
+
+You need **macOS or Linux**, **[Node.js 22.18+](https://nodejs.org/en/download)** with npm, and **Google Chrome**. The command below also needs Git.
+
+From a folder where `MoveIDE` does not already exist:
 
 ```sh
-git clone https://github.com/quinn-lgtm26/MoveIDE.git && cd MoveIDE && npm run demo
+git clone https://github.com/quinn-lgtm26/MoveIDE.git
+cd MoveIDE
+npm run demo
 ```
 
-The launcher installs locked dependencies, downloads and verifies the pinned Heavy/Full models, builds the UI, and starts the local services. First setup needs network access, disk space and time for the downloads. Keep the terminal open; Ctrl+C stops its owned services.
+The launcher installs dependencies, downloads and verifies the pose models, builds the app and starts the local services. First setup needs internet access and may take several minutes. Keep the terminal open, then visit **[http://127.0.0.1:4173](http://127.0.0.1:4173/)**.
 
-**Prefer downloading a ZIP on a Mac?** On [GitHub](https://github.com/quinn-lgtm26/MoveIDE), choose **Code → Download ZIP**, extract it, then double-click **[Start MoveIDE.command](Start%20MoveIDE.command)** inside the extracted folder. With Node installed, that file runs the same automatic setup and launch. Keep its terminal open. If you prefer a terminal, run `npm run demo` from the extracted folder.
+**No Git?** Download the repository using **Code → Download ZIP**, extract it, and run `npm run demo` in that folder. On a Mac with Node installed, double-click **[Start MoveIDE.command](Start%20MoveIDE.command)** instead.
 
-Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1:4173/harness/live/)**. **Quick tour** highlights the real controls. Choose **Try a sample squat** for the bundled recording or **Compare examples** for two independently analyzed videos. Local measurements work without a ChatGPT connection. Use the persistent header's **Connect ChatGPT** button to sign in with your own eligible account, then start a sample or live session for automatic evidence-linked interpretation.
+Already installed? Preserve local changes, update safely with `git pull --ff-only`, then run `npm run demo`. If something is missing or a port is busy, run **`npm run doctor`** for a read-only check. [Full setup and troubleshooting](docs/quickstart.md).
 
-Already cloned? Preserve your work, update from main when safe, then run `npm run demo` again. Need diagnosis rather than another server? Use **`npm run doctor`**: it checks dependencies, model hashes, runtime files and local service state without installing, changing or stopping anything.
+## Try the saved demo
 
-## Replay the portable demo
+1. Open **History → Open demo session**. No camera or ChatGPT login is needed.
+2. Play the recording, pause to inspect the overlay, and choose a rep.
+3. Open **Rep 5 → Why** to see a movement suggestion and its supporting images. Then inspect the graph or compare the included examples.
 
-After updating an existing checkout with a safe `git pull --ff-only` and running `npm run demo`, choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [ten clean-browser checks](qa/published-demo-replay.json) verify the saved replay without new pose inference or AI. A fresh clone uses the same flow after setup.
+The bundled run contains **60.2 seconds of video, seven detected reps and six saved AI reviews**. The seventh rep has no AI note because this version caps live reviews at six. These are original saved results; replay does not ask the AI to generate them again.
 
-The designated demo is **Recorded demo · 7 reps**: approximately 60.2 seconds, seven detected reps and six saved AI reviews. The six-review session cap explains the missing seventh AI note; detected motion and reviewed motion are separate counts. Saved video, measurements, notes and evidence replay without a ChatGPT connection. Connect your own eligible account only to request new coaching.
+Use **Recording details and downloads → Export session** to move your own run. On the other computer, choose **History → Import session** and select the exported file. It includes video, notes, images, measurements and any prepared pose cache; it does not include account credentials.
 
-To move another session between computers, open its **Recording details and downloads → Export session**, then choose **History → Import session** on the destination and select the `.moveide.json` file. The portable package carries the original video, saved notes, source JPEG evidence, measurement data and any prepared pose-report cache together. Import creates a fresh local session ID; it does not transfer account credentials, pairing invitations or a ChatGPT connection. Saved notes are retained as recorded, not regenerated. Without a prepared pose cache, local pose preparation can run once; it makes no new AI request.
+[Judge walkthrough](docs/JUDGES-START-HERE.md) · [Verified demo and known issues](docs/FINAL-HANDOFF.md)
 
-If **Open demo session** is absent, update safely and rebuild, or import an exported session file. The [tracker](tracker.md) separates this verified saved-demo replay from the reported History reload issue, incomplete hosted QA and accuracy acceptance.
+## Start your own session
 
-## iPhone camera → MacBook
+Choose **Try a sample squat**, open a supported recorded clip, or select **Live camera**. For reliable squat measurements, use a steady side view with your whole body and feet visible. **Quick tour** shows the controls.
 
-Install [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/) and use this instead of the ordinary startup command:
+For AI coaching, use **Connect ChatGPT** in the header and sign in with your own eligible account before starting. Local tracking works without it. Coaching takes time: notes appear as reviews finish and stay available for replay. Press **Stop** to save a live session, and keep its original tab open until queued reviews finish. Starting again cancels unfinished reviews.
+
+<details>
+<summary><strong>Use your iPhone as the camera</strong></summary>
+
+Install [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/), then use this startup command instead:
 
 ```sh
 npm run demo -- --phone
 ```
 
-On the Mac, open **Live camera**, choose **iPhone via private link**, and Start. Scan the in-app QR with the iPhone, open it in Safari, tap **Start camera**, and allow the camera. Video streams to the Mac through WebRTC; local tracking and coaching captions return to the phone. The phone needs no MediaPipe installation. Keep the phone foregrounded and the whole body visible.
+On the Mac, open **Live camera → iPhone via private link → Start coached squat**. Scan the QR code with your iPhone, open the link in Safari, tap **Start camera** and allow camera access. Keep both devices on the same Wi-Fi and the phone page open.
 
-Only the dedicated pairing service4176 gets temporary HTTPS access. The credential-bearing app/provider4173 stays private. QR encoding is local. Do not publish the pairing link. See [the complete phone checklist and recovery steps](docs/quickstart.md#iphone--macbook).
+The phone sends video to the Mac; the Mac runs pose tracking and sends feedback back. The phone needs no pose-model installation. Only the dedicated phone service gets temporary HTTPS access; the app and account service remain private. Keep the pairing link private. Venue Wi-Fi may restrict connections, so rehearse on the actual devices.
 
-## What is available
+[Phone setup and recovery checklist →](docs/quickstart.md#iphone--macbook)
 
-- Recorded Heavy/Full analysis, rep segmentation, source-timed measurements, full-body overlays and replay controls.
-- One-Start optional AI coaching with cited evidence. Each live rep can include every other analyzed source frame across the rep (up to 32 JPEGs) and 31 timestamped knee/hip/chest-angle samples; missing evidence stays unavailable. Full video stays local, and playback/seek does not request new inference.
-- Two actual video examples with independent hashes, rep selection, phase anchors and descriptive metric differences.
-- Live camera analysis and QR/WebRTC phone transport with bounded asynchronous coaching.
-- Local angle timelines, completed-rep phase/timing summaries and personal reference curves aligned for pace. Visual practice bands are not accuracy estimates or universal good-form zones.
-- OpenCap result import labeled as imported/unverified; native inference remains deferred.
-- Local session history: save recorded originals and accepted notes, record live video on the receiving computer, then reopen, search, rename, export/import a portable session, download or delete. Replay makes no new AI request. [History behavior and limits](docs/HISTORY.md).
+</details>
 
-Measurements are projected or explicitly experimental estimates, not independently validated anatomical angles. Physical iPhone/venue acceptance and moving-camera/orbit accuracy remain separate from the browser fixture tests. The examples are not a validated good/bad technique pair. [Read what was actually tested](qa/latest-local-checkpoint.json).
+## Where your data goes
 
-## Save and review
-
-“Save on this device” is on by default. For live sessions, press **Stop** to finalize and save; recordings are limited to five minutes / 100 MiB and may cover only the beginning of a longer session. History belongs to this browser profile at this app address. Use Export session for a portable backup with video, notes and evidence; separate original-video and measurement downloads remain available. ChatGPT sign-in does not sync recordings. If saving fails, use Retry or download the unsaved video and analysis before leaving.
-
-The earlier polished `f4a987a` Wren rerun passed **3/3**. Later queue, replay, graph and reference changes have their own local evidence; the latest Wren report flags a misleading History reload error, and its second case has no verdict yet. See the [current evidence and remaining checklist](tracker.md). Physical iPhone and independent movement accuracy remain separate gates. Live Stop drains queued reviews while the original tab remains open; wait for them to finish before leaving.
-
-## Developers and coding assistants
-
-| Start here | Purpose |
+| Data | Where it is used |
 | --- | --- |
-| [Claude and Codex copy-paste prompts](docs/AI-SETUP.md) | Set up the existing product, verify it, and leave it running |
-| [Development guide](docs/DEVELOPMENT.md) | Commands, architecture, module contracts, tests, parallel work and release checklist |
-| [Frontend handoff](harness/FRONTEND-HANDOFF.md) | Shared APIs and integration requirements |
-| [UI/UX amendment](docs/frontend-design-amendments.md) | One-Start flow, stable coaching cards, capture/recovery and uncertainty |
-| [Global tracker](tracker.md) and [epics](_bmad-output/specs/epics.md) | Owners, implementation status and acceptance evidence |
-| [workflow.html](workflow.html) | Download/open the standalone interactive development workflow |
-| [AnalysisReport/CoachPacket contract](_bmad-output/specs/shared/analysis-report-v1.md) | Versioned shared data and evidence rules |
-| [Fixture provenance](fixtures/squat/README.md) | Attribution, labels and what they do or do not prove |
+| Full recording and pose measurements | Processed on your laptop; saved in this browser’s local History when saving is enabled. |
+| Optional AI review | Selected source JPEGs and a bounded measurement summary go to the connected ChatGPT service. The full video is not sent to ChatGPT. |
+| iPhone camera feed | Streams to the paired laptop through WebRTC. Recording and analysis happen on the receiving laptop. |
+| Exported session | A portable copy you choose to transfer. ChatGPT sign-in does not synchronize History. |
 
-For a controlled development build, `CI=1 npm run dev` skips the historical automatic Git pull. `npm run typecheck`, `npm test` and `CI=1 npm run build` are the main local gates. Chrome is required for the default browser tests; see the developer guide for scoped verifiers. No Seldon credits are needed to install or use local analysis. Final Wren runs are budgeted separately in [AI.md](AI.md) and [the ledger](qa/seldon-ledger.md).
+Local measurement is free. Optional AI requires your own eligible account and is subject to its usage limits. Source-image selection is bounded to up to 32 images per reviewed live rep; it is not continuous full-video AI streaming.
 
-Source is [MIT](LICENSE); model/runtime, QR and dataset attributions are in [third-party notices](harness/setup/THIRD-PARTY-NOTICES.md) and the fixture documentation.
+“Save on this device” is on by default. Live recordings are bounded to five minutes / 100 MiB and may cover only the start of a longer session. If saving fails, retry or download the unsaved recording before leaving. [History and storage details](docs/HISTORY.md).
+
+## What the results mean
+
+Angles are camera-based estimates, not validated anatomical measurements. Comparison curves show differences between reps; their shaded bands are visual guides, not a universal good-squat zone. Saved live coaching uses approximate recording-time alignment, while prepared pose replay follows the recorded video’s timestamps. Open the original images when you want to inspect what the AI saw.
+
+The selected demo clips each match two manually labeled reps, with bottom-timing errors of 0 and 67 ms within a 150 ms tolerance. The older occluded challenge clip misses its labeled reps; there is no independent joint-angle accuracy certification. [Measurement evidence and limits](docs/FINAL-HANDOFF.md#developer-evidence-map).
+
+The current release has **150 passing local tests**, **12 public preflight checks**, and **10 saved-demo replay checks**. Final hosted QA is **not a clean pass**: a History reload error is reported and the latest documented run has an outstanding verdict. [Current status](tracker.md) · [QA handoff](docs/FINAL-HANDOFF.md) · [Seldon evidence](qa/seldon-ledger.md).
+
+## Documentation
+
+| I want to… | Read this |
+| --- | --- |
+| Understand the product or present it | [Pitch and presentation](docs/PITCH.md) |
+| Try it as a judge | [Judge guide](docs/JUDGES-START-HERE.md) |
+| Set up or fix my installation | [Quickstart](docs/quickstart.md) · [Claude/Codex prompts](docs/AI-SETUP.md) |
+| Understand recordings and replay | [History guide](docs/HISTORY.md) |
+| Develop the product | [Developer guide](docs/DEVELOPMENT.md) · [Frontend handoff](harness/FRONTEND-HANDOFF.md) |
+| Integrate the harness | [Harness API](harness/README.md) · [AnalysisReport contract](_bmad-output/specs/shared/analysis-report-v1.md) |
+| See the plan and verification | [Tracker](tracker.md) · [Epics](_bmad-output/specs/epics.md) · [Interactive workflow](workflow.html) |
+| Check attribution | [Fixture sources](fixtures/squat/README.md) · [Third-party notices](harness/setup/THIRD-PARTY-NOTICES.md) |
+
+For development: `npm run typecheck`, `npm test`, and `CI=1 npm run build`. Use `CI=1 npm run dev` to skip the historical automatic Git pull. Chrome is required for browser tests. OpenCap import is available in the harness; native OpenCap inference and expanded movement support remain outside this demo.
+
+MoveIDE source is licensed under **[MIT](LICENSE)**. Model, runtime and dataset licenses are listed separately in the notices above.

@@ -2,6 +2,8 @@
 
 MoveIDE has a React recorded workbench, a browser-native live page, shared local motion/coaching modules, a private Node provider, and a dedicated phone-signaling service. Start with [the tracker](../tracker.md); evidence names its tested revision and does not transfer automatically to later builds.
 
+Product language, the demo story and the forthcoming slide link live in [the pitch](PITCH.md). Keep README and presentation claims aligned with the implementation and evidence listed in [the handoff](FINAL-HANDOFF.md).
+
 ## Environment and commands
 
 Use Node22.18+ and macOS/Linux. Node26.13.0 on macOS is the current tested development environment. Chrome must be installed for the repository's default Playwright browser tests. Camera/ChatGPT permission and physical iPhone tests are separate from automated fixtures. Optional phone mode uses an installed cloudflared executable.

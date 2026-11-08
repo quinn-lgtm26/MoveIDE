@@ -1,6 +1,6 @@
 # Try MoveIDE
 
-[GitHub repository](https://github.com/quinn-lgtm26/MoveIDE) · [Current delivery status](../tracker.md) · [QA evidence](../qa/PRODUCT-CONTEXT.md)
+[GitHub repository](https://github.com/quinn-lgtm26/MoveIDE) · [Current delivery status](../tracker.md) · [QA evidence](../qa/PRODUCT-CONTEXT.md) · [Pitch](PITCH.md) · [Presentation](PITCH.md#presentation)
 
 MoveIDE turns a squat video into local motion measurements, rep comparisons and optional evidence-linked ChatGPT coaching. The saved-session demo replays a recording with its existing coaching; no camera, phone or ChatGPT login is required. New analysis remains available through the included example clips.
 

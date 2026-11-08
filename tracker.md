@@ -2,6 +2,10 @@
 
 Updated 2026-11-08 UTC (2026-11-07 Pacific). User accepted the demo and requested documentation only. Runtime `ab492c0` remains unchanged. The published saved demo passes **10 replay checks**, exact public preflight **12 checks**, and the complete local suite **150 tests** (142 harness + 8 launcher/doctor); typecheck/build pass. Latest Wren run `f0047a86` has one reported failure (a misleading History error after reload) and one workflow without a verdict. This is **not a final hosted QA pass**. See [final handoff](docs/FINAL-HANDOFF.md) for demo steps, known issues and scope. Physical-device and independent accuracy acceptance remain separate.
 
+## README and pitch handoff
+
+The README now leads with the product story, an expandable Claude/Codex setup prompt, the homepage image, plain-language features and setup/demo paths. [Pitch and presentation notes](docs/PITCH.md) contain the current spoken pitch, a product-introduction slide after the problem, and a short demo story. README and judge-guide Presentation links point to its clearly labeled placeholder until the user supplies the actual deck URL. Competitor pricing and processing references were checked November 7, 2026 Pacific. Local measurement, optional image-based AI, the six-review cap and approximate live-note replay timing are distinguished. This documentation update changes no product runtime or QA verdict.
+
 ## Last Wren-verified phone repair — `32159db` (historical build)
 
 Published to main and the existing localhost4173 service without restarting the account or replacing browser storage. [128-test checkpoint](qa/phone-repair-checkpoint.json). [Public production preflight](qa/phone-repair-public-preflight.json) passes12 gates. [Real HTTPS/WebRTC/Heavy/ChatGPT delayed-review regression](qa/phone-queued-review.json) passes: populated graph/angles, returned local feedback, Stop before response, accepted AI about11s later, same saved session and unchanged verified video hash. This used a public fixture stream, not a physical iPhone.

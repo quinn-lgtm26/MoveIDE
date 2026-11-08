@@ -1,6 +1,6 @@
 # Start the MoveIDE demo
 
-Use the [Claude/Codex copy-paste prompts](AI-SETUP.md) for an assisted setup, or the commands below. Developers can follow [DEVELOPMENT.md](DEVELOPMENT.md).
+Use the [Claude/Codex copy-paste prompts](AI-SETUP.md) for an assisted setup, or the commands below. Developers can follow [DEVELOPMENT.md](DEVELOPMENT.md). For the product story and slides, see [the pitch and presentation](PITCH.md).
 
 From the repository on your Mac:
 
