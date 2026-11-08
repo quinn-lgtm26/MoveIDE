@@ -126,3 +126,6 @@
 .history .rep-filmstrip img { display: block; width: 86px; height: 112px; object-fit: contain; background: #10261d; border-radius: 7px; }
 .history .rep-filmstrip span { display: block; font-size: 10px; white-space: nowrap; padding: 6px 0 2px; }
 @media (min-width: 1400px) { .history .replay-trace-section { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
+
+/* Keep the selected replay rep readable in every pointer state. */
+.history .replay-rep-list button[aria-pressed="true"], .history .replay-rep-list button[aria-pressed="true"]:hover { background: #193e30; color: #f3ffe9; }

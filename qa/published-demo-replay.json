@@ -1,0 +1,50 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:34:24.357Z",
+  "scope": "Fresh isolated browser imports the explicitly approved bundled actual user session through Open demo session. Cached replay only; no camera, Heavy worker or AI request. UI proof is not independent motion accuracy.",
+  "checks": {
+    "freshProfileAndLazyDemoLoad": true,
+    "actualBundleCountsAndVideoHashPreserved": true,
+    "reloadRestoresSameLocalAssetsAndCache": true,
+    "pausedCachedPoseDrawsNear19Point4Seconds": true,
+    "retainedSessionGraphPopulated": true,
+    "firstAndLastAcceptedRepNotesStayAligned": true,
+    "unreviewedRepDoesNotReuseAnotherNote": true,
+    "actualOrderedSnapshotsAvailable": true,
+    "noNewWorkersAIOrPageErrors": true
+  },
+  "errors": [],
+  "session": {
+    "id": "edadf6ab-a43b-44de-9206-256495cce6ff",
+    "hash": "cbb2d476665b14f3bd40a9cc55fc126e4ea558ef6b4a7ec127c90b234a63355b",
+    "bytes": 15056569,
+    "repCount": 7,
+    "noteCount": 6,
+    "imageCount": 75,
+    "samples": 198,
+    "poseFrames": 903,
+    "clipId": "saved-pose:cbb2d476665b14f3bd40a9cc55fc126e4ea558ef6b4a7ec127c90b234a63355b",
+    "usable": 755,
+    "noteRepOrdinals": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "reviewStates": [
+      "ready",
+      "ready",
+      "ready",
+      "ready",
+      "ready",
+      "ready",
+      "not-queued"
+    ]
+  },
+  "pose": {
+    "timestampMs": 19401,
+    "paintedPixels": 2237
+  },
+  "status": "passed"
+}
