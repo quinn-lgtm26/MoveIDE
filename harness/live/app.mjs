@@ -11,6 +11,17 @@ const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d
 let controller, media, analysis, receiver, pairing, phoneFeedback, currentCoach, coachingPauseKey, latest, lastArrived = 0, animation, completed = 0;
 const degrees = value => Number.isFinite(value) ? `${value.toFixed(0)}°` : '—';
 const elapsed = milliseconds => `${(milliseconds / 1000).toFixed(1)}s`;
+const PHASE = { standing: 'Standing', descent: 'Going down', 'near-bottom': 'Near the bottom', ascent: 'Coming up', moving: 'Moving', unknown: 'Finding you' };
+const formCheck = age => !Number.isFinite(age) ? 'Form check off' : `Form check ${age <= 500 ? 'live' : 'delayed'} · ${(age / 1000).toFixed(1)} s`;
+// Why squat numbers are paused, in the user's terms: [phase chip, headline, detail].
+function pauseReason({ dimensionsMatch, poseVisible, fresh, guardState, analysisEligible }) {
+  if (!dimensionsMatch) return ['Camera changed', 'Hold still for a moment.', 'The camera view changed, so we’re re-locking on you. Start your next rep from standing.'];
+  if (!poseVisible) return ['Can’t see all of you', 'Step back into the frame.', 'Keep your head, hips, knees and feet in view.'];
+  if (!fresh) return ['Catching up', 'Hold still for a moment.', 'The form check fell behind. It resumes as soon as it catches up.'];
+  if (guardState !== 'stable') return ['Locking on to you', 'Hold still for a second.', 'Once you’re steady, start your next rep from standing.'];
+  if (!analysisEligible) return ['Turn side-on', 'Turn side-on to the camera.', 'We can see you. Depth and chest angle need a side view.'];
+  return null;
+}
 
 const briefFocus = text => text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
 
@@ -20,7 +31,7 @@ function appendCoachingCard(event, result, cite, signal) {
       [...feed.children].some(card => card.dataset.repKey === event.key)) return false;
   const followLatest = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 48;
   const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key; card.dataset.epoch = String(event.epoch);
-  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.textContent = `Evidence at ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1} · delayed AI review`;
+  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.textContent = `Rep at ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1}`;
   const focus = document.createElement('p'); focus.className = 'coaching-focus'; focus.textContent = briefFocus(result.nextFocus.text);
   const why = document.createElement('details'), summary = document.createElement('summary'); summary.textContent = 'Why';
   const observations = document.createElement('ul');
@@ -48,12 +59,12 @@ function liveCoach(signal, onResult = () => {}) {
     try {
       const connection = await chatGPTProvider.getConnection(signal);
       if (signal.aborted) return;
-      if (connection.state !== 'connected') { coachState = 'offline'; $('ai').textContent = 'Connect the AI coach on the Recorded clip page to add AI coaching. Local tracking stays on.'; return; }
+      if (connection.state !== 'connected') { coachState = 'offline'; $('ai').textContent = 'Connect ChatGPT on the Recorded clip page to get coach notes. Your form check works without it.'; return; }
       const models = await chatGPTProvider.listModels(signal);
       if (signal.aborted) return;
       model = models[0]?.id; coachState = model ? 'ready' : 'offline';
-      $('ai').textContent = model ? 'Connected · waiting for a stable side view and complete reps.' : 'No ChatGPT model available. Local tracking stays on.';
-    } catch { if (!signal.aborted) { coachState = 'offline'; $('ai').textContent = 'ChatGPT unavailable. Local tracking stays on.'; } }
+      $('ai').textContent = model ? 'Connected · notes arrive after finished reps.' : 'No ChatGPT model available. Your form check keeps running.';
+    } catch { if (!signal.aborted) { coachState = 'offline'; $('ai').textContent = 'Can’t reach ChatGPT. Your form check keeps running.'; } }
   })();
   const coach = async event => {
     if (signal.aborted || !currentEvidence(event) || !model || busy || sent >= 6 || performance.now() - lastSent < 8000 || seen.has(event.key)) return;
@@ -64,7 +75,7 @@ function liveCoach(signal, onResult = () => {}) {
     } catch { return; }
     busy = true; coachState = 'reviewing'; sent++; lastSent = performance.now(); seen.add(event.key);
     if (sent >= 6) $('ai-limit').hidden = false;
-    $('ai').textContent = `AI reviewing rep at ${elapsed(event.rep.bottomMs)}… Keep moving.`;
+    $('ai').textContent = `Coach is reviewing your rep at ${elapsed(event.rep.bottomMs)}… keep going.`;
     try {
       const result = validateCoachingResponse(await chatGPTProvider.interpret(packet, images, { model, signal }), packet);
       if (signal.aborted) return;
@@ -73,15 +84,15 @@ function liveCoach(signal, onResult = () => {}) {
       const cite = item => `${item.text} [${[...new Set(item.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
       if (!appendCoachingCard(event, result, cite, signal)) return;
       coachState = 'reviewed';
-      $('ai').textContent = stillCurrent ? `Next focus: ${briefFocus(result.nextFocus.text)}` : `Historical review added · ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1}.`;
+      $('ai').textContent = stillCurrent ? `Next focus: ${briefFocus(result.nextFocus.text)}` : `Note added for your earlier rep at ${elapsed(event.rep.bottomMs)}.`;
       onResult({ kind: 'ai', text: briefFocus(stillCurrent ? result.nextFocus.text : `Earlier view ${event.epoch + 1}: ${result.nextFocus.text}`), sourceTimestampMs: event.rep.bottomMs }, event.epoch);
-    } catch { if (!signal.aborted) { coachState = 'error'; $('ai').textContent = 'AI feedback unavailable for that completed rep. Local tracking continues.'; } }
+    } catch { if (!signal.aborted) { coachState = 'error'; $('ai').textContent = 'Couldn’t get a coach note for that rep. Your form check keeps running.'; } }
     finally { busy = false; }
   };
   coach.viewChanged = () => {
     if (signal.aborted) return;
-    if (coachState === 'reviewed') $('ai').textContent = 'Earlier AI reviews remain below. Current view status is shown above.';
-    if (coachState === 'reviewing') $('ai').textContent = 'AI review in progress for a completed rep. Current view status is shown above.';
+    if (coachState === 'reviewed') $('ai').textContent = 'Your earlier notes stay below.';
+    if (coachState === 'reviewing') $('ai').textContent = 'Coach is still reviewing your last finished rep.';
   };
   return coach;
 }
@@ -106,17 +117,17 @@ function render() {
   const dimensionsMatch = latest?.report.clip.widthPx === video.videoWidth && latest?.report.clip.heightPx === video.videoHeight;
   const displayUsable = latest?.poseDisplayFrame.quality === 'usable' && age <= 500 && dimensionsMatch;
   const metricsUsable = displayUsable && latest.analysisEligible;
-  $('age').textContent = latest ? `Local pose age ${Math.round(age)} ms` : 'Waiting for pose';
+  $('age').textContent = formCheck(age);
   if (!metricsUsable) {
     for (const id of ['knee', 'hip', 'torso']) $(id).textContent = '—';
     $('feedback').dataset.state = 'unknown';
-    $('phase').textContent = 'Current squat metrics unavailable';
+    $('phase').textContent = 'Waiting for you';
     if (latest) {
+      const [chip, cue, detail] = pauseReason({ dimensionsMatch, poseVisible: latest.poseDisplayFrame.quality === 'usable', fresh: age <= 500, guardState: latest.viewGuard.state, analysisEligible: latest.analysisEligible });
       phoneFeedback?.({ kind: 'status', text: 'Current coaching paused. Hold a clear side view; earlier notes describe an earlier rep.', sourceTimestampMs: latest.timestampMs });
       pauseCurrentCoaching(!dimensionsMatch ? 'dimensions-changed' : age > 500 ? 'stale-frame' : latest.viewGuard.reason);
-      $('cue').textContent = !displayUsable ? 'Let the view settle.' : 'Turn side-on for squat metrics.';
-      $('detail').textContent = !displayUsable ? 'Comparisons pause after tracking or view changes. Hold a clear view, then begin again from standing.' : 'Full-body tracking is visible. Squat depth and coaching still require a stable side view.';
-      $('status').textContent = !displayUsable ? 'Reacquiring a stable view' : 'Pose visible · side metrics unavailable';
+      $('phase').textContent = chip; $('cue').textContent = cue; $('detail').textContent = detail;
+      $('status').textContent = displayUsable ? 'We can see you' : 'Finding you';
     }
   }
   if (!displayUsable) { context.clearRect(0, 0, canvas.width, canvas.height); return; }
@@ -131,9 +142,9 @@ function render() {
   context.fillRect(0, 0, canvas.width, canvas.height); context.restore();
   if (!metricsUsable) return;
   coachingPauseKey = null;
-  $('status').textContent = $('source').value === 'phone' ? 'Live · iPhone · local analysis' : 'Live · local analysis';
+  $('status').textContent = $('source').value === 'phone' ? 'Live · iPhone' : 'Live';
   for (const [id, key] of [['knee', 'kneeFlexionDeg'], ['hip', 'hipFlexionDeg'], ['torso', 'torsoLeanDeg']]) $(id).textContent = degrees(latest.metrics[key]);
-  $('phase').textContent = `${latest.phase.replaceAll('-', ' ')} · provisional`;
+  $('phase').textContent = PHASE[latest.phase] ?? 'Moving';
   $('feedback').dataset.state = latest.feedback.state;
   $('cue').textContent = latest.feedback.state === 'target-met' ? 'Your depth goal, reached.' : 'Keep your rhythm.';
   $('detail').textContent = latest.feedback.label;
@@ -149,7 +160,7 @@ function stop(message = 'Session stopped') {
   media?.getTracks().forEach(track => track.stop()); media = null;
   video.srcObject = null;
   cancelAnimationFrame(animation);
-  latest = null; clearTracking(); $('view-status').textContent = 'Measurements resume after a stable side view is established.';
+  latest = null; clearTracking(); $('view-status').textContent = 'Numbers appear once you’re side-on and steady.';
   $('source').disabled = false;
   $('pairing').hidden = true; $('phone-url').value = ''; $('pairing-expiry').textContent = '';
   $('pairing-qr').hidden = true; $('phone-qr').width = 0; $('phone-qr').height = 0;
@@ -158,9 +169,9 @@ function stop(message = 'Session stopped') {
   $('empty').hidden = false; $('status').textContent = message;
   $('feedback').dataset.state = 'unknown'; $('cue').textContent = 'One rep at a time.';
   $('detail').textContent = 'Start a new session whenever you are ready.';
-  $('phase').textContent = 'Awaiting movement'; $('age').textContent = 'No pose yet';
+  $('phase').textContent = 'Waiting for you'; $('age').textContent = formCheck(Infinity);
   const reviews = $('ai-feed').children.length;
-  $('ai').textContent = reviews ? `Session stopped · ${reviews} AI ${reviews === 1 ? 'review' : 'reviews'} saved below.` : 'Session stopped · no AI reviews yet.';
+  $('ai').textContent = reviews ? `Session stopped · ${reviews} coach ${reviews === 1 ? 'note' : 'notes'} below.` : 'Session stopped · no coach notes yet.';
 }
 
 async function waitForVideo(signal) {
@@ -205,7 +216,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
       if (controller === own) stop('Camera disconnected. Start a new session.');
     }, { once: true }));
     video.srcObject = stream; await video.play(); await waitForVideo(own.signal); own.signal.throwIfAborted();
-    $('empty').hidden = true; $('status').textContent = 'Preparing Heavy pose model';
+    $('empty').hidden = true; $('status').textContent = 'Getting the form check ready';
     $('pairing-title').textContent = 'iPhone connected.';
     $('pairing-help').textContent = 'Keep Safari in the foreground and your phone awake. Tracking and coaching start here automatically.';
     $('cue').textContent = 'Finding your movement.'; $('detail').textContent = 'Stand side-on with your whole body visible.';
@@ -217,12 +228,12 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
         const changedEpoch = latest && latest.viewGuard.epoch !== sample.viewGuard.epoch;
         latest = sample; lastArrived = performance.now();
         video.dataset.analysisEpoch = String(sample.viewGuard.epoch);
-        $('view-status').textContent = sample.analysisEligible ? 'Stable side view · estimated angles' : sample.viewGuard.state !== 'stable' ? 'Hold a clear view while tracking settles.' : 'Turn side-on for squat measurements.';
+        $('view-status').textContent = sample.analysisEligible ? 'Good side view · measuring each rep.' : sample.viewGuard.state !== 'stable' ? 'Hold still while we lock on to you.' : 'Turn side-on so we can measure depth.';
         for (const [id, key] of [['knee', 'kneeFlexionDeg'], ['hip', 'hipFlexionDeg'], ['torso', 'torsoLeanDeg']]) { $(id).dataset.validity = sample.metricValidity[key].status; $(id).title = sample.metricValidity[key].reason.replaceAll('_', ' '); }
-        if (changedEpoch) { pauseCurrentCoaching('epoch-changed'); $('rep').textContent = 'View changed. Previous coaching cards remain below; begin a new rep from standing.'; $('rep').removeAttribute('data-state'); }
+        if (changedEpoch) { pauseCurrentCoaching('epoch-changed'); $('rep').textContent = 'The view changed. Your earlier notes stay below. Start your next rep from standing.'; $('rep').removeAttribute('data-state'); }
         if (!sample.analysisEligible) pauseCurrentCoaching(sample.viewGuard.reason);
         $('latency').textContent = `${Math.round(sample.processingLatencyMs)} ms · ${sample.stats.analyzedHz.toFixed(1)} analyzed fps`;
-        if (sample.analysisEligible && sample.frame.quality === 'usable' && sample.processingLatencyMs <= 500) sendFeedback({ kind: 'local', text: `${degrees(sample.metrics.kneeFlexionDeg)} projected knee flexion · ${sample.phase.replaceAll('-', ' ')} (provisional). ${sample.feedback.label}`, sourceTimestampMs: sample.timestampMs });
+        if (sample.analysisEligible && sample.frame.quality === 'usable' && sample.processingLatencyMs <= 500) sendFeedback({ kind: 'local', text: `Knee bend ${degrees(sample.metrics.kneeFlexionDeg)} · ${PHASE[sample.phase] ?? 'Moving'}. ${sample.feedback.label}`, sourceTimestampMs: sample.timestampMs });
       },
       onRepComplete(event) {
         if (controller !== own || own.signal.aborted) return;
@@ -235,7 +246,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
     });
     if (own.signal.aborted || controller !== own) { session.stop(); return; }
     analysis = session;
-    $('status').textContent = source === 'phone' ? 'Live · iPhone · local analysis' : 'Live · local analysis'; render();
+    $('status').textContent = source === 'phone' ? 'Live · iPhone' : 'Live'; render();
   } catch (error) { sessionFailed(own, error); }
 }
 
@@ -266,7 +277,7 @@ $('start').onclick = async () => {
   $('error').textContent = ''; $('phone-setup').hidden = true;
   $('start').disabled = true; $('stop').hidden = false; $('source').disabled = true;
   $('status').textContent = source === 'phone' ? 'Creating private phone link' : 'Allow camera access';
-  completed = 0; $('count').textContent = '0'; $('rep').textContent = 'Your completed-rep feedback will appear here.';
+  completed = 0; $('count').textContent = '0'; $('rep').textContent = 'How your last rep went will show here.';
   $('rep').removeAttribute('data-state'); $('latency').textContent = '—';
   $('ai').textContent = 'Checking ChatGPT connection…'; $('ai-limit').hidden = true;
   $('ai-feed').replaceChildren(); $('ai-feed').scrollTop = 0; $('ai-empty').hidden = false;

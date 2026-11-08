@@ -13,18 +13,16 @@ import { chatGPTProvider } from '../harness/provider/client.mjs';
 type Status = 'idle' | 'loading' | 'analyzing' | 'ready' | 'error';
 
 const METRIC_LABEL: Record<Measurement['metric'], string> = {
-  knee_flexion: 'Knee flexion', rep_duration: 'Rep duration', torso_lean: 'Torso lean',
+  knee_flexion: 'Depth (knee bend)', rep_duration: 'Rep time', torso_lean: 'Chest angle',
 };
-const fmt = (m: Measurement & { quality: 'usable' }) => (m.unit === 'deg' ? `${m.value.toFixed(1)}°` : `${m.value} ms`);
-const deg = (v: number | null) => (v === null ? 'unavailable' : `${v.toFixed(1)}°`);
+const sec = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
+const repName = (id: string) => id.replace(/^rep-/, 'Rep ');
+const fmt = (m: Measurement & { quality: 'usable' }) => (m.unit === 'deg' ? `${m.value.toFixed(0)}°` : sec(m.value));
+const deg = (v: number | null) => (v === null ? '—' : `${v.toFixed(0)}°`);
 const shortCue = (segment: CoachingSegment, response: CoachingResponse) => {
   const text = segment.hasNextFocus ? response.nextFocus.text
     : response.observations[segment.observationIndices[0]]?.text ?? 'Review this rep’s cited evidence.';
   return text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
-};
-const MODEL_LABEL: Record<string, string> = {
-  'mediapipe-pose-landmarker-heavy': 'MediaPipe Pose Heavy',
-  'mediapipe-pose-landmarker-full': 'MediaPipe Pose Full',
 };
 
 export function App() {
@@ -46,7 +44,7 @@ export function App() {
   const [active, setActive] = useState(false);
   const [mediaMs, setMediaMs] = useState(0);
   const [furthestMs, setFurthestMs] = useState(0);
-  const [coachStatus, setCoachStatus] = useState('Start a session for local tracking and connected AI coaching.');
+  const [coachStatus, setCoachStatus] = useState('Try the sample or upload a side-on squat video to get started.');
   const [coaching, setCoaching] = useState<{ bundle: CoachingBundle; response: CoachingResponse; segments: CoachingSegment[] } | null>(null);
   const sampleRequest = useRef<AbortController | null>(null);
   const sessionRequest = useRef<AbortController | null>(null);
@@ -85,7 +83,7 @@ export function App() {
     setStatus('analyzing');
     analyze(clip.src, { signal, model, onProgress: (p) => !signal.aborted && setProgress(p) }).then(
       (r) => { if (!signal.aborted) { setReport(r); setStatus('ready'); } },
-      (e) => { if (!signal.aborted) { setStatus('error'); setError(`Analysis failed: ${e?.message ?? e}`); setCoachStatus('Local analysis failed; no coaching evidence was sent.'); } },
+      (e) => { if (!signal.aborted) { setStatus('error'); setError(`Analysis failed: ${e?.message ?? e}`); setCoachStatus('We couldn’t read this video, so nothing was sent to your coach.'); } },
     );
     return () => ctrl.abort();
   }, [clip, model, active]);
@@ -95,32 +93,32 @@ export function App() {
     if (!active || !report || !clip) return;
     const ctrl = new AbortController();
     const signal = AbortSignal.any([ctrl.signal, sessionRequest.current!.signal]);
-    setCoachStatus('Checking connected coach…');
+    setCoachStatus('Checking your ChatGPT coach…');
     void video.current?.play().catch(() => { /* Native Play remains available if autoplay is blocked. */ });
     void (async () => {
       try {
         const state = await chatGPTProvider.getConnection(signal);
         signal.throwIfAborted(); setConnection(state.state);
-        if (state.state !== 'connected') { setCoachStatus('Local tracking only — coach disconnected. Connect in setup, then start a new session.'); return; }
-        if (!report.reps.length) { setCoachStatus('Local tracking only — a complete tracked rep is needed for AI coaching.'); return; }
-        setCoachStatus('Preparing evidence from this recording…');
+        if (state.state !== 'connected') { setCoachStatus('Your numbers are ready. Connect ChatGPT to also get coach notes.'); return; }
+        if (!report.reps.length) { setCoachStatus('Your numbers are ready. Coach notes need at least one full rep in the video.'); return; }
+        setCoachStatus('Picking the key moments for your coach…');
         const bundle = await prepareCoachingBundle(report, clip.src, { repIds: report.reps.slice(0, 2).map((r) => r.id), signal });
         signal.throwIfAborted();
         if (!bundle.images.length || bundle.unavailableImages.length || !bundle.packet.measurements.length) {
-          setCoachStatus('Local tracking only — complete source images and measurements are unavailable.'); return;
+          setCoachStatus('Your numbers are ready. We couldn’t capture clear enough moments for coach notes.'); return;
         }
         const models = await chatGPTProvider.listModels(signal);
         signal.throwIfAborted();
         const coachModel = models.find((m) => m.id === 'gpt-6.1-sol') ?? models[0];
-        if (!coachModel) { setCoachStatus('Local tracking only — no image-capable coach is available.'); return; }
-        setCoachStatus(`AI coach reviewing ${bundle.packet.repIds.join(' and ')}… Video and local metrics remain available.`);
+        if (!coachModel) { setCoachStatus('Your numbers are ready. No ChatGPT coach model is available right now.'); return; }
+        setCoachStatus(`Coach reviewing ${bundle.packet.repIds.map(repName).join(' and ')}… your numbers are already below.`);
         const response = await chatGPTProvider.interpret(bundle.packet, bundle.images, { model: coachModel.id, signal });
         signal.throwIfAborted();
         const segments = getCoachingSegments(response, bundle.packet, report);
         setCoaching({ bundle, response, segments });
-        setCoachStatus(`AI analysis ready · ${coachModel.label} · short reviews stay saved as you play.`);
+        setCoachStatus('Coach notes ready · play the video to see each rep’s note.');
       } catch (e) {
-        if (!signal.aborted) setCoachStatus(`AI coach unavailable — ${e instanceof Error ? e.message : String(e)} Local measurements remain available.`);
+        if (!signal.aborted) setCoachStatus('Can’t reach your ChatGPT coach right now. Your numbers are still below.');
       }
     })();
     return () => ctrl.abort();
@@ -129,7 +127,7 @@ export function App() {
   const open = (file: File | undefined) => {
     if (!file) return;
     setComparisonMode(false);
-    invalidateSession(); setActive(true); setCoachStatus('Local analysis starting…');
+    invalidateSession(); setActive(true); setCoachStatus('Reading your squat…');
     setClip({ name: file.name, src: URL.createObjectURL(file) });
   };
 
@@ -160,7 +158,7 @@ export function App() {
     sampleRequest.current?.abort(); sessionRequest.current?.abort();
     video.current?.pause(); clearOverlay(); setActive(false);
     setStatus(report ? 'ready' : 'idle');
-    setCoachStatus(coaching ? 'Session stopped. Stored AI analysis remains available for replay.' : 'Session stopped. No more coaching requests will be sent.');
+    setCoachStatus(coaching ? 'Stopped · your coach notes stay below.' : 'Stopped · nothing more will be sent to your coach.');
   };
 
   const connect = async () => {
@@ -168,7 +166,7 @@ export function App() {
     try {
       const result = await chatGPTProvider.startConnection();
       window.location.assign(result.authorizationUrl);
-    } catch (e) { setCoachStatus(`Coach connection unavailable — ${e instanceof Error ? e.message : String(e)}`); }
+    } catch (e) { setCoachStatus('Couldn’t open ChatGPT setup. Try again in a moment.'); }
   };
 
   // Overlay: one clock (the video's mediaTime). Redraw on every presented frame, on seek, and on resize.
@@ -266,45 +264,45 @@ export function App() {
         <div className="actions">
           <div className="toolbar">
             <label className="button">
-              Start with your clip
+              Upload your squat video
               <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
             </label>
             <label className="model-select">
-              Model{' '}
+              Accuracy{' '}
               <select value={model} onChange={(e) => { invalidateSession(); setModel(e.target.value as PoseModel); }} disabled={active}>
-                <option value="heavy">Heavy (default)</option>
-                <option value="full">Full (faster)</option>
+                <option value="heavy">Best</option>
+                <option value="full">Faster</option>
               </select>
             </label>
           </div>
-          <p className="start-disclosure">Start analyzes your clip on this device. While connected, your coach gets selected rep measurements and up to four frames, never the full video. Stop ends coaching.</p>
+          <p className="start-disclosure">Your video stays on this device. If ChatGPT is connected, your coach sees a few still frames and your numbers, never the full video.</p>
           <div className="toolbar">
-            <button className="primary" onClick={openSample}>Start coached squat</button>
-            <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Compare examples uses local measurements.'); setComparisonMode(true); }}>Compare examples</button>
+            <button className="primary" onClick={openSample}>Try a sample squat</button>
+            <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing two sample squats side by side.'); setComparisonMode(true); }}>Compare examples</button>
             {active && <button onClick={stop}>Stop session</button>}
-            {connection !== 'connected' && <button onClick={connect}>Connect AI coach (one-time setup)</button>}
+            {connection !== 'connected' && <button onClick={connect}>Connect ChatGPT coach</button>}
           </div>
           <span role="status" className="fine">
-            {status === 'loading' && 'Loading clip…'}
-            {status === 'analyzing' && <>Analyzing <progress value={progress} /> {Math.round(progress * 100)}%</>}
-            {status === 'ready' && `Ready · ${clip?.name}`}
+            {status === 'loading' && 'Loading video…'}
+            {status === 'analyzing' && <>Reading your squat <progress value={progress} /> {Math.round(progress * 100)}%</>}
+            {status === 'ready' && `Ready · ${clip?.name === 'clear-squat.mp4' ? 'sample squat' : clip?.name}`}
           </span>
         </div>
       </section>
       <p role="status" aria-live="polite" className="fine">{coachStatus}</p>
 
-      {error && <p role="alert" className="error">{error} Choose another clip — an H.264 MP4 works in Chrome.</p>}
+      {error && <p role="alert" className="error">{error} Try another video — an MP4 from your phone usually works.</p>}
 
-      {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus('Start a session for local tracking and connected AI coaching.'); }} /> : <>
+      {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus('Try the sample or upload a side-on squat video to get started.'); }} /> : <>
       <div className="workbench">
         <div className="stage">
           {clip && (
             <video ref={video} key={clip.src} src={clip.src} controls playsInline muted onError={onDecodeError} />
           )}
-          {!clip && <p className="empty">Choose a clip or start the coached squat.</p>}
+          {!clip && <p className="empty">Try the sample squat, or upload a side-on video of yours.</p>}
           <canvas ref={canvas} aria-hidden />
           {coaching && displayedCue && <div aria-label="Playback AI cue" className="cue">
-            <small>{cue ? 'AI review · current rep' : 'Saved AI review · not this frame'} · {displayedCue.repId} · evidence {displayedCue.evidenceTimestampsMs.join(', ')} ms</small>
+            <small>{cue ? 'Coach note · this rep' : 'Coach note · earlier rep'} · {repName(displayedCue.repId)}</small>
             <p>{shortCue(displayedCue, coaching.response)}</p>
           </div>}
         </div>
@@ -312,27 +310,27 @@ export function App() {
         {report && (
           <aside>
             <p className="muted">
-              {MODEL_LABEL[report.poseModel.id] ?? report.poseModel.id} (v{report.poseModel.version}) · analyzed at up to 15 Hz ·{' '}
-              {tracked}/{report.frames.length} samples tracked
+              {tracked === report.frames.length ? 'Tracked you clearly in every frame ✓'
+                : `⚠ Lost sight of you in ${report.frames.length - tracked} of ${report.frames.length} frames. Numbers there are skipped.`}
             </p>
             <div className="toolbar">
-              <button onClick={() => step(-1)}>◀ Previous analyzed sample</button>
-              <button onClick={() => step(1)}>Next analyzed sample ▶</button>
+              <button onClick={() => step(-1)}>◀ Frame</button>
+              <button onClick={() => step(1)}>Frame ▶</button>
               <label>Speed{' '}
                 <select value={rate} onChange={(e) => setRate(Number(e.target.value))}>
                   {[1, 0.5, 0.25].map((r) => <option key={r} value={r}>{r}×</option>)}
                 </select>
               </label>
             </div>
-            <p className="muted"><small>← → step analyzed samples</small></p>
+            <p className="muted"><small>Tip: use ← → to step frame by frame</small></p>
             {report.reps.length > 0 && (
               <div className="toolbar">
                 {report.reps.map((r) => (
                   <span key={r.id} className="phases">
-                    {r.id}:{' '}
-                    <button aria-label={`${r.id} start @ ${r.startMs} ms`} onClick={() => seek(r.startMs)}>start @ {r.startMs} ms</button>
-                    <button aria-label={`${r.id} bottom @ ${r.bottomMs} ms`} onClick={() => seek(r.bottomMs)}>bottom @ {r.bottomMs} ms</button>
-                    <button aria-label={`${r.id} return @ ${r.endMs} ms`} onClick={() => seek(r.endMs)}>return @ {r.endMs} ms</button>
+                    {repName(r.id)} ▸{' '}
+                    <button aria-label={`${repName(r.id)} start at ${sec(r.startMs)}`} onClick={() => seek(r.startMs)}>Start</button>
+                    <button aria-label={`${repName(r.id)} bottom at ${sec(r.bottomMs)}`} onClick={() => seek(r.bottomMs)}>Bottom</button>
+                    <button aria-label={`${repName(r.id)} stand at ${sec(r.endMs)}`} onClick={() => seek(r.endMs)}>Stand</button>
                   </span>
                 ))}
               </div>
@@ -340,33 +338,33 @@ export function App() {
             <p className="readout">
               {here ? (
                 <>
-                  Sample @ {here.timestampMs} ms{here.repId && ` · ${here.repId}`}{here.phase && ` · ${here.phase}`}<br />
-                  Knee {deg(here.kneeFlexionDeg)} · Hip {deg(here.hipFlexionDeg)} · Torso lean {deg(here.torsoLeanDeg)}
+                  {here.repId ? repName(here.repId) : 'Between reps'}{here.phase && ` · ${({ descent: 'going down', bottom: 'bottom', ascent: 'coming up' })[here.phase]}`} · {sec(here.timestampMs)}<br />
+                  Knee bend {deg(here.kneeFlexionDeg)} · Hip hinge {deg(here.hipFlexionDeg)} · Chest angle {deg(here.torsoLeanDeg)}
                 </>
-              ) : 'No analyzed sample within 100 ms of this frame.'}
+              ) : 'We couldn’t see you clearly in this frame.'}
             </p>
 
             <Trace trace={trace} reps={report.reps} playheadMs={sampleMs} onSeek={seek} />
 
-            <h2>Local measurements</h2>
-            {report.measurements.length === 0 && <p>No measurements in this clip.</p>}
+            <h2>Your numbers</h2>
+            {report.measurements.length === 0 && <p>We didn’t find a full squat rep in this video.</p>}
             <ul>
               {report.measurements.map((m) => (
                 <li key={m.id}>
                   {m.quality === 'usable' ? (
                     <button aria-pressed={m.id === selected} onClick={() => openEvidence(m)}>
-                      {METRIC_LABEL[m.metric]}{m.repId && ` · ${m.repId}`} <b>{fmt(m)}</b>
-                      <small> @ {m.evidenceTimestampMs} ms</small>
+                      {m.repId && `${repName(m.repId)} · `}{METRIC_LABEL[m.metric]} <b>{fmt(m)}</b>
+                      <small> ▸ See the moment</small>
                     </button>
                   ) : (
-                    <span className="muted">{METRIC_LABEL[m.metric]}{m.repId && ` · ${m.repId}`} · unavailable</span>
+                    <span className="muted">{m.repId && `${repName(m.repId)} · `}{METRIC_LABEL[m.metric]} · couldn’t measure</span>
                   )}
                 </li>
               ))}
             </ul>
             {sel?.quality === 'usable' && (
               <p className="readout">
-                {METRIC_LABEL[sel.metric]} <b>{fmt(sel)}</b> at {sel.evidenceTimestampMs} ms (estimated, video plane)
+                {METRIC_LABEL[sel.metric]} <b>{fmt(sel)}</b> at {sec(sel.evidenceTimestampMs)} <span className="muted" title="Estimated from one camera angle; not a clinical measurement.">ⓘ estimate</span>
               </p>
             )}
             {report.warnings.map((w) => <p key={w.code} className="warning">⚠ {w.message}</p>)}
@@ -375,23 +373,23 @@ export function App() {
       </div>
 
       {coaching && (
-        <section aria-label="AI coaching" className="readout">
-          <h2>Saved AI reviews</h2>
-          <p className="muted">Short, evidence-based notes stay here through playback and Stop. Open Why for the full reasoning.</p>
-          {!acceptedCues.length && <p>Play a measured rep to add its review here.</p>}
-          <ol className="coaching-feed" aria-label="Saved AI reviews" aria-live="polite">
+        <section aria-label="Coach notes" className="readout">
+          <h2>Coach notes</h2>
+          <p className="muted">One tip per rep. Open Why to see what it’s based on.</p>
+          {!acceptedCues.length && <p>Play the video. Each rep’s note appears here as you reach it.</p>}
+          <ol className="coaching-feed" aria-label="Coach notes" aria-live="polite">
             {acceptedCues.map(segment => <li key={segment.repId} data-rep-id={segment.repId} className="coaching-card">
-              <p className="coaching-stamp">{segment.repId} · source {(segment.startMs / 1000).toFixed(1)}–{(segment.endMs / 1000).toFixed(1)}s · {cue?.repId === segment.repId ? 'current rep review' : 'saved review'}</p>
+              <p className="coaching-stamp">{repName(segment.repId)} · {(segment.startMs / 1000).toFixed(1)}–{(segment.endMs / 1000).toFixed(1)} s{cue?.repId === segment.repId ? ' · playing now' : ''}</p>
               <p className="coaching-focus">{shortCue(segment, coaching.response)}</p>
               <details>
                 <summary>Why</summary>
-                {segment.observationIndices.map(i => <p key={i}>{coaching.response.observations[i].text} <small className="muted">[Evidence: {citedTimes(coaching.response.observations[i].evidenceIds).map(time => `${time} ms`).join(', ')}]</small></p>)}
-                {segment.hasNextFocus && <p><b>Next focus:</b> {coaching.response.nextFocus.text} <small className="muted">[Evidence: {citedTimes(coaching.response.nextFocus.evidenceIds).map(time => `${time} ms`).join(', ')}]</small></p>}
-                <p className="muted">Limits: {coaching.response.uncertainty}</p>
+                {segment.observationIndices.map(i => <p key={i}>{coaching.response.observations[i].text} <small className="muted">[Seen at {citedTimes(coaching.response.observations[i].evidenceIds).map(sec).join(', ')}]</small></p>)}
+                {segment.hasNextFocus && <p><b>Next focus:</b> {coaching.response.nextFocus.text} <small className="muted">[Seen at {citedTimes(coaching.response.nextFocus.evidenceIds).map(sec).join(', ')}]</small></p>}
+                <p className="muted">What the coach couldn’t tell: {coaching.response.uncertainty}</p>
                 <div className="toolbar">{citedTimes([
                   ...segment.observationIndices.flatMap(i => coaching.response.observations[i].evidenceIds),
                   ...(segment.hasNextFocus ? coaching.response.nextFocus.evidenceIds : []),
-                ]).map(ms => <button key={ms} onClick={() => seek(ms)}>Evidence @ {ms} ms</button>)}</div>
+                ]).map(ms => <button key={ms} aria-label={`See the moment at ${sec(ms)}`} onClick={() => seek(ms)}>▸ See the moment · {sec(ms)}</button>)}</div>
               </details>
             </li>)}
           </ol>
@@ -436,14 +434,14 @@ function Trace({ trace, reps, playheadMs, onSeek }: {
   };
   return (
     <figure className="trace">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Knee flexion and torso lean over time" onClick={click}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Knee bend and chest angle over time" onClick={click}>
         {reps.map((r) => <rect key={r.id} x={x(r.startMs)} width={x(r.endMs) - x(r.startMs)} y={0} height={H} className="rep" />)}
         {reps.map((r) => <line key={r.id} x1={x(r.bottomMs)} x2={x(r.bottomMs)} y1={0} y2={H} className="bottom" />)}
         <path d={path((s) => s.kneeFlexionDeg)} className="knee" />
         <path d={path((s) => s.torsoLeanDeg)} className="torso" />
         {playheadMs !== null && <line x1={x(playheadMs)} x2={x(playheadMs)} y1={0} y2={H} className="playhead" />}
       </svg>
-      <figcaption><span className="knee">— knee flexion</span> · <span className="torso">— torso lean</span> · 0–180° · shaded = reps · gaps = untracked · click to seek</figcaption>
+      <figcaption><span className="knee">— knee bend</span> · <span className="torso">— chest angle</span> · shaded = reps · gaps = not tracked · tap to jump</figcaption>
     </figure>
   );
 }

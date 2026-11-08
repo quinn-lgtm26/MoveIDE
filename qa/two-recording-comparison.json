@@ -1,12 +1,10 @@
 {
-  "verifiedAtUtc": "2026-11-07T23:46:21.343Z",
-  "revision": "78569d6e784a49c92a91d3235bd3b90143135ed0",
+  "verifiedAtUtc": "2026-11-08T00:06:09.381Z",
+  "revision": "0eff9f74b3d04d2329790db95e9d263fe587cc7c",
   "surface": "Isolated Vite development source on4189; real local MediaPipe Heavy, disconnected provider stub",
   "sourceChanges": [
-    "M index.html",
-    " M src/App.tsx",
-    "?? harness/motion/compare-recordings.mjs",
-    "?? src/CompareRecordings.tsx"
+    "M src/App.tsx",
+    " M src/CompareRecordings.tsx"
   ],
   "checks": {
     "oneActionTwoRecordings": true,
@@ -195,12 +193,12 @@
         {
           "left": 16,
           "right": 359,
-          "top": 15.28125
+          "top": -84.71875
         },
         {
           "left": 16,
           "right": 359,
-          "top": 512.875
+          "top": 412.875
         }
       ]
     },
@@ -211,12 +209,12 @@
         {
           "left": 16,
           "right": 374,
-          "top": 15.28125
+          "top": -84.71875
         },
         {
           "left": 16,
           "right": 374,
-          "top": 512.875
+          "top": 412.875
         }
       ]
     }
