@@ -117,3 +117,9 @@ Latest designed root checkpoint (`9446951`): [15 production-preview checks](qa/r
 **Comparison browser acceptance:** [21 checks pass](qa/two-recording-comparison.json) on merged78569d6 plus the recorded comparison worktree changes: Heavy57/57 and90/90, distinct actual hashes, independent rep/phase clocks, mobile375/390 layout, no AI calls, cancellation/source replacement and retained-A/B-only retry. Requested seek clocks and decoded frame labels are recorded separately; observed phase-frame difference is at most66ms (67ms tolerance), not frame-exact timing proof.
 
 **Published checkpoint65fc875:** the comparison/setup bundle is on main with the incoming Safari fix preserved. TypeScript/build,15 production root lifecycle checks,21 comparison browser checks,99 harness tests and6 launcher tests pass. `workflow.html` and quickstart reflect this delivery. Seldon remains held for the final product/device gates.
+
+## Local history and developer onboarding — active bundle
+
+User confirmed local-only persistence for this demo. Shared IndexedDB storage, recorded-session reopen and live recording are being integrated in parallel; acceptance is pending until the combined checks below land. [History contract](docs/HISTORY.md) defines HIST-1–5. [Developer guide](docs/DEVELOPMENT.md), [Claude/Codex setup prompts](docs/AI-SETUP.md), and read-only `npm run doctor` are the onboarding path. Doctor checks dependency locks, pinned model/runtime bytes and existing service health without changing the machine.
+
+Owners: shared storage/API and integrity tests; recorded History UI/replay; live recorder/archive; root integration/docs/QA. No cloud sync; phone-session recordings save on the analysis computer. Preserve source identity, atomic saves, opt-out, retry, deletion and no-inference replay.

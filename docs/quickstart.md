@@ -1,5 +1,7 @@
 # Start the MoveIDE demo
 
+Use the [Claude/Codex copy-paste prompts](AI-SETUP.md) for an assisted setup, or the commands below. Developers can follow [DEVELOPMENT.md](DEVELOPMENT.md).
+
 From the repository on your Mac:
 
 ```sh
@@ -42,6 +44,8 @@ The QR/link contains temporary pairing access; use the app to share it directly 
 Same Wi-Fi does not guarantee peer connectivity on isolated venue networks. A reachable phone page proves HTTPS delivery, not video/pose accuracy. Actual iPhone permission, connection, motion, foreground/lock behavior and venue latency still need a device rehearsal. The launcher does not run Wren, certify arbitrary-angle accuracy or upload the full video to ChatGPT.
 
 ## Check or recover
+
+`npm run doctor` is a read-only diagnostic that checks direct dependency locks, pinned model hashes, all four prepared runtime files, build presence and private app health. It is safe while a demo is already running. `node scripts/doctor.mjs --json` returns machine-readable results. It does not inspect credentials, open a camera or spend QA credits.
 
 ```sh
 # No build, services or tunnel; connect-only checks do not bind demo ports.

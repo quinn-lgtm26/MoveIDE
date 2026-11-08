@@ -1,44 +1,61 @@
 # MoveIDE
 
-Current delivery: [global tracker](tracker.md) · [AI integration amendments](AI-AMENDMENTS.md) · [workflow status](workflow.html)
+An open-source squat analysis and coaching app. Start with a recorded clip or a camera: MediaPipe Heavy measures motion locally, and an optional connected ChatGPT coach reviews bounded source images and measurements. Short coaching notes stay visible alongside the video.
 
+**[Set up with Claude or Codex →](docs/AI-SETUP.md)** · [Quickstart](docs/quickstart.md) · [Developer guide](docs/DEVELOPMENT.md) · [Current status and evidence](tracker.md)
 
-MoveIDE is an open-source squat analysis and coaching workbench. One Start runs local MediaPipe Heavy analysis and, when connected, sends bounded source images and measurements for cited AI coaching. Recorded playback and live camera sessions share the harness. Estimated geometry is not a clinical assessment or independently validated arbitrary-view motion capture.
+## Run it
 
-## Run the demo
+Install [Node.js22.18 or newer](https://nodejs.org/en/download), then on macOS/Linux:
 
 ```sh
+git clone https://github.com/quinn-lgtm26/MoveIDE.git
+cd MoveIDE
 npm run demo
 ```
 
-On macOS you can also double-click **Start MoveIDE.command**. Missing locked dependencies and pinned model assets are installed automatically. Node.js 22.18 or newer is required.
+The launcher installs locked dependencies, downloads and verifies the pinned Heavy/Full models, builds the UI, and starts the local services. On macOS, you can also double-click **Start MoveIDE.command** after cloning. Keep the terminal open; Ctrl+C stops its owned services.
 
-Open the printed local address. For iPhone pairing, use `npm run demo -- --phone` with `cloudflared` installed. The launcher builds the app, prepares pinned assets and starts the necessary services. See the [quickstart](docs/quickstart.md) for phone setup, permissions and recovery. Stop the launcher with Ctrl+C.
+Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1:4173/harness/live/)**. Choose **Start coached squat** for the bundled recording or **Compare examples** for two independently analyzed videos. Local measurements work without a ChatGPT connection. Connect the coach once in the app to enable automatic evidence-linked interpretation.
 
-## Development status
+Already cloned? Preserve your work, update from main when safe, then run `npm run demo` again. Need diagnosis rather than another server? Use **`npm run doctor`**: it checks dependencies, model hashes, runtime files and local service state without installing, changing or stopping anything.
 
-Open [workflow.html](workflow.html) for the development workflow, story status, verification results, and remaining frontend integration. Download the HTML and open it in a browser to use its tabs. The [harness guide](harness/README.md) documents the verified Heavy analysis and OpenCap import APIs; [frontend amendments](harness/FRONTEND-HANDOFF.md) describe the pending product pickup.
+## iPhone camera → MacBook
 
-## Build handoff
+Install [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/) and use this instead of the ordinary startup command:
 
-- Read the [epics and stories](_bmad-output/specs/epics.md) for the frontend and backend workstreams.
-- Use the [bundled squat fixtures](fixtures/squat/README.md) and [AnalysisReport v1 contract](_bmad-output/specs/shared/analysis-report-v1.md) for integration. Foundational analysis and account integration are implemented; the tracker records remaining release gates.
-- Follow the [latest frontend contracts](docs/frontend-harness-amendments.md) and [UX requirements](docs/frontend-design-amendments.md). The [original harness spec](_bmad-output/specs/spec-moveide-harness/SPEC.md) is historical where the amendments supersede it.
-- Use [AI.md](AI.md) for Seldon setup, [seldon.yml](seldon.yml) for the two submission cases, and the [simulation ledger](qa/seldon-ledger.md) to track the 16-simulation allocation.
-
-Hosted Seldon validation and final runs require an authenticated MCP connection and a reachable build.
-
-## Develop
-
-Requires Node 22.18+.
-
-```bash
-npm ci
-npm --prefix harness ci
-npm run dev      # workbench on http://127.0.0.1:5173 (ChatGPT shows unavailable)
-npm test         # harness tests
-npm run build    # typecheck + production build
-MOVEIDE_ENABLE_CHATGPT=1 npm run preview   # built app on 127.0.0.1:4173 with live ChatGPT sign-in
+```sh
+npm run demo -- --phone
 ```
 
-Layout: [AnalysisReport v1](_bmad-output/specs/shared/analysis-report-v1.md) types come from `harness/motion` · `src/App.tsx` recorded workbench and coaching · `src/Compare.tsx` rep comparison · `harness/live/` live analysis and phone transport · `harness/provider/` private ChatGPT provider (`/api`, mounted in Vite). Backlog: [epics](_bmad-output/specs/epics.md).
+On the Mac, open **Live camera**, choose **iPhone via private link**, and Start. Scan the in-app QR with the iPhone, open it in Safari, tap **Start camera**, and allow the camera. Video streams to the Mac through WebRTC; local tracking and coaching captions return to the phone. The phone needs no MediaPipe installation. Keep the phone foregrounded and the whole body visible.
+
+Only the dedicated pairing service4176 gets temporary HTTPS access. The credential-bearing app/provider4173 stays private. QR encoding is local. Do not publish the pairing link. See [the complete phone checklist and recovery steps](docs/quickstart.md#iphone--macbook).
+
+## What is available
+
+- Recorded Heavy/Full analysis, rep segmentation, source-timed measurements, full-body overlays and replay controls.
+- One-Start optional AI coaching with cited evidence; playback/seek does not request new inference.
+- Two actual video examples with independent hashes, rep selection, phase anchors and descriptive metric differences.
+- Live camera analysis and QR/WebRTC phone transport with bounded asynchronous coaching.
+- OpenCap result import labeled as imported/unverified; native inference remains deferred.
+- Local history/recording work is tracked in [the history contract](docs/HISTORY.md) and [global tracker](tracker.md); use their acceptance status for availability.
+
+Measurements are projected or explicitly experimental estimates, not independently validated anatomical angles. Physical iPhone/venue acceptance and moving-camera/orbit accuracy remain separate from the browser fixture tests. The examples are not a validated good/bad technique pair. [Read what was actually tested](qa/latest-local-checkpoint.json).
+
+## Developers and coding assistants
+
+| Start here | Purpose |
+| --- | --- |
+| [Claude and Codex copy-paste prompts](docs/AI-SETUP.md) | Set up the existing product, verify it, and leave it running |
+| [Development guide](docs/DEVELOPMENT.md) | Commands, architecture, module contracts, tests, parallel work and release checklist |
+| [Frontend handoff](harness/FRONTEND-HANDOFF.md) | Shared APIs and integration requirements |
+| [UI/UX amendment](docs/frontend-design-amendments.md) | One-Start flow, stable coaching cards, capture/recovery and uncertainty |
+| [Global tracker](tracker.md) and [epics](_bmad-output/specs/epics.md) | Owners, implementation status and acceptance evidence |
+| [workflow.html](workflow.html) | Download/open the standalone interactive development workflow |
+| [AnalysisReport/CoachPacket contract](_bmad-output/specs/shared/analysis-report-v1.md) | Versioned shared data and evidence rules |
+| [Fixture provenance](fixtures/squat/README.md) | Attribution, labels and what they do or do not prove |
+
+For a controlled development build, `CI=1 npm run dev` skips the historical automatic Git pull. `npm run typecheck`, `npm test` and `CI=1 npm run build` are the main local gates. Chrome is required for the default browser tests; see the developer guide for scoped verifiers. No Seldon credits are needed to install or use local analysis. Final Wren runs are budgeted separately in [AI.md](AI.md) and [the ledger](qa/seldon-ledger.md).
+
+Source is [MIT](LICENSE); model/runtime, QR and dataset attributions are in [third-party notices](harness/setup/THIRD-PARTY-NOTICES.md) and the fixture documentation.

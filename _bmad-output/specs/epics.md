@@ -304,3 +304,11 @@ The [reviewed design amendment](../../docs/frontend-design-amendments.md) covers
 **Implemented; browser acceptance tracked in tracker.md.** One Compare examples action analyzes the two attributed fixtures with the same selected Heavy/Full model, records distinct SHA-256 source identities, defaults to the first complete rep per recording and navigates corresponding start/bottom/return phases on independent media clocks. Show three primary metrics and expandable detail. Shared `compareRecordings` gates differences by source binding, protocol/model compatibility and measurement availability. New source/model or Cancel aborts stale work. No AI request on comparison or seeking; no invented good/bad labels. The older two-reps comparison remains.
 
 [Complete UX/API/acceptance amendment](../../docs/two-recording-comparison-amendment.md). Real cross-source AI comparison, user-selected dual upload and anatomical accuracy are separate future acceptance gates, not implied by these local examples.
+
+## Epic 4 · Local session history and usable recordings
+
+User confirmed local storage for this demo on2026-11-07. [HISTORY.md](../../docs/HISTORY.md) supplies HIST-1 recorded durability, HIST-2 usable list/review/download/delete, HIST-3 live recording, HIST-4 lifecycle/failures and HIST-5 bounded integrity/retention acceptance. Store original video, source-bound measurements, accepted coaching and bounded evidence locally; reopening never triggers new inference. Phone-session history lives on the Mac receiver. Implementation is in progress until browser and transactional evidence is linked in the tracker. Cross-device sync is excluded by the user’s local-only choice.
+
+### DEV-1 · Reproducible setup and AI handoff
+
+Deliver README quickstart, Claude/Codex copy-paste prompts, developer architecture/contracts/check matrix, contributor instructions, and a read-only setup doctor. Setup installs locked dependencies and verified model assets; phone mode exposes only the dedicated4176 sender/signaling surface. Acceptance: doctor diagnoses missing/corrupt assets without mutation; existing occupied demo ports are preserved; fresh setup/build proof and clear physical-device/account handoff remain linked.
