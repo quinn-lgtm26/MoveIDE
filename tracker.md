@@ -198,3 +198,8 @@ Nonblocking Wren follow-ups: clearer restore banner, optional session-title file
 - New `src/Home.tsx`: a hero section with "Try a sample squat" / "Compare examples" plus a compare screenshot. Recorded review moved to `/#review`. Nav and harness links were updated, and so was seldon.yml step 1 (validated: 3 cases ok).
 - Evidence: `tsc --noEmit` passes. At 390px there is no horizontal overflow. Better Design inspect-spacing at 1440 is completed: 0 serious, 7 moderate (shared header/button tokens, left as is). Comprehension has 1 borderline finding (17s vs 15s target), and the GitHub link was kept on purpose.
 - The predev `git pull` is blocked by conflicts with pre-existing local edits. The `web-nopull` launch config was used instead.
+
+### Homepage comparison graph (2026-11-07)
+- `src/Home.tsx` adds "Good vs bad squat, measured" below the hero: static SVG of knee bend through rep 1 (Good vs Bad example) plus a joint-angle table (knee 117° vs 127°, chest 41° vs 46°, rep 1.4 s vs 1.3 s).
+- Data captured from the live Compare examples run in the browser (matches its Rep measurements table); hardcoded, refresh by rerunning compare.
+- Evidence: `tsc --noEmit` clean; rendered at desktop and 375px with no horizontal overflow. Full inspect-spacing/comprehension pass skipped for speed.
