@@ -37,7 +37,7 @@ Current real-provider evidence uses bottom JPEGs and bounded report measurements
 - Real Heavy + real ChatGPT passed smoke and [root](qa/root-live-chatgpt.json), with one request and source images1067/3000 ms; root replay showed both rep cues without extra requests.
 - Smoke stacked playback passed its controlled-provider check. Live stacked feed passed a two-card local-camera browser check. Root's designed retained feed passed fifteen production-preview checks and a user-visible real-provider demo on 9446951.
 - [Root readiness](qa/product-readiness.json) has20 passing local checks on its recorded build; [archived evidence](qa/product-readiness.md) keeps the old preview/copy result separate.
-- Physical phone, independent cross-view/orbit accuracy and both final Wren workflows remain distinct gates. No historical test should be relabeled as those results.
+- Final Wren passed all three workflows on frozen `f4a987a`, including both core workflows after fixes ([result](qa/wren-final-results.json)). Physical phone and independent cross-view/orbit accuracy remain separate gates. OpenCap root import, cited-region accents, goal/reference setup and automatic moving-camera analysis are unfinished implementation; see the [audit](tracker.md#completion-audit).
 
 Root retained-feed integration now passes fifteen controlled-provider development checks: short cards, delayed rep ordering, expanded reasons/limits/citations, Stop/reset, replay deduplication and source races. Per-rep accessible labels are preserved. Earlier built readiness and real-provider passes remain scoped to their recorded builds.
 
@@ -45,10 +45,10 @@ Root retained-feed integration now passes fifteen controlled-provider developmen
 
 A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
 
-Final automated suite checkpoint: `npm test` passed86 harness tests and4 launcher tests with no failures, cancellations or skips. Public real-provider return now passes; physical-device and independent-accuracy acceptance remain separate.
+Historical automated checkpoint: `npm test` passed86 harness tests and4 launcher tests. The latest integrated checkpoint passed110 harness and8 launcher/doctor tests (118 total), with no failures, cancellations or skips. Public real-provider return now passes; physical-device and independent-accuracy acceptance remain separate.
 
 ## Two independent recordings
 
 **Compare examples** is a local comparison action using the same selected pose model for both attributed recordings. It retains separate source hashes, reports, rep IDs and media clocks. Compare bottoms seeks each selected rep to its own bottom. It does not dispatch an AI request or label one person good/bad. See the [comparison amendment](docs/two-recording-comparison-amendment.md) and shared `compareRecordings` API. Normal single-recording Start continues to orchestrate connected AI automatically.
 
-Latest local checkpoint `65fc875`:99 harness and6 launcher tests pass, including isolated real-WebRTC regression;15 production root lifecycle and21 two-recording browser checks pass. [Evidence](qa/latest-local-checkpoint.json). Physical iPhone, independent angle/orbit accuracy and final Wren remain.
+Latest runtime checkpoint `f4a987a`:118 integrated tests,15 controlled-provider production root checks and9 real ChatGPT/history checks pass;22 comparison checks cover separate recordings and visible rep buttons. [Evidence](qa/latest-local-checkpoint.json). Final Wren passed3/3;8 simulations remain. This is a GO for the supported demo, not completion of the broader backlog. Physical iPhone and independent angle/orbit accuracy remain unverified.
