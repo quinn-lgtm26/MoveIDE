@@ -1,7 +1,7 @@
 # Seldon simulation ledger
 
 - Hackathon allocation · **16 simulations**
-- Current connected account, reconciled 2026-11-07 · **16 granted, 8 used, 0 pending, 8 remaining**. The older frontend run is not visible under this API key and is tracked separately; do not subtract an unconfirmed cross-account debit.
+- Current connected account, reconciled 2026-11-08 UTC · **16 granted, 14 used, 0 pending, 2 remaining**. The older frontend run is not visible under this API key and is tracked separately; do not subtract an unconfirmed cross-account debit.
 - Account balance at first preflight on 2026-11-07 · **16 granted, 0 used, 0 pending, 16 remaining**
 - Final-build reserve · **4 simulations**, including room to rerun both workflows if the verified debit allows
 
@@ -79,3 +79,10 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 - Local evidence:128 integrated tests; queued Stop lifecycle with real MediaRecorder/IndexedDB; isolated replay/status/reference browser checks. Real-provider phone regression remains separate and opt-in.
 - Experiment **60ba178a-ee4e-469e-a676-57074a9b88ae**, terminal **3/3 PASS**, zero failures/blocked/timeouts. Recorded/history682.392s, comparison419.238s, live setup202.754s. Both get_report and get_summary retrieved; [saved result](wren-phone-repair-results.json).
 - Actual debit3; official balance16granted,11used,0pending,5remaining. Minor findings: expandable controls lack affordance, empty recorded video, reference dropdown keyboard friction, downloads discoverability, reference selection resets after reopen. Final tutorial/replay/graph changes require a new exact-build run; reserve3 for final coverage and2 for targeted rerun.
+
+## Replay/coaching UX checkpoint — 5b63a98
+
+- Frozen production [manifest](wren-submission-build.json), [12-gate public preflight](submission-public-preflight.json); public fixtures only, no account or phone pairing.
+- Experiment **dd2c7084-9720-4956-b35d-4592f607a7ce**: **1/3 passed, 2 failed**. [Report](wren-submission-results.json), [summary](wren-submission-summary.json). Live setup/navigation passed. Recorded/history failed on mouse selection of the personal comparison rep; two-video comparison failed on Start phase navigation/feedback. Other recorded analysis, persistence and downloads succeeded.
+- Actual debit3. Reconciled account:16 granted,14 used,0 pending,2 remaining. Two remaining cases are reserved for the repaired recorded/history and two-video comparison workflows on one frozen final build.
+- Subsequent62cf457 adds richer32-image reviews and History comparison and is published for user live testing. It does not yet carry a final Wren pass. Local live Heavy/WebRTC test passed after correcting the stale7-image assertion.

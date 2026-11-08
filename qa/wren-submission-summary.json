@@ -1,0 +1,53 @@
+{
+  "experimentId": "dd2c7084-9720-4956-b35d-4592f607a7ce",
+  "kind": "qa",
+  "status": "Completed",
+  "availability": "available",
+  "schemaVersion": 2,
+  "question": "Do the test cases in 'Seldon QA: quinn-lgtm26/MoveIDE · MoveIDE final replay and coaching UX 5b63a98' pass?",
+  "answer": "1/3 test cases passed, 2 failed.",
+  "synthesis": "1 of 3 cases passed. The live setup and navigation journey is solid — camera selection, pre-capture state, history, and AI status are all honest and clear. However, two core analysis workflows have meaningful failures. The squat review flow (measure-squat) is largely working but the compare-rep dropdown is broken for mouse users: clicking the visible 'Rep 2' option eight times in a row had no effect, leaving the dropdown open; only keyboard navigation works, which most users will never find. This is a major gap because rep comparison is a headline feature. The side-by-side comparison flow (compare-and-handoff) has a quieter but trust-damaging bug: the Start phase control is a silent no-op — clicking it does nothing, while Bottom and Stand work correctly. Users who tap Start first (the natural entry point) will see no response and reasonably conclude the whole phase-alignment feature is broken.",
+  "keyObservations": [],
+  "findings": [
+    {
+      "severity": "minor",
+      "title": "Compare two independent recordings without a manual handoff",
+      "summary": "Bottom and Stand phase controls worked correctly, jumping both videos to the matching phase; the Start phase control did nothing on four separate clicks, leaving both videos at whatever position they were already at.",
+      "personas": [],
+      "context": "All three shared phase controls (Start, Bottom, Stand) navigate both videos to the corresponding rep phase, allowing like-for-like comparison at the start of each rep. Bottom and Stand phase controls worked correctly, jumping both videos to the matching phase; the Start phase control did nothing on four separate clicks, leaving both videos at whatever position they were already at.",
+      "rootCause": "Fix the Start phase pill so it seeks both videos to the beginning of the selected rep, matching the behaviour of Bottom and Stand. This is the entry point of rep-phase navigation and users will naturally try it first; a silent no-op here undermines trust in the entire phase-alignment feature.",
+      "citations": [],
+      "stepsToReproduce": [
+        "Open MoveIDE and click 'Compare examples'.",
+        "Wait for both recordings to finish analysis.",
+        "In the 'Line up at' phase row, click 'Start'.",
+        "Observe that neither video moves — the control is completely unresponsive, while 'Bottom' and 'Stand' both work."
+      ],
+      "options": [],
+      "screenshotUrls": [],
+      "gifUrl": null
+    },
+    {
+      "severity": "major",
+      "title": "One-button squat review and durable local history",
+      "summary": "All major features worked correctly except that the compare-rep dropdown was effectively unusable with a mouse — eight clicks on the visible 'Rep 2' option all missed and the dropdown stayed open; a keyboard workaround (arrow key + Enter) was needed to make the selection. Everything else passed: two reps measured, Bottom moment showed skeleton and angles at the correct timestamp, live chart updated with readable units, neutral difference labels displayed, the renamed 'QA squat review' session survived a full reload, and both report.json and the video mp4 downloaded successfully. The AI status was honestly shown as 'Not connected' throughout with no blocked local analysis and no invented coaching.",
+      "personas": [],
+      "context": "All six steps complete successfully: two measured reps with playable video and pose overlay, Bottom moment inspection, live chart, understandable neutral compare-rep differences, renamed session surviving reload, working video and data downloads, and honest AI status — all without manual packet tasks or invented coaching. All major features worked correctly except that the compare-rep dropdown was effectively unusable with a mouse — eight clicks on the visible 'Rep 2' option all missed and the dropdown stayed open; a keyboard workaround (arrow key + Enter) was needed to make the selection. Everything else passed: two reps measured, Bottom moment showed skeleton and angles at the correct timestamp, live chart updated with readable units, neutral difference labels displayed, the renamed 'QA squat review' session survived a full reload, and both report.json and the video mp4 downloaded successfully. The AI status was honestly shown as 'Not connected' throughout with no blocked local analysis and no invented coaching.",
+      "rootCause": "Fix the compare-rep dropdown so that clicking a visible option with a mouse selects it and closes the menu — currently a stacked or overlapping element intercepts every mouse click, forcing users to resort to keyboard navigation to change the reference rep, which most users will never discover.",
+      "citations": [],
+      "stepsToReproduce": [
+        "Open MoveIDE and run 'Try a sample squat' until analysis completes.",
+        "On the review screen, open the 'Compare rep' dropdown.",
+        "Click 'Rep 2' in the dropdown list with a mouse.",
+        "The dropdown stays open and the selection does not register; multiple clicks all fail."
+      ],
+      "options": [],
+      "screenshotUrls": [],
+      "gifUrl": null
+    }
+  ],
+  "personaBreakdown": [],
+  "businessInsights": null,
+  "coverage": null,
+  "rawSummary": null
+}

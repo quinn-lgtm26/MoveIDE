@@ -1,0 +1,23 @@
+{
+  "runtimeCommit": "62cf457",
+  "scope": "Two private window-scoped movement reviews; no personal video, measurements, identifiers or provider prose included in this artifact. No whole-recording or independent angle-accuracy claim.",
+  "provider": "real connected ChatGPT",
+  "model": "gpt-6.1-sol",
+  "requests": 2,
+  "imageCounts": [
+    14,
+    12
+  ],
+  "responseSeconds": [
+    15.3,
+    12.6
+  ],
+  "cueWordCounts": [
+    16,
+    15
+  ],
+  "citationValidation": "both passed",
+  "visualContextReview": "Both responses addressed the distinct visible movement in their submitted sequences rather than an angle target.",
+  "goal": "No angle target supplied in these two checks.",
+  "historyMutation": false
+}

@@ -1,0 +1,33 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:11:13.278581+00:00",
+  "runtimeCommit": "5b63a9893e99915a863205a30b438cccbb9df3df",
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "harnessTests": {
+    "total": 139,
+    "initialPass": 138,
+    "initialFailure": "Live integration test retained old18-evidence assertion after seven-image/42-image feature. Runtime captured and saved correctly.",
+    "repair": "Assertion now checks evidence<=min(42,cards*7); focused complete live browser/WebRTC rerun passed.",
+    "finalAccepted": 139
+  },
+  "launcherDoctorTests": {
+    "total": 8,
+    "passed": 8
+  },
+  "focusedEvidence": [
+    "qa/history-pose-replay.json",
+    "qa/history-webm-pose.json",
+    "qa/stopped-live-pose.json",
+    "qa/history-rep-navigation.json",
+    "qa/home-comparison-provenance.json",
+    "qa/submission-public-preflight.json"
+  ],
+  "scope": "Public fixture browser/realHeavy/WebRTC plus controlled-provider persistence tests. Physical iPhone and independent motion accuracy are not claimed.",
+  "realProviderFinal": "pending",
+  "seldonFinal": {
+    "experimentId": "dd2c7084-9720-4956-b35d-4592f607a7ce",
+    "cases": 3,
+    "status": "completed: 1 passed, 2 failed; fixes and targeted rerun required",
+    "url": "https://app.seldon.com/experiments/dd2c7084-9720-4956-b35d-4592f607a7ce"
+  }
+}
