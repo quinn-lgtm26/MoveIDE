@@ -1,0 +1,21 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:33:18.632Z",
+  "scope": "Synthetic saved-session UI fixture, three detected reps and one schema-valid saved review; public video is a playback carrier. No Heavy or AI inference; not a model accuracy test.",
+  "checks": {
+    "detectedVsReviewedCountsAndAllRepRows": true,
+    "duplicateLocalIdsUseGlobalOrdinalsAndLegacyReasons": true,
+    "bottomCitationWorksWithoutExactBottomSample": true,
+    "citedPhaseObservationsFollowMappedPlayhead": true,
+    "notesPersistButNoHighlightOutsideRepInterval": true,
+    "repNavigationDoesNotReuseDifferentRepNote": true,
+    "bothClocksAndActualCitationsVisible": true,
+    "fullRetainedTraceBreaksInvalidMetricGapAndEpoch": true,
+    "graphSelectionSeeksMappedVideo": true,
+    "beyondRecordingPrefixCanInspectWithoutFalseSeek": true,
+    "mobileAxisRemainsLegible": true,
+    "mobileNoOverflow": true,
+    "noInferenceOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}

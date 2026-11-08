@@ -19,7 +19,8 @@ export function selectPhaseEvidence(report, rep, images) {
 }
 
 /** Add measured phase samples within the existing v1 contract; original report is unchanged. */
-export function buildLiveCoachBundle(report, repId, evidenceImages) {
+export function buildLiveCoachBundle(report, repId, evidenceImages, { targetKneeFlexionDeg = null } = {}) {
+  if (targetKneeFlexionDeg !== null && (!Number.isFinite(targetKneeFlexionDeg) || targetKneeFlexionDeg < 30 || targetKneeFlexionDeg > 150)) throw new RangeError('Choose a projected knee-flexion target between 30 and 150 degrees, or null.');
   const rep = report.reps.find(item => item.id === repId);
   if (!rep) throw new Error('Choose a completed rep from this live report.');
   const cache = new Map();
@@ -44,7 +45,7 @@ export function buildLiveCoachBundle(report, repId, evidenceImages) {
     }
   }
   const enrichedReport = { ...report, measurements };
-  const packet = buildCoachPacket(enrichedReport, { repIds: [repId] });
+  const packet = buildCoachPacket(enrichedReport, { repIds: [repId], ...(targetKneeFlexionDeg === null ? {} : { userGoal: `Practice goal: ${targetKneeFlexionDeg} degrees of projected knee flexion at the rep bottom. This is a chosen practice target, not a universal definition of good form; comfortable range takes priority.` }) });
   const byTime = new Map(selected.map(image => [image.timestampMs, image]));
   const images = packet.evidence.map(reference => ({ ...reference, blob: byTime.get(reference.timestampMs)?.blob }));
   if (images.some(image => !image.blob)) throw new Error('A required live source image is unavailable.');

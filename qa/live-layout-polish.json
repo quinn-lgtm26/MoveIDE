@@ -1,0 +1,176 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:29:55.894Z",
+  "revision": "32159db5660ed61c8cf35b2a3c867f8545b6bb8d",
+  "mode": "isolated current-source Vite dev",
+  "captureMode": "public clear-squat.mp4 via canvas.captureStream; replayed stored pose/metric callbacks; mock ChatGPT; no fresh Heavy inference, physical camera, account or phone",
+  "checks": {
+    "priorNoteRetainedDuringNextReview": true,
+    "graphPopulates": true,
+    "noBrowserErrors": true
+  },
+  "layouts": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "documentWidth": 1440,
+      "video": {
+        "top": 169,
+        "left": 48,
+        "width": 884,
+        "height": 432,
+        "bottom": 601
+      },
+      "chart": {
+        "top": 613,
+        "left": 48,
+        "width": 1344,
+        "height": 570.796875,
+        "bottom": 1183.796875
+      },
+      "svg": {
+        "top": 654,
+        "left": 69,
+        "width": 1302,
+        "height": 220,
+        "bottom": 874
+      },
+      "note": {
+        "top": 460.59375,
+        "left": 952,
+        "width": 425,
+        "height": 100.09375,
+        "bottom": 560.6875
+      },
+      "axisPixels": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "checks": {
+        "noHorizontalOverflow": true,
+        "videoAtLeast300px": true,
+        "readableAxes": true,
+        "chartStartsInLaptopViewport": true,
+        "priorNoteHasVisibleHeight": true
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "documentWidth": 1280,
+      "video": {
+        "top": 169,
+        "left": 48,
+        "width": 724,
+        "height": 345.59375,
+        "bottom": 514.59375
+      },
+      "chart": {
+        "top": 526.59375,
+        "left": 48,
+        "width": 1184,
+        "height": 570.796875,
+        "bottom": 1097.390625
+      },
+      "svg": {
+        "top": 567.59375,
+        "left": 69,
+        "width": 1142,
+        "height": 220,
+        "bottom": 787.59375
+      },
+      "note": {
+        "top": 438.390625,
+        "left": 792,
+        "width": 425,
+        "height": 100.09375,
+        "bottom": 538.484375
+      },
+      "axisPixels": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "checks": {
+        "noHorizontalOverflow": true,
+        "videoAtLeast300px": true,
+        "readableAxes": true,
+        "chartStartsInLaptopViewport": true,
+        "priorNoteHasVisibleHeight": true
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "video": {
+        "top": 245,
+        "left": 16,
+        "width": 358,
+        "height": 405.109375,
+        "bottom": 650.109375
+      },
+      "chart": {
+        "top": 674.109375,
+        "left": 16,
+        "width": 358,
+        "height": 681.59375,
+        "bottom": 1355.703125
+      },
+      "svg": {
+        "top": 740.109375,
+        "left": 37,
+        "width": 316,
+        "height": 220,
+        "bottom": 960.109375
+      },
+      "note": {
+        "top": 1525.703125,
+        "left": 20,
+        "width": 335,
+        "height": 151,
+        "bottom": 1676.703125
+      },
+      "axisPixels": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "checks": {
+        "noHorizontalOverflow": true,
+        "videoAtLeast300px": true,
+        "readableAxes": true,
+        "chartStartsInLaptopViewport": true,
+        "priorNoteHasVisibleHeight": true
+      }
+    }
+  ],
+  "sourceHashes": {
+    "harness/live/app.css": "1c3c16abeb7b3ac2d2f011a77f19483504410d2b70843639b895e201a50f8c4f",
+    "harness/live/app.mjs": "6a334de94331b2b323b4a2c161b64836effd732b2a9d68101e1083435109fb05",
+    "harness/live/motion/live-chart.mjs": "a469807a5a3f457002d046f34e91616c60269a5ab52f68a7b2531175193cf633"
+  },
+  "browserErrors": [],
+  "passed": true
+}

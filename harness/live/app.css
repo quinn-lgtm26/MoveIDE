@@ -47,3 +47,25 @@ main:has(#stop:not([hidden])) .source-label,main:has(#stop:not([hidden])) .start
 @media(min-width:1100px){main{grid-template-areas:"header header" "intro intro" "pairing pairing" "setup setup" "stage feedback" "stage feed" "chart chart" "metrics target" "recording recording" "strip strip" "footer footer"}.live-trends{grid-area:chart;margin:0 0 16px}}
 @media(max-width:730px){.live-trends{order:4;margin:0}.coaching-feed{order:5}aside{order:6}.recording-panel{order:7}.session-strip{order:8}footer{order:9}}
 .coaching-card{animation:coach-arrive .18s ease-out}@keyframes coach-arrive{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.coaching-card{animation:none}}
+@media(min-width:1100px){
+  main:has(#stop:not([hidden])) .stage{min-height:clamp(340px,48vh,440px)}
+  main:has(#stop:not([hidden])) .coaching-feed{height:clamp(210px,28vh,270px);padding-top:12px}
+  main:has(#stop:not([hidden])) aside .feedback{padding:14px 17px}
+  main:has(#stop:not([hidden])) .feedback h2{font-size:20px;margin:8px 0}
+  main:has(#stop:not([hidden])) .live-trends{margin-top:12px}
+}
+
+#live-chart .chart-window-label{font-size:11px;color:#617367;margin:8px 0}
+#live-chart .chart-phase-legend{font-size:12px;color:#617367;line-height:1.5;margin:8px 0}
+#live-chart .chart-rep-summary{font-size:13px;line-height:1.6;margin:10px 0;color:#264c3c}
+#live-chart details{border-top:1px solid #e0e7dc;margin-top:8px;font-size:12px;line-height:1.6}
+#live-chart details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;list-style:none}
+#live-chart details>summary::before{content:'▸';margin-right:8px}
+#live-chart details[open]>summary::before{content:'▾'}
+#live-chart .chart-metric-controls label{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-right:18px}
+#live-chart .chart-metric-controls input{width:18px;height:18px;accent-color:#193e30}
+#live-chart .chart-rep-details ol{margin:0 0 12px;padding-left:20px;max-height:180px;overflow:auto}
+#live-chart .chart-rep-details li{padding:6px 0}
+#live-chart [hidden]{display:none!important}
+
+.session-diagnostics>summary{display:list-item;list-style:disclosure-closed;cursor:pointer}.session-diagnostics[open]>summary{list-style:disclosure-open}

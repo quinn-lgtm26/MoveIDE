@@ -57,3 +57,29 @@
 @media (prefers-reduced-motion: reduce) {
   .history *, .history *::before, .history *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Source-bound saved coaching: persistent notes, explicit coverage and compact rep navigation. */
+.history .replay-current-cue { min-height: 140px; padding: 14px 16px; margin: 12px 0; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.history .replay-current-cue .replay-note-focus { margin: 8px 0; }
+.history .replay-coverage { font-weight: 600; }
+.history .replay-rep-list { list-style: none; margin: 8px 0 16px; padding: 0; max-height: 260px; overflow-y: auto; scrollbar-gutter: stable; }
+.history .replay-rep-list li { padding: 8px; border-left: 3px solid transparent; border-bottom: 1px solid var(--line); }
+.history .replay-rep-list li[data-playing=true] { border-left-color: #779883; background: #edf3e8; }
+.history .replay-rep-list .toolbar { margin: 0; gap: 8px; }
+.history .replay-rep-list button { min-height: 40px; padding: 7px 12px; }
+.history .replay-rep-list b { font-size: 12px; }
+.history .replay-rep-list p { margin: 5px 0; }
+.history .replay-cited-moments { padding-left: 18px; }
+.history .replay-cited-moments li[data-current=true] { border-left: 3px solid #779883; padding-left: 8px; }
+.history .saved-trace { border:1px solid var(--line); border-radius:14px; padding:16px; margin-top:14px; }
+.history .saved-trace svg { display:block; width:100%; height:auto; cursor:crosshair; overflow:visible; }
+.history .saved-trace svg text { fill:var(--muted); font:11px system-ui,sans-serif; }
+.history .saved-trace-grid { stroke:var(--line); }
+.history .saved-trace-line { fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+.history .saved-trace [data-series="0"] { color:#32a889; }
+.history .saved-trace [data-series="1"] { color:#4a91d1; }
+.history .saved-trace [data-series="1"] path { stroke-dasharray:7 3; }
+.history .saved-trace [data-series="2"] { color:#b47bcb; }
+.history .saved-trace [data-series="2"] path { stroke-dasharray:2 3; }
+.history .saved-trace-cursor { stroke:var(--text); stroke-width:1.5; }
+.history .saved-trace-legend { display:flex; gap:12px; flex-wrap:wrap; font-size:.75rem; margin:8px 0; }

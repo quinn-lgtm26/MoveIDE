@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:09:26.019Z",
+  "verifiedAtUtc": "2026-11-08T01:33:20.786Z",
   "scope": "Seeded stored review statuses and notes with fixture playback; no Heavy, camera or provider calls. Tests same-ID revision refresh, not queue inference.",
   "checks": {
     "perRepStatesAndQueueLifetimeVisible": true,

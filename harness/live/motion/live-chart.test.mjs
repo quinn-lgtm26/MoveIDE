@@ -21,7 +21,13 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
       chart.rep({ key: 'epoch1-rep', epoch: 1, rep: { bottomMs: 400 } });
       chart.rep({ key: 'epoch1-rep', epoch: 1, rep: { bottomMs: 400 } });
     });
-    assert.match(await page.locator('#chart p').first().textContent(), /Waiting/);
+    assert.match(await page.locator('#chart p').first().textContent(), /graph starts when tracking/);
+    assert.equal(await page.locator('svg').isVisible(), false, 'Empty state has no large fake 0–1s plot');
+    assert.ok((await page.locator('#chart').boundingBox()).height < 120, 'Empty chart stays compact');
+    await page.clock.fastForward(250);
+    await page.locator('.chart-metric-controls summary').click();
+    await page.locator('[data-chart-metric="hipFlexionDeg"]').check();
+    await page.locator('[data-chart-metric="torsoLeanDeg"]').check();
     await page.clock.fastForward(250);
     const path = await page.locator('[data-metric="kneeFlexionDeg"]').getAttribute('d');
     assert.equal((path.match(/M/g) ?? []).length, 4); assert.equal((path.match(/L/g) ?? []).length, 1);
@@ -64,6 +70,11 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
     assert.match(await baseline.textContent(), /0.20 s.*0.70 s/);
     assert.match(await baseline.textContent(), /Bottom knee bend110.0°120.0°\+10.0°/);
     assert.match(await baseline.textContent(), /Duration0.20 s0.20 s0.00 s/);
+    assert.equal(await page.locator('[data-rep-phase="descent"]').count(), 2);
+    assert.equal(await page.locator('[data-rep-phase="return"]').count(), 2);
+    assert.equal(await page.locator('.chart-rep-details li').count(), 2);
+    assert.match(await page.locator('.chart-rep-summary').textContent(), /Knee bend 120.0°.*Down 0.10 s.*Return 0.10 s.*Total 0.20 s/);
+    assert.match(await page.locator('.chart-window-label').textContent(), /Rolling 30-second.*saved session/);
     assert.equal(await page.locator('[data-practice-target]').getAttribute('data-practice-target'), '110');
     await page.evaluate(() => {
       const wrongEvidence = completed('third', 800, 130);
@@ -94,7 +105,7 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
       assert.equal(layout.width, layout.containerWidth);
       assert.ok(layout.text.every(label => label.fontPixels >= 10.9 && label.left >= 0 && label.right <= width));
       assert.ok(!(await page.locator('svg').textContent()).includes('form-quality'));
-      assert.match(await page.locator('#chart > p').nth(1).textContent(), /110° knee practice target, not a form-quality standard/);
+      assert.match(await page.locator('.chart-metric-controls > p').textContent(), /110° knee practice target, not a form-quality standard/);
     }
   } finally { await browser.close(); }
 });

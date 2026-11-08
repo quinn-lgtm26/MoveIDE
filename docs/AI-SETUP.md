@@ -1,5 +1,7 @@
 # Give this to your coding assistant
 
+For a short human/judge walkthrough, start with [Download, connect and try MoveIDE](JUDGES-START-HERE.md).
+
 These prompts set up the **existing MoveIDE repository**. They do not ask an assistant to recreate the product or invent new pose calculations. Start with a normal macOS/Linux terminal and Node.js22.18+ ([official downloads](https://nodejs.org/en/download)). The launcher does not install Node. Phone mode also needs [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/).
 
 ## Claude copy-paste
@@ -77,7 +79,10 @@ squat. Show the in-app QR privately. I will scan it in iPhone Safari, tap Start 
 and grant camera access. Do not print/store the pairing invitation in logs or Git.
 Keep the phone foregrounded and whole body visible. Verify actual arriving video,
 local tracking and returned captions separately. Recordings/history save on the Mac.
-Stop ends the stream and saves an enabled local recording; wait for Saved before leaving.
+Stop ends the stream and saves an enabled local recording. Keep the original live tab
+open until queued rep reviews finish; late accepted notes enrich that same saved session.
+Wait for Saved and completed review statuses before leaving. Starting a new session
+cancels old unfinished reviews; closed-tab queues do not resume automatically.
 If pairing fails, inspect the relevant stage: HTTPS page, permission, signaling,
 WebRTC media, pose assets, then optional coach. Don't infer one passed from another.
 Report physical-device results only after observing them. No TURN/general-network

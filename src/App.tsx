@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { mountQuickTour } from '../harness/ui/quick-tour.mjs';
 import type { AnalysisReport, Measurement, MotionTraceSample } from '../harness/motion/analyze.mjs';
 import { getMotionTrace } from '../harness/motion/analyze.mjs';
 import { drawSquatOverlay, overlayFrameAt } from '../harness/motion/overlay.mjs';
@@ -32,6 +33,7 @@ const shortCue = (segment: CoachingSegment, response: CoachingResponse) => {
 };
 
 export function App() {
+  useEffect(() => mountQuickTour({ surface: 'recorded' }), []);
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [clip, setClip] = useState<{ name: string; src: string; blob: Blob } | null>(null);
@@ -529,8 +531,11 @@ function PersonalReference({report,currentRepId,onSeek}:{report:AnalysisReport;c
   const show=(number:number|null,metric:Measurement['metric'])=>number===null?'Unavailable':metric==='rep_duration'?`${(number/1000).toFixed(1)}s`:`${number.toFixed(0)}°`;
   const change=(a:number|null,b:number|null,metric:Measurement['metric'])=>{
     if(a===null||b===null)return '—';
-    const difference=metric==='rep_duration'?Math.round((b-a)/100)/10:Math.round(b-a);
-    return difference===0?'Same':`${difference>0?'+':''}${difference}${metric==='rep_duration'?'s':'°'}`;
+    const raw=b-a;
+    if(raw===0)return 'Same';
+    if(Math.abs(raw)<(metric==='rep_duration'?100:1))return metric==='rep_duration'?'<0.1s':'<1°';
+    const difference=metric==='rep_duration'?Math.round(raw/100)/10:Math.round(raw);
+    return `${difference>0?'+':''}${difference}${metric==='rep_duration'?'s':'°'}`;
   };
   return <section className="readout" aria-label="Personal rep reference"><h3>Your reference</h3><div className="toolbar"><label>Reference rep <select aria-label="Reference rep" value={reference.id} onChange={event=>setReferenceId(event.target.value)}>{report.reps.map(rep=><option key={rep.id} value={rep.id}>{repName(rep.id)}</option>)}</select></label><label>Compare rep <select aria-label="Compare reference with rep" value={chosenId} onChange={event=>setChosenId(event.target.value)}><option value="">Playing rep</option>{report.reps.map(rep=><option key={rep.id} value={rep.id}>{repName(rep.id)}</option>)}</select></label></div>
     <table style={{width:'100%',fontSize:'.82rem'}}><thead><tr><th scope="col">Measure</th><th scope="col">{repName(reference.id)} reference</th><th scope="col">{repName(compared.id)} comparison</th><th scope="col">Change</th></tr></thead><tbody>{rows.map(([metric,label])=>{const a=value(reference,metric),b=value(compared,metric);return <tr key={metric}><th scope="row">{label}</th><td>{show(a,metric)}</td><td>{show(b,metric)}</td><td>{change(a,b,metric)}</td></tr>;})}</tbody></table>

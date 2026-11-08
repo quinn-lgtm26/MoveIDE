@@ -1,0 +1,63 @@
+{
+  "status": "passed",
+  "verifiedAtUtc": "2026-11-08T01:18:28.194Z",
+  "publicHttps": true,
+  "camera": "Synthetic fixture stream; physical iPhone NOT tested",
+  "video": "Real WebRTC across isolated Chrome contexts",
+  "poseModel": "Heavy",
+  "provider": "Real connected ChatGPT",
+  "maximumProviderRequests": 2,
+  "fixtureLoops": false,
+  "requests": [
+    {
+      "at": 1794100714555,
+      "model": "gpt-6.1-sol",
+      "repCount": 1,
+      "measurementCount": 7,
+      "imageTimestampsMs": [
+        1736,
+        2065,
+        2495
+      ]
+    }
+  ],
+  "responses": [
+    {
+      "at": 1794100725717,
+      "status": 200,
+      "observationCount": 2,
+      "nextFocusLength": 63
+    }
+  ],
+  "checkpoints": [
+    "Created configured HTTPS phone pairing in isolated profile",
+    "Heavy angles, populated live chart and return local phone feedback observed before Stop",
+    "Stop clicked immediately after first provider dispatch",
+    "Capture stopped, recording saved and sender tracks ended",
+    "Real delayed AI appended after Stop and persisted against the unchanged recording"
+  ],
+  "errors": [],
+  "claimLimits": "No independent angle accuracy or physical-device latency claim.",
+  "stoppedAt": 1794100714556,
+  "proof": {
+    "responseAfterStop": true,
+    "sameSavedSession": true,
+    "unchangedVerifiedVideoHash": true,
+    "savedNotes": 1,
+    "completedReps": 1,
+    "savedEvidenceImages": 3,
+    "recordingBytes": 559292,
+    "initialRevision": 1,
+    "finalRevision": 6,
+    "retainedCoachingCards": 1,
+    "diagnosticStates": [
+      "queued",
+      "analyzing",
+      "ready"
+    ],
+    "analyzedSamples": 29,
+    "chartPopulatedBeforeStop": true,
+    "returnedLocalPhoneFeedback": true,
+    "tracksStopped": true
+  }
+}

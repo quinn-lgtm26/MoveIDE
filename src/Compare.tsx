@@ -26,6 +26,9 @@ const val = (v: number | null, unit: string) => (v === null ? <span className="m
 const diff = (a: number | null, b: number | null, unit: string) => {
   if (a === null || b === null) return <span className="muted">—</span>;
   const d = b - a;
+  if (d === 0) return 'same';
+  if (unit === '°' && Math.abs(d) < 1) return '<1°';
+  if (unit === ' ms' && Math.abs(d) < 100) return '<0.1s';
   const text = unit === ' ms' ? (d / 1000).toFixed(1) : d.toFixed(unit === '°' ? 0 : 2);
   if (Number(text) === 0) return 'same';
   return `${d > 0 ? '+' : ''}${text}${unit === ' ms' ? ' s' : unit}`;

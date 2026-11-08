@@ -27,3 +27,29 @@ test('prepare failure is actionable and never exposes upstream text',async()=>{
  const q=createCoachingQueue({prepare:async()=>{throw Object.assign(new Error('secret-url-token'),{code:'provider_disconnected'});},review:()=>requests++,onState:(_item,state,message)=>states.push({state,message})});
  q.enqueue({key:'a'});await flush();assert.equal(requests,0);assert.match(states.at(-1).message,/Connect ChatGPT/);assert.ok(!JSON.stringify(states).includes('secret'));assert.equal(states.at(-1).state,'failed');
 });
+
+test('every one of three queued reps reaches a terminal status even when the middle response fails', async () => {
+  const dispatched = [], results = [], terminal = new Map();
+  const queue = createCoachingQueue({ intervalMs: 0,
+    review: async item => { dispatched.push(item.key); if (item.key === 'second') throw Object.assign(new Error('private upstream details'), { code: 'invalid_response' }); return item.key; },
+    onResult: (item, result) => results.push([item.key, result]),
+    onState: (item, state, message) => { if (['ready', 'failed'].includes(state)) terminal.set(item.key, { state, message }); },
+  });
+  for (const key of ['first', 'second', 'third']) queue.enqueue({ key });
+  await flush(); await flush();
+  assert.deepEqual(dispatched, ['first', 'second', 'third']);
+  assert.deepEqual(results, [['first', 'first'], ['third', 'third']]);
+  assert.deepEqual([...terminal.values()].map(value => value.state), ['ready', 'failed', 'ready']);
+  assert.match(terminal.get('second').message, /could not be linked/);
+  assert.doesNotMatch(JSON.stringify([...terminal.values()]), /private upstream/);
+  assert.deepEqual(queue.snapshot(), { accepted: 3, queued: 0, running: 0, cancelled: false });
+});
+
+test('quota and expired authorization are explicit; unknown upstream codes cannot inject a message', async () => {
+  for (const [code, expected] of [['usage_limit', /plan usage/], ['reauthorize', /Reconnect ChatGPT/], ['constructor', /rep review failed/]]) {
+    let terminal;
+    const queue = createCoachingQueue({ review: async () => { throw Object.assign(new Error('secret response'), { code }); }, onState: (_item, state, message) => { if (state === 'failed') terminal = message; } });
+    queue.enqueue({ key: code }); await flush();
+    assert.match(terminal, expected); assert.doesNotMatch(terminal, /secret response/);
+  }
+});

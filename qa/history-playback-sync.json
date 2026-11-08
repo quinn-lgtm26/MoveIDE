@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:06:26.733Z",
+  "verifiedAtUtc": "2026-11-08T01:32:19.817Z",
   "scope": "Seeded local live-history sessions with existing fixture video. Tests approximate replay mapping and UI only; no camera, Heavy or AI inference.",
   "checks": {
     "opensNearFirstCompletedRepWithNonzeroOffset": true,

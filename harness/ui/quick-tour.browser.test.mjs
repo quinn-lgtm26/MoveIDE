@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+const module = await readFile(new URL('./quick-tour.mjs', import.meta.url));
+const server = createServer((request,response)=>{
+  if(request.url==='/quick-tour.mjs'){response.setHeader('Content-Type','text/javascript');response.end(module);return;}
+  response.setHeader('Content-Type','text/html');response.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><main><button id="product-start">Try a sample squat</button><label class="model-select">Analysis</label><p class="start-disclosure">ChatGPT sees selected stills</p><a href="#history">History</a><button id="start">Start coached squat</button><h2 id="live-trends-title">Your movement over time</h2><p id="ai">Coach notes</p><a href="/#history">History</a></main><script type="module">import {mountQuickTour} from "/quick-tour.mjs";window.mountTour=mountQuickTour;window.removeTour=mountQuickTour();</script>');
+});
+let browser;
+try{
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ browser=await chromium.launch({channel:'chrome',headless:true});const page=await browser.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.addInitScript(()=>{window.cameraCalls=0;window.fetchCalls=0;navigator.mediaDevices.getUserMedia=async()=>{window.cameraCalls++;throw new Error('No camera expected');};window.fetch=()=>{window.fetchCalls++;throw new Error('No provider expected');};});
+ await page.goto(`http://127.0.0.1:${server.address().port}`);
+ await page.getByRole('region',{name:'Quick tour invitation'}).waitFor();assert.equal(await page.locator('dialog[open]').count(),0,'First visit invitation is nonmodal');
+ await page.getByRole('button',{name:'Not now',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Quick tour',exact:true}).evaluate(button=>button===document.activeElement),true);
+ await page.reload();assert.equal(await page.getByRole('region',{name:'Quick tour invitation'}).count(),0,'Dismissal persists locally');
+ await page.getByRole('button',{name:'Quick tour',exact:true}).click();await page.getByRole('dialog',{name:'Choose how to try it'}).waitFor();await page.waitForFunction(()=>document.querySelector('#product-start').classList.contains('moveide-tour-target'));assert.equal(await page.locator('.moveide-tour-target').count(),1);await page.waitForFunction(()=>document.querySelector('.moveide-tour-pointer').textContent.includes('highlighted'));const targetBounds=await page.locator('#product-start').boundingBox();const calloutBounds=await page.locator('dialog').boundingBox();assert.ok(calloutBounds.y>=targetBounds.y+targetBounds.height||calloutBounds.y+calloutBounds.height<=targetBounds.y,'Callout does not cover its highlighted control');
+ for(let i=0;i<8;i++)await page.keyboard.press('Tab');assert.equal(await page.locator('dialog').evaluate(dialog=>dialog.contains(document.activeElement)),true,'Native modal keeps keyboard focus inside');
+ await page.keyboard.press('Escape');assert.equal(await page.locator('dialog[open]').count(),0);assert.equal(await page.getByRole('button',{name:'Quick tour',exact:true}).evaluate(button=>button===document.activeElement),true);
+ await page.getByRole('button',{name:'Quick tour',exact:true}).click();await page.getByRole('button',{name:'Next',exact:true}).click();assert.match(await page.locator('#moveide-tour-text').innerText(),/first run may take longer/i);
+ await page.getByRole('button',{name:'Next',exact:true}).click();assert.match(await page.locator('#moveide-tour-text').innerText(),/up to 6 rep reviews/);assert.match(await page.locator('#moveide-tour-text').innerText(),/keep this page open/i);
+ await page.getByRole('button',{name:'Next',exact:true}).click();assert.match(await page.locator('#moveide-tour-text').innerText(),/on this computer/);
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);const bounds=await page.locator('dialog').boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=390&&bounds.y>=0&&bounds.y+bounds.height<=844);
+ await page.getByRole('button',{name:'Done',exact:true}).click();
+ await page.evaluate(()=>{window.removeTour();window.removeTour=window.mountTour({surface:'live'});});await page.getByRole('button',{name:'Quick tour',exact:true}).click();assert.match(await page.locator('#moveide-tour-text').innerText(),/private link in Safari/);assert.match(await page.locator('#moveide-tour-text').innerText(),/tap Start camera/);
+ await page.getByRole('button',{name:'Close quick tour'}).click();
+ await page.evaluate(()=>{window.removeTour();window.removeTour=window.mountTour({storage:{getItem(){throw Error('denied')},setItem(){throw Error('denied')}}});});await page.getByRole('button',{name:'Not now',exact:true}).click();
+ assert.deepEqual(await page.evaluate(()=>({camera:window.cameraCalls,provider:window.fetchCalls})),{camera:0,provider:0});assert.deepEqual(errors,[]);
+ await page.evaluate(()=>{window.removeTour();localStorage.clear();history.replaceState(null,'','/#history');window.removeTour=window.mountTour();});assert.equal(await page.getByRole('region',{name:'Quick tour invitation'}).count(),0,'Fresh History routes suppress the invitation');
+ await page.evaluate(()=>window.removeTour());assert.equal(await page.locator('[data-moveide-tour],.moveide-tour-dialog').count(),0);
+ console.log(JSON.stringify({result:'passed',firstVisitNonmodal:true,persistedDismissal:true,keyboardTrapAndEscape:true,focusReturn:true,reopen:true,fourSteps:true,mobileFit:true,liveSetupCopy:true,storageFailureSafe:true,noCameraOrProviderActions:true,cleanup:true}));
+}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

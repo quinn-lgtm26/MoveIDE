@@ -1,0 +1,32 @@
+{
+  "testedAt": "2026-11-08T01:17:52.438Z",
+  "target": "https://syndrome-portrait-stephen-web.trycloudflare.com",
+  "buildCommit": "32159db",
+  "scope": "Exact frozen public production, isolated Chrome, public fixture Heavy analysis and disconnected provider. Live checks are idle UI only; no physical phone or live inference.",
+  "checks": {
+    "exactFrozenIndex": true,
+    "privateProviderAndPairingUnavailable": true,
+    "realHeavyTwoRepsSaved": true,
+    "personalReferenceAvailable": true,
+    "overlayAndPlayback": true,
+    "historyReloadWithoutInference": true,
+    "recordedMobileNoOverflow": true,
+    "liveChartIdleAndUnknownMetrics": true,
+    "idleDiagnosticDownload": true,
+    "liveMobileNoOverflow": true,
+    "liveToSavedHistoryNavigation": true,
+    "noInferenceRequestsOrPageErrors": true
+  },
+  "errors": [],
+  "indexSha256": "78bb76c6d3f4afa122f3256491d2950b51d8f7e1e3f2e9072bc2e3a4216a77d1",
+  "analysis": {
+    "frames": 57,
+    "reps": 2,
+    "bottoms": [
+      1067,
+      3000
+    ],
+    "model": "mediapipe-pose-landmarker-heavy"
+  },
+  "status": "passed"
+}

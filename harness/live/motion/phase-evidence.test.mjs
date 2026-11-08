@@ -50,3 +50,15 @@ test('sparse-phase summary retains tracking caveats within the v1 length bound',
   for (const text of ['Side framing unconfirmed.', 'Pose unavailable.', 'Tracking intermittent.', 'Some measurements unavailable.']) assert(packet.summary.includes(text));
   assert(packet.summary.length <= 512);
 });
+
+test('live coaching includes only the explicitly selected practice target and preserves v1 evidence binding', () => {
+  const images = selectPhaseEvidence(report, rep, cache);
+  const withGoal = buildLiveCoachBundle(report, rep.id, images, { targetKneeFlexionDeg: 110 });
+  assert.match(withGoal.packet.goal, /110 degrees of projected knee flexion/);
+  assert.match(withGoal.packet.goal, /not a universal definition of good form/);
+  const withoutGoal = buildLiveCoachBundle(report, rep.id, images);
+  assert.equal(withoutGoal.packet.goal, undefined, 'A disabled target must not invent an ideal');
+  assert.deepEqual(withGoal.packet.measurements, withoutGoal.packet.measurements);
+  assert.deepEqual(withGoal.packet.evidence, withoutGoal.packet.evidence);
+  assert.throws(() => buildLiveCoachBundle(report, rep.id, images, { targetKneeFlexionDeg: NaN }), RangeError);
+});

@@ -93,3 +93,20 @@ test('slow steady observations recover individual angles without inventing conti
   for (const [index, frame] of fixture.frames.entries()) observations.push(push(analysis, 3600 + index * 300, frame.landmarks));
   assert.equal(observations.flatMap(item => item.events).length, 0, 'The strict rep evidence gap remains enforced separately from view continuity');
 });
+
+test('three complete cycles plus a final descent remain three events until the fourth returns to standing', () => {
+  const analysis = setup(); warm(analysis);
+  const first = runClip(analysis, 1000), events = first.flatMap(item => item.events);
+  const nextStart = first.at(-1).timestampMs + 100;
+  const finalBottom = fixture.reps.at(-1).bottomMs;
+  for (const frame of fixture.frames.filter(frame => frame.timestampMs <= finalBottom)) {
+    events.push(...push(analysis, nextStart + frame.timestampMs, frame.landmarks).events);
+  }
+  assert.equal(events.length, 3, 'A visible final descent/bottom is still an unfinished cycle');
+  for (const frame of fixture.frames.filter(frame => frame.timestampMs > finalBottom)) {
+    events.push(...push(analysis, nextStart + frame.timestampMs, frame.landmarks).events);
+  }
+  for (const dt of [0, 100, 200]) events.push(...push(analysis, nextStart + fixture.clip.durationMs + dt, fixture.frames.at(-1).landmarks).events);
+  assert.equal(events.length, 4);
+  assert.equal(new Set(events.map(event => event.key)).size, 4);
+});

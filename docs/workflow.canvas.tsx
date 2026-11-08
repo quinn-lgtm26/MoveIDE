@@ -4,6 +4,7 @@ const project = "https://github.com/quinn-lgtm26/MoveIDE/blob/main";
 const tabs = ["Workflow", "Story status", "System", "Verification", "Squat methodology", "Frontend handoff"] as const;
 
 const milestones = [
+  {id:"00",title:"Judge-ready replay and guidance",owner:"Final integration · QA pending",work:"Detected reps and saved AI reviews are counted separately. Replay follows actual rep intervals and cited phase evidence, with a full-session graph and retained notes. Live graphs mark descent/bottom/return and compare to a personal reference. A short optional spotlight tour explains real controls; the judge setup packet starts from GitHub.",proof:"Focused History tests pass52checks. Live graph and three-size layout checks pass. Shared coaching policy includes the disclosed goal and rejects unsupported single-rep consistency claims. Final merged build and Wren rerun remain required."},
   {
     "id": "01",
     "title": "One Start, one coached session",
@@ -93,14 +94,15 @@ const system = [
 ];
 
 const checks = [
+  ["Phone repair · 32159db", "128 local tests and12 public-production checks pass. Real HTTPS/WebRTC/Heavy/ChatGPT review completed about11s after Stop and enriched the unchanged recording. Queued per-rep states, live graphs, personal reference, replay synchronization and local diagnostics are implemented. Wren review60ba178a passed3/3; newer graph/replay/tutorial final integration and physical retest remain."],
   ["Polished session review", "f4a987a retains stopped live recordings, accepted cards and seven historical metrics until New Start. Late-finalization, opt-out, unsupported/failed encoding and stale-live-overlay checks pass. History video/notes, measurement inspector, slow playback and reduced motion pass11 scoped polish checks; visible comparison rep buttons pass22 checks."],
   ["Scope hold and identity", "Chat is on hold: no chat UI or endpoints. The small biomechanics logo is a movement identity, not a claim of gait/non-squat support. Physical iPhone/venue and independent angle/orbit accuracy remain unverified."],
-  ["Remaining implementation", "FE-6 OpenCap dual-track UI; UX-3 evidence-bound region accents; selectable goal/reference setup; VIEW-2–5 automatic viewpoint, identity, bounded filtering and calibration; stronger temporal-claim acceptance. Exact sequential decode and memory profiling remain BE-5 work. These are code/engineering gaps, not only missing device evidence."],
+  ["Remaining implementation", "FE-6 OpenCap dual-track UI; UX-3 evidence-bound region accents; configurable live goal and stable calibration; VIEW-2–5 automatic viewpoint, identity, bounded filtering and calibration; stronger temporal-claim acceptance. Exact sequential decode and memory profiling remain BE-5 work. These are code/engineering gaps, not only missing device evidence."],
   ["Remaining external acceptance", "Actual iPhone/Mac venue capture, codec, orientation, background/lock, reconnect, recording replay and end-to-end latency; broader contrast/text-zoom/screen-reader review; independent per-view/orbit angle, identity and false-cue references. Final Wren passed3/3 on f4a987a. Native OpenCap is deferred; cloud sync and unsaved crash recovery are outside the local demo."],
   ["Local history acceptance", "qa/history-root.json passes22 journeys; qa/history-races.json passes6 lifecycle and storage-management recovery checks; storage browser verification passes10 groups. Live finalized video/JSON/JPEG failure recovery is available. Recorded replay makes no new inference; live video alignment is explicitly approximate."],
   [
     "Geometry and missing data",
-    "Latest npm test passed110 harness tests and8 launcher/doctor tests (118 total), with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
+    "Latest npm test passed120 harness tests and8 launcher/doctor tests (128 total), with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -203,7 +205,7 @@ const handoff = [
   ],
   [
     "Launch and final acceptance",
-    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Local118-test suite passes; first Wren product run passed3/3; polished rerun passed3/3 with8 simulations remaining. Keep physical-device gates explicit. Native OpenCap and broad movement expansion remain deferred."
+    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Local128-test suite passes; historical polished Wren passed3/3; queued-review build32159db passed all three Wren cases. Final replay/graph/tutorial follow-up is in progress. Keep physical-device gates explicit. Native OpenCap and broad movement expansion remain deferred."
   ]
 ];
 

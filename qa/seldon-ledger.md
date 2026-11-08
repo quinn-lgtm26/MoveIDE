@@ -70,3 +70,12 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 - Actual final-run debit: **3 simulations**; official account now16granted,8used,0pending,8remaining.
 - Wren confirms visible rep selection works. Remaining nonblocking observations: restore-banner readability, retaining the original video filename after session rename, and limited end-of-clip Play feedback. These are tracked polish notes, not failed journeys.
 - **GO for hands-on testing of the current demo.** Real ChatGPT/history/reload pass locally; physical iPhone and independent movement accuracy remain separate gates. No product files changed during the final run; frozen manifest rechecked after completion.
+
+## Phone repair and queued-review build — 32159db
+
+- Source runtime: `32159db`; public frozen artifact manifest: `qa/wren-phone-repair-build.json`.
+- MCP validation: 3 runnable cases, schema valid. Official balance before dispatch:16 granted,8 used,0 pending,8 remaining.
+- Expected debit:3 simulations for recorded/reference/history, independent comparison and live setup/chart/diagnostics UX. No personas; no camera permission/account on public host. Five simulations remain for targeted reruns if all3debit as expected.
+- Local evidence:128 integrated tests; queued Stop lifecycle with real MediaRecorder/IndexedDB; isolated replay/status/reference browser checks. Real-provider phone regression remains separate and opt-in.
+- Experiment **60ba178a-ee4e-469e-a676-57074a9b88ae**, terminal **3/3 PASS**, zero failures/blocked/timeouts. Recorded/history682.392s, comparison419.238s, live setup202.754s. Both get_report and get_summary retrieved; [saved result](wren-phone-repair-results.json).
+- Actual debit3; official balance16granted,11used,0pending,5remaining. Minor findings: expandable controls lack affordance, empty recorded video, reference dropdown keyboard friction, downloads discoverability, reference selection resets after reopen. Final tutorial/replay/graph changes require a new exact-build run; reserve3 for final coverage and2 for targeted rerun.

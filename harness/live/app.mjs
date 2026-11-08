@@ -1,4 +1,6 @@
 import QRCode from 'qrcode';
+import { mountQuickTour } from '../ui/quick-tour.mjs';
+mountQuickTour({ surface: 'live' });
 import { createLiveChart } from './motion/live-chart.mjs';
 import { createSessionDiagnostics } from './session-diagnostics.mjs';
 import { createPairing, connectReceiver, revokePairing } from './transport/client.mjs';
@@ -280,7 +282,7 @@ function liveCoach(signal, onResult = () => {}) {
     if (signal.aborted || !owns()) return;
     let bundle;
     try {
-      bundle = buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages);
+      bundle = buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages, { targetKneeFlexionDeg: event.feedback.targetKneeFlexionDeg ?? null });
       if (!bundle.packet.measurements.length || !bundle.images.length || bundle.images.some(image => !image.blob)) throw new Error('missing-evidence');
     } catch { update({ key: event.key, event }, 'not-queued', 'Exact source images or measurements were unavailable for this rep.'); return; }
     // Freeze source ownership at completion. Current display age/view cannot invalidate historical evidence.

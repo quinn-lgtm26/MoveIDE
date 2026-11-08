@@ -1,3 +1,13 @@
+const failureMessages = Object.freeze({
+  provider_disconnected: 'Connect ChatGPT to review this rep; local measurements remain available.',
+  reauthorize: 'Reconnect ChatGPT before the next session. This rep could not be reviewed.',
+  usage_limit: 'ChatGPT plan usage was reached. This rep remains measured but has no coach note.',
+  plan_unavailable: 'ChatGPT plan access is unavailable. This rep remains measured but has no coach note.',
+  model_unavailable: 'The selected coach model is unavailable. Reconnect before your next session.',
+  invalid_response: 'The coach reply could not be linked to this rep’s evidence, so no note was accepted.',
+  incomplete: 'The coach response ended early. No complete note was accepted for this rep.',
+});
+
 /** Session-bounded FIFO. Capture Stop does not abort it; source/session cancellation does. */
 export function createCoachingQueue({ review, prepare = async () => undefined, onState = () => {}, onResult = () => {}, signal,
   maxReviews = 6, intervalMs = 8000, now = () => performance.now(), schedule = setTimeout, cancelTimer = clearTimeout } = {}) {
@@ -18,7 +28,7 @@ export function createCoachingQueue({ review, prepare = async () => undefined, o
       if (cancelled) return;
       onResult(item, result); state(item, 'ready', 'Coach note ready.');
     }).catch(error => {
-      if (!cancelled) state(item, 'failed', error?.code === 'provider_disconnected' ? 'Connect ChatGPT to review this rep; local measurements remain available.' : 'The rep review failed. Check your coach connection; local measurements remain available.');
+      if (!cancelled) state(item, 'failed', Object.hasOwn(failureMessages, error?.code) ? failureMessages[error.code] : 'The rep review failed. Check your coach connection; local measurements remain available.');
     }).finally(() => { running = null; pump(); });
   };
   const cancel = () => {

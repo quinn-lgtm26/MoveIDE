@@ -1,0 +1,74 @@
+{
+  "buildCommit": "32159db",
+  "verifiedAtUtc": "2026-11-08T01:31:45.471Z",
+  "report": {
+    "experimentId": "60ba178a-ee4e-469e-a676-57074a9b88ae",
+    "planTitle": "Seldon QA: quinn-lgtm26/MoveIDE · MoveIDE queued coaching and reference UX 32159db",
+    "status": "complete",
+    "summary": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "blocked": 0,
+      "timedOut": 0,
+      "passRate": 1,
+      "headline": "3/3 passed (100%)."
+    },
+    "failures": [],
+    "passed": [
+      {
+        "id": "live-setup-and-navigation",
+        "title": "Live setup comprehension and navigation without a camera",
+        "area": "general",
+        "durationSeconds": 202.754,
+        "startedAt": "2026-11-08T01:18:33.742794+00:00",
+        "completedAt": "2026-11-08T01:21:56.497146+00:00"
+      },
+      {
+        "id": "compare-and-handoff",
+        "title": "Compare two independent recordings without a manual handoff",
+        "area": "general",
+        "durationSeconds": 419.238,
+        "startedAt": "2026-11-08T01:18:34.916828+00:00",
+        "completedAt": "2026-11-08T01:25:34.15448+00:00"
+      },
+      {
+        "id": "measure-squat",
+        "title": "One-button squat review and durable local history",
+        "area": "general",
+        "durationSeconds": 682.392,
+        "startedAt": "2026-11-08T01:18:35.346112+00:00",
+        "completedAt": "2026-11-08T01:29:57.737907+00:00"
+      }
+    ],
+    "coverage": {
+      "journeysExercised": [
+        "Live setup comprehension and navigation without a camera",
+        "Compare two independent recordings without a manual handoff",
+        "One-button squat review and durable local history"
+      ],
+      "unreachable": [],
+      "confidenceNote": "3/3 cases passed.",
+      "flakyCaseIds": []
+    },
+    "narrative": "All 3 of 3 test cases passed. The core journeys — live setup without a camera, side-by-side comparison of two recordings, and one-button squat review with durable local history — are solid and working as specified. Users can navigate the full workflow without a camera, a paired phone, or any external account. Measurements, overlays, rep selection, phase navigation, and local session persistence (including rename-and-reload) all behaved correctly. Minor rough edges were noted across cases — the session diagnostics panel gives no visual hint it is expandable, the recorded-clip tab's empty video area has no placeholder, the reference-rep dropdown requires keyboard to confirm a selection, the video download link sits out of view in a collapsed panel, the selected reference rep resets after reopening a saved session, and a collapsible label is misleadingly named — but none of these block comprehension or task completion. No failures or blocked cases to report.",
+    "openQuestions": []
+  },
+  "summary": {
+    "experimentId": "60ba178a-ee4e-469e-a676-57074a9b88ae",
+    "kind": "qa",
+    "status": "Completed",
+    "availability": "available",
+    "schemaVersion": 2,
+    "question": "Do the test cases in 'Seldon QA: quinn-lgtm26/MoveIDE · MoveIDE queued coaching and reference UX 32159db' pass?",
+    "answer": "3/3 test cases passed.",
+    "synthesis": "All 3 of 3 test cases passed. The core journeys — live setup without a camera, side-by-side comparison of two recordings, and one-button squat review with durable local history — are solid and working as specified. Users can navigate the full workflow without a camera, a paired phone, or any external account. Measurements, overlays, rep selection, phase navigation, and local session persistence (including rename-and-reload) all behaved correctly. Minor rough edges were noted across cases — the session diagnostics panel gives no visual hint it is expandable, the recorded-clip tab's empty video area has no placeholder, the reference-rep dropdown requires keyboard to confirm a selection, the video download link sits out of view in a collapsed panel, the selected reference rep resets after reopening a saved session, and a collapsible label is misleadingly named — but none of these block comprehension or task completion. No failures or blocked cases to report.",
+    "keyObservations": [],
+    "findings": [],
+    "personaBreakdown": [],
+    "businessInsights": null,
+    "coverage": null,
+    "rawSummary": null
+  },
+  "scope": "Public fixture-only static preview. No physical camera, live inference, connected account or personal recordings."
+}

@@ -71,7 +71,7 @@ The phone's HTTPS address exposes only dedicated transport routes, not provider 
 
 - Reuse the motion engine; do not duplicate frontend geometry. Preserve source/rep/model identities and null unavailable values.
 - Use actual decoded media time when available. Safari's missing-frame-callback fallback is requested seek time, not proof of decoded-frame PTS.
-- Playback, history reopen and phase seeking must not trigger inference. Accepted coaching is evidence-bound; Stop invalidates pending replies but retains accepted notes.
+- Playback, history reopen and phase seeking must not trigger inference. Accepted coaching is evidence-bound. Live Stop ends capture and drains the originating page’s queued rep reviews into the same saved session; new Start cancels unfinished old work. Keep that page open until reviews finish.
 - New source/model/session invalidates stale work. View changes reset current metric baselines while preserving immutable completed-rep evidence as historical.
 - History writes are local, atomic and versioned; original video hashes and evidence references survive reopen. Never save OAuth/room credentials or silently evict older sessions to fit a new one.
 - Keep Heavy/Full pins and both package locks reproducible. Models are downloaded/verified during setup; do not add generated model files to Git.

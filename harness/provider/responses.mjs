@@ -1,10 +1,10 @@
 import {
   COACHING_RESPONSE_SCHEMA,
-  MAGNA_CARTA_PROMPT,
   validateCoachingImages,
   validateCoachingResponse,
 } from '../coaching/index.mjs';
 import { resource } from './session.mjs';
+import { coachingInstructions } from './coaching-policy.mjs';
 
 const visionModels = new Set(['gpt-6-astra', 'gpt-6.1-sol', 'gpt-6-luna']);
 const jpegPrefix = 'data:image/jpeg;base64,';
@@ -123,7 +123,7 @@ export async function interpretWithChatGPT(accessToken, { model, packet, images 
       model,
       store: false,
       stream: true,
-      instructions: `${MAGNA_CARTA_PROMPT}\n\nMoveIDE presentation policy v1: Write nextFocus.text as ONE practical, evidence-supported action in at most 12 words. Write at most three observations, each at most 25 words. Put qualifications and camera limits in uncertainty, not repeated in every observation. Do not invent a fault to produce a correction: forward torso inclination alone does not establish poor form, spinal curvature or core engagement. If the evidence shows consistency rather than a fault, suggest maintaining that consistency. Never claim to have watched motion phases absent from the attached evidence.`,
+      instructions: coachingInstructions(packet),
       input: [{ role: 'user', content }],
       text: { format: { type: 'json_schema', name: 'moveide_coaching_v1', strict: true, schema: COACHING_RESPONSE_SCHEMA } },
     }),

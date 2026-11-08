@@ -1,0 +1,33 @@
+{
+  "runtimeCommit": "32159db",
+  "verifiedAtUtc": "2026-11-08T01:20:18.738268+00:00",
+  "integratedTests": {
+    "harness": 120,
+    "launcherDoctor": 8,
+    "failed": 0,
+    "logSha256": "f8bce5a63880c2c7a33a82a948b62a5007c161ff78a9c53ec8401b69e426e1e2"
+  },
+  "build": "TypeScript and production Vite build passed; existing loopback service/auth/origin preserved",
+  "checks": {
+    "publicProduction": "phone-repair-public-preflight.json",
+    "realPhoneTransportDelayedAI": "phone-queued-review.json",
+    "replaySync": "history-playback-sync.json",
+    "historyUpdates": "history-review-updates.json",
+    "personalReference": "personal-reference.json"
+  },
+  "seldon": {
+    "experimentId": "60ba178a-ee4e-469e-a676-57074a9b88ae",
+    "state": "completed",
+    "expectedSimulations": 3,
+    "passed": 3,
+    "actualSimulations": 3
+  },
+  "physicalIPhoneRetest": "pending user final acceptance",
+  "originalSavedSession": "Inspected read-only in user browser; original replay now opens near first rep and measurement seek advances mapped media time; no stored data rewritten",
+  "limits": [
+    "Queued review runs in originating page; it must remain open.",
+    "Maximum six AI-reviewed reps per session; local measurements continue.",
+    "Phone transport regression uses synthetic fixture camera, not physical iPhone.",
+    "Recording/source timing remains approximate; no invented frame-exact history overlay."
+  ]
+}

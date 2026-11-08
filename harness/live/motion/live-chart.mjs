@@ -20,13 +20,35 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
   svg.style.display = 'block'; svg.style.minWidth = '300px';
   const summary = document.createElement('p');
   summary.style.fontSize = '0.85rem'; summary.style.margin = '0.5rem 0';
+  const phaseLegend = document.createElement('p'); phaseLegend.className = 'chart-phase-legend';
+  phaseLegend.textContent = 'Shading: teal = down, purple = return. Dotted markers = bottom.'
+    + (targetKneeFlexionDeg === null ? '' : ` Dashed ${targetKneeFlexionDeg}° line = knee practice target, not a form-quality standard.`);
+  const windowLabel = document.createElement('p'); windowLabel.className = 'chart-window-label';
+  windowLabel.textContent = 'Rolling 30-second view · Save on this device keeps retained measurements and the available recording.';
+  const controls = document.createElement('details'); controls.className = 'chart-metric-controls';
+  const controlsTitle = document.createElement('summary'); controlsTitle.textContent = 'Choose angle traces'; controls.append(controlsTitle);
+  const enabled = new Set(['kneeFlexionDeg']);
+  for (const series of SERIES) {
+    const label = document.createElement('label'), input = document.createElement('input');
+    input.type = 'checkbox'; input.checked = enabled.has(series.key); input.dataset.chartMetric = series.key;
+    input.addEventListener('change', () => { input.checked ? enabled.add(series.key) : enabled.delete(series.key); requestRender(); });
+    label.append(input, document.createTextNode(series.label)); controls.append(label);
+  }
   const legend = document.createElement('p');
   legend.style.fontSize = '0.8rem'; legend.style.margin = '0';
-  legend.textContent = 'Knee bend: solid teal · Hip hinge: dashed purple · Chest angle: dotted amber. Projected estimates; gaps mean unavailable tracking. Rep lines mark completed bottoms.'
+  legend.textContent = 'Solid teal: knee bend. Dashed purple: hip hinge. Dotted amber: chest angle. Pale teal: descent; pale purple: return. Dotted vertical lines: rep bottoms. Gaps mean unavailable tracking.'
     + (targetKneeFlexionDeg === null ? '' : ` Long-dashed teal line: ${targetKneeFlexionDeg}° knee practice target, not a form-quality standard.`);
+  controls.append(legend);
+  const repSummary = document.createElement('p'); repSummary.className = 'chart-rep-summary';
+  const repDetails = document.createElement('details'); repDetails.className = 'chart-rep-details';
+  const repTitle = document.createElement('summary'); repTitle.textContent = 'Completed reps in this window';
+  const repList = document.createElement('ol'); repDetails.append(repTitle, repList);
+  const baselineDetails = document.createElement('details'); baselineDetails.className = 'chart-reference';
+  const baselineTitle = document.createElement('summary'); baselineTitle.textContent = 'Compare with your first rep';
   const baselinePanel = document.createElement('div'); baselinePanel.dataset.chartBaseline = '';
   baselinePanel.style.fontSize = '0.85rem'; baselinePanel.style.overflowX = 'auto';
-  element.replaceChildren(svg, summary, legend, baselinePanel);
+  baselineDetails.append(baselineTitle, baselinePanel);
+  element.replaceChildren(svg, summary, phaseLegend, repSummary, windowLabel, controls, repDetails, baselineDetails);
   let samples = [], reps = [], stopped = false, timer = null, lastRender = -Infinity;
   let currentEpoch = null, baseline = null, latestRep = null, baselineReset = false, renderedWidth = 0;
   const readRep = event => {
@@ -41,7 +63,7 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
       return atBottom && value?.quality === 'usable' && value.unit === unit && value.evidenceTimestampMs === rep.bottomMs && Number.isFinite(value.value)
         && (key !== 'rep_duration' || value.value === rep.endMs - rep.startMs) ? value.value : null;
     };
-    return { key: event.key, epoch: event.epoch, timestampMs: rep.bottomMs,
+    return { key: event.key, epoch: event.epoch, timestampMs: rep.bottomMs, startMs: rep.startMs, endMs: rep.endMs,
       provenance: JSON.stringify([report.protocol, report.poseModel]),
       knee: metric('knee_flexion', 'deg'), torso: metric('torso_lean', 'deg'), duration: metric('rep_duration', 'ms') };
   };
@@ -82,12 +104,18 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
     svg.replaceChildren(svgNode('title', {}, 'Projected knee bend, hip hinge, and chest angle'), svgNode('desc', {}, 'Last 30 seconds of analyzed source time. No interpolation across missing measurements, view epochs, or gaps longer than one second. These are video-plane estimates, not calibrated 3D joint measurements.'));
     svg.dataset.sampleCount = String(samples.length);
     svg.dataset.repCount = String(reps.length);
+    const hasAngles = samples.some(sample => SERIES.some(({key}) => sample[key] !== null));
+    svg.hidden = !hasAngles; svg.style.display = hasAngles ? 'block' : 'none';
+    controls.hidden = !hasAngles; windowLabel.hidden = !hasAngles; phaseLegend.hidden = !hasAngles;
+    phaseLegend.textContent = 'Shading: teal = down, purple = return. Dotted markers = bottom.'
+      + (targetKneeFlexionDeg === null || !enabled.has('kneeFlexionDeg') ? '' : ` Dashed ${targetKneeFlexionDeg}° line = knee practice target, not a form-quality standard.`);
+    baselineDetails.hidden = !baseline; repDetails.hidden = !reps.some(rep => rep.reference);
     for (const angle of [0, 90, 180]) {
       svg.append(svgNode('line', { x1: 46, x2: right, y1: y(angle), y2: y(angle), stroke: 'currentColor', opacity: 0.12 }));
       svg.append(svgNode('text', { x: 39, y: y(angle) + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'currentColor' }, `${angle}°`));
     }
     svg.append(svgNode('text', { x: 46, y: 14, 'font-size': 11, fill: 'currentColor' }, 'Angle (degrees)'));
-    if (targetKneeFlexionDeg !== null) {
+    if (targetKneeFlexionDeg !== null && enabled.has('kneeFlexionDeg')) {
       svg.append(svgNode('line', { x1: 46, x2: right, y1: y(targetKneeFlexionDeg), y2: y(targetKneeFlexionDeg), stroke: '#087f8c', opacity: 0.6, 'stroke-dasharray': '8 5', 'data-practice-target': targetKneeFlexionDeg }));
     }
     for (const time of [start, start + span / 2, start + span]) {
@@ -96,6 +124,15 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
     svg.append(svgNode('text', { x: (46 + right) / 2, y: 214, 'text-anchor': 'middle', 'font-size': 11, fill: 'currentColor' }, 'Source time (seconds)'));
     for (const rep of reps) {
       if (rep.timestampMs < start || rep.timestampMs > end) continue;
+      if (rep.reference) {
+        for (const [phase, from, to, color] of [['descent', rep.reference.startMs, rep.timestampMs, '#087f8c'], ['return', rep.timestampMs, rep.reference.endMs, '#7759b6']]) {
+          const left = x(Math.max(start, from)), phaseRight = x(Math.min(end, to));
+          if (phaseRight > left) {
+            const area = svgNode('rect', { x: left, y: 26, width: phaseRight - left, height: 150, fill: color, opacity: 0.065, 'data-rep-phase': phase });
+            area.append(svgNode('title', {}, `${phase === 'descent' ? 'Descent' : 'Return'} ${(from / 1000).toFixed(2)}–${(to / 1000).toFixed(2)} s`)); svg.append(area);
+          }
+        }
+      }
       const line = svgNode('line', { x1: x(rep.timestampMs), x2: x(rep.timestampMs), y1: 24, y2: 176, stroke: 'currentColor', opacity: 0.35, 'stroke-dasharray': '3 4', 'data-rep-key': rep.key });
       line.append(svgNode('title', {}, `Completed rep bottom at ${(rep.timestampMs / 1000).toFixed(2)} s · view epoch ${rep.epoch}`)); svg.append(line);
     }
@@ -109,11 +146,19 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
         if (!continuous) starts.push([x(sample.timestampMs), y(value)]);
         previous = sample;
       }
-      svg.append(svgNode('path', { d: path.trim(), fill: 'none', stroke: series.color, 'stroke-width': 2.3, 'stroke-linejoin': 'round', 'stroke-dasharray': series.dash, 'data-metric': series.key }));
-      for (const [cx, cy] of starts) svg.append(svgNode('circle', { cx, cy, r: 2.3, fill: series.color }));
+      const group = svgNode('g', { 'data-trace': series.key }); group.style.display = enabled.has(series.key) ? '' : 'none';
+      group.append(svgNode('path', { d: path.trim(), fill: 'none', stroke: series.color, 'stroke-width': 2.3, 'stroke-linejoin': 'round', 'stroke-dasharray': series.dash, 'data-metric': series.key }));
+      for (const [cx, cy] of starts) group.append(svgNode('circle', { cx, cy, r: 2.3, fill: series.color }));
+      svg.append(group);
     }
-    const values = SERIES.map(series => `${series.label}: ${latest?.[series.key] == null ? 'unavailable' : `${latest[series.key].toFixed(1)}°`}`).join(' · ');
-    summary.textContent = latest ? `${stopped ? 'Stopped · retained' : 'Last analyzed'} sample ${(end / 1000).toFixed(2)} s · ${values}` : 'Waiting for analyzed samples. Missing angles remain unavailable.';
+    const values = SERIES.filter(series => enabled.has(series.key)).map(series => `${series.label}: ${latest?.[series.key] == null ? 'unavailable' : `${latest[series.key].toFixed(1)}°`}`).join(' · ');
+    summary.textContent = !hasAngles ? latest ? 'No reliable angles yet. Keep your whole body visible in a steady side view. Missing measurements are not zero.' : 'Your graph starts when tracking finds you. Stand side-on with your whole body visible.'
+      : `${stopped ? 'Stopped · retained' : 'Last analyzed'} sample ${(end / 1000).toFixed(2)} s · ${values || 'Choose an angle trace below.'}`;
+    const describeRep = rep => `Bottom at ${(rep.timestampMs/1000).toFixed(2)} s · Knee bend ${rep.knee === null ? 'unavailable' : `${rep.knee.toFixed(1)}°`} · Down ${((rep.timestampMs-rep.startMs)/1000).toFixed(2)} s · Return ${((rep.endMs-rep.timestampMs)/1000).toFixed(2)} s · Total ${((rep.endMs-rep.startMs)/1000).toFixed(2)} s`;
+    repSummary.hidden = !hasAngles;
+    repSummary.textContent = latestRep ? `Last completed rep: ${describeRep(latestRep)}` : 'Complete a rep to see your depth and down/return timing. No AI is needed.';
+    repList.replaceChildren();
+    for (const rep of reps.filter(rep => rep.reference)) { const item = document.createElement('li'); item.textContent = describeRep(rep.reference); repList.append(item); }
     renderBaseline();
   };
   const requestRender = () => {
@@ -151,7 +196,7 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
         if (!baseline || baseline.provenance !== reference.provenance) { baselineReset = baseline !== null; baseline = reference; latestRep = reference; }
         else if (reference.timestampMs > latestRep.timestampMs) latestRep = reference;
       }
-      reps.push({ key: event.key, timestampMs, epoch: event.epoch }); prune(); requestRender();
+      reps.push({ key: event.key, timestampMs, epoch: event.epoch, reference }); prune(); requestRender();
     },
     reset() { clearTimeout(timer); timer = null; samples = []; reps = []; stopped = false; currentEpoch = null; baseline = null; latestRep = null; baselineReset = false; render(); },
     stop() { stopped = true; clearTimeout(timer); timer = null; render(); },

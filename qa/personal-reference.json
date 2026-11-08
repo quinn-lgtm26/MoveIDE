@@ -1,8 +1,10 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:11:41.428Z",
+  "verifiedAtUtc": "2026-11-08T01:33:34.753Z",
   "scope": "Saved public Heavy report with original fixture video; seeded live samples for comparison semantics. No new inference or anatomical accuracy test.",
   "checks": {
     "firstCompleteRepDefault": true,
+    "recordedNonzeroSubunitDifferencesNotCalledSame": true,
+    "repComparisonSubunitDurationNotCalledSame": true,
     "valuesUseStoredBottomMeasurementsAndDuration": true,
     "referenceIsConsistencyNotHealthGrade": true,
     "referenceChoiceAndEvidenceSeek": true,
@@ -11,6 +13,7 @@
     "unavailableMetricsDoNotProduceDifferences": true,
     "savedReferenceUsesRetainedEvidence": true,
     "savedCrossViewDifferencesWithheld": true,
+    "savedNonzeroSubunitAndExactZeroLabels": true,
     "savedMobileNoOverflow": true,
     "noInferenceOrPageErrors": true
   },
