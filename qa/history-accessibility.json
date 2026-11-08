@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:24:30.371Z",
-  "revision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
+  "verifiedAtUtc": "2026-11-08T00:57:45.458Z",
+  "revision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
   "scope": "Seeded local history with saved fixture report/video and synthetic live records; navigation/focus/replay only, no model inference",
   "checks": {
     "liveOpenFocusesVisibleDetail": true,

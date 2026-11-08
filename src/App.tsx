@@ -57,7 +57,7 @@ export function App() {
   const [active, setActive] = useState(false);
   const [mediaMs, setMediaMs] = useState(0);
   const [furthestMs, setFurthestMs] = useState(0);
-  const [coachStatus, setCoachStatus] = useState('Try the sample or upload a side-on squat video to get started.');
+  const [coachStatus, setCoachStatus] = useState('');
   const [coaching, setCoaching] = useState<{ bundle: CoachingBundle; response: CoachingResponse; segments: CoachingSegment[] } | null>(null);
   const sampleRequest = useRef<AbortController | null>(null);
   const sessionRequest = useRef<AbortController | null>(null);
@@ -128,18 +128,18 @@ export function App() {
       try {
         const state = await chatGPTProvider.getConnection(signal);
         signal.throwIfAborted(); setConnection(state.state);
-        if (state.state !== 'connected') { setCoachStatus('Your numbers are ready. Connect ChatGPT to also get coach notes.'); return; }
-        if (!report.reps.length) { setCoachStatus('Your numbers are ready. Coach notes need at least one full rep in the video.'); return; }
+        if (state.state !== 'connected') { setCoachStatus('Connect ChatGPT for coach notes.'); return; }
+        if (!report.reps.length) { setCoachStatus('Coach notes need one full rep.'); return; }
         setCoachStatus('Picking the key moments for your coach…');
         const bundle = await prepareCoachingBundle(report, clip.src, { repIds: report.reps.slice(0, 2).map((r) => r.id), signal });
         signal.throwIfAborted();
         if (!bundle.images.length || bundle.unavailableImages.length || !bundle.packet.measurements.length) {
-          setCoachStatus('Your numbers are ready. We couldn’t capture clear enough moments for coach notes.'); return;
+          setCoachStatus('No clear moments for coach notes.'); return;
         }
         const models = await chatGPTProvider.listModels(signal);
         signal.throwIfAborted();
         const coachModel = models.find((m) => m.id === 'gpt-6.1-sol') ?? models[0];
-        if (!coachModel) { setCoachStatus('Your numbers are ready. No ChatGPT coach model is available right now.'); return; }
+        if (!coachModel) { setCoachStatus('ChatGPT coach is unavailable right now.'); return; }
         setCoachStatus(`Coach reviewing ${bundle.packet.repIds.map(repName).join(' and ')}… your numbers are already below.`);
         const response = await chatGPTProvider.interpret(bundle.packet, bundle.images, { model: coachModel.id, signal });
         signal.throwIfAborted();
@@ -209,13 +209,13 @@ export function App() {
     focusSavedReplay.current = true;
     bindReportSource(saved.report, src); // getSession verified the persisted original video's SHA before this association.
     setClip({ name: String(saved.metadata?.videoName ?? saved.title), src, blob: saved.video });
-    setReport(saved.report); setActive(false); setStatus('ready'); setError(null); setSavedSession(saved); setSaveStatus('Saved session · replay only');
+    setReport(saved.report); setActive(false); setStatus('ready'); setError(null); setSavedSession(saved); setSaveStatus('Saved on this device');
     setModel(saved.report.poseModel.id.includes('heavy') ? 'heavy' : 'full');
     if (saved.coaching) {
       try { const {packet,response}=saved.coaching; const segments=getCoachingSegments(response,packet,saved.report); setCoaching({bundle:{packet,images:[],unavailableImages:[]},response,segments}); setFurthestMs(saved.report.clip.durationMs); }
       catch { setCoachStatus('Saved video and measurements restored. Stored coaching could not be validated.'); window.history.replaceState(null, '', `?session=${encodeURIComponent(saved.id)}`); return; }
     }
-    setCoachStatus('Saved session restored. Playback uses stored measurements and notes; no new analysis or AI request.');
+    setCoachStatus('Saved session restored. Replaying stored numbers and notes.');
     window.history.replaceState(null, '', `?session=${encodeURIComponent(saved.id)}`);
   };
   useEffect(() => {
@@ -321,51 +321,49 @@ export function App() {
       {historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={openSaved} onBack={closeHistory} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
       <section className="intro">
         <div>
-          <p className="eyebrow">RECORDED CLIP</p>
           <h1>Review a recorded squat.</h1>
-          <p className="subhead">Use the sample or your own side-on clip. Step through each rep and compare the angles.</p>
         </div>
         <div className="actions">
           <div className="toolbar">
             <label className="button">
-              Upload your squat video
+              Upload a video
               <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
             </label>
-            <label className="model-select">
+            {!active && <label className="model-select">
               Analysis{' '}
               <select value={model} onChange={(e) => { invalidateSession(); setModel(e.target.value as PoseModel); }} disabled={active}>
-                <option value="heavy">Detailed (Heavy)</option>
-                <option value="full">Faster (Full)</option>
+                <option value="heavy">Detailed</option>
+                <option value="full">Faster</option>
               </select>
-            </label>
+            </label>}
           </div>
-          <label className="save-preference"><input type="checkbox" checked={saveEnabled} disabled={active} onChange={event => setSaveEnabled(event.target.checked)} /> Save on this device</label>
-          <p className="start-disclosure">When enabled, your video, numbers and coach notes are saved in this browser at this app address. Your video stays on this device. If ChatGPT is connected, your coach sees a few still frames and your numbers, never the full video.</p>
+          {!active && <><label className="save-preference"><input type="checkbox" checked={saveEnabled} onChange={event => setSaveEnabled(event.target.checked)} /> Save on this device</label>
+          <p className="start-disclosure">ChatGPT sees stills and numbers, not the video.</p></>}
           <div className="toolbar">
             <button className="primary" onClick={openSample}>Try a sample squat</button>
             <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing two sample squats side by side.'); setComparisonMode(true); }}>Compare examples</button>
             {active && <button onClick={stop}>Stop session</button>}
-            {connection !== 'connected' && <button onClick={connect}>Connect ChatGPT coach</button>}
+            {clip && connection !== 'connected' && <button onClick={connect}>Connect ChatGPT coach</button>}
           </div>
           <span role="status" className="fine">
             {status === 'loading' && 'Loading video…'}
             {status === 'analyzing' && <>Reading your squat <progress value={progress} /> {Math.round(progress * 100)}%</>}
-            {status === 'ready' && `Ready · ${clip?.name === 'clear-squat.mp4' ? 'sample squat' : clip?.name}`}
+            {status === 'ready' && `Ready: ${clip?.name === 'clear-squat.mp4' ? 'sample squat' : clip?.name}`}
           </span>
         </div>
       </section>
       <p role="status" aria-live="polite" className="fine">{coachStatus}</p>
 
-      {saveStatus && <div className="save-status" role="status"><p>{saveStatus}</p>{saveFailed && <div className="toolbar"><button onClick={() => { if(saveDraft.current) persist(saveDraft.current); }}>Retry save</button>{clip && <button onClick={() => download(clip.blob, clip.name)}>Download unsaved video</button>}{report && <button onClick={() => download(new Blob([JSON.stringify({report,coaching:coaching ? {packet:coaching.bundle.packet,response:coaching.response,segments:coaching.segments}:null},null,2)],{type:'application/json'}),'unsaved-analysis.json')}>Download unsaved analysis</button>}</div>}{savedSession && <SessionDownloads session={savedSession} />}</div>}
+      {saveStatus && <div className="save-status" role="status"><p>{saveStatus}</p>{saveFailed && <div className="toolbar"><button onClick={() => { if(saveDraft.current) persist(saveDraft.current); }}>Retry save</button>{clip && <button onClick={() => download(clip.blob, clip.name)}>Download unsaved video</button>}{report && <button onClick={() => download(new Blob([JSON.stringify({report,coaching:coaching ? {packet:coaching.bundle.packet,response:coaching.response,segments:coaching.segments}:null},null,2)],{type:'application/json'}),'unsaved-analysis.json')}>Download unsaved analysis</button>}</div>}{savedSession && !active && <SessionDownloads session={savedSession} />}</div>}
       {error && <p role="alert" className="error">{error} Try another video — an MP4 from your phone usually works.</p>}
 
-      {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus('Try the sample or upload a side-on squat video to get started.'); }} /> : <>
+      {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus(''); }} /> : <>
       <div className="workbench">
         <div className="stage">
           {clip && (
             <video ref={video} key={clip.src} src={clip.src} aria-label={`Squat replay: ${clip.name}`} controls playsInline muted onError={onDecodeError} />
           )}
-          {!clip && <p className="empty">Try the sample squat, or upload a side-on video of yours.</p>}
+          
           <canvas ref={canvas} aria-hidden />
           {coaching && displayedCue && <div aria-label="Playback AI cue" className="cue">
             <small>{cue ? 'Coach note · this rep' : 'Coach note · earlier rep'} · {repName(displayedCue.repId)}</small>
@@ -375,21 +373,17 @@ export function App() {
 
         {report && (
           <aside>
-            <p className="muted">
-              {tracked === report.frames.length ? 'Tracking stayed clear in the analyzed samples ✓'
-                : `⚠ Lost sight of you in ${report.frames.length - tracked} of ${report.frames.length} analyzed samples. Numbers there are skipped.`}
-            </p>
-            <details><summary>Tracking details</summary><p>{tracked}/{report.frames.length} analyzed samples tracked · up to 15 Hz · {report.poseModel.id} v{report.poseModel.version}. Sampling coverage is not joint-angle accuracy.</p></details>
+            <details><summary className="muted">{tracked === report.frames.length ? 'Tracking clear ✓'
+                : `⚠ Lost sight of you in ${report.frames.length - tracked} of ${report.frames.length} samples. Those numbers are skipped.`}</summary><p>{tracked}/{report.frames.length} analyzed samples tracked · up to 15 Hz · {report.poseModel.id} v{report.poseModel.version}. Sampling coverage is not joint-angle accuracy.</p></details>
             <div className="toolbar">
-              <button onClick={() => step(-1)}>◀ Frame</button>
-              <button onClick={() => step(1)}>Frame ▶</button>
+              <button title="Or press ←" onClick={() => step(-1)}>◀ Frame</button>
+              <button title="Or press →" onClick={() => step(1)}>Frame ▶</button>
               <label>Speed{' '}
                 <select value={rate} onChange={(e) => setRate(Number(e.target.value))}>
                   {[1, 0.5, 0.25].map((r) => <option key={r} value={r}>{r}×</option>)}
                 </select>
               </label>
             </div>
-            <p className="muted"><small>Tip: use ← → to step through analyzed samples</small></p>
             {report.reps.length > 0 && (
               <div className="toolbar">
                 {report.reps.map((r) => (
@@ -405,30 +399,30 @@ export function App() {
             <p className="readout">
               {here ? (
                 <>
-                  {here.repId ? repName(here.repId) : 'Between reps'}{here.phase && ` · ${({ descent: 'going down', bottom: 'bottom', ascent: 'coming up' })[here.phase]}`} · {sec(here.timestampMs)}<br />
-                  Knee bend {deg(here.kneeFlexionDeg)} · Hip hinge {deg(here.hipFlexionDeg)} · Chest angle {deg(here.torsoLeanDeg)}
+                  {here.repId ? repName(here.repId) : 'Between reps'}{here.phase && `, ${({ descent: 'going down', bottom: 'bottom', ascent: 'coming up' })[here.phase]}`}, {sec(here.timestampMs)}<br />
+                  Knee bend {deg(here.kneeFlexionDeg)}, hip hinge {deg(here.hipFlexionDeg)}, chest angle {deg(here.torsoLeanDeg)}
                 </>
               ) : 'No reliable measurement for this moment.'}
             </p>
 
             <Trace trace={trace} reps={report.reps} playheadMs={sampleMs} onSeek={seek} />
 
-            <h2>Your numbers</h2>
+            <details open={report.reps.length < 2}><summary><h2>Your numbers</h2></summary>
             {report.measurements.length === 0 && <p>We didn’t find a full squat rep in this video.</p>}
             <ul>
               {report.measurements.map((m) => (
                 <li key={m.id}>
                   {m.quality === 'usable' ? (
                     <button aria-pressed={m.id === selected} onClick={() => openEvidence(m)}>
-                      {m.repId && `${repName(m.repId)} · `}{METRIC_LABEL[m.metric]} <b>{fmt(m)}</b>
+                      {m.repId && `${repName(m.repId)}: `}{METRIC_LABEL[m.metric]} <b>{fmt(m)}</b>
                       <small> ▸ See the moment</small>
                     </button>
                   ) : (
-                    <span className="muted">{m.repId && `${repName(m.repId)} · `}{METRIC_LABEL[m.metric]} · couldn’t measure</span>
+                    <span className="muted">{m.repId && `${repName(m.repId)}: `}{METRIC_LABEL[m.metric]}, couldn’t measure</span>
                   )}
                 </li>
               ))}
-            </ul>
+            </ul></details>
             {sel?.quality === 'usable' && (
               <p className="readout">
                 {METRIC_LABEL[sel.metric]} <b>{fmt(sel)}</b> at {sec(sel.evidenceTimestampMs)} <span className="muted" title="Estimated from one camera angle; not a clinical measurement.">ⓘ estimate</span>
@@ -468,11 +462,14 @@ export function App() {
 
       </>}
       <footer>
-        <small>
-          Sample clips: subjects 010 and 004 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
-          Prashanth et al. · <a href="https://doi.org/10.17632/kgbb3yn47p.3">Dataset and DOI</a> ·{' '}
-          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · trimmed and re-encoded.
-        </small>
+        {(comparisonMode || clip?.name === 'clear-squat.mp4') && <details className="fine">
+          <summary>Sample video source</summary>
+          <small>
+            Subjects 010 and 004 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
+            Prashanth et al. <a href="https://doi.org/10.17632/kgbb3yn47p.3">Dataset</a>. Licensed{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Trimmed and re-encoded.
+          </small>
+        </details>}
       </footer>
     </main>
   );
@@ -509,7 +506,7 @@ function Trace({ trace, reps, playheadMs, onSeek }: {
         <path d={path((s) => s.torsoLeanDeg)} className="torso" />
         {playheadMs !== null && <line x1={x(playheadMs)} x2={x(playheadMs)} y1={0} y2={H} className="playhead" />}
       </svg>
-      <figcaption><span className="knee">— knee bend</span> · <span className="torso">— chest angle</span> · shaded = reps · gaps = not tracked · tap to jump</figcaption>
+      <figcaption><span className="knee">— knee bend</span>, <span className="torso">— chest angle</span>. Shaded areas are reps. Tap to jump.</figcaption>
     </figure>
   );
 }

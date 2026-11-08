@@ -1,11 +1,11 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:38:13.875Z",
-  "revision": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
+  "verifiedAtUtc": "2026-11-08T00:56:03.546Z",
+  "revision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
   "surface": "Isolated Vite development source on4189; real local MediaPipe Heavy, disconnected provider stub",
   "sourceChanges": [
-    "M index.html",
-    " M src/App.tsx",
-    " M src/CompareRecordings.tsx"
+    "M  index.html",
+    "M  src/App.tsx",
+    "M  src/CompareRecordings.tsx"
   ],
   "checks": {
     "oneActionTwoRecordings": true,
@@ -205,13 +205,13 @@
     1600
   ],
   "tracking": [
-    "Recording A · 1.07s · 57/57 samples tracked",
-    "Recording B · 1.60s · 90/90 samples tracked"
+    "1.07 s, 57/57 frames tracked",
+    "1.60 s, 90/90 frames tracked"
   ],
   "primaryRows": [
-    "Knee flexion at bottom117.4°98.9°-18.5°",
-    "Torso lean at bottom41.1°40.6°-0.5°",
-    "Complete rep duration1400 ms1800 ms+400 ms"
+    "Knee bend at bottom117°99°-18°",
+    "Chest angle at bottom41°41°-0°",
+    "Rep time1.4 s1.8 s+0.4 s"
   ],
   "secondBottomTimesMs": [
     3000,
@@ -225,12 +225,12 @@
         {
           "left": 16,
           "right": 359,
-          "top": 14.78125
+          "top": -228.40625
         },
         {
           "left": 16,
           "right": 359,
-          "top": 545.375
+          "top": 273.1875
         }
       ]
     },
@@ -241,12 +241,12 @@
         {
           "left": 16,
           "right": 374,
-          "top": 14.78125
+          "top": -227.90625
         },
         {
           "left": 16,
           "right": 374,
-          "top": 545.375
+          "top": 273.6875
         }
       ]
     }

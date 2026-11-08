@@ -115,7 +115,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
           {rows(PRIMARY)}
           <tr>
             <th>Evidence</th>
-            {[a, b].map((r, i) => <td key={i}><button onClick={() => onSeek(r.bottomMs)}>▸ See the bottom · {(r.bottomMs / 1000).toFixed(1)} s</button></td>)}
+            {[a, b].map((r, i) => <td key={i}><button onClick={() => onSeek(r.bottomMs)}>▸ See the bottom, {(r.bottomMs / 1000).toFixed(1)} s</button></td>)}
             <td />
           </tr>
         </tbody>

@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:37:15.823Z",
-  "revision": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
+  "verifiedAtUtc": "2026-11-08T00:56:52.744Z",
+  "revision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
   "surface": "Isolated development source; real Heavy; mocked AI; new browser profile/IndexedDB",
   "liveViewerFixture": "Seeded synthetic live metadata and JPEG with existing fixture video; actual MediaRecorder acceptance is separate.",
   "checks": {
@@ -30,11 +30,11 @@
   "errors": [],
   "session": {
     "summary": {
-      "id": "8e7f7bfc-50f0-4294-af59-e1b1dbab1472",
+      "id": "d8b8c0e6-d005-4ffd-8c1c-15617a5f4b2c",
       "kind": "recorded",
       "title": "clear-squat",
-      "createdAt": 1794098236155,
-      "updatedAt": 1794098241670,
+      "createdAt": 1794099413241,
+      "updatedAt": 1794099419982,
       "revision": 2,
       "hasVideo": true,
       "videoBytes": 1344215,

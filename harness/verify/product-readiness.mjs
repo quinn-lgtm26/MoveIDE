@@ -41,8 +41,8 @@ try {
   await page.route('**/api/connection', route => route.fulfill({ json: { state: 'disconnected', enabled: false } }));
   await page.goto(origin);
   await page.getByRole('button', { name: 'Try a sample squat', exact: true }).click();
-  await page.getByText(/Ready · sample squat/).waitFor({ timeout: 90_000 });
-  await page.getByText(/Connect ChatGPT to also get coach notes/).waitFor();
+  await page.getByText(/Ready: sample squat/).waitFor({ timeout: 90_000 });
+  await page.getByText(/Connect ChatGPT for coach notes/).waitFor();
   checks.oneStartReady = true;
   checks.honestOfflineMode = true;
   checks.packetHiddenByDefault = !await page.getByRole('button', { name: 'Preview coaching packet', exact: true }).isVisible();

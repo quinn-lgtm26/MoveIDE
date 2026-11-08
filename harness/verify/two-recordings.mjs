@@ -19,14 +19,14 @@ try {
  await page.addInitScript(()=>{const create=URL.createObjectURL.bind(URL),revoke=URL.revokeObjectURL.bind(URL);window.__qaUrls={created:[],revoked:[]};window.__qaModels=[];const send=Worker.prototype.postMessage;Worker.prototype.postMessage=function(data,...args){if(data?.type==='init')window.__qaModels.push(data.model);return send.call(this,data,...args);};URL.createObjectURL=blob=>{const url=create(blob);window.__qaUrls.created.push(url);return url;};URL.revokeObjectURL=url=>{window.__qaUrls.revoked.push(url);revoke(url);};});
  await page.goto('http://127.0.0.1:4189');
  await page.getByRole('button',{name:'Compare examples',exact:true}).click();
- await page.getByText('Two recordings ready · independent source clocks',{exact:true}).waitFor({timeout:120000});
+ await page.getByText('Two recordings ready',{exact:true}).waitFor({timeout:120000});
  const cards=page.locator('.recording-card');assert.equal(await cards.count(),2);out.checks.oneActionTwoRecordings=true;
  const names=['clear-squat','supported-squat'];
  const hashes=await Promise.all(names.map(async name=>createHash('sha256').update(await readFile(`${root}/fixtures/squat/${name}.mp4`)).digest('hex')));
  const observedHashes=await cards.evaluateAll(nodes=>nodes.map(node=>node.dataset.sourceSha256));
  assert.deepEqual(observedHashes,hashes);assert.notEqual(hashes[0],hashes[1]);out.checks.distinctActualSourceHashes=true;
  out.sources=names.map((name,i)=>({name,sha256:hashes[i]}));
- assert.match(await page.getByRole('region',{name:'Compare two recordings'}).innerText(),/Local comparison · MediaPipe Heavy for both recordings/);out.checks.sameHeavyAndLocalDisclosure=true;
+ assert.match(await page.getByRole('region',{name:'Compare two recordings'}).textContent(),/Analyzed on this device with MediaPipe Heavy for both recordings/);out.checks.sameHeavyAndLocalDisclosure=true;
  await page.waitForFunction(()=>document.querySelectorAll('.recording-card video').length===2&&[...document.querySelectorAll('.recording-card video')].every(v=>v.readyState>=2&&!v.seeking));
  const times=()=>cards.locator('video').evaluateAll(videos=>videos.map(v=>Math.round(v.currentTime*1000)));
  const expectTimes=async expected=>{await page.waitForFunction(values=>[...document.querySelectorAll('.recording-card video')].every((v,i)=>!v.seeking&&Math.abs(v.currentTime*1000-values[i])<2),expected);await page.waitForTimeout(150);const requestedClock=await times();const decodedLabels=await cards.locator('[data-source-time]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.sourceTime)));assert.ok(decodedLabels.every((v,i)=>Math.abs(v-expected[i])<=67));(out.phaseChecks??=[]).push({anchorMs:expected,requestedVideoClockMs:requestedClock,displayedDecodedClockMs:decodedLabels,toleranceMs:67});return requestedClock;};
@@ -62,7 +62,7 @@ try {
  await page.waitForFunction(()=>document.querySelector('.recordings-comparison [role=status]')?.textContent.includes('Loading recording'));
  await page.locator('input[type=file]').setInputFiles(`${root}/fixtures/squat/supported-squat.mp4`);
  if(pendingRoute)await pendingRoute.continue().catch(()=>{});await page.unroute(heldPattern);
- await page.getByText(/Ready · supported-squat.mp4/).waitFor({timeout:120000});assert.equal(await page.getByRole('region',{name:'Compare two recordings'}).count(),0);out.checks.sourceReplacementWinsPendingComparison=true;
+ await page.getByText(/Ready: supported-squat.mp4/).waitFor({timeout:120000});assert.equal(await page.getByRole('region',{name:'Compare two recordings'}).count(),0);out.checks.sourceReplacementWinsPendingComparison=true;
  // One failed B fetch must preserve completed A and retry B without A re-inference.
  let failB=true;await page.route('**/fixtures/squat/supported-squat.mp4',async route=>failB?route.fulfill({status:503,body:'QA fixture B temporarily unavailable'}):route.continue());
  await page.getByRole('button',{name:'Compare examples',exact:true}).click();
@@ -70,7 +70,7 @@ try {
  assert.equal(await cards.count(),1);assert.equal(await cards.first().getAttribute('data-source-sha256'),hashes[0]);
  const retainedSource=await cards.first().locator('video').getAttribute('src');const beforeRetry=await page.evaluate(()=>window.__qaModels.length);
  failB=false;await page.getByRole('button',{name:/Retry/}).click();
- await page.getByText('Two recordings ready · independent source clocks',{exact:true}).waitFor({timeout:120000});
+ await page.getByText('Two recordings ready',{exact:true}).waitFor({timeout:120000});
  assert.equal(await cards.count(),2);assert.equal(await cards.first().locator('video').getAttribute('src'),retainedSource);assert.equal(await page.evaluate(()=>window.__qaModels.length),beforeRetry+1);
  out.checks.failedBRetainsUsableA=true;out.checks.retryBDoesNotReanalyzeA=true;await page.unroute('**/fixtures/squat/supported-squat.mp4');
  out.poseModelInitializations=await page.evaluate(()=>window.__qaModels);assert.ok(out.poseModelInitializations.every(model=>model==='heavy'));out.checks.allAnalysesUseSelectedHeavy=true;

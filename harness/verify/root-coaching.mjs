@@ -29,8 +29,8 @@ try {
  });
  await page.goto(origin);
  await page.getByRole('button',{name:'Try a sample squat',exact:true}).click();
- await page.getByText(/Ready · sample squat/).waitFor({timeout:90000});
- await page.getByText(/Connect ChatGPT to also get coach notes/).waitFor();
+ await page.getByText(/Ready: sample squat/).waitFor({timeout:90000});
+ await page.getByText(/Connect ChatGPT for coach notes/).waitFor();
  assert.equal(count,0); out.checks.offlineLocalOnly=true;
  assert.equal(await page.getByRole('button',{name:'Preview coaching packet',exact:true}).isVisible(),false);out.checks.packetHiddenByDefault=true;
  connected=true;hold=true;pendingResolve=undefined;
@@ -74,8 +74,8 @@ try {
  const alpha=await page.locator('canvas').evaluate(c=>{const a=c.getContext('2d').getImageData(0,0,c.width,c.height).data;for(let i=3;i<a.length;i+=4)if(a[i])return true;return false;});
  assert.equal(alpha,false);out.checks.overlayClearedOnSourceChange=true;
  releaseSample();
- await page.getByText(/Ready · supported-squat/).waitFor({timeout:90000});
- assert.equal(await page.getByText(/Ready · sample squat/).count(),0);out.checks.uploadWinsSampleRace=true;
+ await page.getByText(/Ready: supported-squat/).waitFor({timeout:90000});
+ assert.equal(await page.getByText(/Ready: sample squat/).count(),0);out.checks.uploadWinsSampleRace=true;
  assert.deepEqual(out.errors,[]);out.checks.noPageErrors=true;
  await writeFile(new URL('../../qa/root-one-start.json',import.meta.url),JSON.stringify(out,null,2)+'\n');
  console.log(JSON.stringify(out,null,2));

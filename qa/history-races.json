@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:25:28.453Z",
+  "verifiedAtUtc": "2026-11-08T00:57:18.719Z",
   "surface": "Isolated development; real Heavy; disconnected provider; controlled storage delays/failure",
   "checks": {
     "lateCompletedSaveKeepsOwnIDAndSource": true,
@@ -14,13 +14,13 @@
   "sources": [
     {
       "title": "clear-squat",
-      "id": "8057fbe0-5a22-4f3f-9f7d-59112c739eec",
+      "id": "dcc1485f-1f20-48c9-bdc6-44c0d9af6170",
       "hash": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
       "repCount": 2
     },
     {
       "title": "supported-squat",
-      "id": "d42d1537-a22c-4c8c-bc46-d34137ed3d91",
+      "id": "9e6ff1fc-87e0-4112-a2c9-367b27636668",
       "hash": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
       "repCount": 2
     }

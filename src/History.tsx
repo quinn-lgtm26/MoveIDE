@@ -8,7 +8,7 @@ const date = (value: number) => new Date(value).toLocaleString();
 const bytes = (value: number) => `${(value / 1024 / 1024).toFixed(1)} MB`;
 export function download(blob: Blob, name: string) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
 export function SessionDownloads({ session }: { session: SavedSession }) {
-  return <div className="toolbar"><button disabled={!session.video} onClick={() => session.video && download(session.video, String(session.metadata?.videoName ?? `${session.title}.${session.video.type.includes('mp4') ? 'mp4' : 'webm'}`))}>Download original video</button><button onClick={() => { const data = exportSessionData(session); download(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}), `${session.title}-analysis.json`); }}>Download analysis JSON</button></div>;
+  return <div className="toolbar"><button disabled={!session.video} onClick={() => session.video && download(session.video, String(session.metadata?.videoName ?? `${session.title}.${session.video.type.includes('mp4') ? 'mp4' : 'webm'}`))}>Download original video</button><button onClick={() => { const data = exportSessionData(session); download(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}), `${session.title}-analysis.json`); }}>Download measurements</button></div>;
 }
 function SavedReason({result}:{result:unknown}) {
   const value = result as {observations?: {text:string}[];nextFocus?:{text:string};uncertainty?:string} | null;

@@ -4,12 +4,12 @@ try{const page=await browser.newPage();page.on('pageerror',e=>out.errors.push(e.
  // A complete report whose save is still hashing must never land in the replacement source's UI/session.
  const firstBytes=(await readFile(`${root}/fixtures/squat/clear-squat.mp4`)).length;
  await page.evaluate(length=>{const digest=crypto.subtle.digest.bind(crypto.subtle);window.__releaseSaves=[];window.__delaySave=true;crypto.subtle.digest=(algorithm,data)=>{if(window.__delaySave&&data.byteLength===length)return new Promise((resolve,reject)=>window.__releaseSaves.push(()=>digest(algorithm,data).then(resolve,reject)));return digest(algorithm,data);};},firstBytes);
- await page.getByRole('button',{name:'Try a sample squat',exact:true}).click();await page.getByText(/Ready · sample squat/).waitFor({timeout:90000});await page.waitForFunction(()=>window.__releaseSaves.length>0);
+ await page.getByRole('button',{name:'Try a sample squat',exact:true}).click();await page.getByText(/Ready: sample squat/).waitFor({timeout:90000});await page.waitForFunction(()=>window.__releaseSaves.length>0);
  await page.locator('input[type=file]').setInputFiles(`${root}/fixtures/squat/supported-squat.mp4`);await page.getByText('Saved on this device',{exact:true}).waitFor({timeout:90000});
  await page.evaluate(()=>{window.__delaySave=false;window.__releaseSaves.forEach(run=>run());});await page.waitForFunction(async()=>{const h=await import('/harness/history/index.mjs');return(await h.listSessions()).length===2;});
  const rows=await page.evaluate(async()=>{const h=await import('/harness/history/index.mjs');return(await h.listSessions()).map(x=>({title:x.title,id:x.id,hash:x.videoSha256,repCount:x.repCount}));});assert.equal(new Set(rows.map(r=>r.id)).size,2);
  for(const name of ['clear-squat','supported-squat'])assert.equal(rows.find(r=>r.title===name).hash,createHash('sha256').update(await readFile(`${root}/fixtures/squat/${name}.mp4`)).digest('hex'));
- assert.equal(await page.getByText(/Ready · supported-squat/).isVisible(),true);out.checks.lateCompletedSaveKeepsOwnIDAndSource=true;
+ assert.equal(await page.getByText(/Ready: supported-squat/).isVisible(),true);out.checks.lateCompletedSaveKeepsOwnIDAndSource=true;
  // Abort a new source before its analysis completes. It must not create a new saved row.
  await page.getByRole('button',{name:'Try a sample squat',exact:true}).click();await page.getByText(/Reading your squat/,{exact:false}).first().waitFor();await page.getByRole('button',{name:'Stop session',exact:true}).click();await page.waitForTimeout(200);assert.equal(await page.evaluate(async()=>{const h=await import('/harness/history/index.mjs');return(await h.listSessions()).length;}),2);out.checks.abortedAnalysisDoesNotSave=true;
  // A controlled quota failure on new session-row writes still permits reading/deleting older data.

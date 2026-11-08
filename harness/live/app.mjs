@@ -297,7 +297,7 @@ function stop(message = 'Session stopped', { persist = true } = {}) {
   latest = null; clearTracking(); $('view-status').textContent = 'Numbers appear once you’re side-on and steady.';
   $('source').disabled = false;
   $('save-local').disabled = false;
-  $('recording-status').textContent = ownedCapture ? (persist ? ownedCapture.saveEnabled ? 'Preparing replay. Saving status appears below.' : 'Preparing temporary replay. Saving was off; this review lasts until your next Start or closing this page.' : 'Session ended. Saving was not completed.') : 'Stop the session to save. Closing this tab may lose the current session.';
+  $('recording-status').textContent = ownedCapture ? (persist ? ownedCapture.saveEnabled ? 'Preparing replay. Saving status appears below.' : 'Preparing temporary replay. Saving was off; this review lasts until your next Start or closing this page.' : 'Session ended. Saving was not completed.') : 'Press Stop to save a replay.';
   $('pairing').hidden = true; $('phone-url').value = ''; $('pairing-expiry').textContent = '';
   $('pairing-qr').hidden = true; $('phone-qr').width = 0; $('phone-qr').height = 0;
   $('copy-phone').textContent = 'Copy link';
