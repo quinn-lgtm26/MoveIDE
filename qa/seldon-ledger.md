@@ -1,7 +1,7 @@
 # Seldon simulation ledger
 
 - Hackathon allocation · **16 simulations**
-- Confirmed use recorded here · **3 simulations, 13 remaining** (the third debit still needs to be confirmed in Seldon Usage)
+- Current connected account, reconciled 2026-11-07 · **16 granted, 2 used, 0 pending, 14 remaining**. The older frontend run is not visible under this API key and is tracked separately; do not subtract an unconfirmed cross-account debit.
 - Account balance at first preflight on 2026-11-07 · **16 granted, 0 used, 0 pending, 16 remaining**
 - Final-build reserve · **4 simulations**, including room to rerun both workflows if the verified debit allows
 
@@ -36,3 +36,13 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 - Verdict · `measure-squat` **PASS** (69 s)
 - Confirmed debit · **pending**. Reconcile against Seldon Usage; the CLI does not report balance. Expected balance after this run · 3 used, 13 remaining.
 - Next action · run both workbench cases on the final build, which now includes FE-3.
+
+
+### 2026-11-07 · Current product QA preflight
+
+- Hosted Seldon MCP connected; `list_baseline_runs` sees the earlier two-case harness experiment. Official `get_task_balance` reconciles **16 granted, 2 used, 0 pending, 14 remaining**, $3 per simulation outside the grant.
+- `search_knowledge` retrieved four prior harness findings. They describe the old manual-handoff surface, not the current product. [Current product context](PRODUCT-CONTEXT.md) and `seldon.yml` now describe one-action review, persistent local history, distinct-video comparison and live setup/navigation.
+- `validate_seldon_yaml` returned **valid, 3 runnable cases**, usage tier, no case/concurrency cap.
+- Persona catalog access returned **Your plan does not include usability**. No paid persona experiment was created or dispatched. Current review uses Wren task QA plus local accessibility/lifecycle checks.
+- Planned first dispatch: three cases, expected debit **3**, expected remaining **11**. Reserve at least four for final two-core-workflow coverage and rerun. Static public-fixture build, disconnected provider, no personal recordings or private phone invites.
+- Dispatch/build/report IDs will be appended after public-build preflight. This entry alone does not claim a run occurred.

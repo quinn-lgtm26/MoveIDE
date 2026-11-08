@@ -39,9 +39,15 @@ Only the dedicated pairing service4176 gets temporary HTTPS access. The credenti
 - Two actual video examples with independent hashes, rep selection, phase anchors and descriptive metric differences.
 - Live camera analysis and QR/WebRTC phone transport with bounded asynchronous coaching.
 - OpenCap result import labeled as imported/unverified; native inference remains deferred.
-- Local history/recording work is tracked in [the history contract](docs/HISTORY.md) and [global tracker](tracker.md); use their acceptance status for availability.
+- Local session history: save recorded originals and accepted notes, record live video on the receiving computer, then reopen, search, rename, download or delete. Replay makes no new AI request. [History behavior and limits](docs/HISTORY.md).
 
 Measurements are projected or explicitly experimental estimates, not independently validated anatomical angles. Physical iPhone/venue acceptance and moving-camera/orbit accuracy remain separate from the browser fixture tests. The examples are not a validated good/bad technique pair. [Read what was actually tested](qa/latest-local-checkpoint.json).
+
+## Save and review
+
+“Save on this device” is on by default. For live sessions, press **Stop** to finalize and save; recordings are limited to five minutes / 100 MiB and may cover only the beginning of a longer session. History belongs to this browser profile at this app address. Downloads are your backup; ChatGPT sign-in does not sync recordings. If saving fails, use Retry or download the unsaved video and analysis before leaving.
+
+Local acceptance includes 22 history checks, six save/source race checks, 10 storage groups and a clean setup/build from `efe97bd`. See the [current evidence and remaining checklist](tracker.md). Final Seldon/Wren product QA is in progress; historical passes are not final qualification.
 
 ## Developers and coding assistants
 

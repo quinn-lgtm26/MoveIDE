@@ -1,0 +1,98 @@
+{
+  "verifiedAtUtc": "2026-11-08T00:21:35.838Z",
+  "originSha256": "eaee9ad617d38a11ce95b5f1426eae960af86f47e0cd88b565b364e66d3ea836",
+  "servicesUntouched": true,
+  "systemDns": {
+    "addresses": [
+      {
+        "address": "104.16.231.132",
+        "family": 4
+      },
+      {
+        "address": "104.16.230.132",
+        "family": 4
+      }
+    ]
+  },
+  "publicDns": {
+    "resolver": "Cloudflare DNS over HTTPS",
+    "status": 0,
+    "addresses": [
+      "104.16.230.132",
+      "104.16.231.132"
+    ]
+  },
+  "https": [
+    {
+      "path": "/phone",
+      "status": 200,
+      "tlsAuthorized": true,
+      "hasStartCamera": true,
+      "address": "104.16.230.132"
+    },
+    {
+      "path": "/api/connection",
+      "status": 404,
+      "tlsAuthorized": true,
+      "hasStartCamera": false,
+      "address": "104.16.230.132"
+    },
+    {
+      "path": "/api/interpret",
+      "status": 404,
+      "tlsAuthorized": true,
+      "hasStartCamera": false,
+      "address": "104.16.230.132"
+    },
+    {
+      "path": "/phone",
+      "status": 200,
+      "tlsAuthorized": true,
+      "hasStartCamera": true,
+      "address": "104.16.231.132"
+    },
+    {
+      "path": "/api/connection",
+      "status": 404,
+      "tlsAuthorized": true,
+      "hasStartCamera": false,
+      "address": "104.16.231.132"
+    },
+    {
+      "path": "/api/interpret",
+      "status": 404,
+      "tlsAuthorized": true,
+      "hasStartCamera": false,
+      "address": "104.16.231.132"
+    }
+  ],
+  "limitations": [
+    "Both normal Mac DNS and explicit Cloudflare address lookups passed HTTPS with TLS certificate validation. Earlier ENOTFOUND was transient; future quick-tunnel hostname propagation is not guaranteed.",
+    "No physical iPhone or user camera has been tested.",
+    "No pairing invites, credentials or private room tokens recorded."
+  ],
+  "ordinaryDnsHttps": {
+    "status": 200,
+    "hasStartCamera": true
+  },
+  "browserPhone": {
+    "status": 200,
+    "secureContext": true,
+    "startVisible": true,
+    "cameraRequests": 0
+  },
+  "status": "passed",
+  "disposableRoomRevoked": true,
+  "completedAtUtc": "2026-11-08T00:23:27.228Z",
+  "signaling": {
+    "privateProxyCreation": 201,
+    "publicSenderJoin": 201,
+    "privateReceiverJoin": 201,
+    "privateSignal": 200,
+    "publicPoll": 200,
+    "eventTypes": [
+      "answer"
+    ],
+    "scope": "Synthetic signalling payload routing only; no media or peer connection in this recovery check"
+  }
+}

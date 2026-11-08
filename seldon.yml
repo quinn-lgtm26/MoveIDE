@@ -4,16 +4,30 @@ run:
   url: https://moveide-demo.example
 testCases:
   - id: measure-squat
-    name: Measure a squat from the sample clip
+    name: One-button squat review and durable local history
     steps:
-      - Open the MoveIDE workbench.
-      - Choose the built-in sample squat clip and wait for analysis to finish.
-      - Select the knee-flexion measurement for the first complete rep.
-    criteria: The selected knee-flexion measurement opens its evidence frame with the skeleton and an angle in degrees.
+      - Open MoveIDE. Keep Save on this device enabled. This public QA preview has no ChatGPT account; do not log in.
+      - Choose Try a sample squat once and wait up to two minutes for Heavy analysis.
+      - Review both complete reps. Select the first rep knee bend measurement or Bottom control; inspect the matching source video moment, skeleton and angle. Play and pause.
+      - Open History, rename the saved sample QA squat review, and open it without starting another analysis.
+      - Reload, return to History if needed, reopen QA squat review and download its video and session data.
+      - Report confusing wording, layout jumps, unusable controls and misleading AI status.
+    criteria: One sample action produces two measured reps with playable video and pose overlay. Evidence seeks the matching moment. The renamed saved session survives reload, reopens with its video and measurements, and has usable video/data downloads. Disconnected AI is honestly explained without blocking local analysis or inventing coaching. No manual packet or send task is required.
   - id: compare-and-handoff
-    name: Prepare the coaching packet for two reps
+    name: Compare two independent recordings without a manual handoff
     steps:
-      - Open the MoveIDE workbench and analyze the built-in sample squat clip.
-      - Select the first and second complete reps in the comparison view.
-      - Open the coaching packet preview.
-    criteria: The preview shows both selected rep IDs with their measurements and matching timestamped source frames.
+      - Open MoveIDE and choose Compare examples. ChatGPT is deliberately disconnected in this preview.
+      - Wait up to three minutes for both example recordings to finish analysis.
+      - Inspect both videos and separately labeled measurements. Select a rep for each recording and use the shared start, bottom and stand phase controls.
+      - Play and pause each video; check independent source times and missing measurements are not zero or bad posture.
+      - Return to recorded review and verify its sample action remains accessible. Report confusing labels, unreadable comparison or clipping.
+    criteria: Two genuinely different videos are playable with independent source-timed overlays, rep selection and phase navigation. Comparison shows like-for-like knee bend, torso lean and duration with limits. Neither example is falsely labeled clinically good or bad. No ChatGPT account or manual coaching packet is required.
+  - id: live-setup-and-navigation
+    name: Live setup comprehension and navigation without a camera
+    steps:
+      - Navigate to Live coaching. Inspect source selection, Start coached squat, the local saving choice and coaching area before starting.
+      - Read capture guidance and saving explanation. Do not grant a camera or create a phone pairing in this static preview; physical device tests are separate.
+      - Inspect keyboard focus, readable labels and unobstructed controls. If resizing is available, inspect a narrow viewport for page overflow.
+      - Follow History from live, check its local-browser explanation and empty or populated state, then return to recorded review.
+      - Report concrete improvements with reproduction steps, including misleading ready or AI claims, unclear setup, disappearing guidance or inaccessible navigation.
+    criteria: Live setup distinguishes camera selection, starting, optional AI and local recording. It shows no fabricated measurements or coaching before capture. History is reachable and has a clear state and return path. Controls and guidance are usable; device-only behavior is explicitly untested.

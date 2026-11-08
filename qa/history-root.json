@@ -1,7 +1,8 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:07:23.190Z",
-  "revision": "0eff9f74b3d04d2329790db95e9d263fe587cc7c",
+  "verifiedAtUtc": "2026-11-08T00:24:54.030Z",
+  "revision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
   "surface": "Isolated development source; real Heavy; mocked AI; new browser profile/IndexedDB",
+  "liveViewerFixture": "Seeded synthetic live metadata and JPEG with existing fixture video; actual MediaRecorder acceptance is separate.",
   "checks": {
     "saveDefaultOn": true,
     "reportAndAcceptedCoachingShareOneID": true,
@@ -29,11 +30,11 @@
   "errors": [],
   "session": {
     "summary": {
-      "id": "5347b56a-abb7-4b58-8d36-2b100105911c",
+      "id": "70e73857-1628-4817-b966-67c4b733cc72",
       "kind": "recorded",
       "title": "clear-squat",
-      "createdAt": 1794096443496,
-      "updatedAt": 1794096448846,
+      "createdAt": 1794097494359,
+      "updatedAt": 1794097499714,
       "revision": 2,
       "hasVideo": true,
       "videoBytes": 1344215,
@@ -54,6 +55,5 @@
     "Controlled provider only; real account verification is separate.",
     "Physical phone and live MediaRecorder behavior are verified separately.",
     "Same browser origin storage only; no cloud synchronization or backup guarantee."
-  ],
-  "liveViewerFixture": "Seeded synthetic live metadata and JPEG with existing fixture video; actual MediaRecorder acceptance is separate."
+  ]
 }

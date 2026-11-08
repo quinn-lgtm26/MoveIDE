@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "startedAtUtc": "2026-11-08T00:13:09.032667+00:00",
+  "revision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
+  "worktree": "/tmp/moveide-fresh-history-efe97bd",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "node": "v26.13.0",
+  "npm": "11.20.0",
+  "initialState": {
+    "node_modules": false,
+    "harness/node_modules": false,
+    "harness/public/pose": false,
+    "dist": false
+  },
+  "commands": [
+    {
+      "label": "initial doctor",
+      "command": "npm run doctor -- --json",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "passed": true,
+      "durationSeconds": 0.243,
+      "completedAtUtc": "2026-11-08T00:13:09.493533+00:00",
+      "outputSha256": "2b2cecdd1fe63dbfd787531aae2ba9c6515b3b0b9aaefd78fa932c5c4e8b8840",
+      "result": {
+        "schemaVersion": 1,
+        "checkedAt": "2026-11-08T00:13:09.487Z",
+        "readOnly": true,
+        "ready": false,
+        "checks": [
+          {
+            "name": "Node",
+            "status": "pass",
+            "detail": "26.13.0",
+            "next": "Use Node.js 22.18 or newer."
+          },
+          {
+            "name": "Platform",
+            "status": "pass",
+            "detail": "darwin",
+            "next": "The launcher supports macOS/Linux."
+          },
+          {
+            "name": "Locked dependencies",
+            "status": "fail",
+            "detail": "app, harness require repair",
+            "next": "npm run demo -- --setup-only"
+          },
+          {
+            "name": "full model",
+            "status": "fail",
+            "detail": "Model file missing or unreadable.",
+            "next": "npm run demo -- --setup-only"
+          },
+          {
+            "name": "heavy model",
+            "status": "fail",
+            "detail": "Model file missing or unreadable.",
+            "next": "npm run demo -- --setup-only"
+          },
+          {
+            "name": "WASM/runtime",
+            "status": "fail",
+            "detail": "Installed or prepared runtime files are missing.",
+            "next": "npm run demo -- --setup-only"
+          },
+          {
+            "name": "Built UI",
+            "status": "info",
+            "detail": "No build yet.",
+            "next": "npm run demo"
+          },
+          {
+            "name": "Port 4173",
+            "status": "info",
+            "detail": "occupied",
+            "next": "Existing service left untouched; do not launch a second copy."
+          },
+          {
+            "name": "Port 4176",
+            "status": "info",
+            "detail": "occupied",
+            "next": "Existing service left untouched; do not launch a second copy."
+          },
+          {
+            "name": "Running app",
+            "status": "pass",
+            "detail": "MoveIDE health check passed on private port4173.",
+            "next": null
+          }
+        ],
+        "limits": "Does not open a camera, test a physical phone, inspect account credentials or read browser history. Browser storage belongs to the exact browser/profile/origin."
+      }
+    },
+    {
+      "label": "automatic setup",
+      "command": "npm run demo -- --setup-only",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "passed": true,
+      "durationSeconds": 3.76,
+      "completedAtUtc": "2026-11-08T00:13:13.253900+00:00",
+      "outputSha256": "9ed92cffb8aa7323ba79c83cd5c3e3524073859de919f5cd53f87e27cd8e7c94",
+      "output": "\n> demo\n> node scripts/start-demo.mjs --setup-only\n\nInstalling locked app dependencies\u2026\nInstalling locked harness dependencies\u2026\nPreparing and verifying pinned MediaPipe model assets\u2026\nSetup complete. Run npm run demo to start MoveIDE.\n"
+    },
+    {
+      "label": "CI production build",
+      "command": "npm run build",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "passed": true,
+      "durationSeconds": 1.802,
+      "completedAtUtc": "2026-11-08T00:13:15.057308+00:00",
+      "outputSha256": "e360f548951ed3ccf9933689b52999ef45728661b0a3561d706d7d8e93eedf98",
+      "output": "\n> prebuild\n> [ -n \"$CI\" ] || git pull --ff-only && npm --prefix harness run setup:pose\n\n\n> @moveide/harness@0.1.0 setup:pose\n> node setup/pose-assets.mjs\n\n\n> build\n> tsc -b && vite build\n\nvite v8.3.6 building client environment for production...\ntransforming...\n\u2713 85 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/harness/smoke/index.html                 4.57 kB \u2502 gzip:  1.85 kB\ndist/harness/live/index.html                  6.07 kB \u2502 gzip:  2.49 kB\ndist/index.html                              10.27 kB \u2502 gzip:  3.12 kB\ndist/assets/pose-worker-CgNRry61.js         155.37 kB\ndist/assets/supported-squat-DoJp0goB.mp4  1,203.10 kB\ndist/assets/clear-squat-DDtklCdR.mp4      1,344.21 kB\ndist/assets/index-BXBE2k9X.css                3.81 kB \u2502 gzip:  1.44 kB\ndist/assets/index-2aXdPjM1.css               11.17 kB \u2502 gzip:  3.04 kB\ndist/assets/analyze-D_az44JW.js               2.76 kB \u2502 gzip:  1.38 kB\ndist/assets/index-DDwSkGfE.js                10.53 kB \u2502 gzip:  3.90 kB\ndist/assets/history-BiUulHhi.js              14.45 kB \u2502 gzip:  5.38 kB\ndist/assets/client-gGzC2Is2.js               25.64 kB \u2502 gzip: 10.13 kB\ndist/assets/index-BLWr0ARC.js                71.93 kB \u2502 gzip: 26.34 kB\ndist/assets/index-Cc5IqaVf.js               272.59 kB \u2502 gzip: 84.63 kB\n\n\u2713 built in 262ms\n",
+      "environmentOverrides": {
+        "CI": "1"
+      }
+    },
+    {
+      "label": "final doctor",
+      "command": "npm run doctor -- --json",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "passed": true,
+      "durationSeconds": 0.277,
+      "completedAtUtc": "2026-11-08T00:13:15.334661+00:00",
+      "outputSha256": "8c500d22dda6dedf3b52ade46bec0889b5ccd3b003a1cf7b48b8ddbf4675cc73",
+      "result": {
+        "schemaVersion": 1,
+        "checkedAt": "2026-11-08T00:13:15.327Z",
+        "readOnly": true,
+        "ready": true,
+        "checks": [
+          {
+            "name": "Node",
+            "status": "pass",
+            "detail": "26.13.0",
+            "next": "Use Node.js 22.18 or newer."
+          },
+          {
+            "name": "Platform",
+            "status": "pass",
+            "detail": "darwin",
+            "next": "The launcher supports macOS/Linux."
+          },
+          {
+            "name": "Locked dependencies",
+            "status": "pass",
+            "detail": "Both dependency trees match their direct lockfile versions and entry files.",
+            "next": null
+          },
+          {
+            "name": "full model",
+            "status": "pass",
+            "detail": "Pinned SHA-256 matches.",
+            "next": null
+          },
+          {
+            "name": "heavy model",
+            "status": "pass",
+            "detail": "Pinned SHA-256 matches.",
+            "next": null
+          },
+          {
+            "name": "WASM/runtime",
+            "status": "pass",
+            "detail": "All four runtime files match the installed SDK.",
+            "next": null
+          },
+          {
+            "name": "Built UI",
+            "status": "pass",
+            "detail": "A build exists; this does not prove it matches the current source.",
+            "next": "npm run demo rebuilds current source before launch."
+          },
+          {
+            "name": "Port 4173",
+            "status": "info",
+            "detail": "occupied",
+            "next": "Existing service left untouched; do not launch a second copy."
+          },
+          {
+            "name": "Port 4176",
+            "status": "info",
+            "detail": "occupied",
+            "next": "Existing service left untouched; do not launch a second copy."
+          },
+          {
+            "name": "Running app",
+            "status": "pass",
+            "detail": "MoveIDE health check passed on private port4173.",
+            "next": null
+          }
+        ],
+        "limits": "Does not open a camera, test a physical phone, inspect account credentials or read browser history. Browser storage belongs to the exact browser/profile/origin."
+      }
+    }
+  ],
+  "limits": [
+    "Fresh local setup and production build only; no physical phone/camera, accuracy, GPU or provider inference verified.",
+    "Doctor performs read-only checks of existing local ports; this run starts no application server or tunnel.",
+    "No dependencies or assets copied from the existing worktree. npm may use its package cache.",
+    "Any doctor Running app/port result refers to an already-running service outside this fresh worktree; it is not a runtime verification of this fresh production build."
+  ],
+  "lockfiles": {
+    "package-lock.json": "010324055c0e436cf82cf99d943033a0287102be6deeeaf644fc99d6bacedd9a",
+    "harness/package-lock.json": "7b1366907e657e87fe6a21c46c1b1ff31c4fcafe2aa3b84bdaec5dc395100c8b"
+  },
+  "modelAndRuntimeAssets": [
+    {
+      "path": "harness/public/pose/pose_landmarker_full.task",
+      "bytes": 9398198,
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+    },
+    {
+      "path": "harness/public/pose/pose_landmarker_heavy.task",
+      "bytes": 30664242,
+      "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b"
+    },
+    {
+      "path": "harness/public/pose/wasm/vision_wasm_internal.js",
+      "bytes": 334128,
+      "sha256": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b"
+    },
+    {
+      "path": "harness/public/pose/wasm/vision_wasm_internal.wasm",
+      "bytes": 14603354,
+      "sha256": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab"
+    },
+    {
+      "path": "harness/public/pose/wasm/vision_wasm_module_internal.js",
+      "bytes": 334166,
+      "sha256": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f"
+    },
+    {
+      "path": "harness/public/pose/wasm/vision_wasm_module_internal.wasm",
+      "bytes": 14603372,
+      "sha256": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5"
+    }
+  ],
+  "buildFiles": [
+    {
+      "path": "dist/APACHE-2.0.txt",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "dist/MIT-LICENSE.txt",
+      "bytes": 1069,
+      "sha256": "aa688f22e3446d52249376353cdd4abdca7960e51ff1f9ea60fb7c3532411053"
+    },
+    {
+      "path": "dist/QRCODE-MIT.txt",
+      "bytes": 1076,
+      "sha256": "8df47c6ad9ac2c41eb9b2a72def9908959da0ede8dadd56c7b249c1bdb0c5ce6"
+    },
+    {
+      "path": "dist/THIRD-PARTY-NOTICES.md",
+      "bytes": 766,
+      "sha256": "09ea30d9e1003e9892b93ad48d4c78685af30626030a9a0ee2f639c4353ac8af"
+    },
+    {
+      "path": "dist/assets/analyze-D_az44JW.js",
+      "bytes": 2763,
+      "sha256": "4ee4905bcb7eb99e85535be51b02af674aa80536445cf5ff42926181eea2d25f"
+    },
+    {
+      "path": "dist/assets/clear-squat-DDtklCdR.mp4",
+      "bytes": 1344215,
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d"
+    },
+    {
+      "path": "dist/assets/client-gGzC2Is2.js",
+      "bytes": 25645,
+      "sha256": "12717ce95b593200572bc0704685a820c30e2f2cfe389d368619329edce2a26e"
+    },
+    {
+      "path": "dist/assets/history-BiUulHhi.js",
+      "bytes": 14456,
+      "sha256": "5fade31bde6790818e61ef235890b1fe0f0c28dbdf70b8ba7347a22874f73c8d"
+    },
+    {
+      "path": "dist/assets/index-2aXdPjM1.css",
+      "bytes": 11178,
+      "sha256": "3ae8d96e906931e7838d70857a5155649bf4683585fc92bab3da1995d17dd581"
+    },
+    {
+      "path": "dist/assets/index-BLWr0ARC.js",
+      "bytes": 71931,
+      "sha256": "546b1bd2d73deed7188883e4105db32bce63aae1e93483a8092e1b99d9e6d228"
+    },
+    {
+      "path": "dist/assets/index-BXBE2k9X.css",
+      "bytes": 3810,
+      "sha256": "621a2559c4059bee7e9ec201753bdafbb1114aded54f52bf8c6ea3f56bf1b149"
+    },
+    {
+      "path": "dist/assets/index-Cc5IqaVf.js",
+      "bytes": 272593,
+      "sha256": "66007ed403c82e112e24f8a7dfa2dea16a59193b616d13359c3648ebcf694376"
+    },
+    {
+      "path": "dist/assets/index-DDwSkGfE.js",
+      "bytes": 10539,
+      "sha256": "b6e4775f6ed029d03143d4b442e25d8b5e14ff4292b19b5008575121edb1d8b2"
+    },
+    {
+      "path": "dist/assets/pose-worker-CgNRry61.js",
+      "bytes": 155378,
+      "sha256": "2a38556afe960fb2117effc8e36b80b80f68bb9ea3e31c2e1e02470209be1391"
+    },
+    {
+      "path": "dist/assets/supported-squat-DoJp0goB.mp4",
+      "bytes": 1203104,
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2"
+    },
+    {
+      "path": "dist/fixtures/squat/README.md",
+      "bytes": 2520,
+      "sha256": "fc92b13d3ca91b287d167f1d868d201e2c58a6c45f075d2c17375d47e2c62a44"
+    },
+    {
+      "path": "dist/fixtures/squat/clear-squat.mp4",
+      "bytes": 1344215,
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d"
+    },
+    {
+      "path": "dist/fixtures/squat/supported-squat.mp4",
+      "bytes": 1203104,
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2"
+    },
+    {
+      "path": "dist/harness/live/index.html",
+      "bytes": 6079,
+      "sha256": "9802c891082d181308f6e644d254fc7d1161c1383a7b0a54611e8f892b489dd0"
+    },
+    {
+      "path": "dist/harness/smoke/index.html",
+      "bytes": 4575,
+      "sha256": "eec2962f8b219e77e74cf7c314b04ec3b9d09f36ab331411374995e79039ffd8"
+    },
+    {
+      "path": "dist/index.html",
+      "bytes": 10271,
+      "sha256": "af71943a0b074cf21068a8941c288e45aa96a3234402279841667c4348c4ba4b"
+    },
+    {
+      "path": "dist/pose/pose_landmarker_full.task",
+      "bytes": 9398198,
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+    },
+    {
+      "path": "dist/pose/pose_landmarker_heavy.task",
+      "bytes": 30664242,
+      "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b"
+    },
+    {
+      "path": "dist/pose/wasm/vision_wasm_internal.js",
+      "bytes": 334128,
+      "sha256": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b"
+    },
+    {
+      "path": "dist/pose/wasm/vision_wasm_internal.wasm",
+      "bytes": 14603354,
+      "sha256": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab"
+    },
+    {
+      "path": "dist/pose/wasm/vision_wasm_module_internal.js",
+      "bytes": 334166,
+      "sha256": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f"
+    },
+    {
+      "path": "dist/pose/wasm/vision_wasm_module_internal.wasm",
+      "bytes": 14603372,
+      "sha256": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5"
+    }
+  ],
+  "buildManifestSha256": "3fde3f38173033a482e1f7b83143bb83cff069f2ddf690f5fef32682e0cb869e",
+  "completedAtUtc": "2026-11-08T00:13:15.392388+00:00",
+  "passed": true,
+  "installedDirectDependencies": {
+    "app": {
+      "@mediapipe/tasks-vision": "1.2.2",
+      "@types/node": "26.6.6",
+      "@types/react": "19.3.0",
+      "@types/react-dom": "19.3.0",
+      "@vitejs/plugin-react": "6.2.1",
+      "react": "19.3.1",
+      "react-dom": "19.3.1",
+      "typescript": "7.0.2",
+      "vite": "8.3.6"
+    },
+    "harness": {
+      "@mediapipe/tasks-vision": "1.2.2",
+      "ajv": "8.20.0",
+      "jose": "6.2.15",
+      "playwright": "1.65.0",
+      "qrcode": "1.5.4",
+      "vite": "8.3.6"
+    }
+  },
+  "trackedSourceCleanAfterBuild": true
+}

@@ -1,6 +1,6 @@
 # MoveIDE global delivery tracker
 
-Updated 2026-11-07; integration checkpoint `afb6fa1`, with newer frontend and experimental work still being verified. **Incoming frontend agent: read this first.** This tracker distinguishes implemented code, the surface actually verified, and remaining acceptance. Later commits do not inherit an earlier build's final-QA status automatically.
+Updated 2026-11-08 UTC (2026-11-07 Pacific). Latest local acceptance covers `efe97bd` plus documented worktree changes: history/recovery, onboarding and production-preview coaching passed. Final Seldon/Wren qualification is in progress; final verdicts are pending. **Incoming frontend agent: read this first.** This tracker distinguishes implemented code, the surface actually verified, and remaining acceptance. Later commits do not inherit an earlier build's final-QA status automatically.
 
 ## Product decision and handoff
 
@@ -50,11 +50,13 @@ Read in this order:
 | OpenCap import | Constructed-data tests and browser File import passed; imported-unverified units/hashes/source rows retained | Native inference blocked on unavailable compatible runtime/assets/metadata; deferred by user |
 | Easy launch | `npm run demo` / launcher and quickstart implemented; six persistent launcher tests passed, plus syntax/helper cleanup/port-refusal checks | Fresh9446951 setup-only auto-installs locked dependencies and pinned models; TypeScript/Vite build and dist asset hashes pass [evidence](qa/fresh-setup.json). Physical phone rehearsal remains; no tunnel by default |
 | Final design polish | Detailed UI/UX and engineering handoff supplied. Recorded clip (`/`) now uses the Live camera palette, wordmark, source nav, intro, pill buttons, dark stage and panels; checked in browser at 1440 and 375 after sample analysis, with no horizontal overflow (Compare table scrolls inside its card); `tsc` and `vite build` pass | Designed root/mobile implementation, rendered review, contrast/focus/text zoom/reduced-motion checks |
-| Final Wren qualification | Prior harness cases and one older workbench case passed | Both core cases on the same final build, after local/device gates; reconcile debit before dispatch |
+| Local history and recordings | Implemented and browser-verified: [22 history journeys](qa/history-root.json), [six lifecycle/recovery checks](qa/history-races.json), [10 storage groups](harness/history/browser-verification.json), real Chrome recorder replay and live save-failure downloads | Physical iPhone codecs/background behavior and real storage-pressure durability remain; no cloud sync or unsaved crash recovery |
+| Developer onboarding | README, AI setup prompts, architecture/check matrix, contributor template and doctor delivered. [Fresh efe97bd acceptance](qa/fresh-setup-history.json): initially missing dependencies/assets, automatic setup, TypeScript/Vite build, final doctor and pinned asset hashes passed | Fresh build proof does not test a physical camera/account. Occupied demo services were left untouched |
+| Final Wren qualification | User authorized full product QA now; final-build baseline/run preparation is in progress | Two final core-workflow verdicts, build identity and actual debit still pending; [ledger](qa/seldon-ledger.md) is authoritative |
 
-**Automated-suite status:** `65fc875` passes99 harness tests and6 launcher tests, zero failures/cancellations/skips. Combined live browser QA passes adaptive resize, historical/fresh-view cards, three phase JPEGs, offline behavior and returned mock-AI via real WebRTC. Test transports use ephemeral ports and cannot touch the running demo. Local processing73ms at10.0fps (camera) /7.4fps (browser phone path) is not network latency. [Latest checkpoint](qa/latest-local-checkpoint.json).
+**Automated-suite status:** latest integrated `npm test` passed 109 harness and eight launcher/doctor tests (117 total), with zero failures, cancellations or skips. The [checkpoint](qa/latest-local-checkpoint.json) records the source/worktree scope. Historical `65fc875` passed 99 harness and six launcher tests. Combined live browser QA passes adaptive resize, historical/fresh-view cards, three phase JPEGs, offline behavior and returned mock-AI via real WebRTC. Test transports use ephemeral ports and cannot touch the running demo. Latest local processing78ms at9.9fps (camera) /7.2fps (browser phone path) is not network latency. [Latest checkpoint](qa/latest-local-checkpoint.json).
 
-**Newest recorded production acceptance:** `c1c9378` passes fifteen controlled-provider lifecycle checks, seven real-provider checks (including retained short cards) and twenty fresh-build readiness checks. Later9446951 restyle passed fifteen production checks and the real user-visible demo; do not silently transfer evidence across revisions. Per-rep accessible labels remain required.
+**Newest recorded production acceptance:** [15 controlled-provider checks](qa/root-one-start.json) passed on the prebuilt root preview from `efe97bd` plus worktree changes, recorded at 2026-11-08 00:16 UTC. [22 history checks](qa/history-root.json) and [six source/save races](qa/history-races.json) passed on isolated development surfaces. Earlier real-account and readiness results retain their original revisions; these newer mock-provider tests do not replace account or physical-device acceptance.
 
 ## Incoming frontend implementation contract
 
@@ -69,16 +71,16 @@ Read in this order:
 
 | Priority / owner | Concrete task | Acceptance |
 | --- | --- | --- |
-| P0 · frontend | Designed one-Start root with stacked feed and readable video | No packet task, short retained cards, expandable reasons, no jumps, accurate timestamps/source reset, accessible narrow layout |
+| P0 · final QA | Run Seldon on the integrated product | Two core workflows on one identified final build; retain per-case verdicts and rerun fixes |
 | P0 · integration | Public HTTPS AI return verified; physical rehearsal next | Recorded run proves public media, Heavy, real three-image response and visible returned AI cue; repeat with actual iPhone on venue Wi-Fi |
 | P0 · motion/integration | Integrated guard, validity and sparse phase evidence browser-verified | Keep experimental labels; physical-device rehearsal and independent motion accuracy remain |
-| P0 · frontend | Implement genuine two-video comparison | Distinct source identities and evidence, same definition/goal, no capture-failure-as-bad-posture story |
+| P1 · design QA | Complete broad accessibility/device review | Keyboard/focus, contrast, text zoom, reduced motion and physical narrow-screen usability; existing responsive fixture checks already pass |
 | P0 · device QA | Actual iPhone/Mac and venue rehearsal | Permission, connection, motion, feedback, lock/background, disconnect/reconnect, cleanup and measured end-to-end latency |
 | P1 · coaching/motion | Phase/trajectory evidence + reference calibration | Versioned bounded contract, correct source pixels, per-view baseline reset and unsupported-motion abstention |
 | Research · motion QA | VIEW-3–6 and R-2 accuracy gates | Independent front/oblique/orbit references, prespecified errors/coverage/delay and false-cue limits |
 | Final · QA | Full suite, refreshed browser gates and Wren | Exact final build and per-case records; no active fixed-port service conflicting with tests |
 
-**Blocked versus pending:** native OpenCap execution is explicitly deferred for missing runtime/assets. Physical device and independent angle/orbit evidence are missing prerequisites. Public AI return now passes after adaptive-resolution recovery, with a real three-phase request and returned historical card across two Chrome contexts. Physical iPhone remains unverified. Designed frontend and two-source UI are remaining implementation, not external blockers.
+**Blocked versus pending:** native OpenCap execution is explicitly deferred for missing runtime/assets. Physical device and independent angle/orbit evidence are missing prerequisites. Public AI return now passes after adaptive-resolution recovery, with a real three-phase request and returned historical card across two Chrome contexts. Physical iPhone remains unverified. Recorded/live frontend, local history and two-source example comparison are implemented; remaining design work is broader accessibility and device acceptance.
 
 ## Commands and final QA budget
 
@@ -94,9 +96,9 @@ node harness/verify/product-readiness.mjs --write
 node harness/live/app.browser.test.mjs
 ```
 
-Some transport/proxy tests bind 4176. Stop owned demo services before those tests; do not kill unrelated processes. Physical-provider/public-HTTPS runs are separate, account-dependent checks.
+Transport/proxy regression tests use ephemeral ports. Leave the user’s active demo and unrelated processes untouched; run Heavy/GPU browser suites serially. Physical-provider/public-HTTPS runs are separate, account-dependent checks.
 
-**Held Wren budget:**16 granted; two harness simulations confirmed used, leaving 14. A later single workbench run `92de42c1-1168-4346-9730-e7d903fe94c4` has debit pending reconciliation, so expected remaining is 13. See [ledger](qa/seldon-ledger.md). Preserve at least four for two final cases and a rerun. User asked to save Seldon until the product is built. Historical smoke/one-case passes do not establish final qualification.
+**Final Wren status — in progress:** the user has now requested Seldon/full product QA. The earlier hold is superseded. Run preparation and final verdict collection are pending; do not label the product qualified from historical smoke runs. Reconcile actual balance/debit and retain final build, experiment and per-workflow results in the [ledger](qa/seldon-ledger.md).
 
 **Live layout review:** [seven checks passed](qa/live-layout.json) on a Vite development surface with fixture playback and inserted representative cards. Desktop1400×900 and1280×800 retain a520px video stage and390px feed through empty/two-card/expanded-Why states. Mobile390×844 retains a405.11px active stage; the first card ends at834.20px, fully inside the viewport. No horizontal overflow or page errors. [Desktop](qa/live-layout-desktop.png) and [mobile](qa/live-layout-mobile.png) screenshots are layout evidence, not camera, provider or physical-phone acceptance.
 
@@ -117,10 +119,23 @@ Latest designed root checkpoint (`9446951`): [15 production-preview checks](qa/r
 
 **Comparison browser acceptance:** [21 checks pass](qa/two-recording-comparison.json) on merged78569d6 plus the recorded comparison worktree changes: Heavy57/57 and90/90, distinct actual hashes, independent rep/phase clocks, mobile375/390 layout, no AI calls, cancellation/source replacement and retained-A/B-only retry. Requested seek clocks and decoded frame labels are recorded separately; observed phase-frame difference is at most66ms (67ms tolerance), not frame-exact timing proof.
 
-**Published checkpoint65fc875:** the comparison/setup bundle is on main with the incoming Safari fix preserved. TypeScript/build,15 production root lifecycle checks,21 comparison browser checks,99 harness tests and6 launcher tests pass. `workflow.html` and quickstart reflect this delivery. Seldon remains held for the final product/device gates.
+**Published checkpoint65fc875:** the comparison/setup bundle is on main with the incoming Safari fix preserved. TypeScript/build,15 production root lifecycle checks,21 comparison browser checks,99 harness tests and6 launcher tests pass. `workflow.html` and quickstart reflect this delivery. That historical checkpoint did not establish final Wren qualification; the current final-product run is in progress.
 
-## Local history and developer onboarding — active bundle
+## Local history and developer onboarding — verified local bundle
 
-User confirmed local-only persistence for this demo. Shared IndexedDB storage, recorded-session reopen and live recording are being integrated in parallel; acceptance is pending until the combined checks below land. [History contract](docs/HISTORY.md) defines HIST-1–5. [Developer guide](docs/DEVELOPMENT.md), [Claude/Codex setup prompts](docs/AI-SETUP.md), and read-only `npm run doctor` are the onboarding path. Doctor checks dependency locks, pinned model/runtime bytes and existing service health without changing the machine.
+Local-only persistence is implemented. [HIST-1–5](docs/HISTORY.md) have scoped browser acceptance: 22 recorded/live history checks, six save/source/recovery races and 10 atomic-storage groups. Live Stop saves original video, bounded measurements, accepted notes and exact retained JPEGs. Save failures expose downloads/retry; recorded failures survive storage management without reanalysis. Live video timing is approximate and may cover only a bounded prefix.
 
-Owners: shared storage/API and integrity tests; recorded History UI/replay; live recorder/archive; root integration/docs/QA. No cloud sync; phone-session recordings save on the analysis computer. Preserve source identity, atomic saves, opt-out, retry, deletion and no-inference replay.
+[Fresh setup evidence](qa/fresh-setup-history.json) starts from an `efe97bd` worktree without either dependency tree, pose assets or dist. Automatic locked installs, Full/Heavy SHA-256 verification, four WASM files, TypeScript/Vite build and a final read-only doctor passed. Its occupied-port/health observations belonged to the already-running demo, not a runtime test of the fresh build. No services or camera were started by that setup check.
+
+## Full-product remaining checklist
+
+- [x] Local history, replay without inference, search/rename/delete, exports, opt-out and bounded live recording.
+- [x] Save/source races and storage-management recovery; recording-unavailable fallback and unsaved download recovery.
+- [x] Fresh dependency/model setup, production build and read-only doctor; current root coaching lifecycle checks.
+- [ ] Final Seldon/Wren verdicts for both core workflows on the same submitted build; record actual debit and rerun any fixes.
+- [ ] Physical iPhone → Mac on venue Wi-Fi: camera permission, codec/orientation, foreground/background/lock, reconnect, recording playback, return captions and end-to-end delay.
+- [ ] Broader accessibility review: keyboard/focus, contrast, text zoom and reduced motion, beyond the passing responsive fixture checks.
+- [ ] Independent side/front/oblique/orbit angle references, identity/left-right continuity, false-cue rates and temporal-claim validation. No perfect-squat or arbitrary-angle accuracy claim before these pass.
+- [ ] If scope resumes: real dual-upload/cross-recording AI and native OpenCap inference require separate implementation/runtime/asset/accuracy gates. Current example comparison and imported-unverified OpenCap support remain available.
+
+Cloud sync and recovery of a recording lost before Stop are outside the chosen local-only demo scope.

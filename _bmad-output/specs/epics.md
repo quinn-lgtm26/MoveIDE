@@ -261,7 +261,7 @@ Research gate; does not block shipping the truthful supported-view demo. Broad n
 - Use bounded temporal filters with explicitly measured maximum added latency; reset when identity, view evidence or time continuity fails. Retain raw landmarks and filter/version provenance for audit.
 - **Acceptance:** real orbit/translation/roll clips with bystanders and occlusion report identity swaps, left/right swaps, landmark jitter/drift, filter lag and recovery time. One person's trajectory must not be joined to another's. Visible whole body alone cannot bypass uncertainty gates.
 
-Depends on BE-6 and VIEW-1. Status: a standalone image-continuity heuristic is implemented with eight focused tests; live metric-validity integration is in progress. This does not establish camera-motion estimation, identity robustness or orbit accuracy.
+Depends on BE-6 and VIEW-1. Status: the image-continuity heuristic and live metric-validity integration pass focused and real-Heavy browser tests. This does not establish camera-motion estimation, identity robustness or orbit accuracy.
 
 ### VIEW-5 · Reacquire metric validity and baselines throughout an orbit
 
@@ -272,7 +272,7 @@ Depends on BE-6 and VIEW-1. Status: a standalone image-continuity heuristic is i
 - Keep historical coaching cards, but clear current invalid geometry/values and show a concise reacquisition status. Completed-rep evidence already captured in this same source/session remains valid across view epochs: retain its in-flight AI and label the eventual card with the original rep/view. Stop/new source/session still rejects pending results. A newly valid cue is an event in the existing feed, not an instruction to restart capture manually.
 - **Acceptance:** continuous side→oblique→front→oblique sequences with partial occlusion show correct per-metric availability transitions, no stale baselines and bounded reacquisition time. Return-to-start repeatability and coordinate-frame consistency are measured, not assumed.
 
-Depends on VIEW-2/4. Status: specified, unverified.
+Depends on VIEW-2/4. Status: epoch/baseline invalidation, adaptive-resolution recovery and historical completed-rep AI retention are browser-verified; continuous physical orbit validity and accuracy remain unverified.
 
 ### VIEW-6 · Validate actionable coaching during real camera orbit
 
@@ -296,7 +296,7 @@ The [reviewed design amendment](../../docs/frontend-design-amendments.md) covers
 
 - **Seldon measure-squat.** Use Start coached squat on the built-in sample and select the first complete rep’s knee-flexion measurement. Verify its evidence frame, skeleton, and angle in degrees. Check count and timing tolerance locally before spending simulations.
 - **Seldon compare-and-handoff.** Preserve this historical case ID but update its journey to automatic session coaching and evidence comparison. Verify selected rep/source identities, measurements and evidence navigation; connected coaching must cite the correct source, while disconnected mode stays explicitly local. Manual packet copy is not a required normal step. Final baseline selectors must match the integrated UI.
-- The hosted harness smoke used two simulations and passed both cases; a later single workbench run has debit pending reconciliation. Last confirmed balance was 14, expected current balance 13. Hold further dispatch until the final integrated product is ready. The ledger separates historical verdicts from the final product gate.
+- The hosted harness smoke used two simulations and passed both cases; a later frontend-key run is tracked separately and is not visible under the current key. The current account confirms 16 granted, two used and 14 remaining before final dispatch. The user now authorized final Seldon product QA; baseline/run preparation is in progress and final verdicts remain pending. The ledger separates historical verdicts from the final product gate.
 - Validate the baseline and smoke-test locally. Reconcile the 16-simulation allocation and keep at least four reserved for the final build and a rerun. Run both cases against the final submission build after fixes. Record the build ID, experiment ID, actual debit, both verdicts, and summary. Keep a separate local result for live ChatGPT sign-in and image-plus-report interpretation.
 
 ## COMP-1 · Compare two independent recordings
@@ -307,8 +307,10 @@ The [reviewed design amendment](../../docs/frontend-design-amendments.md) covers
 
 ## Epic 4 · Local session history and usable recordings
 
-User confirmed local storage for this demo on2026-11-07. [HISTORY.md](../../docs/HISTORY.md) supplies HIST-1 recorded durability, HIST-2 usable list/review/download/delete, HIST-3 live recording, HIST-4 lifecycle/failures and HIST-5 bounded integrity/retention acceptance. Store original video, source-bound measurements, accepted coaching and bounded evidence locally; reopening never triggers new inference. Phone-session history lives on the Mac receiver. Implementation is in progress until browser and transactional evidence is linked in the tracker. Cross-device sync is excluded by the user’s local-only choice.
+User confirmed local storage for this demo on2026-11-07. [HISTORY.md](../../docs/HISTORY.md) supplies HIST-1 recorded durability, HIST-2 usable list/review/download/delete, HIST-3 live recording, HIST-4 lifecycle/failures and HIST-5 bounded integrity/retention acceptance. Store original video, source-bound measurements, accepted coaching and bounded evidence locally; reopening never triggers new inference. Phone-session history lives on the Mac receiver. Implemented and locally browser-verified: [22 history journeys](../../qa/history-root.json), [six lifecycle/recovery checks](../../qa/history-races.json), [10 storage groups](../../harness/history/browser-verification.json), real Chrome MediaRecorder playback and live save-failure downloads. HIST-1–5 pass this scoped local acceptance; physical iPhone recording/background and real storage-pressure tests remain separate. Cross-device sync is excluded by the user’s local-only choice.
 
 ### DEV-1 · Reproducible setup and AI handoff
 
 Deliver README quickstart, Claude/Codex copy-paste prompts, developer architecture/contracts/check matrix, contributor instructions, and a read-only setup doctor. Setup installs locked dependencies and verified model assets; phone mode exposes only the dedicated4176 sender/signaling surface. Acceptance: doctor diagnoses missing/corrupt assets without mutation; existing occupied demo ports are preserved; fresh setup/build proof and clear physical-device/account handoff remain linked.
+
+DEV-1 status: **local setup/build acceptance passed** on fresh `efe97bd`; [evidence](../../qa/fresh-setup-history.json) records absent initial dependencies/models/dist, automatic pinned setup, TypeScript/Vite build and final doctor. Existing demo ports were untouched; their health result is not a runtime test of the fresh build. Final Wren and physical account/device handoff remain pending.

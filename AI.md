@@ -35,12 +35,12 @@ The [official Seldon Claude Code plugin](https://github.com/blok-intelligence/se
 
 ## QA and the 16-simulation budget
 
-- [seldon.yml](seldon.yml) is the baseline. It covers **measure a sample squat** and **compare two reps and prepare a coaching packet**. Keep the case IDs stable.
+- [seldon.yml](seldon.yml) is the current baseline: recorded review plus durable history, two-recording comparison, and live setup/navigation. Historical case IDs remain stable; the old `compare-and-handoff` ID now tests the integrated comparison without a manual handoff. Read [product QA context](qa/PRODUCT-CONTEXT.md) before testing.
 - Use `validate_seldon_yaml` after changing YAML and before dispatch. `create_baseline` and `add_test_case` author the same file. A schema check is free according to Seldon's QA guide.
 - Before a paid run, verify the target is reachable by Seldon, exercise the exact build locally, and reconcile the account's remaining simulations with [the ledger](qa/seldon-ledger.md). Reserve at least four of the 16 for final-build coverage and a rerun. Record the expected debit before dispatch. Confirm the account's billing unit, including case/persona fan-out, before relying on any estimate.
 - Use `run_seldon` with a real preview URL override and tag the commit or build ID. The baseline’s `.example` URL is a placeholder. Use `list_baseline_runs`, `get_experiment_status`, and `get_run_logs` to follow it. `cancel_baseline_run` can stop a stale run. Reconcile any failed, blocked, or canceled dispatch against the account's actual debit.
 - Get both `get_report` for per-case verdicts and `get_summary` for findings and repro steps. Record the experiment ID, case verdicts, what changed, and the follow-up run in the ledger. Fix failures locally. Spend reruns on relevant cases during development.
-- For the prize submission, run both core workflows against the same final build after fixes, keep the experiment ID and both case verdicts, and show the report in the demo or submission. The reachable QA route uses public or otherwise approved fixtures and the manual coaching handoff. Run the eligible ChatGPT account check locally.
+- For the prize submission, run both core workflows against the same final build after fixes, keep the experiment ID and both case verdicts, and show the report in the demo or submission. The reachable QA route uses public or otherwise approved fixtures and the integrated one-action flow, with provider access disabled. Run the eligible ChatGPT account and physical-phone checks locally. A setup/navigation pass does not establish live camera/AI behavior.
 - Treat persona and messaging experiments as optional and budgeted. Keep the four-simulation reserve and verify their fan-out before using them.
 
 ## Other Seldon tools

@@ -1,6 +1,6 @@
 # Local session history and recordings
 
-User decision: **save locally for this demo**, confirmed2026-11-07. This is part of the product flow, not a raw-report archive. Implementation and acceptance are tracked in [tracker.md](../tracker.md).
+User decision: **save locally for this demo**, confirmed2026-11-07. This is part of the product flow, not a raw-report archive. Implemented with scoped local browser acceptance; final Seldon product verdicts are pending. Evidence and remaining physical-device gates are tracked in [tracker.md](../tracker.md).
 
 ## Experience
 
@@ -15,7 +15,7 @@ User decision: **save locally for this demo**, confirmed2026-11-07. This is part
 
 Use IndexedDB with versioned metadata and media stored separately. Session IDs are stable and distinct from report-local rep IDs. A video SHA-256 protects source association across storage/reopen; integrity failures must block source-bound replay instead of showing measurements on the wrong clip. Update omitted fields without deleting previously stored media/coaching. Atomic writes commit metadata and assets together, or leave the prior session intact.
 
-Initial demo limits:100MiB per recording and500MiB total saved application data. Live capture also has a five-minute video limit; if analysis continues after that, label the recording as a prefix. Retained live metric/note/image bounds must be disclosed. Never silently evict older sessions. Browser quota may be lower than the app limit, so the actual write can still fail. Preserve local analysis and let the user download or delete selected older data.
+Initial demo limits:100MiB per recording and500MiB total saved application data. Live capture also has a five-minute video limit; if analysis continues after that, label the recording as a prefix. Live history keeps up to1,200 metric samples at most4Hz,150 completed reps,six accepted AI notes and18 evidence JPEGs. These are bounded review data, not every camera frame. Truncation flags remain in exported metadata. Never silently evict older sessions. Browser quota may be lower than the app limit, so the actual write can still fail. Preserve local analysis and let the user download or delete selected older data.
 
 Storage belongs to the **same browser, profile and origin**. Use`http://127.0.0.1:4173` consistently: localhost,127.0.0.1, other ports, other browsers and other devices are separate stores. Restarting the app server does not intentionally clear history. Clearing site data/private-browsing cleanup or browser eviction can remove it; downloadable originals and JSON are the portable backup. Browser persistence support/status is not a cloud backup or an absolute durability guarantee. [MDN storage behavior](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria).
 
@@ -25,12 +25,16 @@ Do not put provider credentials, pairing invitations, access tokens or arbitrary
 
 ## Acceptance stories
 
-| ID | Required proof |
-| --- | --- |
-| HIST-1 · Durable recorded review | Analyze sample, save original/report, reload, reopen; hashes/metrics/notes match and no new analysis/provider request occurs |
-| HIST-2 · Useful history | Search, rename, inspect metadata, play/review, download video/JSON, cancel and confirm deletion; missing/deleted IDs show a useful state |
-| HIST-3 · Live recording | Real browser MediaRecorder video can replay after Stop/reload; telemetry and accepted notes persist; source-vs-recording timing is explicit |
-| HIST-4 · Failure and lifecycle | Opt-out, unavailable storage, quota/oversize/integrity errors, aborted source changes, old-save/new-session race and retry preserve correct ownership |
-| HIST-5 · Data retention | Versioned transactions, bounded assets, no silent eviction, coherent metadata/media deletion, no credentials or room tokens in saved exports |
+| ID | Status and evidence | Required proof |
+| --- | --- | --- |
+| HIST-1 · Durable recorded review | Passed · [root history](../qa/history-root.json) | Analyze sample, save original/report, reload, reopen; hashes/metrics/notes match and no new analysis/provider request occurs |
+| HIST-2 · Useful history | Passed · [22 root/live viewer checks](../qa/history-root.json) | Search, rename, inspect metadata, play/review, download video/JSON, cancel and confirm deletion; missing/deleted IDs show a useful state |
+| HIST-3 · Live recording | Passed in Chrome · [recorder tests](../harness/history/live-recorder.test.mjs), [live integration](../harness/live/app.browser.test.mjs) | Real browser MediaRecorder video can replay after Stop/reload; telemetry and accepted notes persist; source-vs-recording timing is explicit |
+| HIST-4 · Failure and lifecycle | Passed · [six races/recovery checks](../qa/history-races.json), [live download recovery](../harness/live/save-recovery.browser.test.mjs) | Opt-out, unavailable storage, quota/oversize/integrity errors, aborted source changes, old-save/new-session race and retry preserve correct ownership |
+| HIST-5 · Data retention | Passed · [10 storage groups](../harness/history/browser-verification.json) | Versioned transactions, bounded assets, no silent eviction, coherent metadata/media deletion, no credentials or room tokens in saved exports |
 
 Synthetic camera tests establish browser recording/lifecycle behavior. Physical iPhone codecs, background interruptions and device-storage behavior require their own acceptance. Crash recovery for an in-progress unsaved recording and cross-device sync are not promised by this local demo.
+
+Post-merge evidence: root/live history 22/22; source/save/recovery races 6/6; atomic storage 10 groups; production-preview root coaching 15/15. These tests use real local Heavy or MediaRecorder where stated and controlled/disconnected providers. They are not physical iPhone, actual disk-full, or independent angle-accuracy tests.
+
+Recorded save failures remain available while History is used to free storage; return and retry without reanalysis. Live failures allow downloading the finalized video (when available), session JSON and retained JPEGs before retry or discard. Each older asynchronous save keeps its own session identity/status.

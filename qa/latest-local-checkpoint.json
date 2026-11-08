@@ -1,40 +1,61 @@
 {
-  "verifiedAtUtc": "2026-11-07T23:49:40.079215+00:00",
-  "sourceRevision": "65fc875",
+  "verifiedAtUtc": "2026-11-08T00:13:15.557130+00:00",
+  "sourceRevision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
+  "hasUncommittedSourceChanges": true,
+  "sourceScope": "Integrated efe97bd checkout plus worktree changes, including recorded storage-management recovery. This is not a clean-commit or final Seldon-build attestation.",
   "commands": {
     "npm test": {
-      "harnessPassed": 99,
-      "launcherPassed": 6,
+      "harnessPassed": 109,
+      "launcherDoctorPassed": 8,
+      "totalPassed": 117,
       "failures": 0,
-      "skips": 0
+      "skips": 0,
+      "cancellations": 0,
+      "logSha256": "9afa6572de3d8e3c93d59a6bd76cff364bab3a40cb75c3dcf2927afa5d9710bb"
     },
-    "npm run typecheck": "passed",
-    "npx vite build --emptyOutDir false": "passed; preserved previously served assets",
-    "node harness/verify/root-coaching.mjs": "15 production-preview controlled-provider checks passed",
-    "node harness/verify/two-recordings.mjs": "21 development-source real Heavy checks passed"
+    "node harness/verify/root-coaching.mjs": "15 controlled-provider production-preview checks; see qa/root-one-start.json",
+    "historyRoot": "22 isolated development checks; see qa/history-root.json",
+    "historyRaces": "6 isolated controlled-storage lifecycle checks; see qa/history-races.json",
+    "historyStorage": "10 browser IndexedDB groups; see harness/history/browser-verification.json",
+    "freshSetup": "Fresh clean efe97bd automatic setup, TypeScript/Vite build and doctor; see qa/fresh-setup-history.json"
   },
-  "buildIndexSha256": "8a9d743f43ebada76512bf8421ea6e8b4b0f41a473dc0054fa6bc4043e986c4c",
   "liveBrowser": {
+    "result": "passed",
+    "observed": "78 ms \u00b7 9.9 analyzed fps",
+    "phoneObserved": "78 ms \u00b7 7.2 analyzed fps",
+    "aiRequests": 5,
     "syntheticCamera": true,
     "realWebRTC": true,
-    "separateBrowserContexts": true,
-    "provider": "controlled mock in regression suite; earlier public real-provider evidence remains qa/phone-https.json",
-    "localProcessingMs": 73,
-    "localAnalyzedFps": 10.0,
-    "phoneAnalyzedFps": 7.4,
-    "physicalIPhoneTested": false,
-    "adaptiveResolutionRecovery": true,
+    "adaptiveDimensions": true,
     "historicalReplyPreserved": true,
-    "threePhaseImages": true,
-    "returnedAICaption": true,
-    "stopCleanup": true
+    "offlineStatusPreserved": true,
+    "threePhaseJpegs": true,
+    "twoBrowserContexts": true,
+    "phoneLocalFeedback": true,
+    "phoneAIResponse": true,
+    "localQr": true,
+    "staleQrSuppressed": true,
+    "pendingPairingRevoked": true,
+    "missingHttpsGuidance": true,
+    "stalePoseCleared": true,
+    "tracksStopped": true,
+    "physicalIPhoneTested": false
   },
-  "testIsolation": "Ephemeral transport ports; active user demo on4173/4176 left running. Initial attempted suite hit occupied4176 and an HMR restart; isolated stable-source rerun passed.",
+  "testIsolation": "Ephemeral transport/test servers; actual demo services untouched. Test watcher is closed to prevent HMR resetting a running fixture. Heavy browser checks run serially.",
+  "seldon": "User authorized final product task QA; final cases/verdicts pending. Account/budget/run truth lives in qa/seldon-ledger.md.",
+  "previousCheckpoint": {
+    "sourceRevision": "65fc875",
+    "verifiedAtUtc": "2026-11-07T23:49:40.079215+00:00",
+    "harnessPassed": 99,
+    "launcherPassed": 6
+  },
   "scopeLimits": [
-    "Synthetic/browser transport is not a physical iPhone rehearsal.",
-    "Projected and estimated3D angles lack independent anatomical/orbit ground truth.",
-    "Two-source comparison is local and descriptive; no cross-recording AI interpretation or good/bad truth is claimed.",
-    "Safari no-callback fallback uses requested seek time, not decoded frame PTS.",
-    "Final Wren two-workflow qualification remains deferred."
+    "Controlled provider responses in regression suites are not live account acceptance.",
+    "Synthetic/browser phone transport is not a physical iPhone/venue rehearsal.",
+    "Projected and estimated 3D angles lack independent anatomical and orbit ground truth.",
+    "Fresh setup/build started no app/tunnel/camera; doctor occupied-port health referred to the existing demo.",
+    "Actual browser eviction/disk-full and in-progress recording crash recovery are not verified.",
+    "Two-source comparison is descriptive; examples are not good/bad ground truth.",
+    "Final Seldon qualification requires final-build per-case verdicts, recorded separately."
   ]
 }

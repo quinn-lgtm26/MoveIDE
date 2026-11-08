@@ -1,0 +1,19 @@
+{
+  "verifiedAtUtc": "2026-11-08T00:24:30.371Z",
+  "revision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
+  "scope": "Seeded local history with saved fixture report/video and synthetic live records; navigation/focus/replay only, no model inference",
+  "checks": {
+    "liveOpenFocusesVisibleDetail": true,
+    "returnToListFocusAndRoute": true,
+    "renameAndCancelKeyboardFocus": true,
+    "deleteConfirmationSafeFocus": true,
+    "deleteReturnsFocusToList": true,
+    "recordedOpenFocusesReplayWithoutInference": true,
+    "recordedDeepLinkFocus": true,
+    "retryReopensRequestedDetail": true,
+    "mobileNoOverflow": true,
+    "noProviderCallsOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}

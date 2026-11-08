@@ -34,7 +34,9 @@ function SavedEvidence({images}:{images:SavedSession['evidenceImages']}) {
   if(!images.length)return null;
   return <details><summary>Original evidence ({images.length} images)</summary><div className="frames">{urls.map(({image,url})=><figure key={url}><img className="thumb" src={url} alt={`${image.phase} evidence at original analysis time ${image.timestampMs} ms, view ${image.viewEpoch+1}`} /><figcaption>{image.phase} · analysis {image.timestampMs} ms · view {image.viewEpoch+1}</figcaption><button onClick={()=>download(image.blob,`evidence-${image.timestampMs}ms.jpg`)}>Download evidence {image.timestampMs} ms</button></figure>)}</div><p className="fine">These are the retained source JPEGs. Their analysis timestamps are not claimed to align exactly with the saved recording clock.</p></details>;
 }
-function LiveReplay({ session }: { session: SavedSession }) {
+function LiveReplay({ session, focusRequest, onReturnToList }: { session: SavedSession; focusRequest: number; onReturnToList: () => void }) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus(); heading.current?.scrollIntoView({block: 'start'}); }, [focusRequest]);
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => { if (!session.video) { setUrl(null); return; } const own = URL.createObjectURL(session.video); setUrl(own); return () => URL.revokeObjectURL(own); }, [session.video]);
   const live = session.live;
@@ -42,7 +44,7 @@ function LiveReplay({ session }: { session: SavedSession }) {
   const samples = (live?.samples ?? []).filter((item): item is {[key:string]: import('../harness/history/index.mjs').JsonValue} => !!item && typeof item==='object' && !Array.isArray(item));
   const [seconds, setSeconds] = useState(0);
   const [decodeError, setDecodeError] = useState(false);
-  return <section className="saved-live" aria-label="Saved live session"><h2>{session.title}</h2><p className="fine">{date(session.createdAt)} · Live session · {live?.reps?.length ?? 0} completed reps · {samples.length} saved samples</p>
+  return <section className="saved-live" aria-label="Saved live session"><div className="toolbar"><h2 ref={heading} tabIndex={-1}>{session.title}</h2><button onClick={onReturnToList}>Back to saved sessions</button></div><p className="fine">{date(session.createdAt)} · Live session · {live?.reps?.length ?? 0} completed reps · {samples.length} saved samples</p>
     {url ? <div className="stage"><video src={url} controls playsInline onError={() => setDecodeError(true)} onTimeUpdate={event => setSeconds(event.currentTarget.currentTime)} /></div> : <p>No video was saved for this session. Its measurements and notes remain available.</p>}
     {decodeError && <p role="alert" className="error">This browser cannot play the saved recording. Download the original video to open it in a compatible player; measurements and notes remain available.</p>}
     <p className="fine">Recording playback {seconds.toFixed(1)}s. Live analysis times below use the original session clock; recording alignment is approximate. No frame-exact overlay is applied.</p>
@@ -61,21 +63,41 @@ export function History({ initialSessionId, onOpenRecorded, onBack, onDelete }: 
   const [confirmation, setConfirmation] = useState<string | null>(null); const [rename, setRename] = useState<string | null>(null); const [title, setTitle] = useState('');
   const [storage, setStorage] = useState<Awaited<ReturnType<typeof storageStatus>> | null>(null);
   const [refresh, setRefresh] = useState(0);
+  const requestedSession = useRef<string | null>(initialSessionId);
+  const openGeneration = useRef(0);
+  const [detailFocus, setDetailFocus] = useState(0);
+  const listHeading = useRef<HTMLHeadingElement>(null);
+  const renameInput = useRef<HTMLInputElement>(null);
+  const openButtons = useRef(new Map<string, HTMLButtonElement>());
+  const focusList = () => { requestAnimationFrame(() => { listHeading.current?.focus(); listHeading.current?.scrollIntoView({block: 'start'}); }); };
+  const focusSession = (id:string) => requestAnimationFrame(() => openButtons.current.get(id)?.focus());
+  const backToList = () => { requestedSession.current=null; openGeneration.current++; setSelected(null); window.history.replaceState(null,'',`${window.location.pathname}#history`); focusList(); };
+  useEffect(() => { if(rename) { renameInput.current?.focus(); renameInput.current?.select(); } }, [rename]);
   const alive = useRef(true); useEffect(() => { alive.current=true; return()=>{alive.current=false;}; }, []);
   useEffect(() => { let disposed=false; setBusy(true); setError(null); Promise.all([listSessions(),storageStatus()]).then(([items,state])=>{if(!disposed){setSessions(items);setStorage(state);}},e=>{if(!disposed)setError(message(e));}).finally(()=>{if(!disposed)setBusy(false);}); return()=>{disposed=true;}; },[refresh]);
-  useEffect(() => { if(!initialSessionId)return;let disposed=false;setBusy(true);getSession(initialSessionId).then(item=>{if(disposed)return;if(!item)throw Error('This saved session is no longer available.');if(item.kind==='recorded'&&item.report&&item.video)onOpenRecorded(item);else setSelected(item);},e=>{if(!disposed)setError(message(e));}).catch(e=>{if(!disposed)setError(message(e));}).finally(()=>{if(!disposed)setBusy(false);});return()=>{disposed=true;};},[initialSessionId]);
-  const open = async (id:string) => {setError(null);setBusy(true);try{const item=await getSession(id);if(!alive.current)return;if(!item)throw Error('This saved session is no longer available.');if(item.kind==='recorded'&&item.report&&item.video)onOpenRecorded(item);else{setSelected(item);window.history.replaceState(null,'',`?session=${encodeURIComponent(id)}#history`);}}catch(e){setError(message(e));}finally{setBusy(false);}};
-  const remove = async (id:string) => {setBusy(true);try{await deleteSession(id);onDelete(id);setConfirmation(null);if(selected?.id===id)setSelected(null);setRefresh(v=>v+1);}catch(e){setError(message(e));}finally{setBusy(false);}};
-  const renameSession = async(id:string) => {if(!title.trim())return;setBusy(true);try{const updated=await saveSession({id,title:title.trim()});if(selected?.id===id)setSelected(updated);setRename(null);setRefresh(v=>v+1);}catch(e){setError(message(e));}finally{setBusy(false);}};
+  const open = async (id:string) => {
+    requestedSession.current=id; const generation=++openGeneration.current; setError(null); setBusy(true);
+    try {
+      const item=await getSession(id);
+      if(!alive.current || generation!==openGeneration.current)return;
+      if(!item)throw Error('This saved session is no longer available.');
+      if(item.kind==='recorded'&&item.report&&item.video)onOpenRecorded(item);
+      else { setSelected(item); setDetailFocus(value=>value+1); window.history.replaceState(null,'',`?session=${encodeURIComponent(id)}#history`); }
+    } catch(e) { if(alive.current && generation===openGeneration.current)setError(message(e)); }
+    finally { if(alive.current && generation===openGeneration.current)setBusy(false); }
+  };
+  useEffect(() => { if(initialSessionId)void open(initialSessionId); },[initialSessionId]);
+  const remove = async (id:string) => {setBusy(true);try{await deleteSession(id);onDelete(id);setConfirmation(null);if(selected?.id===id)backToList();setRefresh(v=>v+1);focusList();}catch(e){setError(message(e));}finally{setBusy(false);}};
+  const renameSession = async(id:string) => {if(!title.trim())return;setBusy(true);try{const updated=await saveSession({id,title:title.trim()});if(selected?.id===id)setSelected(updated);setRename(null);setRefresh(v=>v+1);focusSession(id);}catch(e){setError(message(e));}finally{setBusy(false);}};
   const matching=sessions.filter(item=>(kind==='all'||item.kind===kind)&&`${item.title} ${date(item.createdAt)} ${item.kind} ${item.repCount} reps`.toLowerCase().includes(search.toLowerCase()));
-  return <section className="history" aria-label="Session history"><div className="toolbar"><h1>Saved sessions.</h1><button onClick={onBack}>Back to recording</button></div><p>{privacy}</p>
+  return <section className="history" aria-label="Session history"><div className="toolbar"><h1 ref={listHeading} tabIndex={-1}>Saved sessions.</h1><button onClick={onBack}>Back to recording</button></div><p>{privacy}</p>
     <p className="fine">Local storage is not a cloud backup. Private browsing and browser storage limits can prevent saving or remove data.</p>
     {storage && <p className="fine">{storage.available ? `This app uses ${bytes(storage.appBytes)} of its ${bytes(storage.maxAppBytes)} local limit. ${storage.persisted ? 'Browser persistence is enabled.' : 'Browser storage may be cleared under storage pressure.'}` : `Storage unavailable: ${storage.error?.message ?? 'This browser cannot save sessions.'}`}</p>}
-    {error && <div role="alert" className="error">{error} <button onClick={()=>setRefresh(v=>v+1)}>Retry history</button></div>}
+    {error && <div role="alert" className="error">{error} <button onClick={()=>{setRefresh(v=>v+1);if(requestedSession.current)void open(requestedSession.current);}}>Retry history</button></div>}
     <div className="toolbar"><label>Search sessions <input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Title, date or reps" /></label><label>Session type <select value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All sessions</option><option value="recorded">Recorded</option><option value="live">Live</option></select></label></div>
     {busy&&<p role="status">Loading saved sessions…</p>}{!busy&&!matching.length&&!error&&<p>No saved sessions match. Start a squat with “Save on this device” enabled.</p>}
-    <ul className="history-list">{matching.map(item=><li key={item.id} className="history-card"><h2>{item.title}</h2><p className="fine">{date(item.createdAt)} · {item.kind==='live'?'Live':'Recorded'} · {item.repCount} reps · {item.hasVideo?bytes(item.videoBytes):'No saved video'}{item.durationMs != null ? ` · ${(item.durationMs/1000).toFixed(1)}s video` : ''}{item.model ? ` · ${item.model.replace('mediapipe-pose-landmarker-','MediaPipe ')}` : ''}{item.hasCoaching?' · AI notes saved':''}</p><div className="toolbar"><button disabled={busy} onClick={()=>void open(item.id)}>Open {item.title}</button><button disabled={busy} onClick={()=>{setRename(item.id);setTitle(item.title);}}>Rename</button><button disabled={busy} onClick={()=>setConfirmation(item.id)}>Delete</button></div>
-      {rename===item.id&&<form className="toolbar" onSubmit={e=>{e.preventDefault();void renameSession(item.id);}}><label>Session title <input value={title} onChange={e=>setTitle(e.target.value)} maxLength={120} required /></label><button disabled={busy} type="submit">Save title</button><button type="button" onClick={()=>setRename(null)}>Cancel rename</button></form>}
-      {confirmation===item.id&&<div role="group" aria-label="Confirm session deletion"><p>Delete “{item.title}” and its video, measurements and saved notes from this browser?</p><button disabled={busy} onClick={()=>void remove(item.id)}>Delete this session</button> <button onClick={()=>setConfirmation(null)}>Keep session</button></div>}
-    </li>)}</ul>{selected&&<LiveReplay key={selected.id} session={selected}/>}</section>;
+    <ul className="history-list">{matching.map(item=><li key={item.id} className="history-card"><h2>{item.title}</h2><p className="fine">{date(item.createdAt)} · {item.kind==='live'?'Live':'Recorded'} · {item.repCount} reps · {item.hasVideo?bytes(item.videoBytes):'No saved video'}{item.durationMs != null ? ` · ${(item.durationMs/1000).toFixed(1)}s video` : ''}{item.model ? ` · ${item.model.replace('mediapipe-pose-landmarker-','MediaPipe ')}` : ''}{item.hasCoaching?' · AI notes saved':''}</p><div className="toolbar"><button ref={node=>{if(node)openButtons.current.set(item.id,node);else openButtons.current.delete(item.id);}} disabled={busy} onClick={()=>void open(item.id)}>Open {item.title}</button><button disabled={busy} onClick={()=>{setRename(item.id);setTitle(item.title);}}>Rename</button><button disabled={busy} onClick={()=>setConfirmation(item.id)}>Delete</button></div>
+      {rename===item.id&&<form className="toolbar" onSubmit={e=>{e.preventDefault();void renameSession(item.id);}}><label>Session title <input ref={renameInput} value={title} onChange={e=>setTitle(e.target.value)} maxLength={120} required /></label><button disabled={busy} type="submit">Save title</button><button type="button" onClick={()=>{setRename(null);focusSession(item.id);}}>Cancel rename</button></form>}
+      {confirmation===item.id&&<div role="group" aria-label="Confirm session deletion"><p>Delete “{item.title}” and its video, measurements and saved notes from this browser?</p><button disabled={busy} onClick={()=>void remove(item.id)}>Delete this session</button> <button autoFocus onClick={()=>{setConfirmation(null);focusSession(item.id);}}>Keep session</button></div>}
+    </li>)}</ul>{selected&&<LiveReplay key={selected.id} session={selected} focusRequest={detailFocus} onReturnToList={backToList}/>}</section>;
 }

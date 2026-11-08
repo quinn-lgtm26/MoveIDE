@@ -62,6 +62,7 @@ export function App() {
   const sampleRequest = useRef<AbortController | null>(null);
   const sessionRequest = useRef<AbortController | null>(null);
   const playbackGeneration = useRef(0);
+  const focusSavedReplay = useRef(false);
 
   const clearOverlay = () => {
     const c = canvas.current;
@@ -205,6 +206,7 @@ export function App() {
     if (!saved.report || !saved.video) return;
     stop(); invalidateSession(); setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null);
     const src = URL.createObjectURL(saved.video);
+    focusSavedReplay.current = true;
     bindReportSource(saved.report, src); // getSession verified the persisted original video's SHA before this association.
     setClip({ name: String(saved.metadata?.videoName ?? saved.title), src, blob: saved.video });
     setReport(saved.report); setActive(false); setStatus('ready'); setError(null); setSavedSession(saved); setSaveStatus('Saved session · replay only');
@@ -221,6 +223,13 @@ export function App() {
     window.addEventListener('hashchange', route); window.addEventListener('popstate', route);
     return () => { window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route); };
   }, []);
+
+  useEffect(() => {
+    if (!historyMode && clip && report && focusSavedReplay.current && video.current) {
+      focusSavedReplay.current = false;
+      video.current.focus(); video.current.scrollIntoView({block: 'start'});
+    }
+  }, [historyMode, clip, report]);
 
   // Overlay: one clock (the video's mediaTime). Redraw on every presented frame, on seek, and on resize.
   useEffect(() => {
@@ -354,7 +363,7 @@ export function App() {
       <div className="workbench">
         <div className="stage">
           {clip && (
-            <video ref={video} key={clip.src} src={clip.src} controls playsInline muted onError={onDecodeError} />
+            <video ref={video} key={clip.src} src={clip.src} aria-label={`Squat replay: ${clip.name}`} controls playsInline muted onError={onDecodeError} />
           )}
           {!clip && <p className="empty">Try the sample squat, or upload a side-on video of yours.</p>}
           <canvas ref={canvas} aria-hidden />
@@ -399,7 +408,7 @@ export function App() {
                   {here.repId ? repName(here.repId) : 'Between reps'}{here.phase && ` · ${({ descent: 'going down', bottom: 'bottom', ascent: 'coming up' })[here.phase]}`} · {sec(here.timestampMs)}<br />
                   Knee bend {deg(here.kneeFlexionDeg)} · Hip hinge {deg(here.hipFlexionDeg)} · Chest angle {deg(here.torsoLeanDeg)}
                 </>
-              ) : 'We couldn’t see you clearly in this frame.'}
+              ) : 'No reliable measurement for this moment.'}
             </p>
 
             <Trace trace={trace} reps={report.reps} playheadMs={sampleMs} onSeek={seek} />

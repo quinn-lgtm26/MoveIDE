@@ -35,9 +35,16 @@ const milestones = [
   {
     "id": "05",
     "title": "Integrate and verify the final build",
-    "owner": "Integration + final QA · open",
+    "owner": "Local integration verified · Seldon in progress",
     "work": "Finish final design/accessibility and physical iPhone acceptance. Two-source local comparison is implemented. The experimental continuity guard, per-metric validity and sparse phase evidence are integrated; camera-orbit accuracy is still unverified.",
-    "proof": "99 harness and6 launcher tests pass on65fc875. Fresh9446951 setup-only installs locked dependencies and pinned models; TypeScript/Vite build and dist hashes pass. Physical iPhone, independent accuracy and both final Wren workflows remain."
+    "proof": "109 harness and8 launcher/doctor tests pass (117 total). Fresh efe97bd setup/build and pinned asset hashes pass. Current root preview passes15 controlled-provider checks; history passes22 journeys and6 lifecycle cases. Final Seldon runs are in progress; physical iPhone and independent accuracy remain."
+  },
+  {
+    "id": "06",
+    "title": "Keep recordings and review past sessions",
+    "owner": "Local history · implemented and browser-verified",
+    "work": "User chose local-only storage. Recorded originals, immutable reports and accepted coaching persist in IndexedDB. Live Stop saves a bounded recording, metrics, notes and exact evidence JPEGs. History supports search, rename, replay, downloads and explicit deletion.",
+    "proof": "Post-merge local checks pass22 root/history journeys,6 lifecycle/recovery cases and10 storage groups, with real Chrome recording playback and failure downloads. Evidence covers efe97bd plus recorded worktree changes; no physical iPhone or cloud-sync claim."
   }
 ];
 
@@ -76,13 +83,20 @@ const system = [
     "title": "Experimental view and 3D diagnostics",
     "stack": "createViewGuard · analyzeMultiViewFrame · explicit reason/epoch/provenance",
     "body": "Integrated live samples expose independent full-body display, analysis eligibility, per-metric reasons and experimental multiview/view epochs. Adaptive resolution reacquires without killing the session. Completed-rep AI retains its original view/time; current baselines reset. No arbitrary-angle accuracy is claimed."
+  },
+  {
+    "title": "Local history and recordings",
+    "stack": "IndexedDB · SHA-256 source identity · MediaRecorder · browser/profile/origin storage",
+    "body": "Atomic session/media writes; unchanged originals/reports remain immutable. Reopen validates data and never requests inference. Live recordings have approximate timing and bounded metrics/evidence; saved JPEGs retain exact original sample timestamps. No account sync; exports are the portable backup."
   }
 ];
 
 const checks = [
+  ["Full product remaining gates", "Final Seldon core-workflow verdicts and reruns; actual iPhone/Mac venue capture, codec, orientation, background/lock, reconnect and recording replay; keyboard/focus/contrast/text zoom/reduced motion; independent per-view/orbit angle, identity and false-cue references. Cloud sync and unsaved crash recovery are outside the chosen local demo."],
+  ["Local history acceptance", "qa/history-root.json passes22 journeys; qa/history-races.json passes6 lifecycle and storage-management recovery checks; storage browser verification passes10 groups. Live finalized video/JSON/JPEG failure recovery is available. Recorded replay makes no new inference; live video alignment is explicitly approximate."],
   [
     "Geometry and missing data",
-    "Latest npm test passed99 harness tests and6 launcher tests, with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
+    "Latest npm test passed109 harness tests and8 launcher/doctor tests (117 total), with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -106,7 +120,7 @@ const checks = [
   ],
   [
     "JPEG and browser acceptance",
-    "Current Heavy packets use source JPEGs at 1,067/3,000 ms for clear-squat and 1,600/4,333 ms for supported-squat. Browser verification checks source pixels, source binding, the synchronized overlay, sample stepping and clipboard with no third-party requests. Final production browser QA is still pending."
+    "Current Heavy packets use source JPEGs at 1,067/3,000 ms for clear-squat and 1,600/4,333 ms for supported-squat. Browser verification checks source pixels, source binding, the synchronized overlay, sample stepping and clipboard with no third-party requests. The current prebuilt root preview passes15 controlled-provider checks; final Seldon product verdicts remain pending."
   ],
   [
     "OpenCap importer verification",
@@ -122,7 +136,7 @@ const checks = [
   ],
   [
     "Final hosted acceptance",
-    "Both historical harness-only Seldon cases passed on 2a6511f in experiment 9c9dabb7-9f02-4925-88e2-56eb9172b505. Harness debit was two, leaving a last-confirmed14. The merged frontend ledger records another run with debit pending; expected remaining13. The two final product cases still require one reachable integrated build, and all remaining simulations are held until it is complete."
+    "Both historical harness-only Seldon cases passed on2a6511f. Current account reconciliation shows16 granted,2 used,14 remaining; a separate frontend-key run is tracked independently. The user now authorized full product QA. Three task cases are being prepared/run (two core workflows and live setup/navigation without camera); final verdicts are pending. Persona/usability access is unavailable on this plan."
   ],
   [
     "Live browser evidence",
@@ -154,7 +168,7 @@ const checks = [
   ],
   [
     "Fresh checkout setup",
-    "Clean9446951 checkout passes npm run demo -- --setup-only with automatic locked root/harness installs, pinned Full/Heavy hashes and all4 runtime files. CI=1 npm run build passes TypeScript/Vite; dist copies match. No services, demo ports or provider calls started. Phone sender needs no model installation."
+    "Fresh efe97bd starts without dependencies, pose assets or dist. Setup installs both locked trees and verifies Full/Heavy plus four runtime files; TypeScript/Vite build and final read-only doctor pass. Existing demo ports are untouched; their health result is not a runtime test of this fresh build. Phone sender needs no model installation."
   ]
 ];
 
@@ -185,7 +199,7 @@ const handoff = [
   ],
   [
     "Launch and final acceptance",
-    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Resolve physical-device gates, run the complete final suite, reconcile the expected 13 remaining Wren simulations, and run both stable cases on one final build. Native OpenCap and broad movement expansion remain deferred."
+    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Local117-test suite passes; final Seldon product runs are in progress with14 reconciled simulations remaining before dispatch. Keep physical-device gates explicit. Native OpenCap and broad movement expansion remain deferred."
   ]
 ];
 
@@ -299,8 +313,8 @@ const stories = [
   ],
   [
     "LIVE-7–9 · Demo and acceptance",
-    "Product amendment published · final QA pending",
-    "Compare two attributed reliable clips against a disclosed target; capture failure is not bad posture. Finish one-action demo and rerun two final Wren workflows on the same build."
+    "Demo implemented · final Seldon in progress",
+    "Two distinct example videos and the one-action demo are implemented. Final Seldon task workflows are in progress; physical-device rehearsal and independent accuracy remain open."
   ],
   [
     "UX-1–3 · Stable feed, setup and highlights",
@@ -326,6 +340,16 @@ const stories = [
     "R-2 · Independent accuracy",
     "Reference data missing",
     "Measure error, coverage, latency, repeatability and false cues per view/metric using independent annotations/calibrated truth. Timing and same-model cross-runtime agreement are not angle accuracy."
+  ],
+  [
+    "HIST-1–5 · Local recordings and history",
+    "Implemented · scoped local acceptance passed",
+    "22 history journeys,6 save/source/recovery races and10 storage groups pass. Live recording/replay and unsaved downloads pass in Chrome. Source/video clocks remain distinct; local-only history does not imply physical iPhone or crash recovery."
+  ],
+  [
+    "DEV-1 · Setup and AI handoff",
+    "Fresh setup, build and doctor verified",
+    "README, Claude/Codex prompts, developer test matrix and read-only doctor delivered. Fresh efe97bd missing-dependency/model setup, pinned hashes and production build pass; no camera/account/runtime acceptance is inferred."
   ]
 ];
 
@@ -352,7 +376,7 @@ export default function MoveIDEDevelopmentWorkflow() {
     <header>
       <p style={eyebrow}>MoveIDE engineering · November 7, 2026</p>
       <h1 style={{ margin: "5px 0 6px", fontSize: 24, lineHeight: 1.25, fontWeight: 650 }}>From squat video to coaching evidence</h1>
-      <p style={{ ...body, maxWidth: 680 }}>Recorded root Heavy and real one-Start AI pass. Latest9446951 root passes15 production checks and a visible real Heavy/GPT demo; earlier seven-check provider evidence remains recorded; the latest suite passes 99 harness and 6 launcher tests. Integrated live view/phase recovery and 7 responsive-layout checks pass. Fresh checkout setup/build and public real-provider return pass; physical iPhone and independent orbit accuracy remain. Two-video local comparison is implemented. Native OpenCap stays deferred.</p>
+      <p style={{ ...body, maxWidth: 680 }}>Local history and onboarding are verified:117 automated tests,22 history journeys,6 lifecycle cases and15 root preview checks. Fresh efe97bd setup/build passes; later worktree changes keep their own evidence scope. Recorded/live coaching and two-video comparison are implemented. Seldon final-product QA is in progress, not qualified yet. Physical iPhone, broad accessibility and independent angle/orbit accuracy remain; native OpenCap stays deferred.</p>
     </header>
 
     <Sources links={[["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />
@@ -403,7 +427,7 @@ export default function MoveIDEDevelopmentWorkflow() {
         <p style={body}>The separate Heavy profile adds 734 / 666 ms descent and ascent for rep 1 and 733 / 600 ms for rep 2. It also exposes projected hip flexion, shin inclination, ankle-closure change and normalized depth proxies. No independent joint-angle accuracy estimate is available.</p>
       </article>}
       {entries.map(([title, description], index) => <article key={title} style={{ padding: "11px 0 13px", borderBottom: index < entries.length - 1 ? line : undefined }}><h2 style={heading}>{title}</h2><p style={body}>{description}</p></article>)}
-      <Sources links={tab === "Verification" ? [["Original sample labels", `${project}/fixtures/squat/sample-squat.labels.json`], ["Supported sample labels", `${project}/fixtures/squat/supported-squat.labels.json`], ["Clearer sample labels", `${project}/fixtures/squat/clear-squat.labels.json`], ["Clearer sample report", `${project}/harness/results/clear-squat.analysis-report.v1.json`], ["Clearer sample trace", `${project}/harness/results/clear-squat.motion-trace.v1.json`], ["Clearer sample profile", `${project}/harness/results/clear-squat.squat-profile.v1.json`], ["Historical Full replay screenshot", `${project}/docs/moveide-full-replay.png`], ["Supported regression report", `${project}/harness/results/supported-squat.analysis-report.v1.json`], ["Live ChatGPT verification", `${project}/harness/results/live-chatgpt-verification.json`], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Root product readiness result", `${project}/qa/product-readiness.json`], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Seven-fixture results", `${project}/harness/results/fixture-verification.json`], ["Decoder matrix", `${project}/harness/results/decoder-matrix.json`], ["Heavy Python agreement", `${project}/harness/results/heavy-python-agreement.json`], ["Archived Full baseline", `${project}/harness/results/full-baseline/README.md`], ["Raw pose API", `${project}/harness/motion/analyze.d.mts`], ["OpenCap import contract", `${project}/harness/opencap/README.md`], ["OpenCap host preflight", `${project}/harness/opencap/preflight-result.json`], ["Python agreement check", `${project}/harness/verify/python-agreement.py`], ["Google MediaPipe Python guide", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Python"], ["Seldon product baseline", `${project}/seldon.yml`], ["Seldon harness baseline", `${project}/qa/seldon-harness.yml`], ["Simulation ledger", `${project}/qa/seldon-ledger.md`], ["Hosted harness experiment", "https://app.seldon.com/experiments/9c9dabb7-9f02-4925-88e2-56eb9172b505"]] : tab === "Squat methodology" ? [["BMAD measurement and playback methodology", `${project}/_bmad-output/specs/spec-moveide-harness/squat-methodology.md`], ["Squat depth experiment", "https://pmc.ncbi.nlm.nih.gov/articles/PMC4064719/"], ["Squat stance experiment", "https://doi.org/10.1186/s13102-018-0103-7"], ["Google Pose Landmarker", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Web"], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Video frame callback", "https://wicg.github.io/video-rvfc/"], ["OpenCap Monocular preprint", "https://arxiv.org/html/2603.24733v1"], ["OpenCap source revision", "https://github.com/utahmobl/opencap-monocular/commit/7c5c1dd459835e2482127e55dc45e98d68a1a9f2"], ["OpenCap Monocular repository license", "https://github.com/utahmobl/opencap-monocular/blob/7c5c1dd459835e2482127e55dc45e98d68a1a9f2/LICENSE"]] : [["Frontend scaffold PR #1", "https://github.com/quinn-lgtm26/MoveIDE/pull/1"], ["Merged harness PR #2", "https://github.com/quinn-lgtm26/MoveIDE/pull/2"], ["FE-1 and FE-2 PR #3", "https://github.com/quinn-lgtm26/MoveIDE/pull/3"], ["Merged replay handoff PR #5", "https://github.com/quinn-lgtm26/MoveIDE/pull/5"], ["Merged Heavy and OpenCap harness PR #11", "https://github.com/quinn-lgtm26/MoveIDE/pull/11"], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Shared contract", `${project}/_bmad-output/specs/shared/analysis-report-v1.md`], ["Motion module", `${project}/harness/motion/analyze.mjs`], ["Coaching module", `${project}/harness/coaching/index.mjs`], ["Clearer sample coaching packet", `${project}/harness/results/clear-squat.coach-packet.v1.json`], ["Synthetic report", `${project}/_bmad-output/specs/shared/analysis-report-v1.example.json`], ["Frontend amendments", "https://github.com/quinn-lgtm26/MoveIDE/blob/main/harness/FRONTEND-HANDOFF.md"], ["Workbench implementation notes", `${project}/_bmad-output/specs/spec-moveide-frontend/workbench.md`]]} />
+      <Sources links={tab === "Verification" ? [["Latest local checkpoint", `${project}/qa/latest-local-checkpoint.json`], ["History acceptance", `${project}/qa/history-root.json`], ["Save/source races", `${project}/qa/history-races.json`], ["Fresh history setup", `${project}/qa/fresh-setup-history.json`], ["Original sample labels", `${project}/fixtures/squat/sample-squat.labels.json`], ["Supported sample labels", `${project}/fixtures/squat/supported-squat.labels.json`], ["Clearer sample labels", `${project}/fixtures/squat/clear-squat.labels.json`], ["Clearer sample report", `${project}/harness/results/clear-squat.analysis-report.v1.json`], ["Clearer sample trace", `${project}/harness/results/clear-squat.motion-trace.v1.json`], ["Clearer sample profile", `${project}/harness/results/clear-squat.squat-profile.v1.json`], ["Historical Full replay screenshot", `${project}/docs/moveide-full-replay.png`], ["Supported regression report", `${project}/harness/results/supported-squat.analysis-report.v1.json`], ["Live ChatGPT verification", `${project}/harness/results/live-chatgpt-verification.json`], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Root product readiness result", `${project}/qa/product-readiness.json`], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Seven-fixture results", `${project}/harness/results/fixture-verification.json`], ["Decoder matrix", `${project}/harness/results/decoder-matrix.json`], ["Heavy Python agreement", `${project}/harness/results/heavy-python-agreement.json`], ["Archived Full baseline", `${project}/harness/results/full-baseline/README.md`], ["Raw pose API", `${project}/harness/motion/analyze.d.mts`], ["OpenCap import contract", `${project}/harness/opencap/README.md`], ["OpenCap host preflight", `${project}/harness/opencap/preflight-result.json`], ["Python agreement check", `${project}/harness/verify/python-agreement.py`], ["Google MediaPipe Python guide", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Python"], ["Seldon product baseline", `${project}/seldon.yml`], ["Seldon harness baseline", `${project}/qa/seldon-harness.yml`], ["Simulation ledger", `${project}/qa/seldon-ledger.md`], ["Hosted harness experiment", "https://app.seldon.com/experiments/9c9dabb7-9f02-4925-88e2-56eb9172b505"]] : tab === "Squat methodology" ? [["BMAD measurement and playback methodology", `${project}/_bmad-output/specs/spec-moveide-harness/squat-methodology.md`], ["Squat depth experiment", "https://pmc.ncbi.nlm.nih.gov/articles/PMC4064719/"], ["Squat stance experiment", "https://doi.org/10.1186/s13102-018-0103-7"], ["Google Pose Landmarker", "https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker?tab=Web"], ["Full and Heavy browser benchmark", `${project}/harness/results/pose-model-benchmark.json`], ["Video frame callback", "https://wicg.github.io/video-rvfc/"], ["OpenCap Monocular preprint", "https://arxiv.org/html/2603.24733v1"], ["OpenCap source revision", "https://github.com/utahmobl/opencap-monocular/commit/7c5c1dd459835e2482127e55dc45e98d68a1a9f2"], ["OpenCap Monocular repository license", "https://github.com/utahmobl/opencap-monocular/blob/7c5c1dd459835e2482127e55dc45e98d68a1a9f2/LICENSE"]] : [["Frontend scaffold PR #1", "https://github.com/quinn-lgtm26/MoveIDE/pull/1"], ["Merged harness PR #2", "https://github.com/quinn-lgtm26/MoveIDE/pull/2"], ["FE-1 and FE-2 PR #3", "https://github.com/quinn-lgtm26/MoveIDE/pull/3"], ["Merged replay handoff PR #5", "https://github.com/quinn-lgtm26/MoveIDE/pull/5"], ["Merged Heavy and OpenCap harness PR #11", "https://github.com/quinn-lgtm26/MoveIDE/pull/11"], ["Product readiness gate PR #12", "https://github.com/quinn-lgtm26/MoveIDE/pull/12"], ["Shared contract", `${project}/_bmad-output/specs/shared/analysis-report-v1.md`], ["Motion module", `${project}/harness/motion/analyze.mjs`], ["Coaching module", `${project}/harness/coaching/index.mjs`], ["Clearer sample coaching packet", `${project}/harness/results/clear-squat.coach-packet.v1.json`], ["Synthetic report", `${project}/_bmad-output/specs/shared/analysis-report-v1.example.json`], ["Frontend amendments", "https://github.com/quinn-lgtm26/MoveIDE/blob/main/harness/FRONTEND-HANDOFF.md"], ["Workbench implementation notes", `${project}/_bmad-output/specs/spec-moveide-frontend/workbench.md`]]} />
     </section>}
   </main>;
 }
