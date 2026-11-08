@@ -34,6 +34,16 @@ test('an oversized encoder chunk never creates a blob beyond the hard cap', asyn
   assert.match(result.recording.error, /storage limit/);
 });
 
+test('an encoder error after captured chunks withholds incomplete replay bytes', async () => {
+  const recorder = createLiveRecorder({}, { Recorder });
+  Recorder.last.emit(50); Recorder.last.onerror();
+  const result = await recorder.stop();
+  assert.equal(result.videoBlob, null);
+  assert.equal(result.recording.bytes, 0);
+  assert.equal(result.recording.stopReason, 'encoder-error');
+  assert.match(result.recording.error, /recording failed/);
+});
+
 test('duration limit preserves a bounded prefix and unsupported codecs preserve metadata fallback', async () => {
   const statuses = [];
   const recorder = createLiveRecorder({}, { Recorder, maxDurationMs: 10, onStatus: status => statuses.push(status) });

@@ -46,3 +46,14 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 - Persona catalog access returned **Your plan does not include usability**. No paid persona experiment was created or dispatched. Current review uses Wren task QA plus local accessibility/lifecycle checks.
 - Planned first dispatch: three cases, expected debit **3**, expected remaining **11**. Reserve at least four for final two-core-workflow coverage and rerun. Static public-fixture build, disconnected provider, no personal recordings or private phone invites.
 - Dispatch/build/report IDs will be appended after public-build preflight. This entry alone does not claim a run occurred.
+
+
+### 2026-11-07 · Integrated product QA · 2ad37f8
+
+- Build: `2ad37f8659bbb9b3b8bbea0d2b10e736440491a4`; immutable staging manifest `bd942dadd406ce0f99f1606256a429c4536e7ab783a2388b4626f9e3bda06192`. [Build manifest](wren-build.json).
+- Target: public fixture-only HTTPS staging. [Exact public preflight](wren-public-preflight.json) passes nine checks: private-route isolation, real Heavy sample, overlay, saved rename/reload/replay/download, independent comparison, responsive layout, live setup and History navigation. Initial preflight was interrupted by a staging copy; the frozen-copy retry passed before dispatch.
+- Cases: `measure-squat`, `compare-and-handoff`, `live-setup-and-navigation`. Three expected simulations. This is current product QA; final polish will be rerun separately.
+- Seldon MCP `run_seldon` dispatched experiment **`8c85e97b-ddb4-4e3a-bf78-4171930de874`**. [Report](https://app.seldon.com/experiments/8c85e97b-ddb4-4e3a-bf78-4171930de874).
+- Terminal report: **3/3 PASS**, zero failures/blocked/timeouts. Recorded/history272.980s; comparison500.467s; live setup102.014s. get_summary confirms allthree journeys and honest disconnected/empty states. Wren could not resize or test physicalcamera; local responsive/device-simulation evidence remains separate.
+- Finding: repeated native rep-menu mouse clicks failed in Wren; keyboard eventually worked. Replaced the dropdowns with visible pressed-state Rep1/Rep2 buttons;22 localcomparison checks pass including independent click/keyboard selection. Minor summary suggestions also cover saving-warning placement, coaching wording and overlapping video-jump affordances. Stop-before-closing guidance now appears beside Start; other alternate seek controls retain distinct phase/metric purposes.
+- Actual debit: **3 simulations**. Official balance after completion:16granted,5used,0pending,11remaining. This is a passed checkpoint, not the laterpolish finalrerun.

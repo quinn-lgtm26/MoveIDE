@@ -1,9 +1,10 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:06:09.381Z",
-  "revision": "0eff9f74b3d04d2329790db95e9d263fe587cc7c",
+  "verifiedAtUtc": "2026-11-08T00:38:13.875Z",
+  "revision": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
   "surface": "Isolated Vite development source on4189; real local MediaPipe Heavy, disconnected provider stub",
   "sourceChanges": [
-    "M src/App.tsx",
+    "M index.html",
+    " M src/App.tsx",
     " M src/CompareRecordings.tsx"
   ],
   "checks": {
@@ -16,6 +17,7 @@
     "correspondingPhaseNavigation": true,
     "repASelectionKeepsB": true,
     "independentSecondBottoms": true,
+    "visibleRepButtonsExposeStateAndKeyboardSelection": true,
     "phaseNavigationUsesSelectedReps": true,
     "overlaysDrawn": true,
     "mobileExpandedNoOverflow": true,
@@ -139,6 +141,36 @@
     },
     {
       "anchorMs": [
+        3000,
+        1600
+      ],
+      "requestedVideoClockMs": [
+        3000,
+        1600
+      ],
+      "displayedDecodedClockMs": [
+        3000,
+        1600
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
+        3000,
+        4333
+      ],
+      "requestedVideoClockMs": [
+        3000,
+        4333
+      ],
+      "displayedDecodedClockMs": [
+        3000,
+        4267
+      ],
+      "toleranceMs": 67
+    },
+    {
+      "anchorMs": [
         2267,
         3400
       ],
@@ -193,12 +225,12 @@
         {
           "left": 16,
           "right": 359,
-          "top": -84.71875
+          "top": 14.78125
         },
         {
           "left": 16,
           "right": 359,
-          "top": 412.875
+          "top": 545.375
         }
       ]
     },
@@ -209,12 +241,12 @@
         {
           "left": 16,
           "right": 374,
-          "top": -84.71875
+          "top": 14.78125
         },
         {
           "left": 16,
           "right": 374,
-          "top": 412.875
+          "top": 545.375
         }
       ]
     }

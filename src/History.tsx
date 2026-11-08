@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import './index.css';
 import { deleteSession, exportSessionData, getSession, listSessions, saveSession, storageStatus } from '../harness/history/index.mjs';
 export type SavedSession = NonNullable<Awaited<ReturnType<typeof getSession>>>;
 const privacy = 'Saved only in this browser on this computer and this app address. Phone sessions are stored on the receiving computer. Clearing site data removes history; downloads are your backup.';
@@ -34,27 +35,68 @@ function SavedEvidence({images}:{images:SavedSession['evidenceImages']}) {
   if(!images.length)return null;
   return <details><summary>Original evidence ({images.length} images)</summary><div className="frames">{urls.map(({image,url})=><figure key={url}><img className="thumb" src={url} alt={`${image.phase} evidence at original analysis time ${image.timestampMs} ms, view ${image.viewEpoch+1}`} /><figcaption>{image.phase} · analysis {image.timestampMs} ms · view {image.viewEpoch+1}</figcaption><button onClick={()=>download(image.blob,`evidence-${image.timestampMs}ms.jpg`)}>Download evidence {image.timestampMs} ms</button></figure>)}</div><p className="fine">These are the retained source JPEGs. Their analysis timestamps are not claimed to align exactly with the saved recording clock.</p></details>;
 }
+const replayTime = (seconds: number) => `${Math.floor(Math.max(0,seconds)/60)}:${Math.floor(Math.max(0,seconds)%60).toString().padStart(2,'0')}`;
+type SavedPoint = {[key:string]: import('../harness/history/index.mjs').JsonValue};
+const isSavedPoint = (item: import('../harness/history/index.mjs').JsonValue): item is SavedPoint => !!item && typeof item==='object' && !Array.isArray(item);
 function LiveReplay({ session, focusRequest, onReturnToList }: { session: SavedSession; focusRequest: number; onReturnToList: () => void }) {
-  const heading = useRef<HTMLHeadingElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null), video = useRef<HTMLVideoElement>(null);
   useEffect(() => { heading.current?.focus(); heading.current?.scrollIntoView({block: 'start'}); }, [focusRequest]);
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => { if (!session.video) { setUrl(null); return; } const own = URL.createObjectURL(session.video); setUrl(own); return () => URL.revokeObjectURL(own); }, [session.video]);
   const live = session.live;
-  const notes = (live?.notes ?? []).filter((item): item is {[key:string]: import('../harness/history/index.mjs').JsonValue} => !!item && typeof item==='object' && !Array.isArray(item));
-  const samples = (live?.samples ?? []).filter((item): item is {[key:string]: import('../harness/history/index.mjs').JsonValue} => !!item && typeof item==='object' && !Array.isArray(item));
-  const [seconds, setSeconds] = useState(0);
+  const notes = (live?.notes ?? []).filter(isSavedPoint);
+  const samples = (live?.samples ?? []).filter(isSavedPoint);
+  const [seconds, setSeconds] = useState(0), [rate,setRate] = useState(1);
   const [decodeError, setDecodeError] = useState(false);
-  return <section className="saved-live" aria-label="Saved live session"><div className="toolbar"><h2 ref={heading} tabIndex={-1}>{session.title}</h2><button onClick={onReturnToList}>Back to saved sessions</button></div><p className="fine">{date(session.createdAt)} · Live session · {live?.reps?.length ?? 0} completed reps · {samples.length} saved samples</p>
-    {url ? <div className="stage"><video src={url} controls playsInline onError={() => setDecodeError(true)} onTimeUpdate={event => setSeconds(event.currentTarget.currentTime)} /></div> : <p>No video was saved for this session. Its measurements and notes remain available.</p>}
-    {decodeError && <p role="alert" className="error">This browser cannot play the saved recording. Download the original video to open it in a compatible player; measurements and notes remain available.</p>}
-    <p className="fine">Recording playback {seconds.toFixed(1)}s. Live analysis times below use the original session clock; recording alignment is approximate. No frame-exact overlay is applied.</p>
-    <p className="fine">{String(live?.timing?.timingNote ?? 'Recording may cover only part of the session.')}{live?.recording?.durationMs ? ` Recorded duration ${(Number(live.recording.durationMs)/1000).toFixed(1)}s.` : ''}{session.metadata?.sessionDurationMs ? ` Session duration ${(Number(session.metadata.sessionDurationMs)/1000).toFixed(1)}s.` : ''}</p>
-    <SessionDownloads session={session} />
-    {!notes.length && <SavedEvidence images={session.evidenceImages} />}
-    <h3>Saved coaching</h3>{!notes.length && <p>No AI review was accepted in this session.</p>}<ol className="coaching-feed">{notes.map((note, i) => <li key={i} className="coaching-card"><p className="coaching-stamp">{String(note.repId ?? 'Session')} · analysis {note.timestampMs == null ? 'unavailable' : Number(note.timestampMs)} ms · view {typeof note.viewEpoch === 'number' ? note.viewEpoch + 1 : 'unknown'}</p><p>{String(note.text ?? 'Saved review').slice(0,177)}{String(note.text ?? '').length>177?'…':''}</p><details><summary>Why</summary><p>{String(note.text ?? '')}</p><SavedReason result={note.result} /></details><SavedEvidence images={session.evidenceImages.filter(image => image.repKey === note.repKey && image.viewEpoch === note.viewEpoch)} /></li>)}</ol>
-    <details><summary>Saved measurements ({samples.length} samples)</summary><p className="fine">Recorded estimates and validity states, not independently calibrated joint angles.</p><div className="history-table"><table><thead><tr><th>Analysis time</th><th>View / phase</th><th>Measurements</th></tr></thead><tbody>{samples.map((sample, i) => <tr key={i}><td>{String(sample.timestampMs)} ms</td><td>{typeof sample.viewEpoch === 'number' ? sample.viewEpoch + 1 : '—'} / {String(sample.phase ?? '—')}</td><td><SavedMetrics sample={sample} /></td></tr>)}</tbody></table></div></details>
+  const [sampleIndex,setSampleIndex] = useState(0), [selectedNote,setSelectedNote] = useState<number | null>(null);
+  const [decodedDuration,setDecodedDuration] = useState<number | null>(null);
+  const declaredDuration = Number(live?.recording?.durationMs)/1000;
+  const duration = Number.isFinite(declaredDuration)&&declaredDuration>0 ? Math.min(declaredDuration,decodedDuration??Infinity) : decodedDuration;
+  const sample = samples[sampleIndex];
+  const mapping = live?.timing?.firstSampleMapping;
+  const approximateTime = (timestamp:unknown):number|null => {
+    if(typeof timestamp!=='number'||!Number.isFinite(timestamp)||!mapping||typeof mapping!=='object'||Array.isArray(mapping))return null;
+    if(typeof mapping.analysisTimestampMs!=='number'||typeof mapping.recordingElapsedMs!=='number')return null;
+    const target=(timestamp-mapping.analysisTimestampMs+mapping.recordingElapsedMs)/1000;
+    return Number.isFinite(target)&&target>=0&&duration!==null&&target<=duration ? target : null;
+  };
+  const jump = (timestamp:unknown) => { const target=approximateTime(timestamp); if(target!==null&&video.current&&!decodeError){ video.current.pause(); video.current.currentTime=target; setSeconds(target); } };
+  const inspectNote = (note:SavedPoint,index:number) => {
+    setSelectedNote(index);
+    if(typeof note.timestampMs==='number'&&samples.length){
+      const eligible=samples.map((item,i)=>({item,i})).filter(({item})=>typeof item.timestampMs==='number'&&item.viewEpoch===note.viewEpoch);
+      if(eligible.length){const nearest=eligible.reduce((a,b)=>Math.abs(Number(a.item.timestampMs)-Number(note.timestampMs))<=Math.abs(Number(b.item.timestampMs)-Number(note.timestampMs))?a:b);setSampleIndex(Math.abs(Number(nearest.item.timestampMs)-Number(note.timestampMs))<=500?nearest.i:-1);}else setSampleIndex(-1);
+    } else setSampleIndex(-1);
+    jump(note.timestampMs);
+  };
+  return <section className="saved-live replay-reveal" aria-label="Saved live session">
+    <div className="replay-heading"><div><p className="eyebrow">SAVED LIVE SESSION</p><h2 ref={heading} tabIndex={-1}>{session.title}</h2><p className="fine">{date(session.createdAt)} · {live?.reps?.length ?? 0} completed reps · {samples.length} saved samples</p></div><button onClick={onReturnToList}>Back to saved sessions</button></div>
+    <div className="replay-workspace">
+      <div className="replay-player-column">
+        {url ? <div className="stage replay-stage"><video ref={video} src={url} controls playsInline aria-label="Saved live recording" onLoadedMetadata={event=>{const value=event.currentTarget.duration;setDecodedDuration(Number.isFinite(value)?value:null);event.currentTarget.playbackRate=rate;}} onError={() => setDecodeError(true)} onTimeUpdate={event => setSeconds(event.currentTarget.currentTime)} /></div> : <div className="replay-no-video"><h3>Measurements are saved.</h3><p>No video was saved for this session. You can still inspect the notes and measurements below.</p></div>}
+        {decodeError && <p role="alert" className="error">This browser cannot play the saved recording. Download the original video to open it in a compatible player; measurements and notes remain available.</p>}
+        <div className="replay-controls"><p className="replay-clock">{replayTime(seconds)} <span>/ {duration!==null?replayTime(duration):'—'} recorded</span></p><label>Playback <select aria-label="Saved recording playback speed" value={rate} disabled={!url||decodeError} onChange={event=>{const value=Number(event.target.value);setRate(value);if(video.current)video.current.playbackRate=value;}}><option value={1}>1×</option><option value={0.5}>0.5×</option><option value={0.25}>0.25×</option></select></label></div>
+        <p className="fine replay-timing">Live analysis times use the original session clock; recording alignment is approximate. No frame-exact overlay is applied.</p>
+
+      </div>
+      <section className="replay-notes" aria-label="Saved coaching notes"><div className="replay-panel-heading"><h3>Saved coaching</h3><span className="replay-count">{notes.length} {notes.length===1?'note':'notes'}</span></div><p className="fine">Review one rep, then open Why for its explanation.</p>{!notes.length&&<p>No AI review was accepted in this session.</p>}
+        <ol className="coaching-feed">{notes.map((note,i)=><li key={i} className="coaching-card" data-selected={selectedNote===i}><p className="coaching-stamp">{String(note.repId??'Session').replace(/^rep-/,'Rep ')} · Observed at {typeof note.timestampMs==='number'?`${(note.timestampMs/1000).toFixed(1)}s`:'an unavailable time'} · View {typeof note.viewEpoch==='number'?note.viewEpoch+1:'unknown'}</p><p className="replay-note-focus">{String(note.text??'Saved review').slice(0,177)}{String(note.text??'').length>177?'…':''}</p><button className="replay-note-action" aria-pressed={selectedNote===i} onClick={()=>inspectNote(note,i)}>{approximateTime(note.timestampMs)!==null?`Review near ${replayTime(approximateTime(note.timestampMs)!)}`:'Inspect saved measurements'}</button>{approximateTime(note.timestampMs)!==null&&<span className="fine"> Approximate video time</span>}<details><summary>Why</summary><p>{String(note.text??'')}</p><SavedReason result={note.result}/></details><SavedEvidence images={session.evidenceImages.filter(image=>image.repKey===note.repKey&&image.viewEpoch===note.viewEpoch)}/></li>)}</ol>
+      </section>
+        <section className="replay-metrics" aria-label="Saved measurement inspector"><div className="replay-panel-heading"><h3>Inspect a moment</h3><span className="fine">Saved estimates</span></div>
+          {sample ? <><p className="fine">Original analysis {(Number(sample.timestampMs)/1000).toFixed(2)}s · view {typeof sample.viewEpoch==='number'?sample.viewEpoch+1:'—'} · {String(sample.phase??'—')}</p><div className="replay-metric-strip">{metricDefinitions.slice(0,3).map(([key,label,unit])=>{
+            const metrics=(sample.metrics??{}) as Record<string,unknown>, validity=(sample.metricValidity??{}) as Record<string,{status?:string;reason?:string}>;
+            const value=metrics[key], quality=validity[key];const usable=sample.analysisEligible!==false&&typeof value==='number'&&Number.isFinite(value)&&quality?.status!=='unavailable';
+            return <div key={key}><span>{label}</span><strong>{usable?`${(value as number).toFixed(1)}${unit}`:'—'}</strong>{!usable&&<small>{quality?.reason?.replaceAll('_',' ')??'Unavailable'}</small>}</div>;
+          })}</div><label className="replay-sample-slider">Saved measurement timeline<input type="range" min={0} max={Math.max(0,samples.length-1)} value={sampleIndex} disabled={samples.length<2} aria-valuetext={`Original analysis ${Number(sample.timestampMs)} milliseconds, sample ${sampleIndex+1} of ${samples.length}`} onChange={event=>{setSampleIndex(Number(event.target.value));setSelectedNote(null);}} /></label><div className="toolbar"><button disabled={sampleIndex===0} onClick={()=>{setSampleIndex(value=>value-1);setSelectedNote(null);}}>Previous moment</button><button disabled={sampleIndex>=samples.length-1} onClick={()=>{setSampleIndex(value=>value+1);setSelectedNote(null);}}>Next moment</button>{approximateTime(sample.timestampMs)!==null&&<button disabled={!url||decodeError} onClick={()=>jump(sample.timestampMs)}>Show approximate video moment</button>}</div><p className="fine">Selecting a saved measurement does not imply it matches the current video frame.</p></> : <div><p>{samples.length?'No saved measurements are close enough to this note in the same view.':'No measurement samples were stored. The saved video and notes remain available.'}</p>{samples.length>0&&<button onClick={()=>{setSampleIndex(0);setSelectedNote(null);}}>Browse saved measurements</button>}</div>}
+        </section>
+    </div>
+    <div className="replay-details"><details><summary>Recording details and downloads</summary><p className="fine">{String(live?.timing?.timingNote??'Recording may cover only part of the session.')}{live?.recording?.durationMs?` Recorded duration ${(Number(live.recording.durationMs)/1000).toFixed(1)}s.`:''}{session.metadata?.sessionDurationMs?` Session duration ${(Number(session.metadata.sessionDurationMs)/1000).toFixed(1)}s.`:''}</p><SessionDownloads session={session}/></details>
+      {!notes.length&&<SavedEvidence images={session.evidenceImages}/>}
+      <details><summary>Saved measurements ({samples.length} samples)</summary><p className="fine">Recorded estimates and validity states, not independently calibrated joint angles.</p><div className="history-table"><table><thead><tr><th>Analysis time</th><th>View / phase</th><th>Measurements</th></tr></thead><tbody>{samples.map((point,i)=><tr key={i}><td><button onClick={()=>{setSampleIndex(i);setSelectedNote(null);}} aria-label={`Inspect saved sample at ${String(point.timestampMs)} ms`}>{String(point.timestampMs)} ms</button></td><td>{typeof point.viewEpoch==='number'?point.viewEpoch+1:'—'} / {String(point.phase??'—')}</td><td><SavedMetrics sample={point}/></td></tr>)}</tbody></table></div></details>
+    </div>
   </section>;
 }
+
 export function History({ initialSessionId, onOpenRecorded, onBack, onDelete }: { initialSessionId: string | null; onOpenRecorded: (session: SavedSession) => void; onBack: () => void; onDelete: (id:string) => void }) {
   const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listSessions>>>([]);
   const [selected, setSelected] = useState<SavedSession | null>(null);
@@ -71,7 +113,7 @@ export function History({ initialSessionId, onOpenRecorded, onBack, onDelete }: 
   const openButtons = useRef(new Map<string, HTMLButtonElement>());
   const focusList = () => { requestAnimationFrame(() => { listHeading.current?.focus(); listHeading.current?.scrollIntoView({block: 'start'}); }); };
   const focusSession = (id:string) => requestAnimationFrame(() => openButtons.current.get(id)?.focus());
-  const backToList = () => { requestedSession.current=null; openGeneration.current++; setSelected(null); window.history.replaceState(null,'',`${window.location.pathname}#history`); focusList(); };
+  const backToList = () => { requestedSession.current=null; openGeneration.current++; setBusy(false); setSelected(null); window.history.replaceState(null,'',`${window.location.pathname}#history`); focusList(); };
   useEffect(() => { if(rename) { renameInput.current?.focus(); renameInput.current?.select(); } }, [rename]);
   const alive = useRef(true); useEffect(() => { alive.current=true; return()=>{alive.current=false;}; }, []);
   useEffect(() => { let disposed=false; setBusy(true); setError(null); Promise.all([listSessions(),storageStatus()]).then(([items,state])=>{if(!disposed){setSessions(items);setStorage(state);}},e=>{if(!disposed)setError(message(e));}).finally(()=>{if(!disposed)setBusy(false);}); return()=>{disposed=true;}; },[refresh]);

@@ -16,7 +16,7 @@ try {
  for(const path of ['/api/interpret','/api/models','/api/auth/start','/rooms'])assert.equal((await context.request.get(target+path)).status(),404);
  out.checks.noPrivateProviderOrPairing=true;
  await page.goto(target);await page.getByRole('button',{name:'Try a sample squat',exact:true}).click();
- await page.getByText(/Ready · sample squat/).waitFor({timeout:180000});
+ await Promise.race([page.getByText(/Ready · sample squat/).waitFor({timeout:180000}),page.getByRole('alert').first().waitFor({timeout:180000}).then(async()=>{throw Error(await page.getByRole('alert').first().innerText());})]);
  await page.getByText(/Connect ChatGPT to also get coach notes/).waitFor();
  await page.getByText('Saved on this device',{exact:true}).waitFor();out.checks.sampleAndHonestDisconnectedAI=true;
  await page.getByRole('button',{name:'Rep 1 bottom at 1.1 s',exact:true}).click();

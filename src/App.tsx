@@ -309,8 +309,8 @@ export function App() {
 
   return (
     <main>
-      <header>
-        <a className="wordmark" href="/">MOVE<span>IDE</span></a>
+      <header className="moveide-header">
+        <a className="wordmark" href="/" aria-label="MoveIDE home"><img className="moveide-mark" src="/moveide-mark.svg" width="36" height="36" alt="" aria-hidden="true" />MOVE<span>IDE</span></a>
         <nav aria-label="Session source" className="source-nav">
           <a href="/" aria-current={!historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); closeHistory(); }}>Recorded clip</a>
           <a href="/harness/live/">Live camera</a>

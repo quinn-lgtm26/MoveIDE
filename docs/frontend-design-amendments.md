@@ -155,4 +155,12 @@ Layout implementation check: [seven development-layout checks](../qa/live-layout
 
 ## Saved sessions and review
 
+### Completed-session review and polish amendment
+
+Stop preserves the completed session until a new Start: playable in-memory recording, accepted coaching cards with expandable full explanations, and clearly historical measurements. Stop releases camera/transport and clears current tracking geometry; replay is never labeled live. Changing the camera-source dropdown alone does not erase review. Missing/failed recording shows a metadata-only state. Saving off disables persistence but permits a bounded temporary recording for immediate replay; disclose that the next Start or leaving the page clears it.
+
+Saved live review places player and concise notes side by side on desktop, then player and notes before measurements on mobile. Offer slow playback, note-to-video navigation only with a supported approximate mapping, and a bounded measurement inspector. Missing, out-of-prefix or different-view associations never fabricate matching frames or metrics. Exact evidence JPEGs remain independently inspectable. Keep video dimensions stable while opening Why. Quiet transitions respect reduced motion.
+
+Use the original jointed movement mark and favicon on root, live and smoke surfaces, decorative beside the accessible MoveIDE name. It does not imply gait analysis is supported. General history chat is on hold. The tracker records verified implementation status.
+
 The user confirmed local history/recordings for this demo. Add a History navigation destination and a visible default-on save preference near Start. Retain the current one-action analysis flow; saving is automatic and a failure does not block playback. Show concise saving/saved/error states with retry and a direct Open saved session action. History provides search, meaningful date/source/duration/rep labels, rename, review, downloads and session-specific delete confirmation. Reopening uses stored data with no new inference. Live recordings and analysis clocks are explicitly approximate; show exact saved evidence images separately. See [HISTORY.md](HISTORY.md) for full behavior, data limits and acceptance.

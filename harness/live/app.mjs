@@ -12,7 +12,49 @@ const $ = id => document.getElementById(id);
 const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d');
 let controller, media, analysis, receiver, pairing, phoneFeedback, currentCoach, coachingPauseKey, latest, lastArrived = 0, animation, completed = 0;
 let capture;
+let reviewGeneration = 0, replayUrl = null;
 const unsaved = new Set();
+
+function clearStoppedReview() {
+  video.pause(); video.srcObject = null; video.removeAttribute('src'); video.controls = false;
+  video.autoplay = true; video.load();
+  if (replayUrl) URL.revokeObjectURL(replayUrl);
+  replayUrl = null; video.closest('.stage').removeAttribute('data-mode');
+  $('session-review').hidden = true; $('review-measurements').replaceChildren(); $('review-summary').textContent = '';
+}
+
+async function showStoppedReview(owned, recordedPromise, archive) {
+  const recorded = await recordedPromise;
+  if (controller || reviewGeneration !== owned.generation) return;
+  $('session-review').hidden = false;
+  $('review-summary').textContent = `${archive.reps.length} completed reps · ${archive.samples.length} retained samples. ${owned.saveEnabled ? 'Save status is shown below.' : 'Temporary review only; saving was off.'} ${recorded.videoBlob ? `${elapsed(recorded.recording.durationMs)} recorded${recorded.recording.stopReason.endsWith('limit') ? ' (beginning of session only)' : ''}.` : 'Video replay is unavailable for this session.'}`;
+  $('review-timing').textContent = 'Historical measurements use the analysis clock. Recording alignment is approximate; no live or frame-exact overlay is shown during replay.';
+  const body = $('review-measurements');
+  for (const sample of archive.samples) {
+    const row = document.createElement('tr');
+    const values = [elapsed(sample.timestampMs), `View ${sample.viewEpoch + 1} · ${PHASE[sample.phase] || sample.phase}`,
+      ...['kneeFlexionDeg', 'hipFlexionDeg', 'torsoLeanDeg', 'shinInclinationDeg', 'ankleClosureChangeDeg', 'hipDescentLegLengths', 'hipAboveKneeLegLengths'].map(key => {
+        const value = sample.metrics[key];
+        if (!sample.analysisEligible || sample.metricValidity[key]?.status === 'unavailable' || !Number.isFinite(value)) return 'Unavailable';
+        return key.endsWith('LegLengths') ? `${value.toFixed(2)} leg lengths` : degrees(value);
+      })];
+    for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
+    body.append(row);
+  }
+  $('view-status').textContent = 'Live measurements have stopped. Retained session measurements are below.';
+  $('cue').textContent = 'Your session, ready to review.';
+  $('detail').textContent = 'Replay your recording and revisit your coach notes. Start a new session when you are ready.';
+  if (!recorded.videoBlob) {
+    $('status').textContent = 'Session review · video unavailable';
+    $('detail').textContent = recorded.recording.error || 'No video was captured. Your retained measurements and coach notes remain below.';
+    return;
+  }
+  replayUrl = URL.createObjectURL(recorded.videoBlob);
+  video.autoplay = false; video.controls = true; video.src = replayUrl;
+  video.closest('.stage').dataset.mode = 'replay'; video.load();
+  $('empty').hidden = true; $('status').textContent = 'Session replay · camera off';
+  $('phase').textContent = 'Recording playback'; $('age').textContent = 'Historical session';
+}
 
 function saveCapture(owned, finalRecording) {
   const row = document.createElement('div'); row.className = 'save-result';
@@ -238,7 +280,10 @@ function stop(message = 'Session stopped', { persist = true } = {}) {
     ownedCapture.durationMs = performance.now() - ownedCapture.startClock;
     const recorded = ownedCapture.recorder.stop();
     ownedCapture.recorder = null;
-    if (persist) saveCapture(ownedCapture, recorded);
+    if (persist) {
+      void showStoppedReview(ownedCapture, recorded, ownedCapture.archive.live);
+      if (ownedCapture.saveEnabled) saveCapture(ownedCapture, recorded);
+    }
   }
   const previous = controller; controller = null; phoneFeedback = null; currentCoach = null; coachingPauseKey = null;
   const oldReceiver = receiver, oldPairing = pairing; receiver = null; pairing = null;
@@ -252,7 +297,7 @@ function stop(message = 'Session stopped', { persist = true } = {}) {
   latest = null; clearTracking(); $('view-status').textContent = 'Numbers appear once you’re side-on and steady.';
   $('source').disabled = false;
   $('save-local').disabled = false;
-  $('recording-status').textContent = ownedCapture ? (persist ? 'Recording ended. Saving status appears below.' : 'Session ended. Saving was not completed.') : 'Stop the session to save. Closing this tab may lose the current session.';
+  $('recording-status').textContent = ownedCapture ? (persist ? ownedCapture.saveEnabled ? 'Preparing replay. Saving status appears below.' : 'Preparing temporary replay. Saving was off; this review lasts until your next Start or closing this page.' : 'Session ended. Saving was not completed.') : 'Stop the session to save. Closing this tab may lose the current session.';
   $('pairing').hidden = true; $('phone-url').value = ''; $('pairing-expiry').textContent = '';
   $('pairing-qr').hidden = true; $('phone-qr').width = 0; $('phone-qr').height = 0;
   $('copy-phone').textContent = 'Copy link';
@@ -307,15 +352,15 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
       if (controller === own) stop('Camera disconnected. Start a new session.');
     }, { once: true }));
     video.srcObject = stream; await video.play(); await waitForVideo(own.signal); own.signal.throwIfAborted();
-    if ($('save-local').checked) {
-      const owned = { own, id: createSessionId(), startedAt: Date.now(), startClock: performance.now(), archive: createLiveArchive({ source }) };
+    {
+      const owned = { own, generation: reviewGeneration, saveEnabled: $('save-local').checked, id: createSessionId(), startedAt: Date.now(), startClock: performance.now(), archive: createLiveArchive({ source }) };
       capture = owned;
       owned.recorder = createLiveRecorder(stream, { onStatus(state) {
         if (capture !== owned || controller !== own) return;
-        $('recording-status').textContent = state.state === 'recording' ? 'Recording on this computer · Stop to save. Up to 5 minutes / 100 MiB.'
+        $('recording-status').textContent = state.state === 'recording' ? owned.saveEnabled ? 'Recording on this computer · Stop to save. Up to 5 minutes / 100 MiB.' : 'Temporary recording for replay · saving is off. Cleared on next Start or leaving this page. Up to 5 minutes / 100 MiB.'
           : state.error || 'Recording limit reached. Tracking continues; Stop saves the recorded prefix and session notes.';
       } });
-    } else $('recording-status').textContent = 'Saving is off. Video, measurements and notes will not be kept after this page closes.';
+    }
     $('empty').hidden = true; $('status').textContent = 'Getting the form check ready';
     $('pairing-title').textContent = 'iPhone connected.';
     $('pairing-help').textContent = 'Keep Safari in the foreground and your phone awake. Tracking and coaching start here automatically.';
@@ -355,6 +400,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
 $('start').onclick = async () => {
   if (controller) return;
   if (unsaved.size >= 2) { $('error').textContent = 'Retry saving or discard an unsaved session below before starting another.'; return; }
+  reviewGeneration++; clearStoppedReview();
   const own = new AbortController(); controller = own;
   const source = $('source').value;
   let lastFeedbackAt = -Infinity, lastFeedbackKind = null, aiRetry, pendingAi = null;
@@ -443,4 +489,4 @@ $('copy-phone').onclick = async () => {
 $('source').onchange = () => { $('phone-setup').hidden = true; $('error').textContent = ''; };
 $('stop').onclick = () => stop();
 window.addEventListener('beforeunload', event => { if (capture || unsaved.size) { event.preventDefault(); event.returnValue = ''; } });
-window.addEventListener('pagehide', () => stop('Session ended', { persist: false }));
+window.addEventListener('pagehide', () => { reviewGeneration++; stop('Session ended', { persist: false }); clearStoppedReview(); });

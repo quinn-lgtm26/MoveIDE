@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MoveIDE</title>
+    <link rel="icon" type="image/svg+xml" href="/moveide-mark.svg" />
+    <link rel="stylesheet" href="/brand.css" />
     <style>
       /* Shares the Live camera page's palette and shapes (harness/live/app.css). */
       :root {
@@ -112,7 +114,10 @@
       .recording-card { min-width: 0; border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: var(--panel); }
       .recording-card h3 { font-size: 14px; font-weight: 600; margin: 0; }
       .recording-card .toolbar { justify-content: space-between; margin-bottom: 12px; }
-      .recording-card label { font-size: 12px; color: var(--muted); }
+      .recording-reps { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+      .recording-reps-label { font-size: 12px; color: var(--muted); margin-right: 2px; }
+      .recording-reps button { min-height: 44px; padding: 8px 14px; font-size: 12px; border: 1px solid var(--line-strong); background: var(--panel); }
+      .recording-reps button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ink-fg); }
       .recording-stage { height: 420px; min-height: 0; }
       .recordings-comparison table { width: 100%; font-size: 13px; }
       .recordings-comparison th { text-align: left; }

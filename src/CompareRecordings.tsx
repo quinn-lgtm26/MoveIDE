@@ -44,10 +44,10 @@ function RecordingPlayer({ recording, repId, onRep, anchor, slot }: {
     return () => { disposed = true; v.cancelVideoFrameCallback(frameHandle); v.removeEventListener('seeked', redraw); v.removeEventListener('loadeddata', redraw); resize.disconnect(); context.clearRect(0, 0, c.width, c.height); };
   }, [report]);
   return <article className="recording-card" data-slot={slot} data-source-sha256={recording.sourceSha256}>
-    <div className="toolbar"><h3>{recording.label}</h3><label>Rep {slot.toUpperCase()}{' '}
-      <select aria-label={`Recording ${slot.toUpperCase()} rep`} value={repId} onChange={event => onRep(event.target.value)}>
-        {report.reps.map(rep => <option key={rep.id} value={rep.id}>{rep.id}</option>)}
-      </select></label></div>
+    <div className="toolbar"><h3>{recording.label}</h3><div className="recording-reps" role="group" aria-label={`Recording ${slot.toUpperCase()} rep`}>
+      <span className="recording-reps-label">Choose rep</span>
+      {report.reps.map((rep, index) => <button type="button" key={rep.id} aria-pressed={repId === rep.id} onClick={() => onRep(rep.id)}>Rep {index + 1}</button>)}
+    </div></div>
     <div className="stage recording-stage"><video ref={video} src={recording.source} controls muted playsInline onLoadedMetadata={seek}
       aria-label={`Recording ${slot.toUpperCase()}`} onError={() => { setDecodeError(true); const c = canvas.current; if (c) c.getContext('2d')?.clearRect(0, 0, c.width, c.height); }} /><canvas ref={canvas} aria-hidden /></div>
     <p className="fine" data-source-time={time}>Recording {slot.toUpperCase()} · {(time / 1000).toFixed(2)}s · {report.frames.filter(frame => frame.quality === 'usable').length}/{report.frames.length} samples tracked</p>

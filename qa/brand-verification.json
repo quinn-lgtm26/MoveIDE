@@ -1,0 +1,67 @@
+{
+  "verifiedAtUtc": "2026-11-08T00:31:00.617Z",
+  "surface": "isolated Vite development server and headless Chrome",
+  "checks": [
+    {
+      "surface": "root",
+      "viewportWidth": 1440,
+      "markVisible": true,
+      "markSizePx": 36,
+      "accessibleHomeLink": true,
+      "decorativeMark": true,
+      "favicon200": true,
+      "brandAndNavigationFit": true
+    },
+    {
+      "surface": "live",
+      "viewportWidth": 1440,
+      "markVisible": true,
+      "markSizePx": 36,
+      "accessibleHomeLink": true,
+      "decorativeMark": true,
+      "favicon200": true,
+      "brandAndNavigationFit": true
+    },
+    {
+      "surface": "smoke",
+      "viewportWidth": 1440,
+      "markVisible": true,
+      "markSizePx": 36,
+      "accessibleHomeLink": true,
+      "decorativeMark": true,
+      "favicon200": true,
+      "brandAndNavigationFit": true
+    },
+    {
+      "surface": "root",
+      "viewportWidth": 375,
+      "markVisible": true,
+      "markSizePx": 36,
+      "accessibleHomeLink": true,
+      "decorativeMark": true,
+      "favicon200": true,
+      "brandAndNavigationFit": true
+    },
+    {
+      "surface": "live",
+      "viewportWidth": 375,
+      "markVisible": true,
+      "markSizePx": 36,
+      "accessibleHomeLink": true,
+      "decorativeMark": true,
+      "favicon200": true,
+      "brandAndNavigationFit": true
+    },
+    {
+      "surface": "smoke",
+      "viewportWidth": 375,
+      "markVisible": true,
+      "markSizePx": 36,
+      "accessibleHomeLink": true,
+      "decorativeMark": true,
+      "favicon200": true,
+      "brandAndNavigationFit": true
+    }
+  ],
+  "limitations": "Branding layout checks only; no camera, provider inference or supported-movement changes."
+}

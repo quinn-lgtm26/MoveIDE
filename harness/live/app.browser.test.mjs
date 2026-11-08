@@ -95,6 +95,13 @@ try {
   assert.equal(await page.evaluate(() => window.syntheticStream.getTracks().every(track => track.readyState === 'ended')), true);
   assert.equal(await page.locator('#start').isEnabled(), true);
   assert.equal(await page.locator('#ai-feed > li').count(), cards, 'Stop preserves accepted coaching cards');
+  await page.waitForFunction(() => document.querySelector('#video').controls && document.querySelector('#video').src.startsWith('blob:'));
+  assert.ok(await page.locator('#review-measurements tr').count() > 0, 'Historical measured samples remain reviewable after Stop');
+  assert.match(await page.locator('#review-timing').innerText(), /approximate/);
+  await page.evaluate(() => document.querySelector('#video').play());
+  await page.waitForFunction(() => document.querySelector('#video').currentTime > .1);
+  await page.evaluate(() => document.querySelector('#video').pause());
+  assert.equal(await page.locator('#knee').innerText(), '—', 'Replay does not restore stale current measurements');
   await page.locator('#saved-sessions a').first().waitFor({ timeout: 15000 });
   const persisted = await page.evaluate(async () => {
     const { getSession } = await import('/harness/history/index.mjs');
@@ -112,6 +119,8 @@ try {
   connectionState = 'disconnected';
   await page.locator('#start').click();
   assert.equal(await page.locator('#ai-feed > li').count(), 0, 'New session clears previous cards');
+  assert.equal(await page.locator('#video').getAttribute('src'), null, 'New Start clears the previous replay');
+  assert.equal(await page.locator('#session-review').isHidden(), true);
   await page.waitForFunction(() => document.querySelector('#knee').textContent !== '—', null, { timeout: 60000 });
   assert.ok((await page.locator('#ai').innerText()).includes('Connect ChatGPT'), 'Stable local tracking must not promise AI when disconnected');
   await page.locator('#stop').click(); connectionState = 'connected';

@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-07T23:32:14.231Z",
-  "revision": "c1c9378ebbca473bc706ca11623c5631d633e7f5",
+  "verifiedAtUtc": "2026-11-08T00:29:04.124Z",
+  "revision": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
   "surface": "root production build",
   "fixture": "clear-squat.mp4",
   "provider": "real ChatGPT",
@@ -21,19 +21,15 @@
   "responseEvidenceIds": [
     [
       "rep-1-knee-flexion",
-      "rep-2-knee-flexion",
+      "rep-2-knee-flexion"
+    ],
+    [
       "rep-1-torso-lean",
       "rep-2-torso-lean"
     ],
     [
       "rep-1-duration",
       "rep-2-duration"
-    ],
-    [
-      "rep-1-knee-flexion",
-      "rep-2-knee-flexion",
-      "rep-1-torso-lean",
-      "rep-2-torso-lean"
     ]
   ],
   "checks": {

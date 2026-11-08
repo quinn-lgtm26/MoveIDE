@@ -1,0 +1,6 @@
+/* Original articulated movement mark; decorative beside the readable brand name. */
+.moveide-mark { display: block; width: 36px; height: 36px; margin-right: 8px; flex: 0 0 36px; }
+.moveide-header { flex-wrap: wrap; gap: 12px 16px; }
+.moveide-brand { display: inline-flex; align-items: center; min-height: 44px; color: #193e30; text-decoration: none; font: 800 20px system-ui, sans-serif; letter-spacing: -1px; }
+.moveide-brand span { font-weight: 400; }
+.moveide-brand:focus-visible { outline: 3px solid #58ac76; outline-offset: 4px; border-radius: 6px; }

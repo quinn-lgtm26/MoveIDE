@@ -1,0 +1,193 @@
+{
+  "sourceRevision": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
+  "target": "https://syndrome-portrait-stephen-web.trycloudflare.com",
+  "manifestSha256": "bd942dadd406ce0f99f1606256a429c4536e7ab783a2388b4626f9e3bda06192",
+  "files": [
+    {
+      "path": "APACHE-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    {
+      "path": "MIT-LICENSE.txt",
+      "sha256": "aa688f22e3446d52249376353cdd4abdca7960e51ff1f9ea60fb7c3532411053",
+      "bytes": 1069
+    },
+    {
+      "path": "QRCODE-MIT.txt",
+      "sha256": "8df47c6ad9ac2c41eb9b2a72def9908959da0ede8dadd56c7b249c1bdb0c5ce6",
+      "bytes": 1076
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.md",
+      "sha256": "09ea30d9e1003e9892b93ad48d4c78685af30626030a9a0ee2f639c4353ac8af",
+      "bytes": 766
+    },
+    {
+      "path": "assets/analyze-B8Og-lO0.js",
+      "sha256": "427a8e1cfd2626c1081d59e2b0c37ede881160f170e35e208a75e7f0ed76bba3",
+      "bytes": 2763
+    },
+    {
+      "path": "assets/analyze-D_az44JW.js",
+      "sha256": "4ee4905bcb7eb99e85535be51b02af674aa80536445cf5ff42926181eea2d25f",
+      "bytes": 2763
+    },
+    {
+      "path": "assets/clear-squat-DDtklCdR.mp4",
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "bytes": 1344215
+    },
+    {
+      "path": "assets/client-DWjMleQG.js",
+      "sha256": "065f5cd33806e744da608c9dea6786c58c799ca8f71520583c99c64ac9e56073",
+      "bytes": 25418
+    },
+    {
+      "path": "assets/client-gGzC2Is2.js",
+      "sha256": "12717ce95b593200572bc0704685a820c30e2f2cfe389d368619329edce2a26e",
+      "bytes": 25645
+    },
+    {
+      "path": "assets/history-BiUulHhi.js",
+      "sha256": "5fade31bde6790818e61ef235890b1fe0f0c28dbdf70b8ba7347a22874f73c8d",
+      "bytes": 14456
+    },
+    {
+      "path": "assets/index-2aXdPjM1.css",
+      "sha256": "3ae8d96e906931e7838d70857a5155649bf4683585fc92bab3da1995d17dd581",
+      "bytes": 11178
+    },
+    {
+      "path": "assets/index-AsJWlbXD.js",
+      "sha256": "3d994a20af1da16f24b98e24a550f112c82cda83340450c29784e5c793dba23f",
+      "bytes": 63200
+    },
+    {
+      "path": "assets/index-BLWr0ARC.js",
+      "sha256": "546b1bd2d73deed7188883e4105db32bce63aae1e93483a8092e1b99d9e6d228",
+      "bytes": 71931
+    },
+    {
+      "path": "assets/index-BXBE2k9X.css",
+      "sha256": "621a2559c4059bee7e9ec201753bdafbb1114aded54f52bf8c6ea3f56bf1b149",
+      "bytes": 3810
+    },
+    {
+      "path": "assets/index-BitQwqiN.js",
+      "sha256": "3ef8fdb0d2848af7e8b55893deeedd3166cbba64610de8d7dc7028db397d8784",
+      "bytes": 272589
+    },
+    {
+      "path": "assets/index-BpFAd_gd.css",
+      "sha256": "2e9a96e3b8d5aafcb250bfdf21fd5c9f765b796b01a4e6fd15a4a9eeea249d91",
+      "bytes": 10433
+    },
+    {
+      "path": "assets/index-C3YdU2uG.js",
+      "sha256": "a319bd594022128c0c17d857fa3a670d89b5883b18c2f96ef3d81ea00ae49604",
+      "bytes": 256569
+    },
+    {
+      "path": "assets/index-CAwuwvty.js",
+      "sha256": "632df0cc06969445e30352fa025961f391cab94355ac83c61aa2f1368dbbfe59",
+      "bytes": 273651
+    },
+    {
+      "path": "assets/index-DDwSkGfE.js",
+      "sha256": "b6e4775f6ed029d03143d4b442e25d8b5e14ff4292b19b5008575121edb1d8b2",
+      "bytes": 10539
+    },
+    {
+      "path": "assets/index-DNRCfTvl.js",
+      "sha256": "3a4ab71623a3cd2b4623f2b51e7638b6b9ccfa93cddef34dab80c776d5f8c401",
+      "bytes": 241026
+    },
+    {
+      "path": "assets/index-Psceudel.js",
+      "sha256": "092e737069f72f85dfb564e2eb73edf55204d1f7c770eb67681033b74fae9882",
+      "bytes": 10539
+    },
+    {
+      "path": "assets/index-XhJjiUtn.js",
+      "sha256": "e970d588f7a4b7d9beb63654f8b36a204469735c168c6152077b9748ede0c600",
+      "bytes": 63200
+    },
+    {
+      "path": "assets/pose-worker-CgNRry61.js",
+      "sha256": "2a38556afe960fb2117effc8e36b80b80f68bb9ea3e31c2e1e02470209be1391",
+      "bytes": 155378
+    },
+    {
+      "path": "assets/rolldown-runtime-WkwZ5CU-.js",
+      "sha256": "2629f2ad3cb75a57d98de697127f5af7d777ef572bbcdfa6e3ce8f438cd4527e",
+      "bytes": 599
+    },
+    {
+      "path": "assets/supported-squat-DoJp0goB.mp4",
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+      "bytes": 1203104
+    },
+    {
+      "path": "fixtures/squat/README.md",
+      "sha256": "fc92b13d3ca91b287d167f1d868d201e2c58a6c45f075d2c17375d47e2c62a44",
+      "bytes": 2520
+    },
+    {
+      "path": "fixtures/squat/clear-squat.mp4",
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "bytes": 1344215
+    },
+    {
+      "path": "fixtures/squat/supported-squat.mp4",
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+      "bytes": 1203104
+    },
+    {
+      "path": "harness/live/index.html",
+      "sha256": "187e19a6b15e38c0c32c6903ac4a190cae1e7542195ed1bfcac6f1ca4e87d043",
+      "bytes": 6110
+    },
+    {
+      "path": "harness/smoke/index.html",
+      "sha256": "eec2962f8b219e77e74cf7c314b04ec3b9d09f36ab331411374995e79039ffd8",
+      "bytes": 4575
+    },
+    {
+      "path": "index.html",
+      "sha256": "37f8b442fa48577b4ab30efe6fbe93131013b84965d35e6cf6c39bc525f10f6c",
+      "bytes": 10271
+    },
+    {
+      "path": "pose/pose_landmarker_full.task",
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1",
+      "bytes": 9398198
+    },
+    {
+      "path": "pose/pose_landmarker_heavy.task",
+      "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+      "bytes": 30664242
+    },
+    {
+      "path": "pose/wasm/vision_wasm_internal.js",
+      "sha256": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b",
+      "bytes": 334128
+    },
+    {
+      "path": "pose/wasm/vision_wasm_internal.wasm",
+      "sha256": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab",
+      "bytes": 14603354
+    },
+    {
+      "path": "pose/wasm/vision_wasm_module_internal.js",
+      "sha256": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f",
+      "bytes": 334166
+    },
+    {
+      "path": "pose/wasm/vision_wasm_module_internal.wasm",
+      "sha256": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5",
+      "bytes": 14603372
+    }
+  ],
+  "provider": "Static disconnected state only. Private provider and pairing routes404."
+}

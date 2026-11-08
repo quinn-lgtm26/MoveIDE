@@ -1,0 +1,40 @@
+{
+  "verifiedAtUtc": "2026-11-08T00:37:50.433Z",
+  "scope": "Seeded local history and existing fixture video; no Heavy or provider inference, no actual live accuracy claim",
+  "checks": {
+    "desktopVideoAndNotesTogether": true,
+    "longReasonDoesNotResizeVideo": true,
+    "invalidMetricStaysUnavailable": true,
+    "noteReviewUsesDisclosedApproximateMapping": true,
+    "gapAndRecordedPrefixWithholdAssociation": true,
+    "metricTimelineNavigation": true,
+    "slowerPlaybackWorks": true,
+    "mobileNotesBeforeMetricsNoOverflow": true,
+    "reducedMotionDisablesAnimation": true,
+    "cancelPendingOpenRestoresUsableList": true,
+    "noInferenceOrPageErrors": true
+  },
+  "errors": [],
+  "mobileDom": {
+    "selectedReviewHeadings": 1,
+    "lowerViewport": [
+      {
+        "tag": "P",
+        "classes": "replay-note-focus",
+        "text": "Keep the next rep controlled."
+      },
+      {
+        "tag": "LI",
+        "classes": "coaching-card",
+        "text": "Rep 1 · Observed at 1.0s · View 1Keep the next rep controlled.Review near 0:01 Approximate video tim"
+      },
+      {
+        "tag": "OL",
+        "classes": "coaching-feed",
+        "text": "Rep 1 · Observed at 1.0s · View 1Keep the next rep controlled.Review near 0:01 Approximate video tim"
+      }
+    ]
+  },
+  "fixtureNote": "Fixture file is3.8s; seeded recording metadata intentionally bounds the available prefix to2s and total session to6s to test prefix guards. These synthetic times are not actual capture measurements.",
+  "status": "passed"
+}

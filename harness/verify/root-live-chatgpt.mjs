@@ -29,7 +29,16 @@ try {
   assert(await page.locator('.coaching-focus').evaluateAll(nodes => nodes.every(node => node.textContent.length <= 180)));
   await page.getByRole('button', { name: 'Stop session', exact: true }).click();
   assert.equal(await page.locator('.coaching-card').count(), 2);
-  const result = { verifiedAtUtc: new Date().toISOString(), revision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), surface: 'root production build', fixture: 'clear-squat.mp4', provider: 'real ChatGPT', model: approved.model, requestCount, sourceImageTimestampsMs: approved.images.map(x => x.timestampMs), measurementIds: approved.packet.measurements.map(x => x.id), responseEvidenceIds: body.observations.map(x => x.evidenceIds), checks: { oneStart: true, responseValidated: true, firstRepCueVisible: true, secondRepCueVisible: true, noExtraSeekRequests: true, twoPersistentShortCards: true, stopRetainsCards: true } };
+  await page.getByRole('link', { name: 'History', exact: true }).click();
+  await page.getByText(/AI notes saved/).waitFor();
+  await page.getByRole('button', { name: /^Open clear-squat/ }).click();
+  await page.getByText('Saved session · replay only', { exact: true }).waitFor();
+  assert.equal(await page.locator('.coaching-card').count(), 2);
+  await page.reload();
+  await page.getByText('Saved session · replay only', { exact: true }).waitFor();
+  assert.equal(await page.locator('.coaching-card').count(), 2);
+  assert.equal(requestCount, 1, 'History replay and reload must reuse accepted real AI');
+  const result = { verifiedAtUtc: new Date().toISOString(), revision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), surface: 'root production build', fixture: 'clear-squat.mp4', provider: 'real ChatGPT', model: approved.model, requestCount, sourceImageTimestampsMs: approved.images.map(x => x.timestampMs), measurementIds: approved.packet.measurements.map(x => x.id), responseEvidenceIds: body.observations.map(x => x.evidenceIds), checks: { oneStart: true, responseValidated: true, firstRepCueVisible: true, secondRepCueVisible: true, noExtraSeekRequests: true, twoPersistentShortCards: true, stopRetainsCards: true, realNotesPersistInHistory: true, reloadRestoresWithoutInference: true } };
   await writeFile(new URL('../../qa/root-live-chatgpt.json', import.meta.url), JSON.stringify(result, null, 2)+'\n');
   await page.screenshot({ path: new URL('../../qa/root-live-chatgpt.png', import.meta.url).pathname, fullPage: true });
   console.log(JSON.stringify(result, null, 2));
