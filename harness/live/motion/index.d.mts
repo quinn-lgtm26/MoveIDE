@@ -1,3 +1,4 @@
+import type { ImageSamplingCoverage } from '../../coaching/index.mjs';
 import type { MultiView, MultiViewDiagnostics, MultiViewMetric, MultiViewMetricName, MultiViewReason } from '../../motion/multiview.mjs';
 import type { ViewGuardOptions, ViewGuardResult } from './view-guard.mjs';
 import type { AnalysisReport, AnalysisOptions, MotionTraceSample, PoseFrame, RawPoseFrame, Rep } from '../../motion/analyze.mjs';
@@ -36,6 +37,7 @@ export interface LiveRep {
   /** Stable session + start/end key; report rep IDs are local to the rolling window. */
   key: string; epoch: number; rep: Rep; report: AnalysisReport; feedback: CompletedRepFeedback;
   /** Up to 3 exact accepted descent/bottom/ascent frames. Empty if the measured bottom is unavailable. */
+  imageSampling?: ImageSamplingCoverage | null;
   evidenceImages: { phase: 'start' | 'descent' | 'bottom' | 'ascent' | 'end'; timestampMs: number; blob: Blob }[];
 }
 export interface LiveSquatOptions {

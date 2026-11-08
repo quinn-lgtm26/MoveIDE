@@ -49,6 +49,7 @@ function validateTransportImages(packet, images) {
   try {
     validateCoachingImages(packet, images);
     if (!images.length || !packet.measurements.length) throw new Error('Missing evidence');
+    if (images.reduce((sum,image)=>sum+(image.dataUrl?.length??0),0)>11_200_000) throw new Error('Aggregate image budget exceeded');
     for (const image of images) {
       const { dataUrl } = image;
       if (Object.keys(image).length !== 4 || typeof dataUrl !== 'string'

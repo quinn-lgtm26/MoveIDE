@@ -3,7 +3,7 @@ import { validateCoachPacket, validateCoachingResponse } from '../coaching/packe
 import { getCoachingSegments } from '../coaching/playback.mjs';
 import { validateHistoryReport } from './report-validation.mjs';
 export const HISTORY_LIMITS = Object.freeze({ videoBytes: 100 * 1024 ** 2, appBytes: 500 * 1024 ** 2,
-  metadataBytes: 8 * 1024 ** 2, evidenceImages: 42, evidenceImageBytes: 1024 ** 2,
+  metadataBytes: 8 * 1024 ** 2, evidenceImages: 192, evidenceImageBytes: 1024 ** 2,
   liveSamples: 10_000, liveNotes: 512, liveReps: 2000, liveRepReviews: 150 });
 const DB_NAME = 'moveide-history-v1';
 let databasePromise;
@@ -130,7 +130,7 @@ async function writeSession(input, requireExisting) {
     videoHash = input.video ? await hash(input.video) : null;
   }
   if (hasEvidence) {
-    if (!Array.isArray(input.evidenceImages) || input.evidenceImages.length > HISTORY_LIMITS.evidenceImages) fail('limit_exceeded', 'Keep at most 42 saved evidence JPEGs per session.');
+    if (!Array.isArray(input.evidenceImages) || input.evidenceImages.length > HISTORY_LIMITS.evidenceImages) fail('limit_exceeded', 'Keep at most 192 saved evidence JPEGs per session.');
     const keys = new Set();
     preparedImages = await Promise.all(input.evidenceImages.map(async image => {
       if (!image || !Number.isSafeInteger(image.timestampMs) || image.timestampMs < 0 || !Number.isSafeInteger(image.viewEpoch) || image.viewEpoch < 0 ||

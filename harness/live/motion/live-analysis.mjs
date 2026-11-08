@@ -4,7 +4,7 @@ import { rawPoseFrame } from '../../motion/raw-pose.mjs';
 import { analyzeMultiViewFrame } from '../../motion/multiview.mjs';
 import { createViewGuard } from './view-guard.mjs';
 import { completedRepFeedback, createDepthFeedback } from './feedback.mjs';
-import { selectPhaseEvidence } from './phase-evidence.mjs';
+import { selectRepEvidence } from './phase-evidence.mjs';
 
 const METRICS = ['kneeFlexionDeg', 'torsoLeanDeg', 'hipFlexionDeg', 'shinInclinationDeg', 'ankleClosureChangeDeg', 'hipDescentLegLengths', 'hipAboveKneeLegLengths'];
 const VIEWS = ['side', 'front', 'oblique', 'unknown'];
@@ -90,8 +90,9 @@ export function createLiveAnalysis({ clipId, poseModel, targetKneeFlexionDeg = n
         const key = `${clipId}:${epoch}:${rep.startMs}:${rep.endMs}`;
         if (rep.endMs > finalizedUntil || completed.has(key)) continue;
         completed.set(key, rep.endMs);
+        const evidence = selectRepEvidence(report, rep, images);
         events.push({ key, epoch, rep, report, feedback: completedRepFeedback(report, rep.id, targetKneeFlexionDeg),
-          evidenceImages: selectPhaseEvidence(report, rep, images) });
+          evidenceImages: evidence.images, imageSampling: evidence.coverage });
       }
       for (const [key, endMs] of completed) if (endMs < (samples[0]?.timestampMs ?? timestampMs)) completed.delete(key);
       return { timestampMs, report, frame, poseDisplayFrame, metrics, metricValidity, multiView,

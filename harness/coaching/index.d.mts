@@ -15,6 +15,11 @@ export interface CoachingMeasurement {
   evidenceTimestampMs: number;
 }
 
+export interface ImageSamplingCoverage {
+  mode: 'every-other-analyzed' | 'uniform-capped'; analyzedFrameCount: number; eligibleFrameCount: number;
+  plannedImageCount: number; availableImageCount: number; selectedImageCount: number; missingCachedImageCount: number;
+  omittedByCapCount: number; maxImages: 32; byteCapped: boolean; maxSelectedGapMs: number | null; meanSelectedIntervalMs: number | null;
+}
 export interface CoachPacket {
   schemaVersion: 1;
   protocolVersion: string;
@@ -25,6 +30,7 @@ export interface CoachPacket {
   measurements: CoachingMeasurement[];
   evidence: EvidenceRef[];
   motionContext?: { repId: string; clipId: string; modelId: string; coordinateSpace: 'projected-video'; sampling: 'observed-samples-no-interpolation'; startMs: number; bottomMs: number; endMs: number;
+    imageSampling?: ImageSamplingCoverage;
     samples: {timestampMs: number; kneeFlexionDeg: number | null; hipFlexionDeg: number | null; torsoLeanDeg: number | null}[] };
 }
 
@@ -46,6 +52,7 @@ export interface CoachingOptions {
   repIds?: readonly string[];
   userGoal?: string;
   maxImages?: number;
+  motionContext?: CoachPacket["motionContext"];
 }
 
 export interface CitedText {

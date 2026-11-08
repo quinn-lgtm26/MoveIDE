@@ -39,7 +39,9 @@ try {
   await page.route('**/api/interpret', async route => {
     const body = route.request().postDataJSON(); sends.push(body);
     assert.equal(body.packet.repIds.length, 1);
-    assert.equal(body.images.length, 7, 'The complete fixture rep includes start, descent, exact bottom, ascent and end source JPEGs');
+    assert.ok(body.images.length>=1 && body.images.length<=32, 'Every-other analyzed source frames stay bounded regardless of runtime cadence');
+    assert.ok(body.images.some(image=>image.timestampMs===body.packet.motionContext.bottomMs), 'Exact bottom must be attached');
+    assert.equal(body.packet.motionContext.imageSampling.selectedImageCount,body.images.length);
     assert.ok(body.packet.motionContext.samples.length <= 31);
     for (const image of body.images) assert.ok(body.packet.evidence.some(item => item.timestampMs === image.timestampMs && item.id === image.id));
     const evidenceIds = [body.packet.evidence[0].id];
@@ -113,7 +115,7 @@ try {
       epochs: [...new Set(saved.live.samples.map(sample => sample.viewEpoch))], source: saved.metadata.source };
   });
   assert.ok(persisted.bytes > 0 && persisted.samples > 0 && persisted.reps > 0);
-  assert.equal(persisted.notes, cards); assert.ok(persisted.evidence >= cards && persisted.evidence <= Math.min(42, cards * 7));
+  assert.equal(persisted.notes, cards); assert.ok(persisted.evidence >= cards && persisted.evidence <= Math.min(192, cards * 32));
   assert.equal(persisted.approximate, 'approximate'); assert.ok(persisted.mapping); assert.ok(persisted.epochs.length >= 2);
   assert.equal(persisted.source, 'local');
   await page.locator('#save-local').uncheck();
@@ -131,7 +133,7 @@ try {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Mobile layout must fit the viewport');
   assert.deepEqual(errors, []);
   if (process.env.MOVEIDE_TEST_LOCAL_ONLY === '1') {
-    console.log(JSON.stringify({ result: 'passed', localOnly: true, aiRequests: sends.length, stackedCards: cards, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, sevenTimestampedJpegs: true, preservedOnStop: true, resetOnNewSession: true, stalePoseCleared: true, tracksStopped: true }));
+    console.log(JSON.stringify({ result: 'passed', localOnly: true, aiRequests: sends.length, stackedCards: cards, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, boundedEveryOtherAnalyzedJpegs: true, preservedOnStop: true, resetOnNewSession: true, stalePoseCleared: true, tracksStopped: true }));
   } else {
   const localRequests = sends.length;
   // Real dedicated signalling + isolated ephemeral receiver proxy; no physical camera or external tunnel.
@@ -228,6 +230,6 @@ try {
   assert.equal(await page.locator('#start').isEnabled(), true);
   await page.unroute('**/rooms');
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ result: 'passed', observed, phoneObserved, aiRequests: sends.length, syntheticCamera: true, realWebRTC: true, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, sevenTimestampedJpegs: true, twoBrowserContexts: true, phoneLocalFeedback: true, phoneAIResponse: true, localQr: true, staleQrSuppressed: true, pendingPairingRevoked: true, missingHttpsGuidance: true, stalePoseCleared: true, tracksStopped: true, physicalIPhoneTested: false }));
+  console.log(JSON.stringify({ result: 'passed', observed, phoneObserved, aiRequests: sends.length, syntheticCamera: true, realWebRTC: true, adaptiveDimensions: true, historicalReplyPreserved: true, offlineStatusPreserved: true, boundedEveryOtherAnalyzedJpegs: true, twoBrowserContexts: true, phoneLocalFeedback: true, phoneAIResponse: true, localQr: true, staleQrSuppressed: true, pendingPairingRevoked: true, missingHttpsGuidance: true, stalePoseCleared: true, tracksStopped: true, physicalIPhoneTested: false }));
   }
 } finally { await browser?.close(); await transport?.close(); await server.close(); }

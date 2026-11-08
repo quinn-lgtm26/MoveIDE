@@ -28,9 +28,9 @@ test('startup withholds current metrics until stable and confirmed, then emits b
   const observed = runClip(analysis, 1000), events = observed.flatMap(item => item.events);
   assert.equal(events.length, 2); assert.equal(new Set(events.map(event => event.key)).size, 2);
   for (const event of events) {
-    assert.equal(event.epoch, 0); assert.deepEqual(event.evidenceImages.map(image => image.phase), ['start', 'descent', 'descent', 'bottom', 'ascent', 'ascent', 'end']);
+    assert.equal(event.epoch, 0); assert.ok(event.evidenceImages.length>7 && event.evidenceImages.length<=32);assert.equal(event.imageSampling.selectedImageCount,event.evidenceImages.length);
     for (const image of event.evidenceImages) assert.equal(await image.blob.text(), `fixture-image-at-${image.timestampMs}`);
-    assert.equal(buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages).images.length, 7);
+    assert.equal(buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages).images.length, event.evidenceImages.length);
   }
 });
 

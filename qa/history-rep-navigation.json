@@ -1,9 +1,14 @@
 {
-  "verifiedAtUtc": "2026-11-08T02:05:14.414Z",
-  "scope": "Seeded five-rep History navigation with real public video and cached pose report; no inference, AI or personal recording.",
+  "verifiedAtUtc": "2026-11-08T02:16:43.091Z",
+  "scope": "Seeded five-rep History navigation, phase-normalized comparison to checked-in public Heavy example, bounded JPEG strip, real public video and cached pose report; no inference, AI or personal recording.",
   "checks": {
     "initialRepAndNoteAgree": true,
+    "legacyThreeSnapshotsRemainHonest": true,
+    "actualAmplitudesAndIndependentPhasePace": true,
+    "validatedMetricSelection": true,
     "repFiveShowsMatchingNoteAndSeeks": true,
+    "missingAndOtherEpochSamplesBreakCurves": true,
+    "orderedBoundedSnapshotsHaveKeyboardVideoLinks": true,
     "previousNextStayAligned": true,
     "videoSeekingUpdatesSelectedRepAndNote": true,
     "playbackFollowsRep": true,

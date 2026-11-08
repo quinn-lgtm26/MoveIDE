@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { selectPhaseEvidence, buildLiveCoachBundle } from './phase-evidence.mjs';
+import { selectPhaseEvidence, selectRepEvidence, buildLiveCoachBundle } from './phase-evidence.mjs';
 import { validateCoachingResponse, validateCoachPacket } from '../../coaching/packet.mjs';
 
 const report = JSON.parse(await readFile(new URL('../../results/clear-squat.analysis-report.v1.json', import.meta.url)));
@@ -9,12 +9,14 @@ const rep = report.reps[0];
 const jpeg = new Blob(['fixture bytes; not decoded in this unit test'], { type: 'image/jpeg' });
 const cache = new Map(report.frames.map(frame => [frame.timestampMs, jpeg]));
 
-test('phase evidence contains seven distinct cached samples inside one completed rep', () => {
+test('phase evidence contains every other analyzed cached sample inside one completed rep', () => {
   const samples = selectPhaseEvidence(report, rep, cache);
-  assert.deepEqual(samples.map(item => item.phase), ['start', 'descent', 'descent', 'bottom', 'ascent', 'ascent', 'end']);
+  assert.equal(samples.length,13);
+  assert.equal(samples[0].phase,'start');assert.equal(samples.at(-1).phase,'end');
+  assert.equal(samples.filter(image=>image.phase==='bottom').length,1);
   assert(samples[1].timestampMs > rep.startMs && samples[1].timestampMs < rep.bottomMs);
-  assert.equal(samples[3].timestampMs, rep.bottomMs);
-  assert(samples[4].timestampMs > rep.bottomMs && samples[4].timestampMs < rep.endMs);
+  assert.equal(samples.find(image=>image.phase==='bottom').timestampMs, rep.bottomMs);
+  assert(samples.find(image=>image.phase==='ascent').timestampMs > rep.bottomMs);
   assert(samples.every(item => item.blob === cache.get(item.timestampMs)));
 });
 
@@ -30,8 +32,8 @@ test('live bundle remains v1-valid, cites measured phases, preserves original re
   const before = JSON.stringify(report);
   const { packet, images, phases } = buildLiveCoachBundle(report, rep.id, selectPhaseEvidence(report, rep, cache));
   assert.equal(packet.schemaVersion, 1);
-  assert.equal(images.length, 7); assert.equal(phases.length, 7);
-  assert.equal(packet.measurements.length, 9);
+  assert.equal(images.length, 13); assert.equal(phases.length, 13);
+  assert.equal(packet.measurements.length, 15);
   assert(packet.evidence.every(ref => packet.measurements.some(item => item.evidenceTimestampMs === ref.timestampMs)));
   assert.equal(JSON.stringify(report), before);
   assert.match(packet.summary, /sparse images do not show the entire motion/);
@@ -95,4 +97,29 @@ test('sequence omits distant/uncached samples, never duplicates or borrows anoth
   const complete=selectPhaseEvidence(report,rep,cache);
   assert.equal(new Set(complete.map(f=>f.timestampMs)).size,complete.length);
   assert.equal(complete[0].timestampMs,rep.startMs);assert.equal(complete.at(-1).timestampMs,rep.endMs);
+});
+
+
+test('long rep uniformly caps32 images and byte budget preserves observed bounds and exact bottom',()=>{
+ const longRep={id:'long',startMs:0,bottomMs:5000,endMs:10000};
+ const frames=Array.from({length:101},(_,i)=>({...report.frames[0],timestampMs:i*100,quality:'usable'}));
+ const long={...report,frames,reps:[longRep]};const tiny=new Map(frames.map(frame=>[frame.timestampMs,jpeg]));
+ const selected=selectRepEvidence(long,longRep,tiny);
+ assert.equal(selected.images.length,32);assert.equal(selected.coverage.mode,'uniform-capped');
+ assert.equal(selected.coverage.analyzedFrameCount,101);assert.equal(selected.coverage.plannedImageCount,51);
+ assert.equal(selected.images[0].timestampMs,0);assert.equal(selected.images.at(-1).timestampMs,10000);assert(selected.images.some(image=>image.timestampMs===5000));
+ assert.equal(new Set(selected.images.map(image=>image.timestampMs)).size,32);
+ const large=new Blob([new Uint8Array(1024*1024)],{type:'image/jpeg'});
+ const bounded=selectRepEvidence(long,longRep,new Map(frames.map(frame=>[frame.timestampMs,large])));
+ assert.equal(bounded.images.length,8);assert.equal(bounded.coverage.byteCapped,true);assert.equal(bounded.coverage.omittedByCapCount,43);
+ assert(bounded.images.some(image=>image.timestampMs===5000));assert.equal(bounded.images[0].timestampMs,0);assert.equal(bounded.images.at(-1).timestampMs,10000);
+ const absent=new Map(tiny);for(let time=2000;time<=4000;time+=100)absent.delete(time);
+ const gaps=selectRepEvidence(long,longRep,absent);assert(gaps.coverage.missingCachedImageCount>0);assert(gaps.coverage.maxSelectedGapMs>=2200);
+});
+
+test('builder does not halve a frozen event sequence again and validates supplied original coverage',()=>{
+ const selected=selectRepEvidence(report,rep,cache);
+ const {packet,images}=buildLiveCoachBundle(report,rep.id,selected.images,{imageSampling:selected.coverage});
+ assert.equal(images.length,selected.images.length);assert.deepEqual(packet.motionContext.imageSampling,selected.coverage);
+ assert.throws(()=>buildLiveCoachBundle(report,rep.id,selected.images,{imageSampling:{...selected.coverage,selectedImageCount:100}}),{code:'invalid_packet'});
 });

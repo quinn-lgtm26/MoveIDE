@@ -2,7 +2,7 @@ import { getSquatProfile } from "../motion/squat-profile.mjs";
 import { MAGNA_CARTA_PROMPT, MAGNA_CARTA_VERSION } from "./magna-carta-v1.mjs";
 
 const MAX_REPS = 2;
-const MAX_IMAGES = 7;
+const MAX_IMAGES = 32;
 const MAX_MEASUREMENTS = 12;
 const MAX_ID_LENGTH = 96;
 const MAX_SUMMARY_LENGTH = 512;
@@ -77,8 +77,8 @@ function bottomProfileContext(report, selectedIds) {
   return `Projected bottoms in selected order: hip flexion/shin tilt/ankle closure change (°), hip descent/height above knee (% leg length): ${values.join(", ")}.`;
 }
 
-export function buildCoachPacket(report, { repIds, userGoal, maxImages = 4 } = {}) {
-  if (!Number.isSafeInteger(maxImages) || maxImages < 1 || maxImages > MAX_IMAGES) failPacket("Choose between one and seven source images.");
+export function buildCoachPacket(report, { repIds, userGoal, maxImages = 4, motionContext } = {}) {
+  if (!Number.isSafeInteger(maxImages) || maxImages < 1 || maxImages > MAX_IMAGES) failPacket("Choose between one and 32 source images.");
   if (report?.schemaVersion !== 1 || !nonemptyText(report.protocol?.version, MAX_VERSION_LENGTH) ||
       !Array.isArray(report.reps) || !Array.isArray(report.measurements) ||
       !Array.isArray(report.frames)) {
@@ -99,7 +99,7 @@ export function buildCoachPacket(report, { repIds, userGoal, maxImages = 4 } = {
     selectedSet.size ? selectedSet.has(repId) : repId === null,
   );
   const usableMeasurements = selectedMeasurements.filter(({ quality }) => quality === "usable");
-  if (usableMeasurements.length > MAX_MEASUREMENTS) {
+  if (usableMeasurements.length > (motionContext ? 36 : MAX_MEASUREMENTS)) {
     failPacket(`A coaching packet can contain up to ${MAX_MEASUREMENTS} measurements.`);
   }
   const framesByTimestamp = new Map(report.frames.map((frame) => [frame.timestampMs, frame]));
@@ -152,6 +152,7 @@ export function buildCoachPacket(report, { repIds, userGoal, maxImages = 4 } = {
     repIds: [...selectedIds],
     measurements,
     evidence,
+    ...(motionContext ? { motionContext } : {}),
   });
 }
 
@@ -163,7 +164,7 @@ export function validateCoachPacket(packet) {
       !nonemptyText(packet.summary, MAX_SUMMARY_LENGTH) ||
       (Object.hasOwn(packet, "goal") && !nonemptyText(packet.goal, MAX_GOAL_LENGTH)) ||
       !distinctStrings(packet.repIds, MAX_REPS) || !Array.isArray(packet.measurements) ||
-      packet.measurements.length > MAX_MEASUREMENTS ||
+      packet.measurements.length > (packet.motionContext ? 36 : MAX_MEASUREMENTS) ||
       !Array.isArray(packet.evidence) || packet.evidence.length > MAX_IMAGES) {
     failPacket("The coaching packet does not match CoachPacket v1.");
   }
@@ -199,7 +200,7 @@ export function validateCoachPacket(packet) {
   }
   if (Object.hasOwn(packet, 'motionContext')) {
     const context = packet.motionContext;
-    if (!exactFields(context, ['repId','clipId','modelId','coordinateSpace','sampling','startMs','bottomMs','endMs','samples']) ||
+    if (!exactFields(context, ['repId','clipId','modelId','coordinateSpace','sampling','startMs','bottomMs','endMs','samples'], ['imageSampling']) ||
         packet.repIds.length !== 1 || context.repId !== packet.repIds[0] || !nonemptyText(context.clipId, 200) || !nonemptyText(context.modelId, 96) ||
         context.coordinateSpace !== 'projected-video' || context.sampling !== 'observed-samples-no-interpolation' ||
         ![context.startMs,context.bottomMs,context.endMs].every(timestamp) || !(context.startMs < context.bottomMs && context.bottomMs < context.endMs) ||
@@ -210,6 +211,18 @@ export function validateCoachPacket(packet) {
           sample.timestampMs <= previous || sample.timestampMs < context.startMs || sample.timestampMs > context.endMs ||
           !['kneeFlexionDeg','hipFlexionDeg','torsoLeanDeg'].every(key => sample[key] === null || (Number.isFinite(sample[key]) && sample[key] >= 0 && sample[key] <= 180))) failPacket('Invalid timestamped motion sample.');
       previous = sample.timestampMs;
+    }
+    if (Object.hasOwn(context,'imageSampling')) {
+      const coverage=context.imageSampling;
+      const counts=['analyzedFrameCount','eligibleFrameCount','plannedImageCount','availableImageCount','selectedImageCount','missingCachedImageCount','omittedByCapCount'];
+      if(!exactFields(coverage,['mode',...counts,'maxImages','byteCapped','maxSelectedGapMs','meanSelectedIntervalMs']) ||
+        !['every-other-analyzed','uniform-capped'].includes(coverage.mode) || coverage.maxImages!==32 || typeof coverage.byteCapped!=='boolean' ||
+        !counts.every(key=>Number.isSafeInteger(coverage[key])&&coverage[key]>=0&&coverage[key]<=450) ||
+        coverage.selectedImageCount!==packet.evidence.length || coverage.eligibleFrameCount>coverage.analyzedFrameCount ||
+        coverage.plannedImageCount>coverage.eligibleFrameCount || coverage.availableImageCount>coverage.plannedImageCount ||
+        coverage.selectedImageCount>coverage.availableImageCount || coverage.missingCachedImageCount!==coverage.plannedImageCount-coverage.availableImageCount ||
+        coverage.omittedByCapCount!==coverage.availableImageCount-coverage.selectedImageCount ||
+        !['maxSelectedGapMs','meanSelectedIntervalMs'].every(key=>coverage[key]===null||timestamp(coverage[key]))) failPacket('Invalid image sampling coverage.');
     }
     if (packet.measurements.some(item => item.evidenceTimestampMs < context.startMs || item.evidenceTimestampMs > context.endMs)) failPacket('Motion context must match selected measurement bounds.');
   }

@@ -9,13 +9,13 @@ const jpeg=await readFile(new URL('../../results/clear-squat-evidence/frame-1067
 const blob=new Blob([jpeg],{type:'image/jpeg'}), cache=new Map(report.frames.map(frame=>[frame.timestampMs,blob]));
 const {packet}=buildLiveCoachBundle(report,report.reps[0].id,selectPhaseEvidence(report,report.reps[0],cache));
 const images=packet.evidence.map(ref=>({...ref,dataUrl:`data:image/jpeg;base64,${jpeg.toString('base64')}`}));
-test('actual provider request builder sends seven labeled JPEGs and bounded trace inside the existing request limit',async()=>{
+test('actual provider request builder sends every-other analyzed JPEGs and bounded trace inside the existing request limit',async()=>{
   let calls=0;
   const result={observations:[{text:'Observed sampled descent and return.',evidenceIds:[images[0].id,images.at(-1).id]}],nextFocus:{text:'Keep the camera view clear.',evidenceIds:[images[3].id]},uncertainty:'Sampled frames only.'};
   const fetcher=async(url,options)=>{
     if(url.endsWith('/models'))return Response.json({models:[{slug:'gpt-6.1-sol',visibility:'list'}]});
     calls++;const request=JSON.parse(options.body),content=request.input[0].content;
-    assert.equal(content.filter(part=>part.type==='input_image').length,7);
+    assert.equal(content.filter(part=>part.type==='input_image').length,images.length);
     assert.deepEqual(JSON.parse(content[0].text).motionContext,packet.motionContext);
     assert.deepEqual(content.filter(part=>part.type==='input_text').slice(1).map(part=>part.text),images.map(image=>`Source frame ${image.id} at ${image.timestampMs} ms.`));
     assert.equal(request.store,false);assert.equal(request.text.format.strict,true);

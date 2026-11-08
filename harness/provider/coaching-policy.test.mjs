@@ -43,7 +43,8 @@ test('display references cannot become personalized good-form standards or force
 
 test('moving-user cue contract separates simple actions from measurements and specific uncertainty', () => {
   const policy=coachingInstructions({repIds:['one']});
-  assert.match(policy,/at most 12 words/);
+  assert.match(policy,/at most 20 words/);
+  assert.match(policy,/name what to move and how, and the phase when supported/);
   assert.match(policy,/no numerical angle targets, degree values, timestamps, evidence IDs/);
   assert.match(policy,/knee bend, hip hinge and chest tilt/);
   assert.match(policy,/obscured joint, missing phase, camera perspective, conflicting evidence/);

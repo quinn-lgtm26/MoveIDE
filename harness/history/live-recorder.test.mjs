@@ -121,10 +121,10 @@ test('real browser video-only recorder yields a replayable local blob without ca
 });
 
 
-test('six accepted seven-image reviews preserve all 42 source JPEG references and remain bounded', () => {
+test('six accepted32-image reviews preserve all192 source JPEG references and remain bounded', () => {
   const archive = createLiveArchive({source:'camera'});
-  const images=Array.from({length:9},(_,i)=>({phase:i===3?'bottom':'descent',timestampMs:i*100,blob:new Blob(['bounded jpeg'],{type:'image/jpeg'})}));
+  const images=Array.from({length:34},(_,i)=>({phase:i===3?'bottom':'descent',timestampMs:i*100,blob:new Blob(['bounded jpeg'],{type:'image/jpeg'})}));
   for(let i=0;i<8;i++) archive.note({key:`rep-${i}`,epoch:0,rep:{id:`rep-${i}`,bottomMs:300},evidenceImages:images},{nextFocus:{text:'Observed'},observations:[],uncertainty:''});
-  assert.equal(archive.live.notes.length,6);assert.equal(archive.live.evidence.length,42);
-  assert.equal(new Set(archive.live.evidence.map(image=>`${image.repKey}:${image.timestampMs}`)).size,42);
+  assert.equal(archive.live.notes.length,6);assert.equal(archive.live.evidence.length,192);
+  assert.equal(new Set(archive.live.evidence.map(image=>`${image.repKey}:${image.timestampMs}`)).size,192);
 });
