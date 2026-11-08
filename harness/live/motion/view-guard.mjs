@@ -17,26 +17,31 @@ export function createViewGuard({
   stableForMs = 500, maxGapMs = 250, minVisibility = .5,
   translationJump = .1, scaleRatioJump = 1.25, jointJump = .16,
   identityFlipRatio = .55, minSideSeparation = .015, minTorsoScale = .015,
+  cadenceAware = true, maxCadenceGapMs = 1000,
 } = {}) {
   if (![stableForMs, maxGapMs].every(value => Number.isFinite(value) && value > 0) ||
       !Number.isFinite(minVisibility) || minVisibility < 0 || minVisibility > 1 ||
       ![translationJump, jointJump, minSideSeparation, minTorsoScale].every(value => Number.isFinite(value) && value > 0 && value <= 1) ||
       !Number.isFinite(scaleRatioJump) || scaleRatioJump <= 1 ||
-      !Number.isFinite(identityFlipRatio) || identityFlipRatio <= 0 || identityFlipRatio >= 1) {
+      !Number.isFinite(identityFlipRatio) || identityFlipRatio <= 0 || identityFlipRatio >= 1 ||
+      typeof cadenceAware !== 'boolean' || !Number.isFinite(maxCadenceGapMs) || maxCadenceGapMs < maxGapMs || maxCadenceGapMs > 2000) {
     throw new RangeError('Invalid view-guard dwell, visibility or geometry threshold.');
   }
   let epoch = 0, state = 'unavailable', reason = 'initializing';
   let previous = null, stableSince = null, lastInputTime = null, reacquireReason = 'initializing';
+  let observations = 0; const cadence = [];
   const snapshot = () => ({ state, reason, epoch });
   const unavailable = why => {
     if (state !== 'unavailable') epoch++;
     state = 'unavailable'; reason = why; previous = null; stableSince = null;
+    cadence.length = 0; observations = 0;
     reacquireReason = 'tracking-restored';
     return snapshot();
   };
   const begin = (current, why, advanceEpoch) => {
     if (advanceEpoch) epoch++;
     previous = current; stableSince = current.timestampMs;
+    observations = 1;
     state = 'reacquiring'; reason = why; reacquireReason = why;
     return snapshot();
   };
@@ -67,7 +72,12 @@ export function createViewGuard({
       if (!current) return unavailable('tracking-unavailable');
       if (!previous) return begin(current, reacquireReason, false);
       if (current.widthPx !== previous.widthPx || current.heightPx !== previous.heightPx) return begin(current, 'image-size-changed', true);
-      if (current.timestampMs - previous.timestampMs > maxGapMs) return begin(current, 'tracking-gap', true);
+      const interval = current.timestampMs - previous.timestampMs;
+      const sorted = [...cadence].sort((a, b) => a - b);
+      const typical = sorted.length ? sorted[Math.floor((sorted.length - 1) / 2)] : 0;
+      const allowedGap = cadenceAware ? Math.max(maxGapMs, Math.min(maxCadenceGapMs, typical * 1.5)) : maxGapMs;
+      cadence.push(interval); if (cadence.length > 8) cadence.shift();
+      if (interval > allowedGap) return begin(current, 'tracking-gap', true);
       const same = mean(current.points.map((point, index) => distance(point, previous.points[index])));
       const swapped = mean(current.points.map((point, index) => distance(point, previous.points[SWAPPED[index]])));
       if (Math.min(current.sideSeparation, previous.sideSeparation) >= minSideSeparation && same >= minSideSeparation && swapped < same * identityFlipRatio) {
@@ -77,13 +87,15 @@ export function createViewGuard({
       if (Math.max(current.scale / previous.scale, previous.scale / current.scale) > scaleRatioJump) return begin(current, 'abrupt-scale-change', true);
       if (current.points.some((point, index) => distance(point, previous.points[index]) > jointJump)) return begin(current, 'abrupt-joint-jump', true);
       previous = current;
-      state = current.timestampMs - stableSince >= stableForMs ? 'stable' : 'reacquiring';
+      observations++;
+      state = observations >= 3 && current.timestampMs - stableSince >= stableForMs ? 'stable' : 'reacquiring';
       reason = state === 'stable' ? 'stable-window' : reacquireReason;
       return snapshot();
     },
     reset() {
       epoch++; state = 'reacquiring'; reason = 'manual-reset'; reacquireReason = reason;
       previous = null; stableSince = null; lastInputTime = null;
+      cadence.length = 0; observations = 0;
       return snapshot();
     },
   };

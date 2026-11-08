@@ -72,3 +72,24 @@ test('the complete recorded clear-squat landmark fixture preserves continuity th
   assert.equal(results.at(-1).state, 'stable');
   assert.equal(results.filter(result => result.state === 'stable').length, 49);
 });
+
+test('bounded cadence adaptation permits steady 300–500ms observations without endless epoch churn', () => {
+  for (const interval of [300, 500]) {
+    const guard = createViewGuard();
+    const results = Array.from({ length: 20 }, (_, index) => guard.update(sample(index * interval)));
+    assert.equal(results.at(-1).state, 'stable');
+    assert.equal(results.at(-1).epoch, 1);
+    assert.ok(results.filter(result => result.state === 'stable').length >= 15);
+    assert.equal(guard.update(sample(20 * interval + 1500)).reason, 'tracking-gap');
+  }
+});
+test('cadence adaptation remains bounded and optional, reset discards its learned interval', () => {
+  for (const options of [{}, { cadenceAware: false }]) {
+    const guard = createViewGuard(options), interval = options.cadenceAware === false ? 300 : 1100;
+    for (let i = 0; i < 20; i++) assert.notEqual(guard.update(sample(i * interval)).state, 'stable');
+  }
+  const guard = createViewGuard();
+  for (let i = 0; i < 10; i++) guard.update(sample(i * 500));
+  guard.reset(); guard.update(sample(0));
+  assert.equal(guard.update(sample(500)).reason, 'tracking-gap');
+});

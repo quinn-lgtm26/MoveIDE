@@ -1,19 +1,34 @@
 import QRCode from 'qrcode';
+import { createLiveChart } from './motion/live-chart.mjs';
+import { createSessionDiagnostics } from './session-diagnostics.mjs';
 import { createPairing, connectReceiver, revokePairing } from './transport/client.mjs';
 import { startLiveSquat } from './motion/index.mjs';
 import { buildLiveCoachBundle } from './motion/phase-evidence.mjs';
+import { createCoachingQueue } from './motion/coaching-queue.mjs';
 import { drawSquatOverlay } from '../motion/overlay.mjs';
 import { validateCoachingResponse } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
 import { createLiveRecorder, createLiveArchive } from '../history/live-recorder.mjs';
-import { createSessionId, saveSession } from '../history/index.mjs';
+import { createSessionId, saveSession, patchSession } from '../history/index.mjs';
 
 const $ = id => document.getElementById(id);
+const diagnostics = createSessionDiagnostics($('live-diagnostics'), $('download-diagnostics'));
+const liveChart = createLiveChart($('live-chart'));
+let lastDiagnosticAt = -Infinity;
 const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d');
 let controller, media, analysis, receiver, pairing, phoneFeedback, currentCoach, coachingPauseKey, latest, lastArrived = 0, animation, completed = 0;
 let capture;
+let coachingController, coachingCapture;
 let reviewGeneration = 0, replayUrl = null;
 const unsaved = new Set();
+function setReviewLinksPending(pending) {
+  for (const link of document.querySelectorAll('a[href="/#history"], #saved-sessions a')) {
+    if (link.dataset.sessionId && link.dataset.sessionId !== coachingCapture?.id) continue;
+    if (pending) { link.target = '_blank'; link.rel = 'noopener'; }
+    else { link.removeAttribute('target'); link.removeAttribute('rel'); }
+    if (link.dataset.sessionId) link.textContent = pending ? 'Review saved session (opens a new tab while coaching finishes)' : 'Open saved session';
+  }
+}
 
 function clearStoppedReview() {
   video.pause(); video.srcObject = null; video.removeAttribute('src'); video.controls = false;
@@ -69,7 +84,7 @@ function saveCapture(owned, finalRecording) {
   };
   const clearRecovery = () => {
     for (const url of downloadUrls) URL.revokeObjectURL(url);
-    downloadUrls.clear(); recovery.replaceChildren(); recovery.remove(); finalized = null; finalRecording = null;
+    downloadUrls.clear(); recovery.replaceChildren(); recovery.hidden = true; recoveryReady = false; finalized = null; finalRecording = null;
   };
   const showRecovery = () => {
     if (!finalized || !owned.archive) return;
@@ -85,7 +100,7 @@ function saveCapture(owned, finalRecording) {
     jsonDownload.onclick = () => {
       const { evidence, source, startedAt, ...live } = owned.archive.live;
       const data = { schemaVersion: 1, id: owned.id, kind: 'live', createdAt: owned.startedAt, savedLocally: false,
-        video: finalized.videoBlob ? { bytes: finalized.videoBlob.size, mimeType: finalized.videoBlob.type, storedSeparately: true } : null,
+        video: finalized.videoBlob ? { bytes: finalized.videoBlob.size, mimeType: finalized.videoBlob.type, storedSeparately: true } : owned.recordingInfo?.bytes ? { bytes: owned.recordingInfo.bytes, mimeType: owned.recordingInfo.mimeType, storedSeparately: true, availableInSavedSession: true } : null,
         live: { ...live, recording: finalized.recording, timing: { alignment: finalized.recording.alignment, timingNote: finalized.recording.timingNote, firstSampleMapping: finalized.recording.firstSampleMapping } },
         metadata: { source, sessionDurationMs: owned.durationMs },
         evidenceImages: evidence.map(({ blob, ...image }) => ({ ...image, bytes: blob.size, mimeType: blob.type, storedSeparately: true })) };
@@ -105,31 +120,40 @@ function saveCapture(owned, finalRecording) {
   retry.textContent = 'Retry save'; discard.textContent = 'Discard unsaved session'; retry.hidden = discard.hidden = true;
   row.append(status, retry, discard, recovery); $('saved-sessions').prepend(row);
   unsaved.add(owned);
-  let pending = false;
+  let pending = false, queued = false;
   const run = async () => {
-    if (pending) return;
+    if (pending) { queued = true; return; }
+    if (!owned.archive) return;
+    unsaved.add(owned);
     pending = true; retry.hidden = discard.hidden = recovery.hidden = true; status.textContent = 'Saving session on this computer…';
     try {
-      const recorded = await finalRecording;
+      const recorded = owned.saved ? { recording: owned.recordingInfo, videoBlob: null } : await finalRecording;
       finalized = recorded;
       const { evidence, source, startedAt, samplesTruncated, repsTruncated, ...data } = owned.archive.live;
-      const saved = await saveSession({ id: owned.id, kind: 'live', title: `${source === 'phone' ? 'iPhone' : 'Camera'} squat · ${new Date(owned.startedAt).toLocaleString()}`,
-        createdAt: owned.startedAt, video: recorded.videoBlob, report: null, evidenceImages: evidence,
-        live: { ...data, timing: { alignment: recorded.recording.alignment, timingNote: recorded.recording.timingNote, firstSampleMapping: recorded.recording.firstSampleMapping }, recording: recorded.recording },
-        metadata: { source, samplesTruncated, repsTruncated, sessionDurationMs: owned.durationMs, evidenceTimestamps: evidence.map(({ blob, ...reference }) => reference) } });
-      unsaved.delete(owned); owned.archive = null;
-      status.textContent = recorded.videoBlob ? `Saved on this computer · ${(recorded.recording.durationMs / 1000).toFixed(0)}s recorded${recorded.recording.stopReason.endsWith('limit') ? ' (session prefix)' : ''}. ` : 'Measurements and notes saved on this computer; video unavailable. ';
-      const link = document.createElement('a'); link.href = `/?session=${encodeURIComponent(saved.id)}`; link.textContent = 'Open saved session'; row.append(link);
+      const live = structuredClone({ ...data, timing: { alignment: recorded.recording.alignment, timingNote: recorded.recording.timingNote, firstSampleMapping: recorded.recording.firstSampleMapping }, recording: recorded.recording });
+      const evidenceImages = [...evidence];
+      const saved = await (owned.saved ? patchSession({ id: owned.id, live, evidenceImages }) : saveSession({ id: owned.id, kind: 'live', title: `${source === 'phone' ? 'iPhone' : 'Camera'} squat · ${new Date(owned.startedAt).toLocaleString()}`,
+        createdAt: owned.startedAt, video: recorded.videoBlob, report: null, evidenceImages,
+        live, metadata: { source, samplesTruncated, repsTruncated, sessionDurationMs: owned.durationMs, evidenceTimestamps: evidence.map(({ blob, ...reference }) => reference) } }));
+      unsaved.delete(owned); owned.saved = true; owned.recordingInfo = recorded.recording;
+      status.textContent = saved.videoBytes ? `Saved on this computer · ${(recorded.recording.durationMs / 1000).toFixed(0)}s recorded${recorded.recording.stopReason.endsWith('limit') ? ' (session prefix)' : ''} · ${data.notes.length} coach notes. ` : 'Measurements and notes saved on this computer; video unavailable. ';
+      if (!row.querySelector('a')) { const link = document.createElement('a'); link.href = `/?session=${encodeURIComponent(saved.id)}`; link.dataset.sessionId = saved.id; link.textContent = 'Open saved session'; row.append(link); }
+      setReviewLinksPending(Boolean(data.repReviews?.some(review => ['queued', 'analyzing'].includes(review.state))));
       clearRecovery();
-      retry.onclick = discard.onclick = null; retry.remove(); discard.remove();
     } catch (error) {
       status.textContent = `Not saved: ${error.message || 'Storage unavailable'}. Download your session or keep this page open to retry.`;
       retry.hidden = discard.hidden = false;
       showRecovery();
-    } finally { pending = false; }
+    } finally { pending = false; if (queued) { queued = false; void run(); } else owned.releaseArchive?.(); }
+  };
+  owned.refreshSaved = run;
+  owned.releaseArchive = () => {
+    if (coachingCapture === owned || unsaved.has(owned)) return;
+    owned.archive = null; owned.refreshSaved = null;
+    retry.onclick = discard.onclick = null;
   };
   retry.onclick = run;
-  discard.onclick = () => { unsaved.delete(owned); owned.archive = null; clearRecovery(); row.remove(); };
+  discard.onclick = () => { unsaved.delete(owned); owned.refreshSaved = null; if (coachingCapture !== owned) owned.archive = null; clearRecovery(); row.remove(); };
   void run();
 }
 const degrees = value => Number.isFinite(value) ? `${value.toFixed(0)}°` : '—';
@@ -150,7 +174,7 @@ const briefFocus = text => text.length > 180 ? `${text.slice(0, 177).trimEnd()}�
 
 function appendCoachingCard(event, result, cite, signal) {
   const feed = $('ai-feed');
-  if (signal.aborted || controller?.signal !== signal || feed.children.length >= 6 ||
+  if (signal.aborted || coachingController?.signal !== signal || feed.children.length >= 6 ||
       [...feed.children].some(card => card.dataset.repKey === event.key)) return false;
   const followLatest = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 48;
   const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key; card.dataset.epoch = String(event.epoch);
@@ -176,48 +200,107 @@ function currentEvidence(event) {
 }
 
 function liveCoach(signal, onResult = () => {}) {
-  let model, busy = false, sent = 0, lastSent = -Infinity, coachState = 'connecting';
-  const seen = new Set();
-  void (async () => {
+  let connectionState = 'connecting', lastFailure = null;
+  const reviewStarted = new Map();
+  const owns = () => coachingController?.signal === signal;
+  const archive = () => owns() ? coachingCapture?.archive?.live : null;
+  const update = (item, state, message) => {
+    if (state === 'analyzing') reviewStarted.set(item.key, performance.now());
+    const reviewLatencyMs = ['ready', 'failed', 'cancelled'].includes(state) && reviewStarted.has(item.key) ? Math.round(performance.now() - reviewStarted.get(item.key)) : null;
+    const data = archive();
+    if (data) {
+      data.repReviews ??= [];
+      data.queueHeartbeatAt = Date.now();
+      const value = { repKey: item.key, repId: item.event.rep.id, viewEpoch: item.event.epoch,
+        timestampMs: item.event.rep.bottomMs, state, message, updatedAt: Date.now() };
+      const existing = data.repReviews.findIndex(review => review.repKey === item.key);
+      if (existing >= 0) data.repReviews[existing] = value;
+      else if (data.repReviews.length < 150) data.repReviews.push(value);
+      if (!capture && coachingCapture?.refreshSaved) void coachingCapture.refreshSaved();
+    }
+    if (!owns()) return;
+    const feed = $('ai-queue');
+    let row = [...feed.children].find(node => node.dataset.repKey === item.key);
+    const hasAcceptedCard = [...$('ai-feed').children].some(card => card.dataset.repKey === item.key);
+    const limitReached = state === 'not-queued' && message.startsWith('Six-review');
+    // The accepted card is the completed review. Keep this list for work still needing attention.
+    if ((state === 'ready' && hasAcceptedCard) || limitReached) row?.remove();
+    else {
+      if (!row && feed.children.length < 150) { row = document.createElement('li'); row.dataset.repKey = item.key; feed.append(row); }
+      if (row) { row.dataset.state = state; row.dataset.status = state; row.textContent = `Rep at ${elapsed(item.event.rep.bottomMs)} · ${state === 'analyzing' ? 'reviewing' : state.replaceAll('-', ' ')} · ${message}`; }
+    }
+    if (limitReached) $('ai-limit').hidden = false;
+    if (state === 'failed') lastFailure = message;
+    const pending = data?.repReviews.filter(review => ['queued', 'analyzing'].includes(review.state)).length ?? 0;
+    setReviewLinksPending(pending > 0);
+    diagnostics.append('rep-review', { state, epoch: item.event.epoch, latencyMs: reviewLatencyMs, queued: pending, reason: state === 'failed' ? connectionState === 'offline' ? 'provider-disconnected' : 'provider-failed' : state });
+    window.dispatchEvent(new CustomEvent('moveide:review-state', { detail: { repKey: item.key, timestampMs: item.event.rep.bottomMs, viewEpoch: item.event.epoch, state, message, pending, reviewLatencyMs } }));
+    const ready = data?.repReviews.filter(review => review.state === 'ready').length ?? 0;
+    const readySummary = ready ? `${ready} ${ready === 1 ? 'review' : 'reviews'} ready below. ` : '';
+    $('ai').textContent = readySummary + (pending ? `${pending} rep ${pending === 1 ? 'review' : 'reviews'} still finishing. Keep this page open${controller ? '; you can keep moving.' : '; your camera is off.'}`
+      : state === 'ready' ? '' : state === 'failed' ? message : state === 'cancelled' ? 'Pending reviews were cancelled. Accepted notes remain saved.' : message);
+  };
+  const modelReady = (async () => {
     try {
       const connection = await chatGPTProvider.getConnection(signal);
-      if (signal.aborted) return;
-      if (connection.state !== 'connected') { coachState = 'offline'; $('ai').textContent = 'Connect ChatGPT on the Recorded clip page to get coach notes. Your form check works without it.'; return; }
-      const models = await chatGPTProvider.listModels(signal);
-      if (signal.aborted) return;
-      model = models[0]?.id; coachState = model ? 'ready' : 'offline';
-      $('ai').textContent = model ? 'Connected · notes arrive after finished reps.' : 'No ChatGPT model available. Your form check keeps running.';
-    } catch { if (!signal.aborted) { coachState = 'offline'; $('ai').textContent = 'Can’t reach ChatGPT. Your form check keeps running.'; } }
+      signal.throwIfAborted();
+      if (connection.state !== 'connected') { connectionState = 'offline'; return null; }
+      const models = await chatGPTProvider.listModels(signal); signal.throwIfAborted();
+      connectionState = models[0]?.id ? 'ready' : 'offline'; return models[0]?.id ?? null;
+    } catch { connectionState = 'offline'; return null; }
   })();
-  const coach = async event => {
-    if (signal.aborted || !currentEvidence(event) || !model || busy || sent >= 6 || performance.now() - lastSent < 8000 || seen.has(event.key)) return;
-    let packet, images;
-    try {
-      ({ packet, images } = buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages));
-      if (!packet.measurements.length || !images.length || images.some(image => !image.blob)) return;
-    } catch { return; }
-    busy = true; coachState = 'reviewing'; sent++; lastSent = performance.now(); seen.add(event.key);
-    if (sent >= 6) $('ai-limit').hidden = false;
-    $('ai').textContent = `Coach is reviewing your rep at ${elapsed(event.rep.bottomMs)}… keep going.`;
-    try {
-      const result = validateCoachingResponse(await chatGPTProvider.interpret(packet, images, { model, signal }), packet);
-      if (signal.aborted) return;
-      const stillCurrent = currentEvidence(event);
-      const evidence = new Map([...packet.measurements.map(item => [item.id, item.evidenceTimestampMs]), ...packet.evidence.map(item => [item.id, item.timestampMs])]);
-      const cite = item => `${item.text} [${[...new Set(item.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
+  void modelReady.then(model => {
+    if (signal.aborted || !owns() || archive()?.repReviews?.length) return;
+    $('ai').textContent = model ? 'Connected · completed reps queue automatically for review.' : 'Connect ChatGPT on the Recorded clip page to get coach notes. Your form check works without it.';
+  });
+  const queue = createCoachingQueue({ signal,
+    prepare: async () => {
+      const model = await modelReady; signal.throwIfAborted();
+      if (!model) throw Object.assign(new Error('provider-unavailable'), { code: 'provider_disconnected' });
+      return model;
+    },
+    review: async (item, _signal, model) => {
+      const { packet, images } = item.bundle;
+      return validateCoachingResponse(await chatGPTProvider.interpret(packet, images, { model, signal }), packet);
+    },
+    onState(item, state, message) {
+      update(item, state, state === 'failed' && connectionState === 'offline' ? 'ChatGPT is not connected. Local measurements are available.' : message);
+    },
+    onResult(item, result) {
+      if (signal.aborted || !owns()) return;
+      const { event, bundle: { packet } } = item;
+      const evidence = new Map([...packet.measurements.map(value => [value.id, value.evidenceTimestampMs]), ...packet.evidence.map(value => [value.id, value.timestampMs])]);
+      const cite = value => `${value.text} [${[...new Set(value.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
       if (!appendCoachingCard(event, result, cite, signal)) return;
-      if (capture?.own.signal === signal) capture.archive.note(event, result, packet);
-      coachState = 'reviewed';
-      $('ai').textContent = stillCurrent ? `Next focus: ${briefFocus(result.nextFocus.text)}` : `Note added for your earlier rep at ${elapsed(event.rep.bottomMs)}.`;
-      onResult({ kind: 'ai', text: briefFocus(stillCurrent ? result.nextFocus.text : `Earlier view ${event.epoch + 1}: ${result.nextFocus.text}`), sourceTimestampMs: event.rep.bottomMs }, event.epoch);
-    } catch { if (!signal.aborted) { coachState = 'error'; $('ai').textContent = 'Couldn’t get a coach note for that rep. Your form check keeps running.'; } }
-    finally { busy = false; }
+      coachingCapture?.archive?.note(event, result, packet);
+      onResult({ kind: 'ai', text: briefFocus(currentEvidence(event) ? result.nextFocus.text : `Earlier rep: ${result.nextFocus.text}`), sourceTimestampMs: event.rep.bottomMs }, event.epoch);
+    },
+  });
+  const coach = event => {
+    if (signal.aborted || !owns()) return;
+    let bundle;
+    try {
+      bundle = buildLiveCoachBundle(event.report, event.rep.id, event.evidenceImages);
+      if (!bundle.packet.measurements.length || !bundle.images.length || bundle.images.some(image => !image.blob)) throw new Error('missing-evidence');
+    } catch { update({ key: event.key, event }, 'not-queued', 'Exact source images or measurements were unavailable for this rep.'); return; }
+    // Freeze source ownership at completion. Current display age/view cannot invalidate historical evidence.
+    queue.enqueue(structuredClone({ key: event.key, event, bundle }));
   };
-  coach.viewChanged = () => {
-    if (signal.aborted) return;
-    if (coachState === 'reviewed') $('ai').textContent = 'Your earlier notes stay below.';
-    if (coachState === 'reviewing') $('ai').textContent = 'Coach is still reviewing your last finished rep.';
+  const heartbeat = setInterval(() => {
+    const data = archive();
+    if (!signal.aborted && data?.repReviews?.some(review => ['queued', 'analyzing'].includes(review.state))) {
+      data.queueHeartbeatAt = Date.now();
+      if (!capture && coachingCapture?.refreshSaved) void coachingCapture.refreshSaved();
+    }
+  }, 3000);
+  signal.addEventListener('abort', () => clearInterval(heartbeat), { once: true });
+  coach.viewChanged = () => {};
+  coach.stopped = () => {
+    const pending = queue.snapshot();
+    if (pending.queued || pending.running) $('ai').textContent = `${pending.queued + pending.running} rep reviews still finishing. Camera off; keep this page open. Queued work cannot resume after closing it.`;
+    else if (lastFailure) $('ai').textContent = lastFailure;
   };
+  coach.snapshot = () => ({ ...queue.snapshot(), connectionState });
   return coach;
 }
 
@@ -274,7 +357,10 @@ function render() {
   $('detail').textContent = latest.feedback.label;
 }
 
-function stop(message = 'Session stopped', { persist = true } = {}) {
+function stop(message = 'Session stopped', { persist = true, cancelCoaching = false } = {}) {
+  liveChart.stop();
+  diagnostics.append('capture-stop', { state: cancelCoaching ? 'cancelled' : 'draining', completed });
+  if (cancelCoaching) coachingController?.abort();
   const ownedCapture = capture; capture = null;
   if (ownedCapture) {
     ownedCapture.durationMs = performance.now() - ownedCapture.startClock;
@@ -285,7 +371,7 @@ function stop(message = 'Session stopped', { persist = true } = {}) {
       if (ownedCapture.saveEnabled) saveCapture(ownedCapture, recorded);
     }
   }
-  const previous = controller; controller = null; phoneFeedback = null; currentCoach = null; coachingPauseKey = null;
+  const previous = controller; controller = null; phoneFeedback = null; coachingPauseKey = null;
   const oldReceiver = receiver, oldPairing = pairing; receiver = null; pairing = null;
   previous?.abort();
   if (oldReceiver) void oldReceiver.stop().catch(() => {});
@@ -308,6 +394,7 @@ function stop(message = 'Session stopped', { persist = true } = {}) {
   $('phase').textContent = 'Waiting for you'; $('age').textContent = formCheck(Infinity);
   const reviews = $('ai-feed').children.length;
   $('ai').textContent = reviews ? `Session stopped · ${reviews} coach ${reviews === 1 ? 'note' : 'notes'} below.` : 'Session stopped · no coach notes yet.';
+  currentCoach?.stopped();
 }
 
 async function waitForVideo(signal) {
@@ -355,6 +442,7 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
     {
       const owned = { own, generation: reviewGeneration, saveEnabled: $('save-local').checked, id: createSessionId(), startedAt: Date.now(), startClock: performance.now(), archive: createLiveArchive({ source }) };
       capture = owned;
+      coachingCapture = owned;
       owned.recorder = createLiveRecorder(stream, { onStatus(state) {
         if (capture !== owned || controller !== own) return;
         $('recording-status').textContent = state.state === 'recording' ? owned.saveEnabled ? 'Recording on this computer · Stop to save. Up to 5 minutes / 100 MiB.' : 'Temporary recording for replay · saving is off. Cleared on next Start or leaving this page. Up to 5 minutes / 100 MiB.'
@@ -371,7 +459,12 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
       onSample(sample) {
         if (controller !== own || own.signal.aborted) return;
         const changedEpoch = latest && latest.viewGuard.epoch !== sample.viewGuard.epoch;
-        latest = sample; lastArrived = performance.now();
+        latest = sample; lastArrived = performance.now(); liveChart.push(sample);
+        if (lastArrived - lastDiagnosticAt >= 1000) {
+          lastDiagnosticAt = lastArrived;
+          diagnostics.append('pose-sample', { latencyMs: sample.processingLatencyMs, fps: sample.stats.analyzedHz, processed: sample.stats.processedFrames, dropped: sample.stats.droppedBusy, epoch: sample.viewGuard.epoch, tracking: sample.viewGuard.state, reason: sample.viewGuard.reason, width: video.videoWidth, height: video.videoHeight });
+        }
+        window.dispatchEvent(new CustomEvent('moveide:live-sample', { detail: { timestampMs: sample.timestampMs, phase: sample.phase, analysisEligible: sample.analysisEligible, metrics: sample.metrics, metricValidity: sample.metricValidity, viewGuard: sample.viewGuard, processingLatencyMs: sample.processingLatencyMs, stats: sample.stats } }));
         if (capture?.own === own) { capture.recorder.markSample(sample); capture.archive.sample(sample); }
         video.dataset.analysisEpoch = String(sample.viewGuard.epoch);
         $('view-status').textContent = sample.analysisEligible ? 'Good side view · measuring each rep.' : sample.viewGuard.state !== 'stable' ? 'Hold still while we lock on to you.' : 'Turn side-on so we can measure depth.';
@@ -383,6 +476,8 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
       },
       onRepComplete(event) {
         if (controller !== own || own.signal.aborted) return;
+        liveChart.rep(event);
+        diagnostics.append('rep-complete', { epoch: event.epoch, rep: completed + 1 });
         completed++; $('count').textContent = String(completed);
         if (capture?.own === own) capture.archive.rep(event);
         $('rep').textContent = `Rep ${completed} · ${elapsed(event.rep.bottomMs)}: ${event.feedback.label}`;
@@ -400,9 +495,13 @@ async function analyzeStream(own, stream, coachRep, source, sendFeedback) {
 $('start').onclick = async () => {
   if (controller) return;
   if (unsaved.size >= 2) { $('error').textContent = 'Retry saving or discard an unsaved session below before starting another.'; return; }
+  coachingController?.abort();
+  const oldCoachingCapture = coachingCapture; coachingCapture = null; oldCoachingCapture?.releaseArchive?.();
+  coachingController = new AbortController();
   reviewGeneration++; clearStoppedReview();
   const own = new AbortController(); controller = own;
   const source = $('source').value;
+  diagnostics.reset(); liveChart.reset(); lastDiagnosticAt = -Infinity; diagnostics.append('session-start', { source });
   let lastFeedbackAt = -Infinity, lastFeedbackKind = null, aiRetry, pendingAi = null;
   own.signal.addEventListener('abort', () => { clearTimeout(aiRetry); pendingAi = null; }, { once: true });
   const sendFeedback = (payload, attempts = 10, evidenceEpoch = latest?.viewGuard.epoch) => {
@@ -421,7 +520,7 @@ $('start').onclick = async () => {
     } else if (payload.kind === 'ai') pendingAi = null;
   };
   phoneFeedback = sendFeedback;
-  const coachRep = liveCoach(own.signal, (payload, epoch) => sendFeedback(payload, 10, epoch));
+  const coachRep = liveCoach(coachingController.signal, (payload, epoch) => sendFeedback(payload, 10, epoch));
   currentCoach = coachRep; coachingPauseKey = null;
   $('error').textContent = ''; $('phone-setup').hidden = true;
   $('start').disabled = true; $('stop').hidden = false; $('source').disabled = true;
@@ -432,6 +531,7 @@ $('start').onclick = async () => {
   $('rep').removeAttribute('data-state'); $('latency').textContent = '—';
   $('ai').textContent = 'Checking ChatGPT connection…'; $('ai-limit').hidden = true;
   $('ai-feed').replaceChildren(); $('ai-feed').scrollTop = 0; $('ai-empty').hidden = false;
+  $('ai-queue').replaceChildren();
   try {
     if (source === 'phone') {
       const created = await createPairing({ signal: own.signal });
@@ -461,7 +561,7 @@ $('start').onclick = async () => {
         onState({ status, detail }) {
           if (own.signal.aborted || controller !== own) return;
           if (status === 'closed') {
-            stop('Phone disconnected. Start a new session.');
+            stop('Phone disconnected. Start a new session.', { cancelCoaching: true });
             $('error').textContent = detail === 'expired' ? 'Your private phone session expired. Start again to create a fresh link.' : `${detail || 'Phone connection ended.'} Start again for a fresh private link.`;
           } else if (!attached) $('status').textContent = status === 'connecting' ? 'Connecting your iPhone' : 'Waiting for your iPhone';
         },
@@ -488,5 +588,5 @@ $('copy-phone').onclick = async () => {
 };
 $('source').onchange = () => { $('phone-setup').hidden = true; $('error').textContent = ''; };
 $('stop').onclick = () => stop();
-window.addEventListener('beforeunload', event => { if (capture || unsaved.size) { event.preventDefault(); event.returnValue = ''; } });
-window.addEventListener('pagehide', () => { reviewGeneration++; stop('Session ended', { persist: false }); clearStoppedReview(); });
+window.addEventListener('beforeunload', event => { const pending = currentCoach?.snapshot(); if (capture || unsaved.size || pending?.queued || pending?.running) { event.preventDefault(); event.returnValue = ''; } });
+window.addEventListener('pagehide', () => { reviewGeneration++; stop('Session ended', { persist: false, cancelCoaching: true }); clearStoppedReview(); });

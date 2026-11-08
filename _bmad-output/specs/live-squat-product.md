@@ -78,9 +78,9 @@ Target setup: an iPhone rear camera and MacBook on the same Wi-Fi, with stable f
 - Use monotonic per-session frame time, stable session/source IDs, and a separate wall-clock for transport diagnostics. Reconnect starts a new generation. A result from an old stream cannot paint over the new one.
 - Timestamp alignment must refer to the frame the person sees. Do not render old skeleton geometry on a newer live frame. If an exactly associated frame cannot be presented, gate by a documented age limit and visibly mark loss. Measure transport, inference and display delay separately where possible.
 - Provisional demo targets: at least 8 usable pose updates/second and camera-to-overlay p95 at or below 250 ms on the actual devices. These are product targets, not measured results or a reason to conceal failures. Tune only after the hardware test and document the measured operating envelope.
-- AI interprets a bounded packet after a complete rep. Current live harness policy caps requests at six per session, waits at least eight seconds between dispatches, permits one in flight, and skips while busy with no queue. Local cues continue independently. The root recorded-video path sends one bounded request for up to two completed reps per report.
+- AI interprets a bounded packet after a complete rep. Current live harness policy caps requests at six per session, waits at least eight seconds between dispatches, permits one in flight, and queues immutable completed-rep bundles in a bounded FIFO. Local cues continue independently. The root recorded-video path sends one bounded request for up to two completed reps per report.
 - Validate returned evidence IDs; accept only IDs in that request. Preserve source/session/rep binding. Display the AI cue at its evidence window during replay and keep earlier/later cues from appearing as current-frame diagnoses. Live replies show “About rep N” even if the next rep has begun.
-- Stop, source replacement, disconnect, and logout cancel or invalidate pending requests. Failure keeps local video and metrics usable and states whether the coach is unavailable. Do not retry indefinitely or silently send more frames.
+- For live capture, Stop saves the replay and lets its bounded queue finish. New Start, source replacement and revoked authorization cancel unfinished requests. Failure keeps local video and metrics usable and states whether the coach is unavailable. Do not retry indefinitely or silently send more frames.
 
 Optional hardware fallback: a supported iPhone can appear as a Mac webcam through Continuity Camera, with the same Apple Account, required device/OS versions and nearby Wi-Fi/Bluetooth; USB is also supported ([Apple](https://support.apple.com/en-au/102546)). Actual browser camera enumeration and full-body framing must be tested. This fallback is not proof of QR/WebRTC functionality.
 
@@ -129,7 +129,7 @@ Moving-camera release depends on VIEW-4/5/6 and R-2: multiple real side/front/ob
 
 ### View-epoch versus source/session invalidation
 
-A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
+A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Live Stop drains the current session’s bounded queue; new source/session or revoked authorization aborts unfinished work.
 
 ## Latest implementation evidence
 

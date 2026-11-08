@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:54:10.172Z",
+  "verifiedAtUtc": "2026-11-08T01:11:27.710Z",
   "surface": "isolated Chromium IndexedDB on ephemeral localhost origin",
   "checks": {
     "reloadPreservesOriginalVideoReportAndReplay": true,
@@ -10,6 +10,8 @@
     "simulatedAppCapRejectsWithoutEviction": true,
     "coachingMustMatchSavedReportAndDerivedSegments": true,
     "liveDataAndEvidenceAssetsPersist": true,
+    "lateCoachingPatchPreservesRenameAssetsAndCannotResurrectDeletedSession": true,
+    "heartbeatMetadataSkipsMediaReadWithoutHidingContentChanges": true,
     "corruptionRejectedAndExplicitDeletionClearsAssets": true,
     "unavailableStorageHasActionableStatus": true
   },

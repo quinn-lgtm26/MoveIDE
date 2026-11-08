@@ -68,7 +68,7 @@ const system = [
   {
     "title": "Optional provider",
     "stack": "Node loopback · OAuth with PKCE · Responses · validated output",
-    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers new inference; Stop cancels late work. Live requests are capped and evidence-bound. No full-video upload is claimed."
+    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers new inference; Live Stop drains bounded queued reviews; new Start cancels unfinished work. Live requests are evidence-bound. No full-video upload is claimed."
   },
   {
     "title": "Optional OpenCap research import",

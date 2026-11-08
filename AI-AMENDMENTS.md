@@ -8,7 +8,15 @@ After initial account/camera setup, **Start coached squat** automatically coordi
 
 For a recording, call shared `analyzeSquat`, then `prepareCoachingBundle(report, originalSource, {repIds,signal})`; the current path selects up to two complete reps/four source images. Call `chatGPTProvider.interpret` once per authorized report. Validate source binding through `getCoachingSegments`; seek/play uses stored results, not new requests. Report/packet exports are developer details only.
 
-For live video, use `startLiveSquat` and its completed-rep event/cached exact accepted pixels. Join packet evidence by source timestamp, not current screenshot time. Current limits: **one request in flight,≥8 seconds between dispatches, six calls per Start/Stop session**, skip while busy with no queue. Keep local analysis/video usable while waiting.
+For live video, use `startLiveSquat` and its completed-rep event/cached exact accepted pixels. Join packet evidence by source timestamp, not current screenshot time. Current limits: **one request in flight,≥8 seconds between dispatches, six calls per Start/Stop session**, queue immutable completed-rep bundles in a bounded FIFO. Keep local analysis/video usable while waiting.
+
+## Physical-demo correction — queued rep reviews
+
+The 2026-11-07 phone test showed that an empty AI panel could hide late/aborted interpretation. Show every completed rep's review state: queued, analyzing, ready, failed, cancelled or not queued at the six-review limit. Keep the last accepted card visible while the next request works. One request runs at a time, with at least eight seconds between actual dispatches; busy reps enter the bounded queue rather than disappearing. Full video remains local.
+
+Live Stop stops capture and saves the recording while queued reviews finish in the originating page. Save accepted results and state updates with `patchSession`, which cannot recreate a deleted recording or replace its video. History polls revisions, preserves playback while results arrive, and labels stale queue progress unconfirmed. Open History separately while work remains; leaving/closing the originating page interrupts its in-memory queue. Do not imply server-side continuation or automatic restart. New Start cancels unfinished old reviews. Persistent resumable jobs are a future extension.
+
+The live chart shows a bounded thirty-second window of knee/hip/torso estimates and rep markers, with gaps for unavailable tracking and view changes. A collapsible local diagnostic log exposes frame cadence, tracking reasons and review progress without packet contents, media, credentials or pairing URLs. Saved replay follows its approximate clock map and never invents frame-exact pose overlays.
 
 ## Stacked coaching behavior
 
@@ -16,7 +24,7 @@ Append a concise source-timestamped card when an eligible observation arrives. K
 
 Short primary actions aim for12 words or fewer; full observations remain in details. The provider asks for concise output, but a prompt alone is not a UI length guarantee. Local templates need local labels. A delayed AI card says **About rep N** and must not imply current-frame detection. Deduplicate semantic events across rewind/replay; preserve scroll/focus for someone reading an earlier card. No typed-out paragraphs or page jumps.
 
-New source/session/model invalidates pending work and clears the applicable history. Stop aborts pending requests but preserves accepted session cards. Capture/view loss clears unreliable current geometry/numbers; historical cards remain explicitly evidence-bound. Never pin an old body's skeleton or an old region highlight onto a different current frame.
+New source/session/model invalidates pending work and clears the applicable history. Live Stop ends capture, retains cards and drains already queued reviews for that session. New Start or revoked authorization cancels unfinished work. Capture/view loss clears unreliable current geometry/numbers; historical cards remain explicitly evidence-bound. Never pin an old body's skeleton or an old region highlight onto a different current frame.
 
 ## Phone and provider boundaries
 
@@ -43,7 +51,7 @@ Root retained-feed integration now passes fifteen controlled-provider developmen
 
 ### View-epoch versus source/session invalidation
 
-A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
+A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Live Stop drains the current session’s bounded queue; new source/session or revoked authorization aborts unfinished work.
 
 Historical automated checkpoint: `npm test` passed86 harness tests and4 launcher tests. The latest integrated checkpoint passed110 harness and8 launcher/doctor tests (118 total), with no failures, cancellations or skips. Public real-provider return now passes; physical-device and independent-accuracy acceptance remain separate.
 

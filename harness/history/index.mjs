@@ -4,7 +4,7 @@ import { getCoachingSegments } from '../coaching/playback.mjs';
 import { validateHistoryReport } from './report-validation.mjs';
 export const HISTORY_LIMITS = Object.freeze({ videoBytes: 100 * 1024 ** 2, appBytes: 500 * 1024 ** 2,
   metadataBytes: 8 * 1024 ** 2, evidenceImages: 18, evidenceImageBytes: 1024 ** 2,
-  liveSamples: 10_000, liveNotes: 512, liveReps: 2000 });
+  liveSamples: 10_000, liveNotes: 512, liveReps: 2000, liveRepReviews: 150 });
 const DB_NAME = 'moveide-history-v1';
 let databasePromise;
 export class HistoryError extends Error {
@@ -76,11 +76,22 @@ function readRow(tx, store, id, callback, abort) {
   const request = tx.objectStore(store).get(id);
   request.onsuccess = () => { try { callback(request.result); } catch (error) { abort(error); } };
 }
+// Heartbeats update liveness only. All other session data and asset identities advance contentRevision.
+function contentSnapshot(row, assets) {
+  const live = row.live ? { ...row.live } : null;
+  if (live) delete live.queueHeartbeatAt;
+  return JSON.stringify({ kind: row.kind, title: row.title, createdAt: row.createdAt,
+    report: row.report, coaching: row.coaching, live, metadata: row.metadata,
+    videoSha256: assets?.videoSha256 ?? null, videoBytes: assets?.video?.size ?? 0,
+    evidence: (assets?.evidenceImages ?? []).map(({timestampMs,viewEpoch,phase,repKey,imageSha256,blob}) =>
+      ({timestampMs,viewEpoch,phase,repKey,imageSha256,bytes:blob.size,mimeType:blob.type})) });
+}
 function summary(row) {
   const duration = row.report?.clip?.durationMs ?? row.live?.recording?.durationMs ?? row.metadata?.durationMs;
   const model = row.report?.poseModel?.id ?? row.metadata?.model;
   return { id: row.id, kind: row.kind, title: row.title, createdAt: row.createdAt, updatedAt: row.updatedAt,
-    revision: row.revision, hasVideo: row.videoBytes > 0, videoBytes: row.videoBytes,
+    revision: row.revision, contentRevision: row.contentRevision ?? row.revision,
+    queueHeartbeatAt: Number.isSafeInteger(row.live?.queueHeartbeatAt) && row.live.queueHeartbeatAt >= 0 ? row.live.queueHeartbeatAt : null, hasVideo: row.videoBytes > 0, videoBytes: row.videoBytes,
     videoSha256: row.videoSha256, evidenceImageCount: row.evidenceImageCount,
     repCount: row.report?.reps?.length ?? row.live?.reps?.length ?? 0,
     durationMs: Number.isFinite(duration) && duration >= 0 ? duration : null,
@@ -100,7 +111,13 @@ function validCoaching(coaching, report) {
 }
 export function createSessionId() { return crypto.randomUUID(); }
 
-export async function saveSession(input) {
+/** Create or patch a session. Use patchSession for late responses that must never recreate deleted data. */
+export async function saveSession(input) { return writeSession(input, false); }
+
+/** Transactional update only: a deleted/missing session cannot be resurrected by an asynchronous reply. */
+export async function patchSession(input) { return writeSession(input, true); }
+
+async function writeSession(input, requireExisting) {
   validateId(input?.id);
   const allowed = new Set(['id', 'kind', 'title', 'createdAt', 'video', 'evidenceImages', 'report', 'coaching', 'live', 'metadata', 'expectedRevision']);
   if (Object.keys(input).some(key => !allowed.has(key))) fail('invalid_input', 'Unknown session field. Put additional plain data in metadata.');
@@ -130,6 +147,7 @@ export async function saveSession(input) {
     const db = await openDatabase();
     return await transaction(db, 'readwrite', (tx, finish, abort) => {
       readRow(tx, 'sessions', input.id, previous => {
+        if (requireExisting && !previous) fail('not_found', 'This saved session was deleted or is no longer available. Its late coaching was not saved.');
         if (input.expectedRevision !== undefined && input.expectedRevision !== (previous?.revision ?? 0)) fail('conflict', 'This session changed in another tab. Reopen it before applying your update.');
         const row = { id: input.id, schemaVersion: 1, kind: previous?.kind, title: previous?.title,
           createdAt: previous?.createdAt ?? input.createdAt ?? Date.now(), updatedAt: Date.now(), revision: (previous?.revision ?? 0) + 1,
@@ -145,6 +163,19 @@ export async function saveSession(input) {
           if (!Array.isArray(row.live.samples) || !Array.isArray(row.live.notes) || row.live.samples.length > HISTORY_LIMITS.liveSamples || row.live.notes.length > HISTORY_LIMITS.liveNotes ||
             (row.live.reps !== undefined && (!Array.isArray(row.live.reps) || row.live.reps.length > HISTORY_LIMITS.liveReps))) fail('limit_exceeded', 'Live history supports 10,000 samples, 512 notes and 2,000 reps per session; export or finish this recording first.');
           boundedObject(row.live.timing, 'live.timing');
+          if (row.live.queueHeartbeatAt !== undefined && (!Number.isSafeInteger(row.live.queueHeartbeatAt) || row.live.queueHeartbeatAt < 0)) fail('invalid_input', 'Queue heartbeat must be a nonnegative wall-clock timestamp.');
+          if (row.live.repReviews !== undefined) {
+            if (!Array.isArray(row.live.repReviews) || row.live.repReviews.length > HISTORY_LIMITS.liveRepReviews) fail('limit_exceeded', 'Live history supports at most 150 rep review statuses.');
+            const keys = new Set();
+            for (const review of row.live.repReviews) {
+              if (!review || typeof review.repKey !== 'string' || !review.repKey || review.repKey.length > 200 || keys.has(review.repKey) ||
+                  typeof review.repId !== 'string' || !review.repId || review.repId.length > 200 ||
+                  !['viewEpoch', 'timestampMs', 'updatedAt'].every(key => Number.isSafeInteger(review[key]) && review[key] >= 0) ||
+                  !['queued', 'analyzing', 'ready', 'failed', 'cancelled', 'not-queued'].includes(review.state) ||
+                  typeof review.message !== 'string' || review.message.length > 512) fail('invalid_input', 'Saved rep review statuses need unique rep keys, valid times and a bounded status message.');
+              keys.add(review.repKey);
+            }
+          }
         }
         readRow(tx, 'assets', input.id, oldAssets => {
           if (hasVideo && previous?.videoSha256 && videoHash !== previous.videoSha256) fail('source_changed', 'A saved recording cannot change its video bytes. Create a new session for a different recording, or delete this session to remove it.');
@@ -153,6 +184,8 @@ export async function saveSession(input) {
             evidenceImages: hasEvidence ? preparedImages : oldAssets?.evidenceImages ?? [] };
           row.videoBytes = assets.video?.size ?? 0; row.videoSha256 = assets.videoSha256;
           row.evidenceImageCount = assets.evidenceImages.length;
+          const contentChanged = !previous || contentSnapshot(row, assets) !== contentSnapshot(previous, oldAssets);
+          row.contentRevision = (previous?.contentRevision ?? previous?.revision ?? 0) + (contentChanged ? 1 : 0);
           const evidenceBytes = assets.evidenceImages.reduce((sum, image) => sum + image.blob.size, 0);
           const metadataBytes = new TextEncoder().encode(JSON.stringify(row)).byteLength + 1024;
           if (metadataBytes > HISTORY_LIMITS.metadataBytes) fail('limit_exceeded', 'Session data exceeds the 8 MiB metadata limit. Export the session instead of discarding samples.');

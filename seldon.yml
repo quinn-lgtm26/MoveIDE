@@ -8,7 +8,7 @@ testCases:
     steps:
       - Open MoveIDE. Keep Save on this device enabled. This public QA preview has no ChatGPT account; do not log in.
       - Choose Try a sample squat once and wait up to two minutes for Heavy analysis.
-      - Review both complete reps. Select the first rep knee bend measurement or Bottom control; inspect the matching source video moment, skeleton and angle. Play and pause.
+      - Review both complete reps. Select Bottom and inspect the source moment, skeleton and angles. Play and pause; inspect the live-updating chart, units and readable labels. Change the personal reference/compare rep and confirm the differences are understandable and not a good/bad score.
       - Open History, rename the saved sample QA squat review, and open it without starting another analysis.
       - Reload, return to History if needed, reopen QA squat review and download its video and session data.
       - Report confusing wording, layout jumps, unusable controls and misleading AI status.
@@ -26,8 +26,8 @@ testCases:
     name: Live setup comprehension and navigation without a camera
     steps:
       - Navigate to Live coaching. Inspect source selection, Start coached squat, the local saving choice and coaching area before starting.
-      - Read capture guidance and saving explanation. Do not grant a camera or create a phone pairing in this static preview; physical device tests are separate.
+      - Read capture guidance, saving explanation and queued-coach explanation. Inspect the movement chart, practice-target wording and expandable Session diagnostics with its download button. Do not grant a camera or create a phone pairing in this static preview; physical device and queued-response execution tests are separate.
       - Inspect keyboard focus, readable labels and unobstructed controls. If resizing is available, inspect a narrow viewport for page overflow.
       - Follow History from live, check its local-browser explanation and empty or populated state, then return to recorded review.
-      - Report concrete improvements with reproduction steps, including misleading ready or AI claims, unclear setup, disappearing guidance or inaccessible navigation.
-    criteria: Live setup distinguishes camera selection, starting, optional AI and local recording. It shows no fabricated measurements or coaching before capture. History is reachable and has a clear state and return path. Controls and guidance are usable; device-only behavior is explicitly untested.
+      - Review each visible section for consistency with recorded review and History. Report concrete improvements with reproduction steps, including unclear queue/Stop semantics, misleading ready or AI claims, empty graph labels, contrast, clipping, spacing, disappearing guidance or inaccessible navigation.
+    criteria: Live setup distinguishes camera selection, starting, optional AI and local recording. It shows no fabricated measurements or coaching before capture. History is reachable and has a clear state and return path. Controls and guidance are usable; graph/diagnostics explain their empty state. Stop versus queued AI is understandable, and earlier notes are not claimed before capture. Device-only behavior is explicitly untested.

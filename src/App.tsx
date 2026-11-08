@@ -406,6 +406,7 @@ export function App() {
             </p>
 
             <Trace trace={trace} reps={report.reps} playheadMs={sampleMs} onSeek={seek} />
+            <PersonalReference key={`${report.clip.id}|${report.poseModel.id}`} report={report} currentRepId={here?.repId ?? sel?.repId ?? null} onSeek={seek} />
 
             <details open={report.reps.length < 2}><summary><h2>Your numbers</h2></summary>
             {report.measurements.length === 0 && <p>We didn’t find a full squat rep in this video.</p>}
@@ -509,4 +510,30 @@ function Trace({ trace, reps, playheadMs, onSeek }: {
       <figcaption><span className="knee">— knee bend</span>, <span className="torso">— chest angle</span>. Shaded areas are reps. Tap to jump.</figcaption>
     </figure>
   );
+}
+
+
+function PersonalReference({report,currentRepId,onSeek}:{report:AnalysisReport;currentRepId:string|null;onSeek:(ms:number)=>void}) {
+  const [referenceId,setReferenceId]=useState(report.reps[0]?.id??'');
+  const [chosenId,setChosenId]=useState('');
+  const reference=report.reps.find(rep=>rep.id===referenceId)??report.reps[0];
+  const compared=report.reps.find(rep=>rep.id===(chosenId||currentRepId))??report.reps[0];
+  if(!reference||!compared)return <p className="muted">A complete rep is needed for a personal reference.</p>;
+  const rows=[['knee_flexion','Bottom knee bend'],['torso_lean','Bottom chest angle'],['rep_duration','Rep time']] as const;
+  const value=(rep:AnalysisReport['reps'][number],metric:Measurement['metric'])=>{
+    const item=report.measurements.find(measure=>measure.repId===rep.id&&measure.metric===metric);
+    if(item?.quality!=='usable'||!Number.isFinite(item.value))return null;
+    if(metric!=='rep_duration'&&(item.evidenceTimestampMs!==rep.bottomMs||report.frames.find(frame=>frame.timestampMs===rep.bottomMs)?.quality!=='usable'))return null;
+    return item.value;
+  };
+  const show=(number:number|null,metric:Measurement['metric'])=>number===null?'Unavailable':metric==='rep_duration'?`${(number/1000).toFixed(1)}s`:`${number.toFixed(0)}°`;
+  const change=(a:number|null,b:number|null,metric:Measurement['metric'])=>{
+    if(a===null||b===null)return '—';
+    const difference=metric==='rep_duration'?Math.round((b-a)/100)/10:Math.round(b-a);
+    return difference===0?'Same':`${difference>0?'+':''}${difference}${metric==='rep_duration'?'s':'°'}`;
+  };
+  return <section className="readout" aria-label="Personal rep reference"><h3>Your reference</h3><div className="toolbar"><label>Reference rep <select aria-label="Reference rep" value={reference.id} onChange={event=>setReferenceId(event.target.value)}>{report.reps.map(rep=><option key={rep.id} value={rep.id}>{repName(rep.id)}</option>)}</select></label><label>Compare rep <select aria-label="Compare reference with rep" value={chosenId} onChange={event=>setChosenId(event.target.value)}><option value="">Playing rep</option>{report.reps.map(rep=><option key={rep.id} value={rep.id}>{repName(rep.id)}</option>)}</select></label></div>
+    <table style={{width:'100%',fontSize:'.82rem'}}><thead><tr><th scope="col">Measure</th><th scope="col">{repName(reference.id)} reference</th><th scope="col">{repName(compared.id)} comparison</th><th scope="col">Change</th></tr></thead><tbody>{rows.map(([metric,label])=>{const a=value(reference,metric),b=value(compared,metric);return <tr key={metric}><th scope="row">{label}</th><td>{show(a,metric)}</td><td>{show(b,metric)}</td><td>{change(a,b,metric)}</td></tr>;})}</tbody></table>
+    <p className="muted">The first complete rep is the default reference. This compares consistency within this video, not a universal good squat. Small changes may reflect measurement noise.</p><button onClick={()=>onSeek(reference.bottomMs)}>See reference bottom</button>
+  </section>;
 }

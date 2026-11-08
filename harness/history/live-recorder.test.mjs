@@ -72,6 +72,25 @@ test('archive bounds samples, reps, notes and accepted evidence while retaining 
   archive.note({ ...event, key: '0' }, result); assert.equal(archive.live.notes.length, 6);
 });
 
+test('archive preserves withheld tracking diagnostics without inventing metrics or clock alignment', () => {
+  const archive = createLiveArchive({ source: 'phone' });
+  const sample = { timestampMs: 300, sourceMediaTimeMs: 2100, viewGuard: { epoch: 2, state: 'reacquiring', reason: 'tracking-gap' },
+    metrics: { kneeFlexionDeg: null }, metricValidity: { kneeFlexionDeg: { status: 'unavailable', reason: 'view_reacquiring' } },
+    analysisEligible: false, phase: 'unknown', trackingConfidence: .9, processingLatencyMs: 290,
+    stats: { analyzedHz: 3.3, processedFrames: 2, droppedBusy: 7, workerPayload: 'must not be retained' } };
+  archive.sample(sample); sample.viewGuard.reason = 'stable-window';
+  const stored = archive.live.samples[0];
+  assert.deepEqual(stored.viewGuard, { epoch: 2, state: 'reacquiring', reason: 'tracking-gap' });
+  assert.equal(stored.processingLatencyMs, 290);
+  assert.deepEqual(stored.stats, { analyzedHz: 3.3, processedFrames: 2, droppedBusy: 7 });
+  assert.equal(stored.metrics.kneeFlexionDeg, null); assert.equal(stored.analysisEligible, false);
+  assert.equal(stored.sourceMediaTimeMs, 2100); assert.equal(Object.hasOwn(stored, 'recordingElapsedMs'), false);
+  archive.sample({ ...sample, timestampMs: 600, processingLatencyMs: NaN, stats: { analyzedHz: Infinity, processedFrames: -1, droppedBusy: 1.5 }, viewGuard: {epoch:3} });
+  assert.deepEqual(archive.live.samples[1].viewGuard, { epoch: 3, state: null, reason: null });
+  assert.deepEqual(archive.live.samples[1].stats, { analyzedHz: null, processedFrames: null, droppedBusy: null });
+  assert.equal(archive.live.samples[1].processingLatencyMs, null);
+});
+
 test('real browser video-only recorder yields a replayable local blob without camera access', async () => {
   const { chromium } = await import('playwright');
   const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });

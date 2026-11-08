@@ -5,6 +5,7 @@ export interface HistoryCoaching { packet: CoachPacket; response: CoachingRespon
 export interface HistoryLive {
   samples: JsonValue[]; notes: JsonValue[]; timing: { [key: string]: JsonValue };
   reps?: JsonValue[]; recording?: { [key: string]: JsonValue };
+  repReviews?: JsonValue[]; queueHeartbeatAt?: number;
 }
 export interface HistoryEvidenceImage {
   timestampMs: number; phase: string; repKey: string; viewEpoch: number; blob: Blob;
@@ -12,6 +13,8 @@ export interface HistoryEvidenceImage {
 }
 export interface SessionSummary {
   id: string; kind: 'recorded' | 'live'; title: string; createdAt: number; updatedAt: number; revision: number;
+  /** Changes to any content except queue heartbeat. Legacy rows fall back to revision. */
+  contentRevision: number; queueHeartbeatAt: number | null;
   hasVideo: boolean; videoBytes: number; videoSha256: string | null; evidenceImageCount: number;
   repCount: number; hasCoaching: boolean;
   durationMs: number | null; model: string | null;
@@ -30,10 +33,12 @@ export interface SaveSessionInput {
   expectedRevision?: number;
 }
 export class HistoryError extends Error { code: string }
-export const HISTORY_LIMITS: Readonly<{ videoBytes: number; appBytes: number; metadataBytes: number; evidenceImages: number; evidenceImageBytes: number; liveSamples: number; liveNotes: number; liveReps: number }>;
+export const HISTORY_LIMITS: Readonly<{ videoBytes: number; appBytes: number; metadataBytes: number; evidenceImages: number; evidenceImageBytes: number; liveSamples: number; liveNotes: number; liveReps: number; liveRepReviews: number }>;
 export function createSessionId(): string;
 /** Omitted fields preserve values. Saved nonnull video and report are immutable; use a new ID for another source or analysis. Null clears coaching/live. No silent eviction. */
 export function saveSession(input: SaveSessionInput): Promise<Session>;
+/** Update an existing session atomically; never recreates deleted data. Omitted fields preserve video, title and other metadata. */
+export function patchSession(input: SaveSessionInput): Promise<Session>;
 /** Verifies source-video and evidence-image hashes before returning blobs for replay. */
 export function getSession(id: string): Promise<Session | null>;
 /** Newest updated first; metadata-only query never reads asset blobs. */

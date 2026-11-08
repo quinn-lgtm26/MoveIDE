@@ -82,3 +82,14 @@ test('cache remains bounded and low-confidence limb loss clears a previously eli
   assert.equal(lost.analysisEligible, false); assert.equal(lost.report.reps.length, 0); assert.equal(lost.metrics.kneeFlexionDeg, null);
   analysis.clearEvidence(); assert.equal(analysis.getStats().retainedEvidenceImages, 0);
 });
+
+test('slow steady observations recover individual angles without inventing continuous completed reps', () => {
+  const analysis = setup();
+  const observations = [];
+  for (let index = 0; index < 12; index++) observations.push(push(analysis, index * 300));
+  assert.equal(observations.at(-1).viewGuard.state, 'stable');
+  assert.equal(observations.at(-1).analysisEligible, true);
+  assert.ok(Number.isFinite(observations.at(-1).metrics.kneeFlexionDeg));
+  for (const [index, frame] of fixture.frames.entries()) observations.push(push(analysis, 3600 + index * 300, frame.landmarks));
+  assert.equal(observations.flatMap(item => item.events).length, 0, 'The strict rep evidence gap remains enforced separately from view continuity');
+});

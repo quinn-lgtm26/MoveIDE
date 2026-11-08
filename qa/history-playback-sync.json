@@ -1,0 +1,20 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:06:26.733Z",
+  "scope": "Seeded local live-history sessions with existing fixture video. Tests approximate replay mapping and UI only; no camera, Heavy or AI inference.",
+  "checks": {
+    "opensNearFirstCompletedRepWithNonzeroOffset": true,
+    "nativeSeekFollowsMappedSamples": true,
+    "playbackAdvancesMeasurement": true,
+    "invalidMetricNotRevived": true,
+    "epochTransitionWithheld": true,
+    "largeCaptureGapWithheld": true,
+    "beforeAnalysisStartsWithheld": true,
+    "measurementNavigationSeeksVideo": true,
+    "noInventedOverlayOrAI": true,
+    "missingMappingStaysIndependent": true,
+    "unmappedPlaybackDoesNotInventAssociation": true,
+    "noProviderRequestsOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}

@@ -121,6 +121,44 @@ try {
   });
   assert.equal(live.images, 1); assert.match(live.imageHash, /^[a-f0-9]{64}$/); assert.equal(live.samples, 1); assert.equal(live.duration, 1234); assert.equal(live.available, true); assert.ok(live.appBytes > created.bytes);
   checks.liveDataAndEvidenceAssetsPersist = true;
+  const enrichment=await page.evaluate(async()=>{
+    const h=await import('/harness/history/index.mjs');
+    const before=await h.getSession('live-session');
+    const review={repKey:'view-0-rep-1',repId:'rep-1',viewEpoch:0,timestampMs:12,state:'ready',message:'Review ready',updatedAt:Date.now()};
+    const updatedLive={...before.live,notes:[...before.live.notes,{text:'Late accepted review',timestampMs:12}],repReviews:[review],coachingStatus:{state:'accepted',sent:1,accepted:1,skipped:0}};
+    await Promise.all([h.patchSession({id:before.id,live:updatedLive}),h.saveSession({id:before.id,title:'Renamed while AI finished'})]);
+    const after=await h.getSession(before.id);
+    const reviewErrors=[];
+    for(const repReviews of [[review,review],[{...review,state:'made-up-state'}],Array(151).fill(review)]){
+      try{await h.patchSession({id:before.id,live:{...updatedLive,repReviews}})}catch(error){reviewErrors.push(error.code)}
+    }
+    let conflict;try{await h.patchSession({id:before.id,live:before.live,expectedRevision:before.revision});}catch(error){conflict=error.code}
+    await h.saveSession({id:'late-delete',kind:'live',title:'To delete',live:{samples:[],notes:[],timing:{}}});
+    // Queue deletion first. Even a patch carrying enough initial fields cannot recreate the row.
+    const deletion=h.deleteSession('late-delete');
+    const late=h.patchSession({id:'late-delete',kind:'live',title:'Must not return',live:updatedLive}).catch(error=>error.code);
+    await deletion;const deletedPatch=await late;
+    const missing=await h.getSession('late-delete');
+    return {title:after.title,notes:after.live.notes.length,state:after.live.coachingStatus.state,reviewState:after.live.repReviews[0].state,reviewErrors,imageHash:after.evidenceImages[0].imageSha256,originalImageHash:before.evidenceImages[0].imageSha256,conflict,deletedPatch,missing};
+  });
+  assert.equal(enrichment.title,'Renamed while AI finished');assert.equal(enrichment.notes,2);assert.equal(enrichment.state,'accepted');assert.equal(enrichment.imageHash,enrichment.originalImageHash);
+  assert.equal(enrichment.conflict,'conflict');assert.equal(enrichment.deletedPatch,'not_found');assert.equal(enrichment.missing,null);
+  assert.equal(enrichment.reviewState,'ready');assert.deepEqual(enrichment.reviewErrors,['invalid_input','invalid_input','limit_exceeded']);
+  checks.lateCoachingPatchPreservesRenameAssetsAndCannotResurrectDeletedSession=true;
+  const heartbeatRevision=await page.evaluate(async()=>{
+    const h=await import('/harness/history/index.mjs');
+    const db=await new Promise((resolve,reject)=>{const request=indexedDB.open('moveide-history-v1',1);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
+    await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite');const store=tx.objectStore('sessions');const request=store.get('live-session');request.onsuccess=()=>{const row=request.result;delete row.contentRevision;store.put(row);};tx.oncomplete=resolve;tx.onerror=reject;});db.close();
+    const legacy=await h.getSession('live-session');
+    const heartbeat=await h.patchSession({id:legacy.id,live:{...legacy.live,queueHeartbeatAt:Date.now()}});
+    const summary=(await h.listSessions()).find(item=>item.id===legacy.id);
+    const renamed=await h.patchSession({id:legacy.id,title:'Metadata content changed'});
+    const changedEvidence=await h.patchSession({id:legacy.id,evidenceImages:renamed.evidenceImages.map(image=>({...image,blob:new Blob([new Uint8Array([255,216,1,255,217])],{type:'image/jpeg'})}))});
+    const errors=[];for(const queueHeartbeatAt of [-1,null]){try{await h.patchSession({id:legacy.id,live:{...legacy.live,queueHeartbeatAt}})}catch(error){errors.push(error.code)}}
+    return {legacyFallback:legacy.contentRevision===legacy.revision,heartbeatOnly:heartbeat.contentRevision===legacy.contentRevision,revisionAdvanced:heartbeat.revision>legacy.revision,summaryHeartbeat:summary.queueHeartbeatAt===heartbeat.live.queueHeartbeatAt,renameAdvanced:renamed.contentRevision>heartbeat.contentRevision,evidenceAdvanced:changedEvidence.contentRevision>renamed.contentRevision,errors};
+  });
+  assert.deepEqual(heartbeatRevision,{legacyFallback:true,heartbeatOnly:true,revisionAdvanced:true,summaryHeartbeat:true,renameAdvanced:true,evidenceAdvanced:true,errors:['invalid_input','invalid_input']});
+  checks.heartbeatMetadataSkipsMediaReadWithoutHidingContentChanges=true;
   const integrity = await page.evaluate(async () => {
     const h=await import('/harness/history/index.mjs');
     const db=await new Promise((resolve,reject)=>{const request=indexedDB.open('moveide-history-v1',1);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});

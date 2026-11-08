@@ -1,0 +1,21 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:09:26.019Z",
+  "scope": "Seeded stored review statuses and notes with fixture playback; no Heavy, camera or provider calls. Tests same-ID revision refresh, not queue inference.",
+  "checks": {
+    "perRepStatesAndQueueLifetimeVisible": true,
+    "missingHeartbeatNeverClaimsQueueIsRunning": true,
+    "heartbeatUpdatesWithoutVideoHashOrContentRevision": true,
+    "staleHeartbeatShowsLastSavedStates": true,
+    "revisionPollingShowsAnalyzing": true,
+    "reviewChangesAdvanceContentRevision": true,
+    "acceptedNoteAppearsWithoutReopen": true,
+    "refreshPreservesPlayingVideoAndSpeed": true,
+    "backgroundRefreshDoesNotStealFocus": true,
+    "mobileStatusesNoOverflow": true,
+    "leavingDetailCannotReopenIt": true,
+    "deletedSessionNotResurrectedOrReplayDiscarded": true,
+    "noInferenceOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}
