@@ -234,3 +234,9 @@ Nonblocking Wren follow-ups: clearer restore banner, optional session-title file
 
 ## Seldon QA on e6f199f (2026-11-08, Claude)
 - Experiment `0c3fe690-239e-43b1-87db-9e9a65564865`: compare-and-handoff PASS; measure-squat FAIL (blocker: sample session not saved to History — `!sample` guard added in 88b9124, `src/App.tsx` `open()`); live-setup-and-navigation FAIL (minor: History "Back to recording" goes to recorded review, not Live camera). Details in `qa/seldon-ledger.md`. Neither defect fixed yet.
+
+## Seldon rerun on 99d2ec9 (2026-11-08, Claude)
+- Experiment `68b4ade2-fe22-4a52-a53c-52f3875b554d`, 1/2 passed:
+  - live-setup-and-navigation: PASS.
+  - measure-squat: FAIL (major). The original blocker, the sample not saved to History, is fixed and verified by Seldon, including reload and downloads. The new finding: the Compare rep `<select>`s could not be changed by mouse in Seldon's agent; keyboard worked. The selects are native, so this is likely an agent artifact, but it is unconfirmed.
+- Details and the next run are in `qa/seldon-ledger.md`. Expected remaining is about 10 simulations.

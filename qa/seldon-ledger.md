@@ -122,3 +122,15 @@ Read-only account reconciliation after the documentation push: `get_task_balance
 - `live-setup-and-navigation`: History's "Back to recording" lands on "Review a recorded squat." instead of Live camera. Everything else passed.
 - Debit: expected 3, remaining 12; actual account balance not yet re-read.
 - Follow-up: restore sample saving (or keep Demo unsaved and give QA a saved path), fix the Back target, then rerun `measure-squat` and `live-setup-and-navigation` only (expected debit 2).
+
+## History save + Back target fix — 99d2ec9
+
+- Fix: the sample squat saves to History again (removed the `!sample` draft guard); History opened from Live camera offers "Back to Live camera" and returns there.
+- Local check on the dev server: Demo shows "Saved on this device" and the clear-squat session is listed today in History; Live → History shows "Back to Live camera" and returns to `/harness/live/`; in-app History still shows "Back to recording". `tsc --noEmit` clean; `npm --prefix harness test` 143/143.
+- Rerun scope: `measure-squat` and `live-setup-and-navigation` only, from a scratch copy of `seldon.yml` without `compare-and-handoff` (CLI has no case filter). Frozen production `dist` of 99d2ec9 served statically on 127.0.0.1:4180, no provider.
+- Expected debit **2**; expected remaining **10** (four-simulation reserve kept).
+- Experiment `68b4ade2-fe22-4a52-a53c-52f3875b554d` (label `build-99d2ec9`), 1/2 passed:
+  - `live-setup-and-navigation`: **PASS** (Back target fix confirmed).
+  - `measure-squat`: **FAIL, major**. History save is fixed: the session renamed to "QA squat review" survived a reload with its measurements, and both the JSON and mp4 downloads completed. The two reps, video, overlay, Bottom seek and honest AI-unavailable copy all passed. The failure is new: the agent couldn't change the Compare "Reference rep" / "Compare with" options by mouse, only by keyboard. These controls are native `<select>`s (`src/Compare.tsx`) with no overlay in the markup. That makes a harness artifact the likely cause: a native popup draws outside the page, so the click lands on what's underneath. This is not yet confirmed. Minor copy notes: "Couldn't open ChatGPT setup. Try again in a moment." suggests a transient fault when no account is configured, and the "ChatGPT · Unavailable here" badge is inert.
+- Debit: expected 2, so expected remaining is 10. The account balance has not been re-read.
+- Follow-up: confirm the select behaviour by mouse in a real browser. If it's an agent artifact, a custom listbox or radio rep picker would make the case robust. Then rerun `measure-squat` only (expected debit 1).
