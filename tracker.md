@@ -226,3 +226,8 @@ Nonblocking Wren follow-ups: clearer restore banner, optional session-title file
 - `src/Home.tsx` adds "Good vs bad squat, measured" below the hero: static SVG of knee bend through rep 1 (Good vs Bad example) plus a joint-angle table (knee 117° vs 127°, chest 41° vs 46°, rep 1.4 s vs 1.3 s).
 - Data captured from the live Compare examples run in the browser (matches its Rep measurements table); hardcoded, refresh by rerunning compare.
 - Evidence: `tsc --noEmit` clean; rendered at desktop and 375px with no horizontal overflow. Full inspect-spacing/comprehension pass skipped for speed.
+
+## Live squat rep detection fix (2026-11-07, Claude, uncommitted)
+- Symptom: the live camera missed most squat reps. Root cause: `harness/live/motion/view-guard.mjs` treated a >1.25x frame-to-frame change in projected torso length as a camera zoom. Clean side-view squats swing that by up to 1.63x as MediaPipe's hip landmark moves at depth. Each swing advanced the epoch and wiped the in-progress rep. The offline detector (`squat.mjs`) already matched the hand labels.
+- Fix: default `scaleRatioJump` 1.25 → 1.75. Knee angle and leg-length-normalized depth are scale-invariant, so a missed zoom costs little. Translation, joint-jump and identity checks are unchanged.
+- Evidence: heavy-model poses from 6 side fixtures replayed through `createLiveAnalysis`. Live reps went from 3/13 to 10/13 of the offline reps. Remaining misses: the first rep of 3 clips, which start before the 500 ms stable dwell, and one rep after a real left/right landmark flip. New regression test replays `results/supported-squat.analysis-report.v1.json`: it fails at 1.25 and passes at 1.75. `npm --prefix harness test`: 143/143 pass. Not yet tried on a physical phone camera.

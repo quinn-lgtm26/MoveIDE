@@ -23,7 +23,10 @@ test('abrupt global translation invalidates the epoch and restarts the dwell', (
 });
 test('projected scale changes, left/right continuity flips and large anchor jumps are withheld', () => {
   const scaled = createViewGuard(); stabilize(scaled);
-  const zoom = transformed(point => ({ ...point, x: .5 + (point.x - .5) * 1.4, y: .5 + (point.y - .5) * 1.4 }));
+  // Zoom about the torso centre so only scale changes; 1.8x exceeds the ~1.6x torso swing of a real squat.
+  const anchors = [11, 12, 23, 24].map(index => report.frames[0].landmarks[index]);
+  const cx = anchors.reduce((sum, point) => sum + point.x, 0) / 4, cy = anchors.reduce((sum, point) => sum + point.y, 0) / 4;
+  const zoom = transformed(point => ({ ...point, x: cx + (point.x - cx) * 1.8, y: cy + (point.y - cy) * 1.8 }));
   assert.equal(scaled.update(sample(600, zoom)).reason, 'abrupt-scale-change');
   const flipped = createViewGuard(); stabilize(flipped);
   const swapped = structuredClone(report.frames[0].landmarks);
@@ -92,4 +95,11 @@ test('cadence adaptation remains bounded and optional, reset discards its learne
   for (let i = 0; i < 10; i++) guard.update(sample(i * 500));
   guard.reset(); guard.update(sample(0));
   assert.equal(guard.update(sample(500)).reason, 'tracking-gap');
+});
+test('a real side-view squat keeps one epoch despite hip-landmark torso-length swings', async () => {
+  const squat = JSON.parse(await readFile(new URL('../../results/supported-squat.analysis-report.v1.json', import.meta.url)));
+  const guard = createViewGuard();
+  const reasons = squat.frames.map(frame => guard.update({ timestampMs: frame.timestampMs, landmarks: frame.landmarks,
+    widthPx: squat.clip.widthPx, heightPx: squat.clip.heightPx }).reason);
+  assert.ok(!reasons.includes('abrupt-scale-change'), 'squat depth must not read as a camera zoom');
 });

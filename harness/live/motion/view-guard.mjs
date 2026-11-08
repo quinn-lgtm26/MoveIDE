@@ -15,7 +15,8 @@ const mean = values => values.reduce((sum, value) => sum + value, 0) / values.le
  */
 export function createViewGuard({
   stableForMs = 500, maxGapMs = 250, minVisibility = .5,
-  translationJump = .1, scaleRatioJump = 1.25, jointJump = .16,
+  // Clean side-view squats swing projected torso length up to ~1.6x per frame (hip landmark at depth); angles are scale-invariant.
+  translationJump = .1, scaleRatioJump = 1.75, jointJump = .16,
   identityFlipRatio = .55, minSideSeparation = .015, minTorsoScale = .015,
   cadenceAware = true, maxCadenceGapMs = 1000,
 } = {}) {
