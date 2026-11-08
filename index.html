@@ -114,11 +114,14 @@
       }
       .recordings-comparison { margin-top: 24px; }
       .recordings-comparison .compare { padding: 14px; }
+      .recordings-comparison [aria-label="Line up both videos at"] button[aria-pressed="true"]:hover { background: #245541; color: var(--ink-fg); }
       .recording-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 18px 0; }
       .recording-card { min-width: 0; border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: var(--panel); }
       .recording-card h3 { font-size: 14px; font-weight: 600; margin: 0; }
       .recording-card .toolbar { justify-content: space-between; margin-bottom: 12px; }
       .recording-reps { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+      .reference-choices { display: grid; gap: 10px; margin-bottom: 14px; }
+      .reference-choices .recording-reps { max-height: 180px; overflow-y: auto; }
       .recording-reps-label { font-size: 12px; color: var(--muted); margin-right: 2px; }
       .recording-reps button { min-height: 44px; padding: 8px 14px; font-size: 12px; border: 1px solid var(--line-strong); background: var(--panel); }
       .recording-reps button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ink-fg); }

@@ -1,0 +1,174 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:25:28.722Z",
+  "revision": "68844af9dcf7cd5d06249c7d23a3bf6bb3094c19",
+  "surface": "isolated development source; actual public good/bad clips + Heavy; disconnected provider",
+  "checks": {
+    "directReferenceButtonsMouseKeyboardAndPlayingMode": true,
+    "referenceMobileFits": true,
+    "bottomToStartAndStandToStartActuallySeekBothVideos": true,
+    "repeatedStartHasVisibleSelectedFeedback": true,
+    "startUsesIndependentlySelectedSecondReps": true,
+    "mobilePhaseControlsFitAndSeek": true,
+    "noProviderRequestsOrPageErrors": true
+  },
+  "errors": [],
+  "phaseChecks": [
+    {
+      "phase": "bottomMs",
+      "expected": [
+        1067,
+        1267
+      ],
+      "actual": [
+        1067,
+        1267
+      ],
+      "label": "Bottom selected · A 1.07 s · B 1.27 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "startMs",
+      "expected": [
+        333,
+        600
+      ],
+      "actual": [
+        333,
+        600
+      ],
+      "label": "Start selected · A 0.33 s · B 0.60 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "endMs",
+      "expected": [
+        1733,
+        1867
+      ],
+      "actual": [
+        1733,
+        1867
+      ],
+      "label": "Stand selected · A 1.73 s · B 1.87 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "startMs",
+      "expected": [
+        333,
+        600
+      ],
+      "actual": [
+        333,
+        600
+      ],
+      "label": "Start selected · A 0.33 s · B 0.60 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "startMs",
+      "expected": [
+        333,
+        600
+      ],
+      "actual": [
+        333,
+        600
+      ],
+      "label": "Start selected · A 0.33 s · B 0.60 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "endMs",
+      "expected": [
+        3600,
+        3867
+      ],
+      "actual": [
+        3600,
+        3867
+      ],
+      "label": "Stand selected · A 3.60 s · B 3.87 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "startMs",
+      "expected": [
+        2267,
+        2600
+      ],
+      "actual": [
+        2267,
+        2600
+      ],
+      "label": "Start selected · A 2.27 s · B 2.60 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "bottomMs",
+      "expected": [
+        3000,
+        3200
+      ],
+      "actual": [
+        3000,
+        3200
+      ],
+      "label": "Bottom selected · A 3.00 s · B 3.20 s. Each video keeps its own source clock."
+    },
+    {
+      "phase": "startMs",
+      "expected": [
+        2267,
+        2600
+      ],
+      "actual": [
+        2267,
+        2600
+      ],
+      "label": "Start selected · A 2.27 s · B 2.60 s. Each video keeps its own source clock."
+    }
+  ],
+  "sourceReports": [
+    {
+      "reps": [
+        {
+          "id": "rep-1",
+          "startMs": 333,
+          "bottomMs": 1067,
+          "endMs": 1733
+        },
+        {
+          "id": "rep-2",
+          "startMs": 2267,
+          "bottomMs": 3000,
+          "endMs": 3600
+        }
+      ],
+      "clip": {
+        "id": "d50bcbaf-5210-4199-be10-7b9d797c44f6",
+        "widthPx": 810,
+        "heightPx": 1440,
+        "durationMs": 3800
+      },
+      "model": "mediapipe-pose-landmarker-heavy"
+    },
+    {
+      "reps": [
+        {
+          "id": "rep-1",
+          "startMs": 600,
+          "bottomMs": 1267,
+          "endMs": 1867
+        },
+        {
+          "id": "rep-2",
+          "startMs": 2600,
+          "bottomMs": 3200,
+          "endMs": 3867
+        }
+      ],
+      "clip": {
+        "id": "ee62d706-4597-4a74-ad56-de0ebc5aa00d",
+        "widthPx": 810,
+        "heightPx": 1440,
+        "durationMs": 4400
+      },
+      "model": "mediapipe-pose-landmarker-heavy"
+    }
+  ],
+  "status": "passed"
+}

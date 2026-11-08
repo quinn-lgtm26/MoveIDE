@@ -8,6 +8,8 @@ import secondUrl from '../fixtures/squat/bad-form-squat.mp4';
 
 type Recording = { label: string; source: string; sourceSha256: string; report: AnalysisReport };
 type Anchor = { timestampMs: number; generation: number };
+type Phase = 'startMs' | 'bottomMs' | 'endMs';
+const phaseNames: Record<Phase,string> = {startMs:'Start',bottomMs:'Bottom',endMs:'Stand'};
 const examples = [{ label: 'Good example', url: firstUrl }, { label: 'Bad example', url: secondUrl }];
 const displayValue = (value: number | null, unit: string) => value === null ? 'Unavailable' : unit === 'ms' ? `${(value / 1000).toFixed(1)} s` : `${value.toFixed(unit === 'leg_lengths' ? 2 : 0)}${unit === 'deg' ? '°' : ' leg lengths'}`;
 const plainLabel: Record<string, string> = { kneeFlexionDeg: 'Knee bend at bottom', torsoLeanDeg: 'Chest angle at bottom', repDurationMs: 'Rep time' };
@@ -27,7 +29,7 @@ function RecordingPlayer({ recording, repId, onRep, anchor, slot }: {
   const [time, setTime] = useState(0);
   const [decodeError, setDecodeError] = useState(false);
   const { report } = recording;
-  const seek = () => { const v = video.current; if (v && v.readyState >= 1 && desiredAnchor.current) { v.pause(); v.currentTime = desiredAnchor.current.timestampMs / 1000; } };
+  const seek = () => { const v = video.current; if (v && v.readyState >= 1 && desiredAnchor.current) { v.pause(); const c=canvas.current; c?.getContext('2d')?.clearRect(0,0,c.width,c.height); v.currentTime = desiredAnchor.current.timestampMs / 1000; setTime(Math.round(v.currentTime*1000)); } };
   useEffect(seek, [anchor]);
   useEffect(() => {
     const v = video.current, c = canvas.current;
@@ -36,14 +38,14 @@ function RecordingPlayer({ recording, repId, onRep, anchor, slot }: {
     let frameHandle = 0, disposed = false;
     const draw = (seconds: number) => {
       if (disposed) return;
-      if (v.error) { context.clearRect(0, 0, c.width, c.height); return; }
+      if (v.error || v.seeking) { context.clearRect(0, 0, c.width, c.height); return; }
       const width = v.clientWidth, height = v.clientHeight, dpr = devicePixelRatio || 1;
       if (c.width !== Math.round(width * dpr) || c.height !== Math.round(height * dpr)) { c.width = Math.round(width * dpr); c.height = Math.round(height * dpr); }
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       const ms = Math.round(seconds * 1000); setTime(ms);
       drawSquatOverlay(context, overlayFrameAt(report.frames, ms), { side: report.protocol.side, videoWidth: v.videoWidth, videoHeight: v.videoHeight, width, height });
     };
-    const onFrame = (_now: number, metadata: VideoFrameCallbackMetadata) => { draw(metadata.mediaTime); frameHandle = v.requestVideoFrameCallback(onFrame); };
+    const onFrame = (_now: number, metadata: VideoFrameCallbackMetadata) => { draw(v.paused ? v.currentTime : metadata.mediaTime); frameHandle = v.requestVideoFrameCallback(onFrame); };
     const redraw = () => draw(v.currentTime);
     frameHandle = v.requestVideoFrameCallback(onFrame);
     v.addEventListener('seeked', redraw); v.addEventListener('loadeddata', redraw);
@@ -69,6 +71,7 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
   const [repIds, setRepIds] = useState<[string, string]>(['', '']);
   const [anchors, setAnchors] = useState<[Anchor | null, Anchor | null]>([null, null]);
   const [status, setStatus] = useState('Preparing two recordings…');
+  const [alignedPhase,setAlignedPhase] = useState<Phase | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generation, setGeneration] = useState(0);
   const request = useRef<AbortController | null>(null), anchorGeneration = useRef(0);
@@ -81,7 +84,7 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
   useEffect(() => {
     const own = new AbortController(); request.current = own;
     setPartial(cached.current.slice());
-    setRecordings(null); setError(null); setRepIds(['', '']); setAnchors([null, null]);
+    setRecordings(null); setError(null); setRepIds(['', '']); setAnchors([null, null]); setAlignedPhase(null);
     void (async () => {
       try {
         const finished: Recording[] = cached.current.slice();
@@ -114,7 +117,7 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
         compareRecordings({ ...finished[0], repId: selected[0] }, { ...finished[1], repId: selected[1] });
         setRecordings(finished); setRepIds(selected);
         setAnchors(finished.map(recording => ({ timestampMs: recording.report.reps[0].bottomMs, generation: ++anchorGeneration.current })) as [Anchor, Anchor]);
-        setStatus('Two recordings ready');
+        setAlignedPhase('bottomMs'); setStatus('Two recordings ready');
       } catch (failure) {
         if (!own.signal.aborted) { setError(failure instanceof Error ? failure.message : String(failure)); setStatus('Comparison unavailable'); }
       }
@@ -122,11 +125,13 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
     return () => { own.abort(); };
   }, [model, generation]);
   const comparison = useMemo(() => recordings ? compareRecordings({ ...recordings[0], repId: repIds[0] }, { ...recordings[1], repId: repIds[1] }) : null, [recordings, repIds]);
-  const jump = (phase: 'startMs' | 'bottomMs' | 'endMs') => {
+  const jump = (phase: Phase) => {
     if (!recordings) return;
+    setAlignedPhase(phase);
     setAnchors(recordings.map((recording, index) => ({ timestampMs: recording.report.reps.find(rep => rep.id === repIds[index])![phase], generation: ++anchorGeneration.current })) as [Anchor, Anchor]);
   };
   const selectRep = (slot: number, repId: string) => {
+    setAlignedPhase(null);
     setRepIds(previous => slot === 0 ? [repId, previous[1]] : [previous[0], repId]);
     setAnchors(previous => previous.map((anchor, index) => index === slot ? { timestampMs: (recordings ?? partial)[slot].report.reps.find(rep => rep.id === repId)!.bottomMs, generation: ++anchorGeneration.current } : anchor) as [Anchor | null, Anchor | null]);
   };
@@ -140,7 +145,8 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
       {partial.length > 0 && <><p className="fine">Completed recording retained. Retry analyzes only the unavailable recording.</p><div className="recording-pair">{partial.map((recording, index) => <RecordingPlayer key={recording.sourceSha256} recording={recording} repId={repIds[index] || recording.report.reps[0].id} onRep={repId => selectRep(index, repId)} anchor={anchors[index]} slot={index === 0 ? 'a' : 'b'} />)}</div></>}
     </>}
     {recordings && comparison && <>
-      <div className="toolbar" role="group" aria-label="Line up both videos at">Line up at{' '}<button aria-label="Compare starts" onClick={() => jump('startMs')}>Start</button><button className="primary" aria-label="Compare bottoms" onClick={() => jump('bottomMs')}>Bottom</button><button aria-label="Compare returns" onClick={() => jump('endMs')}>Stand</button></div>
+      <div className="toolbar" role="group" aria-label="Line up both videos at">Line up at{' '}<button type="button" aria-pressed={alignedPhase==='startMs'} aria-label="Compare starts" onClick={() => jump('startMs')}>Start</button><button type="button" aria-pressed={alignedPhase==='bottomMs'} aria-label="Compare bottoms" onClick={() => jump('bottomMs')}>Bottom</button><button type="button" aria-pressed={alignedPhase==='endMs'} aria-label="Compare returns" onClick={() => jump('endMs')}>Stand</button></div>
+      <p className="fine" role="status" aria-label="Selected video alignment">{alignedPhase ? `${phaseNames[alignedPhase]} selected` : 'Individual video positions selected'} · A {((anchors[0]?.timestampMs ?? 0)/1000).toFixed(2)} s · B {((anchors[1]?.timestampMs ?? 0)/1000).toFixed(2)} s. Each video keeps its own source clock.</p>
       <div className="recording-pair">{recordings.map((recording, index) => <RecordingPlayer key={recording.sourceSha256} recording={recording} repId={repIds[index]} onRep={repId => selectRep(index, repId)} anchor={anchors[index]} slot={index === 0 ? 'a' : 'b'} />)}</div>
       <section className="compare tips"><h3>What to look for</h3>
         {(() => {
