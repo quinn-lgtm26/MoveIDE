@@ -10,15 +10,16 @@ type Recording = { label: string; source: string; sourceSha256: string; report: 
 type Anchor = { timestampMs: number; generation: number };
 type Phase = 'startMs' | 'bottomMs' | 'endMs';
 const phaseNames: Record<Phase,string> = {startMs:'Start',bottomMs:'Bottom',endMs:'Stand'};
-const examples = [{ label: 'Good example', url: firstUrl }, { label: 'Bad example', url: secondUrl }];
+export type CompareSource = { label: string; video: Blob; report: AnalysisReport };
+const examples: ({ label: string; url: string } | CompareSource)[] = [{ label: 'Good example', url: firstUrl }, { label: 'Bad example', url: secondUrl }];
 const displayValue = (value: number | null, unit: string) => value === null ? 'Unavailable' : unit === 'ms' ? `${(value / 1000).toFixed(1)} s` : `${value.toFixed(unit === 'leg_lengths' ? 2 : 0)}${unit === 'deg' ? '°' : ' leg lengths'}`;
 const plainLabel: Record<string, string> = { kneeFlexionDeg: 'Knee bend at bottom', torsoLeanDeg: 'Chest angle at bottom', repDurationMs: 'Rep time' };
 const primaryMetrics = new Set(['kneeFlexionDeg', 'torsoLeanDeg', 'repDurationMs']);
 // Describe selected example differences; projected angles and total duration alone do not establish a technique fault.
 const tips = [
-  { key: 'shinInclinationDeg', min: 4, cue: 'Compare shin position', feel: 'Inspect both bottom frames. A shin-angle difference alone does not tell you to move your knees back.', evidence: (d: number) => `Bad example: shins ${d.toFixed(0)}° further forward.` },
-  { key: 'torsoLeanDeg', min: 4, cue: 'Compare torso inclination', feel: 'Inspect the hip-to-shoulder line. Forward lean alone does not establish a need to be more upright.', evidence: (d: number) => `Bad example: chest ${d.toFixed(0)}° further forward.` },
-  { key: 'repDurationMs', min: -300, cue: 'Compare the full rep timing', feel: 'Replay both cycles. Total rep time does not tell us how long the descent took.', evidence: (d: number) => `Bad example: rep ${(-d / 1000).toFixed(1)} s faster.` },
+  { key: 'shinInclinationDeg', min: 4, cue: 'Compare shin position', feel: 'Inspect both bottom frames. A shin-angle difference alone does not tell you to move your knees back.', evidence: (d: number, b: string) => `${b}: shins ${d.toFixed(0)}° further forward.` },
+  { key: 'torsoLeanDeg', min: 4, cue: 'Compare torso inclination', feel: 'Inspect the hip-to-shoulder line. Forward lean alone does not establish a need to be more upright.', evidence: (d: number, b: string) => `${b}: chest ${d.toFixed(0)}° further forward.` },
+  { key: 'repDurationMs', min: -300, cue: 'Compare the full rep timing', feel: 'Replay both cycles. Total rep time does not tell us how long the descent took.', evidence: (d: number, b: string) => `${b}: rep ${(-d / 1000).toFixed(1)} s faster.` },
 ];
 
 function RecordingPlayer({ recording, repId, onRep, anchor, slot }: {
@@ -65,7 +66,10 @@ function RecordingPlayer({ recording, repId, onRep, anchor, slot }: {
 }
 
 /** One action analyzes two distinct byte-verified sources. Playback never starts inference. */
-export function CompareRecordings({ model, onClose }: { model: PoseModel; onClose: () => void }) {
+/** `sources` compares saved sessions using their stored reports; no re-analysis. */
+export function CompareRecordings({ model, onClose, sources }: { model: PoseModel; onClose: () => void; sources?: CompareSource[] }) {
+  const [nameA, nameB] = sources ? sources.map(s => s.label) : ['Good example', 'Bad example'];
+  const deltaHeader = sources ? 'Difference' : 'Bad vs good';
   const [recordings, setRecordings] = useState<Recording[] | null>(null);
   const [partial, setPartial] = useState<Recording[]>([]);
   const [repIds, setRepIds] = useState<[string, string]>(['', '']);
@@ -88,18 +92,22 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
     void (async () => {
       try {
         const finished: Recording[] = cached.current.slice();
-        for (const [index, example] of examples.entries()) {
+        for (const [index, example] of (sources ?? examples).entries()) {
           if (finished[index]) continue;
           setStatus(`Loading recording ${index + 1} of 2…`);
-          const response = await fetch(example.url, { signal: own.signal });
-          if (!response.ok) throw new Error(`Recording ${index + 1} could not be loaded.`);
-          const blob = await response.blob(); own.signal.throwIfAborted();
+          let blob: Blob;
+          if ('video' in example) blob = example.video;
+          else {
+            const response = await fetch(example.url, { signal: own.signal });
+            if (!response.ok) throw new Error(`Recording ${index + 1} could not be loaded.`);
+            blob = await response.blob(); own.signal.throwIfAborted();
+          }
           const digest = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()); own.signal.throwIfAborted();
           const sourceSha256 = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
           const source = URL.createObjectURL(blob); sourceUrls.current.push(source);
           let report: AnalysisReport;
           try {
-            report = await analyze(source, { model, signal: own.signal, onProgress: progress => {
+            report = 'report' in example ? example.report : await analyze(source, { model, signal: own.signal, onProgress: progress => {
               if (!own.signal.aborted) setStatus(`Analyzing recording ${index + 1} of 2 · ${Math.round(progress * 100)}%`);
             } });
             if (!report.reps.length) throw new Error(`Recording ${index + 1} has no complete tracked rep. This is unavailable evidence, not a posture verdict.`);
@@ -123,7 +131,7 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
       }
     })();
     return () => { own.abort(); };
-  }, [model, generation]);
+  }, [model, generation, sources]);
   const comparison = useMemo(() => recordings ? compareRecordings({ ...recordings[0], repId: repIds[0] }, { ...recordings[1], repId: repIds[1] }) : null, [recordings, repIds]);
   const jump = (phase: Phase) => {
     if (!recordings) return;
@@ -138,8 +146,8 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
   const close = () => { request.current?.abort(); onClose(); };
   return <section className="recordings-comparison" aria-label="Compare two recordings">
     <div className="toolbar"><h2>Compare two recordings</h2><button onClick={close}>{recordings || error ? 'Back to one recording' : 'Cancel comparison'}</button></div>
-    <p>The same person squatting with good form and with bad form. Line them up to see which measurements change.</p>
-    <p className="fine">Good and bad labels come from the public dataset, not from MoveIDE. Same person, gym and camera.</p>
+    {!sources && <><p>The same person squatting with good form and with bad form. Line them up to see which measurements change.</p>
+    <p className="fine">Good and bad labels come from the public dataset, not from MoveIDE. Same person, gym and camera.</p></>}
     <p role="status">{status}</p>
     {error && <><div role="alert"><p>{error}</p><button onClick={() => setGeneration(value => value + 1)}>Retry unavailable recording</button></div>
       {partial.length > 0 && <><p className="fine">Completed recording retained. Retry analyzes only the unavailable recording.</p><div className="recording-pair">{partial.map((recording, index) => <RecordingPlayer key={recording.sourceSha256} recording={recording} repId={repIds[index] || recording.report.reps[0].id} onRep={repId => selectRep(index, repId)} anchor={anchors[index]} slot={index === 0 ? 'a' : 'b'} />)}</div></>}
@@ -151,17 +159,17 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
       <section className="compare tips"><h3>What to look for</h3>
         {(() => {
           const shown = tips.flatMap(tip => { const d = comparison.metrics.find(metric => metric.key === tip.key)?.delta; return d != null && (tip.min > 0 ? d >= tip.min : d <= tip.min) ? [{ ...tip, d }] : []; });
-          return shown.length ? <ol>{shown.map(tip => <li key={tip.key}><strong>{tip.cue}</strong><p>{tip.feel} <span className="fine">{tip.evidence(tip.d)}</span></p></li>)}</ol>
+          return shown.length ? <ol>{shown.map(tip => <li key={tip.key}><strong>{tip.cue}</strong><p>{tip.feel} <span className="fine">{tip.evidence(tip.d, nameB)}</span></p></li>)}</ol>
             : <p>No large difference in these selected measures. That does not establish equivalent technique; inspect another rep or phase.</p>;
         })()}
         <p className="fine"><button onClick={() => jump('bottomMs')}>Compare at the bottom</button> Not medical advice.</p>
       </section>
       <section className="compare"><h3>Rep measurements</h3>
-        <table><thead><tr><th>Measurement</th><th>Good example</th><th>Bad example</th><th>Bad vs good</th></tr></thead><tbody>
+        <table><thead><tr><th>Measurement</th><th>{nameA}</th><th>{nameB}</th><th>{deltaHeader}</th></tr></thead><tbody>
           {comparison.metrics.filter(metric => primaryMetrics.has(metric.key)).map(metric => <tr key={metric.key}><th>{plainLabel[metric.key] ?? metric.label}</th><td>{displayValue(metric.a.value, metric.unit)}</td><td>{displayValue(metric.b.value, metric.unit)}</td><td>{metric.delta === null ? 'Not comparable' : `${metric.delta > 0 ? '+' : ''}${displayValue(metric.delta, metric.unit)}`}</td></tr>)}
         </tbody></table>
-        <details><summary>More measurements</summary><table><thead><tr><th>Measurement</th><th>Good example</th><th>Bad example</th><th>Bad vs good</th></tr></thead><tbody>{comparison.metrics.filter(metric => !primaryMetrics.has(metric.key)).map(metric => <tr key={metric.key}><th>{plainLabel[metric.key] ?? metric.label}</th><td>{displayValue(metric.a.value, metric.unit)}</td><td>{displayValue(metric.b.value, metric.unit)}</td><td>{metric.delta === null ? 'Not comparable' : `${metric.delta > 0 ? '+' : ''}${displayValue(metric.delta, metric.unit)}`}</td></tr>)}</tbody></table></details>
-        <details><summary>Sources and limits</summary><p>Analyzed on this device with {model === 'heavy' ? 'MediaPipe Heavy' : 'MediaPipe Full'} for both recordings. Same model and measurement protocol; distinct source bytes verified. Both clips retain independent timestamps and selected rep identities.</p><ul>{recordings.map(recording => <li key={recording.sourceSha256}>{recording.label}: {recording.report.clip.id} · SHA-256 <code>{recording.sourceSha256}</code></li>)}</ul><p>Projected angles depend on framing and body proportions. The good/bad labels are the dataset authors&rsquo; and describe these two clips only. Neither recording supplies a calibrated angle reference or a universal technique target.</p></details>
+        <details><summary>More measurements</summary><table><thead><tr><th>Measurement</th><th>{nameA}</th><th>{nameB}</th><th>{deltaHeader}</th></tr></thead><tbody>{comparison.metrics.filter(metric => !primaryMetrics.has(metric.key)).map(metric => <tr key={metric.key}><th>{plainLabel[metric.key] ?? metric.label}</th><td>{displayValue(metric.a.value, metric.unit)}</td><td>{displayValue(metric.b.value, metric.unit)}</td><td>{metric.delta === null ? 'Not comparable' : `${metric.delta > 0 ? '+' : ''}${displayValue(metric.delta, metric.unit)}`}</td></tr>)}</tbody></table></details>
+        <details><summary>Sources and limits</summary><p>{sources ? 'Saved analyses from this device.' : `Analyzed on this device with ${model === 'heavy' ? 'MediaPipe Heavy' : 'MediaPipe Full'} for both recordings.`} Same model and measurement protocol; distinct source bytes verified. Both clips retain independent timestamps and selected rep identities.</p><ul>{recordings.map(recording => <li key={recording.sourceSha256}>{recording.label}: {recording.report.clip.id} · SHA-256 <code>{recording.sourceSha256}</code></li>)}</ul><p>Projected angles depend on framing and body proportions. {!sources && <>The good/bad labels are the dataset authors&rsquo; and describe these two clips only. </>}Neither recording supplies a calibrated angle reference or a universal technique target.</p></details>
       </section>
     </>}
   </section>;

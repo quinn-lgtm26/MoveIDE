@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { mountCoachConnection } from '../harness/ui/coach-connection.mjs';
 import { mountQuickTour } from '../harness/ui/quick-tour.mjs';
 import type { AnalysisReport, Measurement, MotionTraceSample } from '../harness/motion/analyze.mjs';
@@ -6,7 +7,7 @@ import { getMotionTrace } from '../harness/motion/analyze.mjs';
 import { drawSquatOverlay, overlayFrameAt } from '../harness/motion/overlay.mjs';
 import { analyze, type PoseModel } from './analyze.ts';
 import { Compare } from './Compare.tsx';
-import { CompareRecordings } from './CompareRecordings.tsx';
+import { CompareRecordings, type CompareSource } from './CompareRecordings.tsx';
 import { History, SessionDownloads, download } from './History.tsx';
 import type { SavedSession } from './History.tsx';
 import { createSessionId, saveSession } from '../harness/history/index.mjs';
@@ -34,6 +35,13 @@ const shortCue = (segment: CoachingSegment, response: CoachingResponse) => {
   return text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
 };
 
+// Same cross-fade the browser gives page loads (Demo → Live camera), applied to in-app view switches.
+const transition = (update: () => void) => {
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+  if (!doc.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return update();
+  doc.startViewTransition(() => flushSync(update)).ready.catch(() => {}); // a quick second click skips the first fade; that's fine
+};
+
 export function App() {
   useEffect(() => mountQuickTour({ surface: 'recorded' }), []);
   const coachHeader = useRef<HTMLDivElement>(null);
@@ -44,6 +52,7 @@ export function App() {
   const [clip, setClip] = useState<{ name: string; src: string; blob: Blob } | null>(null);
   const [model, setModel] = useState<PoseModel>('heavy');
   const [comparisonMode, setComparisonMode] = useState(false);
+  const [compareSources, setCompareSources] = useState<CompareSource[] | null>(null);
   const [historyMode, setHistoryMode] = useState(() => window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session'));
   const [homeMode, setHomeMode] = useState(() => !window.location.hash && !new URLSearchParams(window.location.search).has('session'));
   const [historySessionId, setHistorySessionId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('session'));
@@ -162,17 +171,17 @@ export function App() {
     return () => ctrl.abort();
   }, [active, report, clip]);
 
-  const open = (file: File | undefined) => {
+  const open = (file: File | undefined, sample = false) => {
     if (!file) return;
-    setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); enterReview();
+    setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); enterReview(sample ? '#demo' : '#review');
     invalidateSession(); setActive(true); setCoachStatus('Reading your squat…');
-    if (saveEnabled) saveDraft.current = { id: createSessionId(), title: file.name.replace(/\.[^.]+$/, ''), video: file, videoName: file.name, createdAt: Date.now(), queue: Promise.resolve() };
+    if (saveEnabled && !sample) saveDraft.current = { id: createSessionId(), title: file.name.replace(/\.[^.]+$/, ''), video: file, videoName: file.name, createdAt: Date.now(), queue: Promise.resolve() };
     setClip({ name: file.name, src: URL.createObjectURL(file), blob: file });
   };
 
-  const enterReview = () => { setHomeMode(false); window.history.replaceState(null, '', `${window.location.pathname}#review`); };
+  const enterReview = (hash = '#review') => { setHomeMode(false); window.history.replaceState(null, '', `${window.location.pathname}${hash}`); };
   const openSample = async () => {
-    setComparisonMode(false); setHistoryMode(false); enterReview();
+    setComparisonMode(false); setHistoryMode(false); enterReview('#demo');
     invalidateSession(); setClip(null); setActive(true); setError(null);
     const ctrl = new AbortController(); sampleRequest.current = ctrl;
     setStatus('loading');
@@ -181,7 +190,7 @@ export function App() {
       if (!response.ok) throw new Error('Sample unavailable');
       const blob = await response.blob();
       if (ctrl.signal.aborted || sampleRequest.current !== ctrl) return;
-      open(new File([blob], 'clear-squat.mp4', { type: 'video/mp4' })); // same path as an import
+      open(new File([blob], 'clear-squat.mp4', { type: 'video/mp4' }), true); // same path as an import; demos stay out of History
     } catch {
       if (ctrl.signal.aborted) return;
       setStatus('error'); setError('Couldn’t load the built-in sample.');
@@ -213,7 +222,11 @@ export function App() {
 
   const showHistory = () => { stop(); setComparisonMode(false); setHistorySessionId(null); setHomeMode(false); setHistoryMode(true); window.history.replaceState(null, '', `${window.location.pathname}#history`); };
   const closeHistory = () => { setHistoryMode(false); setHistorySessionId(null); enterReview(); };
-  const compareExamples = () => { enterReview(); stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing a good-form and a bad-form squat side by side.'); setComparisonMode(true); };
+  const compareExamples = () => { setCompareSources(null); enterReview(); stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing a good-form and a bad-form squat side by side.'); setComparisonMode(true); };
+  const compareSaved = (pair: SavedSession[]) => {
+    setCompareSources(pair.map(s => ({ label: s.title, video: s.video!, report: s.report! })));
+    setHistoryMode(false); setHistorySessionId(null); enterReview(); stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus(''); setComparisonMode(true);
+  };
   const openSaved = (saved: SavedSession) => {
     if (!saved.report || !saved.video) return;
     stop(); invalidateSession(); setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); setHomeMode(false);
@@ -230,8 +243,9 @@ export function App() {
     setCoachStatus('Saved session restored. Replaying stored numbers and notes.');
     window.history.replaceState(null, '', `?session=${encodeURIComponent(saved.id)}`);
   };
+  useEffect(() => { if (window.location.hash === '#demo') openSample(); }, []); // eslint-disable-line
   useEffect(() => {
-    const route = () => { const hash = window.location.hash; if (!hash && !new URLSearchParams(window.location.search).has('session')) { stop(); setHistoryMode(false); setHomeMode(true); return; } if (hash === '#review') { setHistoryMode(false); setHomeMode(false); return; } setHomeMode(false); if (window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session')) { stop(); setHistorySessionId(new URLSearchParams(window.location.search).get('session')); setHistoryMode(true); } };
+    const route = () => transition(() => { const hash = window.location.hash; if (!hash && !new URLSearchParams(window.location.search).has('session')) { stop(); setHistoryMode(false); setHomeMode(true); return; } if (hash === '#review') { setHistoryMode(false); setHomeMode(false); return; } setHomeMode(false); if (window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session')) { stop(); setHistorySessionId(new URLSearchParams(window.location.search).get('session')); setHistoryMode(true); } });
     window.addEventListener('hashchange', route); window.addEventListener('popstate', route);
     return () => { window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route); };
   }, []);
@@ -306,6 +320,17 @@ export function App() {
     if (m.quality === 'usable') seek(m.evidenceTimestampMs);
   };
 
+  const isSample = clip?.name === 'clear-squat.mp4';
+  const usable = (metric: Measurement['metric']) => report?.measurements.filter(m => m.metric === metric && m.quality === 'usable' && Number.isFinite(m.value)).map(m => m.value as number) ?? [];
+  const avg = (v: number[]) => v.length ? `${Math.round(v.reduce((a, b) => a + b, 0) / v.length)}°` : null;
+  const depths = usable('knee_flexion');
+  const summary = report && [
+    `${report.reps.length} ${report.reps.length === 1 ? 'rep' : 'reps'}`,
+    avg(depths) && `depth ${avg(depths)}`,
+    avg(usable('torso_lean')) && `chest angle ${avg(usable('torso_lean'))}`,
+    depths.length > 1 && `depth consistent within ${Math.max(1, Math.round(Math.max(...depths) - Math.min(...depths)))}°`,
+  ].filter(Boolean).join(' · ');
+  const demo = (comparisonMode && !compareSources) || isSample || (status === 'loading' && !clip && active);
   const sel = report?.measurements.find((m) => m.id === selected);
   const tracked = report?.frames.filter((f) => f.quality === 'usable').length ?? 0;
   const cue = coaching ? coachingSegmentAt(coaching.segments, mediaMs) : null;
@@ -322,39 +347,40 @@ export function App() {
   return (
     <main>
       <header className="moveide-header">
-        <a className="wordmark" href="/" aria-label="MoveIDE home" onClick={event => { event.preventDefault(); stop(); setHistoryMode(false); setHomeMode(true); window.history.replaceState(null, '', window.location.pathname); }}><img className="moveide-mark" src="/moveide-mark.svg" width="36" height="36" alt="" aria-hidden="true" />MOVE<span>IDE</span></a>
+        <a className="wordmark" href="/" aria-label="MoveIDE home" onClick={event => { event.preventDefault(); transition(() => { stop(); setHistoryMode(false); setHomeMode(true); window.history.replaceState(null, '', window.location.pathname); }); }}><img className="moveide-mark" src="/moveide-mark.svg" width="36" height="36" alt="" aria-hidden="true" />MOVE<span>IDE</span></a>
         <nav aria-label="Session source" className="source-nav">
-          <a href="#review" aria-current={!historyMode && !homeMode ? "page" : undefined} onClick={event => { event.preventDefault(); closeHistory(); }}>Recorded clip</a>
-          <a href="/harness/live/">Live camera</a>
-          <a href="#history" aria-current={historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); showHistory(); }}>History</a>
+          <a href="#review" aria-current={!historyMode && !homeMode && !demo ? "page" : undefined} onClick={event => { event.preventDefault(); transition(() => { if (demo) { stop(); invalidateSession(); setClip(null); setActive(false); setStatus('idle'); setComparisonMode(false); setCoachStatus(''); } closeHistory(); }); }}><img className="material-icon" src="/icons/material/play_arrow.svg" alt="" aria-hidden="true" />Recorded clip</a>
+          <a href="#demo" aria-current={!historyMode && !homeMode && demo ? "page" : undefined} onClick={event => { event.preventDefault(); transition(() => { openSample(); }); }}><img className="material-icon" src="/icons/material/play_circle.svg" alt="" aria-hidden="true" />Demo</a>
+          <a href="/harness/live/"><img className="material-icon" src="/icons/material/videocam.svg" alt="" aria-hidden="true" />Live camera</a>
+          <a href="#history" aria-current={historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); transition(() => { showHistory(); }); }}><img className="material-icon" src="/icons/material/history.svg" alt="" aria-hidden="true" />History</a>
         </nav>
         <div ref={coachHeader} />
       </header>
 
-      {homeMode ? <Home onSample={openSample} onCompare={compareExamples} /> : historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={openSaved} onBack={closeHistory} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
+      {homeMode ? <Home onSample={() => transition(() => { void openSample(); })} onCompare={() => transition(compareExamples)} /> : historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={(...args: Parameters<typeof openSaved>) => transition(() => { void openSaved(...args); })} onCompare={(...args: Parameters<typeof compareSaved>) => transition(() => { void compareSaved(...args); })} onBack={() => transition(closeHistory)} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
       <section className="intro">
         <div>
-          <h1>Review a recorded squat.</h1>
+          <h1>{demo ? 'Demo squat review.' : 'Review a recorded squat.'}</h1>
         </div>
         <div className="actions">
-          <div className="toolbar">
-            <label className="button">
-              Upload a video
-              <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
-            </label>
-            {!active && <label className="model-select">
+          {!active && <details className="review-settings"><summary>Settings</summary>
+            <label className="model-select">
               Analysis{' '}
-              <select value={model} onChange={(e) => { invalidateSession(); setModel(e.target.value as PoseModel); }} disabled={active}>
+              <select value={model} onChange={(e) => { invalidateSession(); setModel(e.target.value as PoseModel); }}>
                 <option value="heavy">Detailed</option>
                 <option value="full">Faster</option>
               </select>
-            </label>}
-          </div>
-          {!active && <><label className="save-preference"><input type="checkbox" checked={saveEnabled} onChange={event => setSaveEnabled(event.target.checked)} /> Save on this device</label>
-          <p className="start-disclosure">ChatGPT sees stills and numbers, not the video.</p></>}
+            </label>
+            <label className="save-preference"><input type="checkbox" checked={saveEnabled} onChange={event => setSaveEnabled(event.target.checked)} /> Save on this device</label>
+            <p className="start-disclosure">ChatGPT sees stills and numbers, not the video.</p>
+          </details>}
           <div className="toolbar">
-            <button className="primary" onClick={openSample}>Try a sample squat</button>
-            <button onClick={compareExamples}>Compare examples</button>
+            {(clip || comparisonMode) && <label className="button">
+              {demo ? 'Upload your own video' : 'Upload another video'}
+              <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
+            </label>}
+            {isSample && !comparisonMode && <button onClick={compareExamples}>Compare with a bad-form example</button>}
+            {comparisonMode && !compareSources && <button onClick={openSample}>Back to the sample squat</button>}
             {active && <button onClick={stop}>Stop session</button>}
             {clip && connection !== 'connected' && <button onClick={connect}>Connect ChatGPT coach</button>}
           </div>
@@ -370,45 +396,58 @@ export function App() {
       {saveStatus && <div className="save-status" role="status"><p>{saveStatus}</p>{saveFailed && <div className="toolbar"><button onClick={() => { if(saveDraft.current) persist(saveDraft.current); }}>Retry save</button>{clip && <button onClick={() => download(clip.blob, clip.name)}>Download unsaved video</button>}{report && <button onClick={() => download(new Blob([JSON.stringify({report,coaching:coaching ? {packet:coaching.bundle.packet,response:coaching.response,segments:coaching.segments}:null},null,2)],{type:'application/json'}),'unsaved-analysis.json')}>Download unsaved analysis</button>}</div>}{savedSession && !active && <SessionDownloads session={savedSession} />}</div>}
       {error && <p role="alert" className="error">{error} Try another video — an MP4 from your phone usually works.</p>}
 
-      {comparisonMode ? <CompareRecordings model={model} onClose={() => { setComparisonMode(false); setCoachStatus(''); }} /> : <>
+      {comparisonMode ? <CompareRecordings model={model} sources={compareSources ?? undefined} onClose={compareSources ? showHistory : () => { setComparisonMode(false); setCoachStatus(''); }} /> : <>
+      {summary && <section className="review-summary" aria-label="Review summary">
+        <p><b>{summary}</b></p>
+        {coaching?.segments[0] && <p>{shortCue(coaching.segments[0], coaching.response)}</p>}
+      </section>}
       <div className="workbench">
+        <div className="stage-column">
         <div className="stage">
           {clip && (
             <video ref={video} key={clip.src} src={clip.src} aria-label={`Squat replay: ${clip.name}`} controls playsInline muted onError={onDecodeError} />
           )}
           
+          {!clip && (status === 'loading' ? <p className="empty">Loading the sample squat…</p> : <div className="empty upload-empty">
+            <h2>Upload a squat video</h2>
+            <label className="button primary">Choose a video
+              <input type="file" accept="video/*" onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
+            </label>
+            <ul aria-label="Filming tips">
+              <li>Film from the side</li>
+              <li>Keep your whole body in frame</li>
+              <li>Do 2–5 reps</li>
+            </ul>
+          </div>)}
           <canvas ref={canvas} aria-hidden />
           {coaching && displayedCue && <div aria-label="Playback AI cue" className="cue">
             <small>{cue ? 'Coach note · this rep' : 'Coach note · earlier rep'} · {repName(displayedCue.repId)}</small>
             <p>{shortCue(displayedCue, coaching.response)}</p>
           </div>}
         </div>
+        {report && <div className="toolbar playback-controls" aria-label="Playback controls">
+          <button title="Or press ←" onClick={() => step(-1)}>◀ Frame</button>
+          <button title="Or press →" onClick={() => step(1)}>Frame ▶</button>
+          <label>Speed{' '}
+            <select value={rate} onChange={(e) => setRate(Number(e.target.value))}>
+              {[1, 0.5, 0.25].map((r) => <option key={r} value={r}>{r}×</option>)}
+            </select>
+          </label>
+          {report.reps.map((r) => (
+            <span key={r.id} className="phases">
+              {repName(r.id)}{' '}
+              <button aria-label={`${repName(r.id)} start at ${sec(r.startMs)}`} onClick={() => seek(r.startMs)}>Start</button>
+              <button aria-label={`${repName(r.id)} bottom at ${sec(r.bottomMs)}`} onClick={() => seek(r.bottomMs)}>Bottom</button>
+              <button aria-label={`${repName(r.id)} stand at ${sec(r.endMs)}`} onClick={() => seek(r.endMs)}>Stand</button>
+            </span>
+          ))}
+        </div>}
+        </div>
 
         {report && (
           <aside>
             <details><summary className="muted">{tracked === report.frames.length ? 'Tracking clear ✓'
                 : `⚠ Lost sight of you in ${report.frames.length - tracked} of ${report.frames.length} samples. Those numbers are skipped.`}</summary><p>{tracked}/{report.frames.length} analyzed samples tracked · up to 15 Hz · {report.poseModel.id} v{report.poseModel.version}. Sampling coverage is not joint-angle accuracy.</p></details>
-            <div className="toolbar">
-              <button title="Or press ←" onClick={() => step(-1)}>◀ Frame</button>
-              <button title="Or press →" onClick={() => step(1)}>Frame ▶</button>
-              <label>Speed{' '}
-                <select value={rate} onChange={(e) => setRate(Number(e.target.value))}>
-                  {[1, 0.5, 0.25].map((r) => <option key={r} value={r}>{r}×</option>)}
-                </select>
-              </label>
-            </div>
-            {report.reps.length > 0 && (
-              <div className="toolbar">
-                {report.reps.map((r) => (
-                  <span key={r.id} className="phases">
-                    {repName(r.id)} ▸{' '}
-                    <button aria-label={`${repName(r.id)} start at ${sec(r.startMs)}`} onClick={() => seek(r.startMs)}>Start</button>
-                    <button aria-label={`${repName(r.id)} bottom at ${sec(r.bottomMs)}`} onClick={() => seek(r.bottomMs)}>Bottom</button>
-                    <button aria-label={`${repName(r.id)} stand at ${sec(r.endMs)}`} onClick={() => seek(r.endMs)}>Stand</button>
-                  </span>
-                ))}
-              </div>
-            )}
             <p className="readout">
               {here ? (
                 <>
@@ -419,7 +458,6 @@ export function App() {
             </p>
 
             <Trace trace={trace} reps={report.reps} playheadMs={sampleMs} onSeek={seek} />
-            <PersonalReference key={`${report.clip.id}|${report.poseModel.id}`} report={report} currentRepId={here?.repId ?? sel?.repId ?? null} onSeek={seek} />
 
             <details open={report.reps.length < 2}><summary><h2>Your numbers</h2></summary>
             {report.measurements.length === 0 && <p>We didn’t find a full squat rep in this video.</p>}
@@ -471,12 +509,12 @@ export function App() {
         </section>
       )}
 
-      {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} />}
+      {report && clip && <Compare key={`${clip.src}|${report.poseModel.id}`} report={report} clipSrc={clip.src} onSeek={seek} currentRepId={here?.repId ?? sel?.repId ?? null} />}
       </>}
 
       </>}
       <footer>
-        {(comparisonMode || clip?.name === 'clear-squat.mp4') && <details className="fine">
+        {((comparisonMode && !compareSources) || clip?.name === 'clear-squat.mp4') && <details className="fine">
           <summary>Sample video source</summary>
           <small>
             Subjects 010 and 004 from <i>A Multi-View Raw Video Dataset of Seven Fitness Exercises with Good/Bad Form Labels</i> v3,
@@ -525,31 +563,3 @@ function Trace({ trace, reps, playheadMs, onSeek }: {
   );
 }
 
-
-function PersonalReference({report,currentRepId,onSeek}:{report:AnalysisReport;currentRepId:string|null;onSeek:(ms:number)=>void}) {
-  const [referenceId,setReferenceId]=useState(report.reps[0]?.id??'');
-  const [chosenId,setChosenId]=useState('');
-  const reference=report.reps.find(rep=>rep.id===referenceId)??report.reps[0];
-  const compared=report.reps.find(rep=>rep.id===(chosenId||currentRepId))??report.reps[0];
-  if(!reference||!compared)return <p className="muted">A complete rep is needed for a personal reference.</p>;
-  const rows=[['knee_flexion','Bottom knee bend'],['torso_lean','Bottom chest angle'],['rep_duration','Rep time']] as const;
-  const value=(rep:AnalysisReport['reps'][number],metric:Measurement['metric'])=>{
-    const item=report.measurements.find(measure=>measure.repId===rep.id&&measure.metric===metric);
-    if(item?.quality!=='usable'||!Number.isFinite(item.value))return null;
-    if(metric!=='rep_duration'&&(item.evidenceTimestampMs!==rep.bottomMs||report.frames.find(frame=>frame.timestampMs===rep.bottomMs)?.quality!=='usable'))return null;
-    return item.value;
-  };
-  const show=(number:number|null,metric:Measurement['metric'])=>number===null?'Unavailable':metric==='rep_duration'?`${(number/1000).toFixed(1)}s`:`${number.toFixed(0)}°`;
-  const change=(a:number|null,b:number|null,metric:Measurement['metric'])=>{
-    if(a===null||b===null)return '—';
-    const raw=b-a;
-    if(raw===0)return 'Same';
-    if(Math.abs(raw)<(metric==='rep_duration'?100:1))return metric==='rep_duration'?'<0.1s':'<1°';
-    const difference=metric==='rep_duration'?Math.round(raw/100)/10:Math.round(raw);
-    return `${difference>0?'+':''}${difference}${metric==='rep_duration'?'s':'°'}`;
-  };
-  return <section className="readout" aria-label="Personal rep reference"><h3>Your reference</h3><div className="reference-choices"><div className="recording-reps" role="group" aria-label="Reference rep"><span className="recording-reps-label">Reference rep</span>{report.reps.map(rep=><button type="button" key={rep.id} aria-pressed={reference.id===rep.id} onClick={()=>setReferenceId(rep.id)}>{repName(rep.id)}</button>)}</div><div className="recording-reps" role="group" aria-label="Compare reference with rep"><span className="recording-reps-label">Compare rep</span><button type="button" aria-pressed={chosenId===''} onClick={()=>setChosenId('')}>Playing rep</button>{report.reps.map(rep=><button type="button" key={rep.id} aria-pressed={chosenId===rep.id} onClick={()=>setChosenId(rep.id)}>{repName(rep.id)}</button>)}</div></div>
-    <table style={{width:'100%',fontSize:'.82rem'}}><thead><tr><th scope="col">Measure</th><th scope="col">{repName(reference.id)} reference</th><th scope="col">{repName(compared.id)} comparison</th><th scope="col">Change</th></tr></thead><tbody>{rows.map(([metric,label])=>{const a=value(reference,metric),b=value(compared,metric);return <tr key={metric}><th scope="row">{label}</th><td>{show(a,metric)}</td><td>{show(b,metric)}</td><td>{change(a,b,metric)}</td></tr>;})}</tbody></table>
-    <p className="muted">The first complete rep is the default reference. This compares consistency within this video, not a universal good squat. Small changes may reflect measurement noise.</p><button onClick={()=>onSeek(reference.bottomMs)}>See reference bottom</button>
-  </section>;
-}

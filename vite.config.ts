@@ -35,6 +35,9 @@ export default defineConfig({
     name: 'moveide-chatgpt-provider',
     configureServer: (server) => provider(server, false),
     configurePreviewServer: (server) => provider(server, true),
+    // Hold the app's first paint until React has rendered (src/main.tsx), so the page-load
+    // cross-fade from Live camera shows the finished view. Vite drops this attribute from source HTML.
+    transformIndexHtml: { order: 'post', handler: (html, ctx) => ctx.path === '/index.html' ? html.replace(/<script type="module"/g, '<script type="module" blocking="render"') : html },
     async writeBundle() {
       await mkdir(local('dist/fixtures/squat/'), { recursive: true });
       await Promise.all([

@@ -9,3 +9,7 @@
 @view-transition { navigation: auto; }
 .moveide-header { view-transition-name: moveide-header; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+.source-nav a { gap: 5px; }
+.source-nav .material-icon { width: 18px; height: 18px; margin: 0; flex: none; }
+.source-nav a[aria-current="page"] .material-icon { filter: brightness(0) invert(1); }
+.moveide-coach-account details { margin: 0; }

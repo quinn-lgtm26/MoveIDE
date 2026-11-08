@@ -86,6 +86,10 @@ function contentSnapshot(row, assets) {
     evidence: (assets?.evidenceImages ?? []).map(({timestampMs,viewEpoch,phase,repKey,imageSha256,blob}) =>
       ({timestampMs,viewEpoch,phase,repKey,imageSha256,bytes:blob.size,mimeType:blob.type})) });
 }
+const average = (row, metric) => {
+  const values = (row.report?.measurements ?? []).filter(m => m.metric === metric && m.quality === 'usable' && Number.isFinite(m.value)).map(m => m.value);
+  return values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+};
 function summary(row) {
   const duration = row.kind === 'live' ? row.live?.recording?.durationMs ?? row.metadata?.durationMs : row.report?.clip?.durationMs ?? row.metadata?.durationMs;
   const model = row.report?.poseModel?.id ?? row.metadata?.model;
@@ -96,6 +100,7 @@ function summary(row) {
     repCount: row.kind === 'live' ? row.live?.reps?.length ?? 0 : row.report?.reps?.length ?? 0,
     durationMs: Number.isFinite(duration) && duration >= 0 ? duration : null,
     model: typeof model === 'string' ? model : null,
+    avgDepthDeg: average(row, 'knee_flexion'), avgChestDeg: average(row, 'torso_lean'),
     hasCoaching: Boolean(row.coaching || row.live?.notes?.length) };
 }
 function full(row, assets) {

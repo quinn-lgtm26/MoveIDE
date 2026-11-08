@@ -27,8 +27,8 @@
       .wordmark { display: inline-flex; align-items: center; min-height: 44px; font-size: 20px; font-weight: 800; letter-spacing: -1px; color: inherit; text-decoration: none; }
       .wordmark span { font-weight: 400; }
       .source-nav { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 40px; }
-      .source-nav a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 40px; font-size: 13px; color: #4e6355; text-decoration: none; }
-      .source-nav a[aria-current="page"] { background: var(--ink); color: var(--ink-fg); font-weight: 600; }
+      .source-nav a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 40px; font-size: 13px; font-weight: 600; color: #4e6355; text-decoration: none; }
+      .source-nav a[aria-current="page"] { background: var(--ink); color: var(--ink-fg); }
       @media (hover: hover) and (pointer: fine) { .source-nav a:not([aria-current]):hover { color: var(--fg); background: var(--soft); } }
       .eyebrow { font-size: 10px; letter-spacing: 1.6px; font-weight: 700; color: var(--muted); margin: 0; }
       .intro { display: flex; justify-content: space-between; gap: 30px; align-items: center; margin-bottom: 26px; }
@@ -62,6 +62,17 @@
       .stage video { width: 100%; height: 100%; object-fit: contain; display: block; }
       .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
       .stage .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; padding: 30px; text-align: center; font-size: 22px; color: #9fb0a4; }
+      .stage-column { min-width: 0; }
+      .playback-controls { margin-top: 12px; align-items: center; }
+      .playback-controls .phases { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+      .review-summary { margin: 0 0 18px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+      .review-summary p { margin: 0; } .review-summary p + p { margin-top: 6px; color: var(--muted); }
+      .upload-empty { flex-direction: column; gap: 18px; }
+      .upload-empty h2 { margin: 0; font-size: 24px; font-weight: 600; color: #f3f9f3; }
+      .upload-empty ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; list-style: none; margin: 0; padding: 0; font-size: 14px; }
+      .upload-empty li::before { content: '✓ '; color: #8fc79f; }
+      .button.primary { background: var(--ink-fg); color: var(--ink); padding: 14px 25px; font-size: 14px; }
+      .review-settings { margin: 0; } .review-settings summary { padding: 8px 0; } .review-settings[open] { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
       .cue { position: absolute; pointer-events: none; bottom: 56px; left: 22px; right: 22px; padding: 10px 16px; border-radius: 18px; color: #e0eadd; background: var(--chip); }
       .cue p { margin: 4px 0; }
       .coaching-feed { display: grid; gap: 10px; list-style: none; padding: 0; margin: 14px 0 0; }
@@ -149,6 +160,8 @@
       .history-card h2 { font-size: 19px; font-weight: 600; }
       .history-card .toolbar { margin-top: 12px; }
       .history-card button { white-space: normal; text-align: left; }
+      .history-stats { margin-top: 6px; font-size: 17px; font-weight: 600; }
+      .history-card details summary { cursor: pointer; }
       .history-card [role=group] { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); }
       .history pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; font-size: 12px; }
       .saved-live { margin-top: 24px; }
@@ -157,6 +170,7 @@
       .history-table table { border-collapse: collapse; width: 100%; font-size: 12px; }
       .history-table td, .history-table th { text-align: left; border-bottom: 1px solid var(--line); padding: 10px; }
       .saved-metric { display: inline-block; margin-right: 12px; }
+      @media(max-width: 420px) { .source-nav a { padding: 0 10px; } }
       @media(max-width: 730px) { .source-nav { flex-wrap: wrap; } .history > .toolbar { align-items: stretch; } .history h1 { font-size: 38px; } }
       .home { display: flex; flex-direction: column; gap: 48px; padding: 24px 0 40px; }
       .home h1 { text-wrap: balance; max-width: 13em; }

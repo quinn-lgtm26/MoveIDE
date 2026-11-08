@@ -16,7 +16,7 @@ export interface SessionSummary {
   /** Changes to any content except queue heartbeat. Legacy rows fall back to revision. */
   contentRevision: number; queueHeartbeatAt: number | null;
   hasVideo: boolean; videoBytes: number; videoSha256: string | null; evidenceImageCount: number;
-  repCount: number; hasCoaching: boolean;
+  repCount: number; hasCoaching: boolean; avgDepthDeg: number | null; avgChestDeg: number | null;
   durationMs: number | null; model: string | null;
 }
 export interface Session extends SessionSummary {

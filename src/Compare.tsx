@@ -41,12 +41,14 @@ function download(href: string, name: string) {
   a.href = href; a.download = name; a.click();
 }
 
-type Props = { report: AnalysisReport; clipSrc: string; onSeek: (ms: number) => void };
+type Props = { report: AnalysisReport; clipSrc: string; onSeek: (ms: number) => void; currentRepId?: string | null };
 
-export function Compare({ report, clipSrc, onSeek }: Props) {
+export function Compare({ report, clipSrc, onSeek, currentRepId }: Props) {
   const profile = useMemo(() => getSquatProfile(report), [report]);
   const ids = profile.reps.map((r) => r.repId);
-  const [pair, setPair] = useState<[string, string]>([ids[0], ids[1]]);
+  const [chosen, setPair] = useState<[string, string]>([ids[0], '']);
+  // Empty B follows the playing rep (falls back to rep 2).
+  const pair: [string, string] = [chosen[0], chosen[1] || (currentRepId && currentRepId !== chosen[0] && ids.includes(currentRepId) ? currentRepId : ids.find(id => id !== chosen[0]) ?? '')];
   const [preview, setPreview] = useState(false);
   const [draftGoal, setDraftGoal] = useState('');
   const [goal, setGoal] = useState('');
@@ -77,7 +79,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
   const text = useMemo(() => shots && formatManualHandoff(shots.bundle.packet, shots.bundle.images), [shots]);
 
   if (ids.length < 2) {
-    return <section className="compare"><h2>Compare reps</h2><p className="muted">Comparing needs two full reps; this video has {ids.length}.</p></section>;
+    return <section className="compare"><h2>Compare your reps</h2><p className="muted">Comparing needs two full reps; this video has {ids.length}.</p></section>;
   }
 
   const a = profile.reps.find((r) => r.repId === pair[0])!, b = profile.reps.find((r) => r.repId === pair[1])!;
@@ -99,12 +101,13 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
 
   return (
     <section className="compare">
-      <h2>Compare reps</h2>
+      <h2>Compare your reps</h2>
       <div className="toolbar">
-        {(['Rep A', 'Rep B'] as const).map((label, i) => (
+        {(['Reference rep', 'Compare with'] as const).map((label, i) => (
           <label key={label}>
             {label}{' '}
-            <select value={pair[i]} onChange={(e) => setPair((p) => (i ? [p[0], e.target.value] : [e.target.value, p[1]]))}>
+            <select aria-label={label} value={chosen[i]} onChange={(e) => setPair((p) => (i ? [p[0], e.target.value] : [e.target.value, p[1]]))}>
+              {i === 1 && <option value="">Playing rep ({repName(pair[1])})</option>}
               {ids.map((id) => <option key={id} value={id}>{repName(id)}</option>)}
             </select>
           </label>
@@ -113,7 +116,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
       {!distinct && <p className="warning">Pick two different reps to compare.</p>}
 
       <table>
-        <thead><tr><th /><th>{repName(a.repId)}</th><th>{repName(b.repId)}</th><th>Difference (B vs A)</th></tr></thead>
+        <thead><tr><th /><th>{repName(a.repId)}</th><th>{repName(b.repId)}</th><th>Change from reference</th></tr></thead>
         <tbody>
           {rows(PRIMARY)}
           <tr>
