@@ -42,7 +42,15 @@
     "reportedFailures": 1,
     "casesWithoutVerdict": 1,
     "evidence": "qa/wren-release-partial-results.json",
-    "finding": "Misleading session-unavailable banner after recorded History reload; download naming/discoverability also reported."
+    "finding": "Misleading session-unavailable banner after recorded History reload; download naming/discoverability also reported.",
+    "observedBalance": {
+      "granted": 16,
+      "used": 15,
+      "remaining": 0,
+      "pending": 0,
+      "reconciled": false
+    },
+    "balanceNote": "Provider balance fields do not sum to grant; experiment still Running. No further run dispatched."
   },
   "go": {
     "recordPublishedDemo": true,
