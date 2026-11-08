@@ -1,0 +1,223 @@
+{
+  "sourceRevision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
+  "target": "https://syndrome-portrait-stephen-web.trycloudflare.com",
+  "manifestSha256": "e3725a8481899f6d2c2f177182a3083a5d6c77d9ba39173bb76cb6792aeec379",
+  "files": [
+    {
+      "path": "APACHE-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    {
+      "path": "MIT-LICENSE.txt",
+      "sha256": "aa688f22e3446d52249376353cdd4abdca7960e51ff1f9ea60fb7c3532411053",
+      "bytes": 1069
+    },
+    {
+      "path": "QRCODE-MIT.txt",
+      "sha256": "8df47c6ad9ac2c41eb9b2a72def9908959da0ede8dadd56c7b249c1bdb0c5ce6",
+      "bytes": 1076
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.md",
+      "sha256": "09ea30d9e1003e9892b93ad48d4c78685af30626030a9a0ee2f639c4353ac8af",
+      "bytes": 766
+    },
+    {
+      "path": "assets/analyze-B8Og-lO0.js",
+      "sha256": "427a8e1cfd2626c1081d59e2b0c37ede881160f170e35e208a75e7f0ed76bba3",
+      "bytes": 2763
+    },
+    {
+      "path": "assets/analyze-D_az44JW.js",
+      "sha256": "4ee4905bcb7eb99e85535be51b02af674aa80536445cf5ff42926181eea2d25f",
+      "bytes": 2763
+    },
+    {
+      "path": "assets/clear-squat-DDtklCdR.mp4",
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "bytes": 1344215
+    },
+    {
+      "path": "assets/client-DWjMleQG.js",
+      "sha256": "065f5cd33806e744da608c9dea6786c58c799ca8f71520583c99c64ac9e56073",
+      "bytes": 25418
+    },
+    {
+      "path": "assets/client-gGzC2Is2.js",
+      "sha256": "12717ce95b593200572bc0704685a820c30e2f2cfe389d368619329edce2a26e",
+      "bytes": 25645
+    },
+    {
+      "path": "assets/history-BiUulHhi.js",
+      "sha256": "5fade31bde6790818e61ef235890b1fe0f0c28dbdf70b8ba7347a22874f73c8d",
+      "bytes": 14456
+    },
+    {
+      "path": "assets/index-2aXdPjM1.css",
+      "sha256": "3ae8d96e906931e7838d70857a5155649bf4683585fc92bab3da1995d17dd581",
+      "bytes": 11178
+    },
+    {
+      "path": "assets/index-AsJWlbXD.js",
+      "sha256": "3d994a20af1da16f24b98e24a550f112c82cda83340450c29784e5c793dba23f",
+      "bytes": 63200
+    },
+    {
+      "path": "assets/index-BLWr0ARC.js",
+      "sha256": "546b1bd2d73deed7188883e4105db32bce63aae1e93483a8092e1b99d9e6d228",
+      "bytes": 71931
+    },
+    {
+      "path": "assets/index-BXBE2k9X.css",
+      "sha256": "621a2559c4059bee7e9ec201753bdafbb1114aded54f52bf8c6ea3f56bf1b149",
+      "bytes": 3810
+    },
+    {
+      "path": "assets/index-BitQwqiN.js",
+      "sha256": "3ef8fdb0d2848af7e8b55893deeedd3166cbba64610de8d7dc7028db397d8784",
+      "bytes": 272589
+    },
+    {
+      "path": "assets/index-BpFAd_gd.css",
+      "sha256": "2e9a96e3b8d5aafcb250bfdf21fd5c9f765b796b01a4e6fd15a4a9eeea249d91",
+      "bytes": 10433
+    },
+    {
+      "path": "assets/index-C3YdU2uG.js",
+      "sha256": "a319bd594022128c0c17d857fa3a670d89b5883b18c2f96ef3d81ea00ae49604",
+      "bytes": 256569
+    },
+    {
+      "path": "assets/index-CAwuwvty.js",
+      "sha256": "632df0cc06969445e30352fa025961f391cab94355ac83c61aa2f1368dbbfe59",
+      "bytes": 273651
+    },
+    {
+      "path": "assets/index-Co8vsLL9.css",
+      "sha256": "5dd1b787328b4b52d9f093697544e32c50c72d570f60ad26b6b33c781dedcc90",
+      "bytes": 11826
+    },
+    {
+      "path": "assets/index-DDwSkGfE.js",
+      "sha256": "b6e4775f6ed029d03143d4b442e25d8b5e14ff4292b19b5008575121edb1d8b2",
+      "bytes": 10539
+    },
+    {
+      "path": "assets/index-DNRCfTvl.js",
+      "sha256": "3a4ab71623a3cd2b4623f2b51e7638b6b9ccfa93cddef34dab80c776d5f8c401",
+      "bytes": 241026
+    },
+    {
+      "path": "assets/index-J5ORVNZA.js",
+      "sha256": "42bed8a98657b801358144f34c0d259ee56ea85c38dd5c7dbe81e5af45bbdca6",
+      "bytes": 279293
+    },
+    {
+      "path": "assets/index-Psceudel.js",
+      "sha256": "092e737069f72f85dfb564e2eb73edf55204d1f7c770eb67681033b74fae9882",
+      "bytes": 10539
+    },
+    {
+      "path": "assets/index-XhJjiUtn.js",
+      "sha256": "e970d588f7a4b7d9beb63654f8b36a204469735c168c6152077b9748ede0c600",
+      "bytes": 63200
+    },
+    {
+      "path": "assets/index-YV098cdU.js",
+      "sha256": "600ee87e8f3463deb1c6f4e411bc1dc89bb981ddf68b91fd494c15eb1df8b576",
+      "bytes": 74465
+    },
+    {
+      "path": "assets/index-uAlibQ4s.css",
+      "sha256": "88c2cb9a3ad3c4985402651cdb7a809b10bc12674782c91fd3ad5188505ceaeb",
+      "bytes": 4857
+    },
+    {
+      "path": "assets/pose-worker-CgNRry61.js",
+      "sha256": "2a38556afe960fb2117effc8e36b80b80f68bb9ea3e31c2e1e02470209be1391",
+      "bytes": 155378
+    },
+    {
+      "path": "assets/rolldown-runtime-WkwZ5CU-.js",
+      "sha256": "2629f2ad3cb75a57d98de697127f5af7d777ef572bbcdfa6e3ce8f438cd4527e",
+      "bytes": 599
+    },
+    {
+      "path": "assets/supported-squat-DoJp0goB.mp4",
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+      "bytes": 1203104
+    },
+    {
+      "path": "brand.css",
+      "sha256": "0ac56618c9677f7c1280e6c0cb670b6912e72ec2d8e056ddab746eee859de021",
+      "bytes": 557
+    },
+    {
+      "path": "fixtures/squat/README.md",
+      "sha256": "fc92b13d3ca91b287d167f1d868d201e2c58a6c45f075d2c17375d47e2c62a44",
+      "bytes": 2520
+    },
+    {
+      "path": "fixtures/squat/clear-squat.mp4",
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "bytes": 1344215
+    },
+    {
+      "path": "fixtures/squat/supported-squat.mp4",
+      "sha256": "8ac8d7629057ae9e3214b7cf9392ad248eccd7289869e6a65a6e7737bb5aa9c2",
+      "bytes": 1203104
+    },
+    {
+      "path": "harness/live/index.html",
+      "sha256": "3a08b8fe62396e344a68d9aab579596474cbc71652df1a6706289a6c6a44fc03",
+      "bytes": 6988
+    },
+    {
+      "path": "harness/smoke/index.html",
+      "sha256": "ca122293a1f9f148255606c225fca01ee759301666254859bce6b5b875d3ff0d",
+      "bytes": 4873
+    },
+    {
+      "path": "index.html",
+      "sha256": "183dc9e12cd93eb0f6297094725cf38c48a30f5dfc5d8eb3f17aa2a105d022b9",
+      "bytes": 10790
+    },
+    {
+      "path": "moveide-mark.svg",
+      "sha256": "bf53af3e6518d5498c299455822b9f04818edad99622de5a7962568c40f9c267",
+      "bytes": 852
+    },
+    {
+      "path": "pose/pose_landmarker_full.task",
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1",
+      "bytes": 9398198
+    },
+    {
+      "path": "pose/pose_landmarker_heavy.task",
+      "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+      "bytes": 30664242
+    },
+    {
+      "path": "pose/wasm/vision_wasm_internal.js",
+      "sha256": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b",
+      "bytes": 334128
+    },
+    {
+      "path": "pose/wasm/vision_wasm_internal.wasm",
+      "sha256": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab",
+      "bytes": 14603354
+    },
+    {
+      "path": "pose/wasm/vision_wasm_module_internal.js",
+      "sha256": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f",
+      "bytes": 334166
+    },
+    {
+      "path": "pose/wasm/vision_wasm_module_internal.wasm",
+      "sha256": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5",
+      "bytes": 14603372
+    }
+  ],
+  "provider": "Static disconnected state only. Private provider and pairing routes404."
+}

@@ -1,28 +1,32 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:13:15.557130+00:00",
-  "sourceRevision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
-  "hasUncommittedSourceChanges": true,
-  "sourceScope": "Integrated efe97bd checkout plus worktree changes, including recorded storage-management recovery. This is not a clean-commit or final Seldon-build attestation.",
+  "verifiedAtUtc": "2026-11-08T00:40:39.756457+00:00",
+  "sourceRevision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
+  "sourceScope": "Product behavior represented by f4a987a. Suite ran on the integration worktree before the final copy-only Stop-before-closing guidance was added. Do not treat this as proof that every committed byte was present during the suite. Later documentation/report edits do not change runtime behavior.",
+  "postSuiteChange": "Copy-only Stop-before-closing saving guidance; root production-preview lifecycle verifier subsequently passed15 checks on f4a987a.",
   "commands": {
     "npm test": {
-      "harnessPassed": 109,
+      "harnessPassed": 110,
       "launcherDoctorPassed": 8,
-      "totalPassed": 117,
+      "totalPassed": 118,
       "failures": 0,
       "skips": 0,
       "cancellations": 0,
-      "logSha256": "9afa6572de3d8e3c93d59a6bd76cff364bab3a40cb75c3dcf2927afa5d9710bb"
+      "logSha256": "5dac5dc0058c50a26b7f53c3e519645995b6d71636d8aeced44cafe9d60c7b61"
     },
-    "node harness/verify/root-coaching.mjs": "15 controlled-provider production-preview checks; see qa/root-one-start.json",
-    "historyRoot": "22 isolated development checks; see qa/history-root.json",
-    "historyRaces": "6 isolated controlled-storage lifecycle checks; see qa/history-races.json",
-    "historyStorage": "10 browser IndexedDB groups; see harness/history/browser-verification.json",
-    "freshSetup": "Fresh clean efe97bd automatic setup, TypeScript/Vite build and doctor; see qa/fresh-setup-history.json"
+    "rootCoaching": "15 controlled-provider production-preview checks on f4a987a; qa/root-one-start.json",
+    "historyRoot": "22 checks; qa/history-root.json retains its recorded worktree scope",
+    "historyRaces": "6 checks; qa/history-races.json",
+    "historyReplayPolish": "11 seeded browser checks; no Heavy/provider; qa/history-replay-polish.json",
+    "historyAccessibility": "10 seeded focus/navigation checks; qa/history-accessibility.json",
+    "comparison": "22 real-Heavy browser checks including visible rep buttons; qa/two-recording-comparison.json",
+    "historyStorage": "10 IndexedDB groups; harness/history/browser-verification.json",
+    "freshSetup": "Earlier clean efe97bd setup/build/doctor; qa/fresh-setup-history.json",
+    "rootRealChatGPT": "9 real-provider production checks on f4a987a, including History and reload without inference; qa/root-live-chatgpt.json"
   },
   "liveBrowser": {
     "result": "passed",
-    "observed": "78 ms \u00b7 9.9 analyzed fps",
-    "phoneObserved": "78 ms \u00b7 7.2 analyzed fps",
+    "observed": "75 ms \u00b7 10.8 analyzed fps",
+    "phoneObserved": "75 ms \u00b7 8.0 analyzed fps",
     "aiRequests": 5,
     "syntheticCamera": true,
     "realWebRTC": true,
@@ -41,13 +45,54 @@
     "tracksStopped": true,
     "physicalIPhoneTested": false
   },
+  "stoppedReplayAndRecovery": {
+    "result": "passed",
+    "quotaRecoveryDownloads": true,
+    "approximateProvenance": true,
+    "retryCleanup": true,
+    "unsupportedVideoNotOffered": true,
+    "discardCleanup": true,
+    "stoppedReplayRetained": true,
+    "sourceSelectionPreservesReplay": true,
+    "optOutTemporaryReplay": true,
+    "lateFinalizationCannotReplaceNewStart": true,
+    "usesHeavy": false
+  },
+  "seldon": {
+    "firstProductRun": {
+      "experimentId": "8c85e97b-ddb4-4e3a-bf78-4171930de874",
+      "build": "2ad37f8",
+      "passed": 3,
+      "total": 3
+    },
+    "polishedFinalRerun": {
+      "experimentId": "2151c1b9-ae1c-484e-bd25-327cbe64b283",
+      "build": "f4a987a",
+      "passed": 3,
+      "total": 3
+    },
+    "balanceBeforeFinalRerun": {
+      "granted": 16,
+      "used": 5,
+      "remaining": 11
+    },
+    "finalGo": true,
+    "authority": "qa/seldon-ledger.md",
+    "goScope": "Hands-on testing of the current local demo; physical iPhone and independent accuracy remain separate.",
+    "balanceAfterFinalRerun": {
+      "granted": 16,
+      "used": 8,
+      "remaining": 8,
+      "pending": 0
+    }
+  },
+  "scopeHold": "Chat feature on hold. Biomechanics branding does not claim gait or other movement support.",
   "testIsolation": "Ephemeral transport/test servers; actual demo services untouched. Test watcher is closed to prevent HMR resetting a running fixture. Heavy browser checks run serially.",
-  "seldon": "User authorized final product task QA; final cases/verdicts pending. Account/budget/run truth lives in qa/seldon-ledger.md.",
   "previousCheckpoint": {
-    "sourceRevision": "65fc875",
-    "verifiedAtUtc": "2026-11-07T23:49:40.079215+00:00",
-    "harnessPassed": 99,
-    "launcherPassed": 6
+    "sourceRevision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
+    "verifiedAtUtc": "2026-11-08T00:13:15.557130+00:00",
+    "harnessPassed": 109,
+    "launcherDoctorPassed": 8
   },
   "scopeLimits": [
     "Controlled provider responses in regression suites are not live account acceptance.",
@@ -57,5 +102,56 @@
     "Actual browser eviction/disk-full and in-progress recording crash recovery are not verified.",
     "Two-source comparison is descriptive; examples are not good/bad ground truth.",
     "Final Seldon qualification requires final-build per-case verdicts, recorded separately."
-  ]
+  ],
+  "finalWren": {
+    "experimentId": "2151c1b9-ae1c-484e-bd25-327cbe64b283",
+    "build": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
+    "status": "Completed",
+    "summary": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "blocked": 0,
+      "timedOut": 0
+    },
+    "cases": [
+      {
+        "id": "measure-squat",
+        "verdict": "pass",
+        "durationSeconds": 438.139
+      },
+      {
+        "id": "compare-and-handoff",
+        "verdict": "pass",
+        "durationSeconds": 306.222
+      },
+      {
+        "id": "live-setup-and-navigation",
+        "verdict": "pass",
+        "durationSeconds": 166.243
+      }
+    ],
+    "accountAfter": {
+      "granted": 16,
+      "used": 8,
+      "remaining": 8,
+      "pending": 0
+    },
+    "reportUrl": "https://app.seldon.com/experiments/2151c1b9-ae1c-484e-bd25-327cbe64b283",
+    "scope": "Frozen public-fixture build; real Heavy, disconnected provider. Both core workflows plus live setup/navigation. Physical iPhone and independent anatomical accuracy are separate unverified gates.",
+    "sources": [
+      "get_experiment_status",
+      "get_report",
+      "get_summary",
+      "get_task_balance"
+    ],
+    "blockingFindings": [],
+    "nonBlockingObservations": [
+      "Restore banner could be larger/higher contrast.",
+      "Original-video download keeps its original filename when session title is renamed; JSON uses the session title.",
+      "Wren observed limited visible feedback when clicking Play at the end of a short clip; replay controls passed the journey."
+    ],
+    "releaseDecision": "GO for hands-on testing of the current local demo. No claim of validated arbitrary-angle accuracy or physical-iPhone acceptance."
+  },
+  "releaseDecision": "GO for hands-on testing of the current local demo. No claim of validated arbitrary-angle accuracy or physical-iPhone acceptance."
 }

@@ -47,7 +47,7 @@ Measurements are projected or explicitly experimental estimates, not independent
 
 “Save on this device” is on by default. For live sessions, press **Stop** to finalize and save; recordings are limited to five minutes / 100 MiB and may cover only the beginning of a longer session. History belongs to this browser profile at this app address. Downloads are your backup; ChatGPT sign-in does not sync recordings. If saving fails, use Retry or download the unsaved video and analysis before leaving.
 
-Local acceptance includes 22 history checks, six save/source race checks, 10 storage groups and a clean setup/build from `efe97bd`. See the [current evidence and remaining checklist](tracker.md). Final Seldon/Wren product QA is in progress; historical passes are not final qualification.
+Local acceptance includes 22 history checks, six save/source race checks, 10 storage groups and a clean setup/build from `efe97bd`. See the [current evidence and remaining checklist](tracker.md). Final Seldon/Wren rerun passed **3/3** on polished `f4a987a`, alongside118 local tests and9 real ChatGPT/history checks. The demo is ready for hands-on testing; physical iPhone and independent movement accuracy remain separate gates.
 
 ## Developers and coding assistants
 

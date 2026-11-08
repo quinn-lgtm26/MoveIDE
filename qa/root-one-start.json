@@ -1,8 +1,8 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:16:59.620Z",
+  "verifiedAtUtc": "2026-11-08T00:41:24.962Z",
   "mode": "production-preview",
-  "checkoutRevision": "efe97bdb1b3ceeef6f7c31cbf971cc41c9c2f876",
-  "hasUncommittedSourceChanges": true,
+  "checkoutRevision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
+  "hasUncommittedSourceChanges": false,
   "buildSurface": "Root dist served by Vite preview (prebuilt artifact)",
   "provider": "mocked only; no account inference",
   "checks": {

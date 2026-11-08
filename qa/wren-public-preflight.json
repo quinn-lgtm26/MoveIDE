@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-11-08T00:29:29.998Z",
+  "testedAt": "2026-11-08T00:42:41.589Z",
   "target": "https://syndrome-portrait-stephen-web.trycloudflare.com",
   "scope": "Real Heavy over public HTTPS, isolated Chrome, disconnected AI; no physical phone or anatomical accuracy claim.",
   "checks": {
@@ -14,6 +14,6 @@
     "liveHistoryNavigation": true
   },
   "errors": [],
-  "indexSha256": "37f8b442fa48577b4ab30efe6fbe93131013b84965d35e6cf6c39bc525f10f6c",
+  "indexSha256": "183dc9e12cd93eb0f6297094725cf38c48a30f5dfc5d8eb3f17aa2a105d022b9",
   "status": "passed"
 }
