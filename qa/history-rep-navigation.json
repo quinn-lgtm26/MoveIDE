@@ -1,0 +1,15 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:05:14.414Z",
+  "scope": "Seeded five-rep History navigation with real public video and cached pose report; no inference, AI or personal recording.",
+  "checks": {
+    "initialRepAndNoteAgree": true,
+    "repFiveShowsMatchingNoteAndSeeks": true,
+    "previousNextStayAligned": true,
+    "videoSeekingUpdatesSelectedRepAndNote": true,
+    "playbackFollowsRep": true,
+    "allNotesRemainAccessible": true,
+    "noNestedScrollOrMobileOverflow": true,
+    "noInferenceOrAI": true
+  },
+  "status": "passed"
+}

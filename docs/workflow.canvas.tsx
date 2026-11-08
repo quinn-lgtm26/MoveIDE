@@ -36,9 +36,9 @@ const milestones = [
   {
     "id": "05",
     "title": "Integrate and verify the final build",
-    "owner": "Polished demo · final Wren3/3 passed",
-    "work": "Two-source comparison and final Wren are complete for the scoped demo. Remaining implementation includes OpenCap import UI, evidence-bound region accents, selectable goals/references and automatic view/calibration work. Physical iPhone, broad accessibility and independent motion accuracy require separate acceptance.",
-    "proof": "110 harness and8 launcher/doctor tests pass (118 total). Fresh efe97bd setup/build and pinned asset hashes pass. Current root preview passes15 controlled-provider checks; history passes22 journeys and6 lifecycle cases. First product Wren passed3/3 on2ad37f8. Polished f4a987a rerun passed3/3; physical iPhone and independent accuracy remain."
+    "owner": "Current final integration · verification pending",
+    "work": "Two-source comparison is implemented. Latest completed Wren passed 3/3 on historical 32159db; final verification for the latest edits is pending. Remaining implementation includes OpenCap import UI, evidence-bound region accents, selectable goals/references and automatic view/calibration work. Physical iPhone, broad accessibility and independent motion accuracy require separate acceptance.",
+    "proof": "Historical f4a987a passed110 harness and8 launcher/doctor tests (118 total). Fresh efe97bd setup/build and pinned asset hashes pass. Historical root preview passed15 controlled-provider checks; history passed22 journeys and6 lifecycle cases. First product Wren passed 3/3 on2ad37f8. Polished f4a987a rerun passed 3/3; physical iPhone and independent accuracy remain."
   },
   {
     "id": "06",
@@ -50,6 +50,7 @@ const milestones = [
 ];
 
 const system = [
+  {"title":"Simple setup and guidance","stack":"Persistent account pill · anchored menu · optional four-step tour · local Material SVGs","body":"Connect is visible before any analysis. Account options do not stretch the header. The tour highlights actual controls and the real coaching panel, uses short sentences, respects keyboard/focus and never starts capture. First-visit hints disappear when controls are used and stay off saved-history routes. Desktop notes remain beside video; mobile notes immediately follow it."},
   {"title":"Stopped-session and history review", "stack":"Native video playback · retained coaching · historical measurement inspector", "body":"Stop clears live geometry and camera resources, then keeps the bounded recording and accepted notes until New Start. History offers video beside notes, slow playback and disclosed approximate timing. Reduced motion is honored. Chat remains on hold; the biomechanics identity does not expand supported movement claims."},
   {
     "title": "Browser workbench",
@@ -69,7 +70,7 @@ const system = [
   {
     "title": "Optional provider",
     "stack": "Node loopback · OAuth with PKCE · Responses · validated output",
-    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers new inference; Live Stop drains bounded queued reviews; new Start cancels unfinished work. Live requests are evidence-bound. No full-video upload is claimed."
+    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers extra AI requests; Live Stop drains bounded queued reviews; new Start cancels unfinished work. Live requests are evidence-bound. No full-video upload is claimed."
   },
   {
     "title": "Optional OpenCap research import",
@@ -89,20 +90,22 @@ const system = [
   {
     "title": "Local history and recordings",
     "stack": "IndexedDB · SHA-256 source identity · MediaRecorder · browser/profile/origin storage",
-    "body": "Atomic session/media writes; unchanged originals/reports remain immutable. Reopen validates data and never requests inference. Live recordings have approximate timing and bounded metrics/evidence; saved JPEGs retain exact original sample timestamps. No account sync; exports are the portable backup."
+    "body": "Atomic session/media writes; unchanged originals/reports remain immutable. Reopen validates source identity. Saved live video without a valid pose cache gets one local Heavy pass; cached reopening uses no new pose pass and no extra AI request. Live recordings have approximate timing and bounded metrics/evidence; saved JPEGs retain exact original sample timestamps. No account sync; exports are the portable backup."
   }
 ];
 
 const checks = [
-  ["Phone repair · 32159db", "128 local tests and12 public-production checks pass. Real HTTPS/WebRTC/Heavy/ChatGPT review completed about11s after Stop and enriched the unchanged recording. Queued per-rep states, live graphs, personal reference, replay synchronization and local diagnostics are implemented. Wren review60ba178a passed3/3; newer graph/replay/tutorial final integration and physical retest remain."],
+  ["Current working tree · final GO pending", "137 tests is the last full-suite baseline, before latest account/tour/layout/saved-pose edits. Focused checks cover real coaching-panel tour targets, plain copy, compact account popover,80% zoom and44 px controls, desktop/mobile layout and local Material icons. No claim every change is pushed or published. README screenshot remains published f0ecdd5 until refresh. Final exact-build suite/provider/Wren checks are pending;5 Wren credits remain."],
+  ["Saved-video pose preparation", "Implemented: one local Heavy pass for saved live video without a valid source-bound cache; cached reopening does not rerun pose inference. No extra AI request. Original live counts, notes and immutable video stay unchanged. Pose samples use the saved video's own clock, while original AI notes retain approximate alignment. The focused public-MP4 probe passes 14 checks, including cached reopen and temporary no-write replay. A separate actualChrome VP9 MediaRecorder probe passes6checks: finite duration recovery/seek, abort,34/34 usableHeavyframes, unchangedsourcehash/cache and noAI. Finalcombined verification and physical-phone behavior remain separate gates."],
+  ["Phone repair · 32159db", "128 local tests and12 public-production checks pass. Real HTTPS/WebRTC/Heavy/ChatGPT review completed about11s after Stop and enriched the unchanged recording. Queued per-rep states, live graphs, personal reference, replay synchronization and local diagnostics are implemented. Wren review60ba178a passed 3/3; newer graph/replay/tutorial final integration and physical retest remain."],
   ["Polished session review", "f4a987a retains stopped live recordings, accepted cards and seven historical metrics until New Start. Late-finalization, opt-out, unsupported/failed encoding and stale-live-overlay checks pass. History video/notes, measurement inspector, slow playback and reduced motion pass11 scoped polish checks; visible comparison rep buttons pass22 checks."],
   ["Scope hold and identity", "Chat is on hold: no chat UI or endpoints. The small biomechanics logo is a movement identity, not a claim of gait/non-squat support. Physical iPhone/venue and independent angle/orbit accuracy remain unverified."],
   ["Remaining implementation", "FE-6 OpenCap dual-track UI; UX-3 evidence-bound region accents; configurable live goal and stable calibration; VIEW-2–5 automatic viewpoint, identity, bounded filtering and calibration; stronger temporal-claim acceptance. Exact sequential decode and memory profiling remain BE-5 work. These are code/engineering gaps, not only missing device evidence."],
-  ["Remaining external acceptance", "Actual iPhone/Mac venue capture, codec, orientation, background/lock, reconnect, recording replay and end-to-end latency; broader contrast/text-zoom/screen-reader review; independent per-view/orbit angle, identity and false-cue references. Final Wren passed3/3 on f4a987a. Native OpenCap is deferred; cloud sync and unsaved crash recovery are outside the local demo."],
-  ["Local history acceptance", "qa/history-root.json passes22 journeys; qa/history-races.json passes6 lifecycle and storage-management recovery checks; storage browser verification passes10 groups. Live finalized video/JSON/JPEG failure recovery is available. Recorded replay makes no new inference; live video alignment is explicitly approximate."],
+  ["Remaining external acceptance", "Actual iPhone/Mac venue capture, codec, orientation, background/lock, reconnect, recording replay and end-to-end latency; broader contrast/text-zoom/screen-reader review; independent per-view/orbit angle, identity and false-cue references. Historical Wren passed 3/3 on f4a987a; latest completed60ba178a passed 3/3 on 32159db and the current final rerun remains pending. Native OpenCap is deferred; cloud sync and unsaved crash recovery are outside the local demo."],
+  ["Local history acceptance", "qa/history-root.json passes22 journeys; qa/history-races.json passes6 lifecycle and storage-management recovery checks; storage browser verification passes10 groups. Live finalized video/JSON/JPEG failure recovery is available. Recorded replay makes no new AI request. Saved live video may prepare one cached local Heavy pose pass; original live-note alignment stays approximate."],
   [
     "Geometry and missing data",
-    "Latest npm test passed120 harness tests and8 launcher/doctor tests (128 total), with no failures, cancellations or skips. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
+    "Last complete local-suite baseline passed129 harness tests and8 launcher/doctor tests (137 total). Later focused checks cover newer edits; the final integrated rerun is pending. Geometry, missing data, continuity and runtime behavior are tested without claiming anatomical accuracy."
   ],
   [
     "Current Heavy timing and coverage",
@@ -126,7 +129,7 @@ const checks = [
   ],
   [
     "JPEG and browser acceptance",
-    "Current Heavy packets use source JPEGs at 1,067/3,000 ms for clear-squat and 1,600/4,333 ms for supported-squat. Browser verification checks source pixels, source binding, the synchronized overlay, sample stepping and clipboard with no third-party requests. The current prebuilt root preview passes15 controlled-provider checks; final Seldon product rerun passes3/3 on f4a987a."
+    "Current Heavy packets use source JPEGs at 1,067/3,000 ms for clear-squat and 1,600/4,333 ms for supported-squat. Browser verification checks source pixels, source binding, the synchronized overlay, sample stepping and clipboard with no third-party requests. The recorded prebuilt root preview passed15 controlled-provider checks; historical Seldon rerun passed 3/3 on f4a987a; current final rerun is pending."
   ],
   [
     "OpenCap importer verification",
@@ -142,7 +145,7 @@ const checks = [
   ],
   [
     "Final hosted acceptance",
-    "First integrated Wren product run8c85e97b passed3/3 on frozen2ad37f8: recorded/history, comparison and live setup/navigation without camera. Reconciled account before polished rerun:16 granted,5 used,11 remaining. Rep-menu difficulty was fixed with visible buttons. Final f4a987a polished rerun2151c1b9 passed3/3: GO for hands-on demo testing. Account now8used/8remaining. Persona/usability access is unavailable."
+    "First integrated Wren product run8c85e97b passed 3/3 on frozen2ad37f8: recorded/history, comparison and live setup/navigation without camera. Reconciled account before polished rerun:16 granted,5 used,11 remaining. Rep-menu difficulty was fixed with visible buttons. Final f4a987a polished rerun2151c1b9 passed 3/3: historical acceptance for that build only. At that checkpoint the account had8used/8remaining; latest60ba178a leaves11used/5remaining and a final rerun pending. Persona/usability access is unavailable."
   ],
   [
     "Live browser evidence",
@@ -205,7 +208,7 @@ const handoff = [
   ],
   [
     "Launch and final acceptance",
-    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Local128-test suite passes; historical polished Wren passed3/3; queued-review build32159db passed all three Wren cases. Final replay/graph/tutorial follow-up is in progress. Keep physical-device gates explicit. Native OpenCap and broad movement expansion remain deferred."
+    "Use npm run demo and docs/quickstart.md. Default startup is private; phone mode exposes dedicated signaling only. Historical128-test suite passed; later137-test baseline passed before newest edits; historical polished Wren passed 3/3; queued-review build32159db passed all three Wren cases. Final replay/graph/tutorial/account verification remains pending; no current GO. Keep physical-device gates explicit. Native OpenCap and broad movement expansion remain deferred."
   ]
 ];
 
@@ -265,7 +268,7 @@ const stories = [
   [
     "FE-2 · Synchronized overlay",
     "Merged · on the shared harness",
-    "The root product runs Heavy on clear-squat.mp4 with the shared source clock. Final Wren passed3/3 on f4a987a, including recorded evidence/overlay review; independent angle accuracy remains unmeasured."
+    "The root product runs Heavy on clear-squat.mp4 with the shared source clock. Final Wren passed 3/3 on f4a987a, including recorded evidence/overlay review; independent angle accuracy remains unmeasured."
   ],
   [
     "FE-3 · Rep compare and handoff",
@@ -275,7 +278,7 @@ const stories = [
   [
     "FE-4 · Connected coaching",
     "Real root AI verified",
-    "Root one Start made one real GPT-6.1 Sol request with exact evidence; both rep cues visible and no inference on seek. Current f4a987a adds9 real-provider checks, including History/reload without inference; final Wren3/3 passes."
+    "Root one Start made one real GPT-6.1 Sol request with exact evidence; both rep cues visible and no inference on seek. Historical f4a987a had9 real-provider checks, including History/reload without extra AI; newer changes need final verification."
   ],
   [
     "BE-5 · Source coverage and accuracy",
@@ -319,8 +322,8 @@ const stories = [
   ],
   [
     "LIVE-7–9 · Demo and acceptance",
-    "Demo QA passed · physical rehearsal pending",
-    "Two distinct example videos and the one-action demo are implemented. Final Seldon task workflows passed3/3; physical-device rehearsal and independent accuracy remain open."
+    "Latest demo QA pending · physical rehearsal separate",
+    "Two distinct example videos and the one-action demo are implemented. Latest completed Seldon task workflows passed 3/3 on 32159db; current final rerun, physical-device rehearsal and independent accuracy remain open."
   ],
   [
     "UX-1–3 · Stable feed, setup and highlights",
@@ -392,10 +395,10 @@ export default function MoveIDEDevelopmentWorkflow() {
     <header>
       <p style={eyebrow}>MoveIDE engineering · November 7, 2026</p>
       <h1 style={{ margin: "5px 0 6px", fontSize: 24, lineHeight: 1.25, fontWeight: 650 }}>From squat video to coaching evidence</h1>
-      <p style={{ ...body, maxWidth: 680 }}>Local history and onboarding are verified:118 automated tests,22 history journeys,6 lifecycle cases and15 root preview checks. Fresh efe97bd setup/build passes; later worktree changes keep their own evidence scope. Recorded/live coaching and two-video comparison are implemented. First Wren product run passed3/3 on2ad37f8. The polished f4a987a rerun passed3/3: GO for hands-on demo testing. Nine real ChatGPT checks include saved-note replay without inference. OpenCap import UI, region accents, goal/reference setup and automatic view/calibration work remain implementation gaps. Physical iPhone, broad accessibility and independent angle/orbit accuracy remain separate gates; native OpenCap stays deferred.</p>
+      <p style={{ ...body, maxWidth: 680 }}>Final demo GO is pending. The last full-suite baseline is 137 tests; later focused checks cover compact account setup, the short anchored tour, Material icons and responsive coaching layout. Saved live video now gets one local Heavy pose pass when needed, cached for replay with no extra AI request. Original live notes keep approximate timing. Wren 60ba178a passed 3/3 on 32159db; the final rerun for current changes is pending with 5 credits remaining. This working-tree status does not claim everything is pushed or deployed. Physical iPhone, independent angle/orbit accuracy, native OpenCap and the broader backlog keep their separate gates.</p>
     </header>
 
-    <Sources links={[["Final Wren report", "https://app.seldon.com/experiments/2151c1b9-ae1c-484e-bd25-327cbe64b283"], ["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />
+    <Sources links={[["Latest completed Wren ·32159db", "https://app.seldon.com/experiments/60ba178a-ee4e-469e-a676-57074a9b88ae"], ["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />
 
     <nav aria-label="Report sections" style={{ display: "flex", flexWrap: "wrap", gap: 5, borderBottom: line, padding: "17px 0 12px" }}>
       {tabs.map(label => <button key={label} type="button" aria-pressed={tab === label} onClick={() => setTab(label)} style={{ ...button, padding: "6px 11px", background: tab === label ? theme.fill.secondary : "transparent", color: tab === label ? theme.text.primary : theme.text.secondary, fontWeight: tab === label ? 650 : 450 }}>{label}</button>)}

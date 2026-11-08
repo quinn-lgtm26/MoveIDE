@@ -1,0 +1,35 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:57:52.381Z",
+  "scope": "Actual Chrome VP9 MediaRecorder encoding of public fixture playback, shared decoder and real Heavy saved-video pose preparation. No personal video, physical phone or AI calls.",
+  "checks": {
+    "actualRecorderProducesMissingDuration": true,
+    "endDiscoveryRestoresStartAndSourceSeeking": true,
+    "decoderAbortHonored": true,
+    "realHeavyAnalyzesActualEncodedWebM": true,
+    "originalBytesPreservedAndReportCached": true,
+    "concurrentSavedPreparationsShareOneHeavyPass": true,
+    "abortWhileWaitingForSameSessionLock": true,
+    "noAIRequests": true
+  },
+  "result": {
+    "initialDuration": "Infinity",
+    "discovered": {
+      "duration": 2.232,
+      "currentTime": 0
+    },
+    "decodedTimestamp": 483,
+    "aborted": true,
+    "workers": 1,
+    "secondCached": true,
+    "waitingAborted": true,
+    "bytes": 300269,
+    "frames": 34,
+    "usable": 34,
+    "clipDuration": 2232,
+    "sourceUnchanged": true,
+    "hashBound": true,
+    "cached": true,
+    "saveError": null
+  },
+  "status": "passed"
+}

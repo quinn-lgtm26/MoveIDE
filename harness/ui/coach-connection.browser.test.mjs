@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {createServer} from 'vite';
-const server=await createServer({configFile:new URL('../../vite.config.ts',import.meta.url).pathname,server:{host:'127.0.0.1',port:0,watch:null}});let browser;
+import {fileURLToPath} from 'node:url';
+const server=await createServer({root:fileURLToPath(new URL('../../',import.meta.url)),configFile:new URL('../../vite.config.ts',import.meta.url).pathname,server:{host:'127.0.0.1',port:0,watch:null}});let browser;
 try{
  await server.listen();await server.watcher.close();browser=await chromium.launch({channel:'chrome',headless:true});
  for(const path of ['/','/harness/live/']){

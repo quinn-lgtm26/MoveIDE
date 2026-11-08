@@ -63,6 +63,16 @@ export async function openVideo(source, { signal } = {}) {
     const loaded = waitForVideo(video, 'loadeddata', signal)
     video.src = ownedObjectUrl ?? sourceUrl.href
     await loaded
+    // MediaRecorder WebM often omits a duration header. Let the decoder discover
+    // the actual encoded end, then return to the beginning; never substitute a
+    // wall-clock recording estimate or rewrite the original Blob.
+    if (!Number.isFinite(video.duration)) {
+      const discovered = waitForVideo(video, 'seeked', signal)
+      video.currentTime = 1e10
+      await discovered
+      checkSignal(signal)
+      if (Number.isFinite(video.duration) && video.duration > 0) await seekVideo(video, 0, signal)
+    }
     if (!Number.isFinite(video.duration) || video.duration <= 0 || !video.videoWidth || !video.videoHeight) {
       throw new Error('This clip has no usable video track or duration.')
     }

@@ -89,3 +89,7 @@ main{max-width:1400px;padding:24px 36px 40px}.moveide-header{padding-bottom:24px
 
 /* Session coaching status belongs with the retained notes, beside the video. */
 .coach-progress{font-size:12px;line-height:1.5;color:#526b58}.coach-progress #ai{margin:10px 0 0;max-height:92px;overflow:auto}.coach-progress #ai:empty{display:none}.coaching-feed:has(#ai:not(:empty)) #ai-empty{display:none}.session-strip{grid-template-columns:1fr}.coach-progress #ai-limit{margin-top:8px}
+
+/* Make the optional details visibly expandable. */
+.session-diagnostics summary::after,#session-review summary::after{content:"+";margin-left:auto;padding-left:12px;font-size:18px;font-weight:500}
+.session-diagnostics[open]>summary::after,#session-review details[open]>summary::after{content:"−"}

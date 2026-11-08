@@ -1,0 +1,33 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:57:59.320Z",
+  "scope": "Real local Heavy reanalysis of public fixture stored as a synthetic live session. Tests source-bound saved-video pose replay, not physical phone or angle accuracy.",
+  "checks": {
+    "automaticallyPreparesOneLocalHeavyPass": true,
+    "originalVideoCountsNotesAndDurationPreserved": true,
+    "replayReportBoundToSavedVideoHash": true,
+    "pausedPoseDrawsAtSavedVideoTimestamp": true,
+    "noteSeekUsesApproximateMapWhilePoseUsesActualVideoClock": true,
+    "overlayCanBeHidden": true,
+    "cachedReopenUsesNoNewPoseInference": true,
+    "lateReviewAndRenamePreservePoseSourceWithoutReanalysis": true,
+    "mobileOverlayAndControlsFit": true,
+    "changedVideoBytesRejectedBeforeInference": true,
+    "cancelLeavesRecordingUsableAndDoesNotSavePartialReport": true,
+    "unavailableCachedSamplesNeverDrawStalePose": true,
+    "deletedSessionNotResurrectedAndSaveRetrySkipsInference": true,
+    "savingOffTransientPoseDoesNotWriteHistory": true,
+    "noAIRequestsOrPageErrors": true
+  },
+  "errors": [],
+  "report": {
+    "clipId": "saved-pose:604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+    "frames": 57,
+    "model": "mediapipe-pose-landmarker-heavy",
+    "reportReps": 2,
+    "repCount": 3,
+    "hash": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+    "notes": 1,
+    "duration": 3800
+  },
+  "status": "passed"
+}

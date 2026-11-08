@@ -191,3 +191,20 @@ Acceptance for this increment: identical traces overlap; a known degree offset r
 ### Persistent ChatGPT connection
 
 The home/recorded and live headers always expose Checking, Connected, Not connected or Unavailable status, with Connect available before choosing a clip or starting capture. Sign-in starts only after an explicit click. Account options provide reconnect/disconnect; disconnect cancels unfinished coaching. Connecting after an offline live Start applies to a new session, without inventing reviews for earlier reps. Status refreshes on focus/visibility, with bounded polling during explicit sign-in. The public QA preview intentionally has no eligible account/provider; local analysis remains usable.
+
+
+### Saved-video pose replay (supersedes “no live-history overlay”)
+
+A saved live recording must be watchable with a pose drawing while paused or playing. The sparse original live archive cannot supply a frame-matched skeleton. Instead, automatically run one bounded **local Heavy pass on the saved encoded video**, then cache its source-timed report. Show preparation progress with Cancel and retry; video and existing notes stay usable throughout. Cached reopen reuses the report. This operation sends no AI request and preserves original live rep counts, measurements and notes.
+
+Bind the replay report to the actual recording SHA-256. Limit preparation to 100 MiB / five minutes, validate the decoded video duration, and write through update-only storage so a deleted session cannot return. A failed cache save keeps the in-memory pose usable and can retry saving without repeating inference. A stopped recording with saving disabled uses an explicitly non-persisting preparation path; it must not create History. Abort preparation when its source/session is replaced.
+
+Draw the nearest usable replay sample within 100 ms of the displayed saved-video time, including paused seeks. Clear during seeking, missing samples, dimension mismatch or source replacement. Fit coordinates inside the video's contained image rectangle, including letterboxing. This is an estimated pose from the saved video, not calibrated anatomy or reuse of stale live geometry. Its clock is the recording clock; original live notes and metrics still use their separately labeled approximate recording map. Clicking a retained note seeks its mapped recording time only when available; exact retained JPEG evidence remains independently accessible.
+
+[Focused pose-replay QA](../qa/history-pose-replay.json) records its actual tested source and checks. Synthetic archived rep counts are deliberately different from the fixture's new pose report to verify that preparation never rewrites the historical session story. Real phone video decode/performance remains a separate device acceptance.
+
+
+MediaRecorder WebM can omit a finite duration header. The shared decoder discovers the encoded end with an abortable, timed seek and resets to zero before analysis; it must not substitute the capture wall clock or modify the saved bytes. [Actual WebM regression](../qa/history-webm-pose.json) covers Chrome VP9 recording of the approved public fixture, real Heavy on those encoded frames, source timestamp recovery and unchanged recording hash. This is a browser recording test, not a physical iPhone claim.
+
+
+Persistent pose preparation uses a same-origin Web Lock per saved session where supported. A stopped live tab and a History tab wait for the same job, then re-read the verified cache instead of running two Heavy workers. Waiting remains cancellable. Browsers without Web Locks retain source validation and immutable/update-only writes, but concurrent local preparation is not deduplicated. Saving-off transient replay is independent and never writes History.

@@ -100,9 +100,12 @@ test('OAuth rejects invalid state, validates nonce and scope, and sends only app
       assert.equal(outgoing.store, false);
       assert.equal(outgoing.stream, true);
       assert.equal(outgoing.text.format.strict, true);
-      assert.match(outgoing.instructions, /MoveIDE presentation policy v2/);
+      assert.match(outgoing.instructions, /MoveIDE presentation policy v3/);
       assert.match(outgoing.instructions, /Observed:/);
       assert.match(outgoing.instructions, /Meaning:/);
+      assert.match(outgoing.instructions, /no numerical angle targets/);
+      assert.match(outgoing.instructions, /illustrative app default/);
+      assert.match(outgoing.instructions, /No usable multi-sample angle trace is supplied/);
       assert.match(outgoing.instructions, /Only the selected reps may be compared/);
       assert.doesNotMatch(outgoing.instructions, /suggest maintaining that consistency/);
       assert.deepEqual(JSON.parse(outgoing.input[0].content[0].text), packet);

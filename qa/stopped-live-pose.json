@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "verifiedAtUtc": "2026-11-08T01:58:51.318Z",
+  "mode": "isolated source browser test",
+  "source": "public clear-squat fixture captured through real Chrome MediaRecorder",
+  "liveDetector": "controlled",
+  "replayPose": "actual MediaPipe Heavy",
+  "provider": "controlled; one completed-rep response, no account",
+  "stored": {
+    "hash": "1ade5ff91a4eefb9bcf3d04df5c43201d86733a1af7a2fee0b62313733152ba3",
+    "bytes": 442315,
+    "mimeType": "video/webm;codecs=vp9",
+    "reportClip": "saved-pose:1ade5ff91a4eefb9bcf3d04df5c43201d86733a1af7a2fee0b62313733152ba3",
+    "frames": 43,
+    "usable": 43,
+    "model": "mediapipe-pose-landmarker-heavy",
+    "reportDurationMs": 2844,
+    "recordedDurationMs": 2864.39999999851
+  },
+  "overlay": {
+    "time": 1.0698,
+    "frame": 1094,
+    "width": 742,
+    "height": 369,
+    "composite": "source-over",
+    "pixels": true
+  },
+  "checks": [
+    "real WebM decoded",
+    "initial IDB save awaited",
+    "saved source hash binds replay report",
+    "Heavy produces usable pose frames",
+    "paused seek renders skeleton within 100 ms",
+    "AI evidence links available only after Stop",
+    "local replay analysis sends no additional AI requests"
+  ]
+}

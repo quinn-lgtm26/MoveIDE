@@ -85,3 +85,24 @@
 .history .saved-trace-legend { display:flex; gap:12px; flex-wrap:wrap; font-size:.75rem; margin:8px 0; }
 
 @media(min-width:1001px){.history .saved-trace svg text{font-size:14px}}
+.history .saved-pose-overlay { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.history .saved-pose-controls { padding:10px 0; font-size:.85rem; }
+.history .saved-pose-controls label { display:flex; align-items:center; gap:8px; min-height:44px; }
+
+/* One selected rep and its note share a single page flow, without nested scrollers. */
+.history .replay-notes .coaching-feed { display: flex; flex-direction: column; max-height: none; overflow: visible; padding: 0; scrollbar-gutter: auto; }
+.history .replay-notes .coaching-card[hidden] { display: none; }
+.history .replay-rep-navigation { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0; }
+.history .replay-rep-navigation span { font-size: 12px; text-align: center; }
+.history .replay-rep-navigation button { padding: 8px 10px; min-height: 44px; font-size: 12px; }
+.history .replay-rep-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: none; overflow: visible; scrollbar-gutter: auto; margin-bottom: 6px; }
+.history .replay-rep-list li { border: 1px solid var(--line); border-radius: 12px; padding: 3px; display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.history .replay-rep-list li > .fine { font-size: 10px; padding: 2px 4px 4px; }
+.history .replay-rep-list button { min-height: 44px; border: 0; }
+.history .replay-review-details { margin: 2px 0 10px; }
+.history .replay-all-notes { min-height: 44px; font-size: 12px; margin: 4px 0 12px; }
+.history .replay-selected-empty { padding: 12px; background: var(--soft); border-radius: 12px; }
+
+.history .replay-workspace { grid-template-areas: "player notes" "trace notes" "metrics metrics"; }
+.history .replay-trace-section { grid-area: trace; min-width: 0; }
+@media (max-width: 760px) { .history .replay-workspace { grid-template-areas: "player" "notes" "trace" "metrics"; } }

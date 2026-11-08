@@ -8,7 +8,7 @@ import { createPairing, connectReceiver, revokePairing } from './transport/clien
 import { startLiveSquat } from './motion/index.mjs';
 import { buildLiveCoachBundle } from './motion/phase-evidence.mjs';
 import { createCoachingQueue } from './motion/coaching-queue.mjs';
-import { drawSquatOverlay } from '../motion/overlay.mjs';
+import { drawSquatOverlay, overlayFrameAt } from '../motion/overlay.mjs';
 import { validateCoachingResponse } from '../coaching/index.mjs';
 import { chatGPTProvider } from '../provider/client.mjs';
 import { createLiveRecorder, createLiveArchive } from '../history/live-recorder.mjs';
@@ -23,7 +23,7 @@ const video = $('video'), canvas = $('overlay'), context = canvas.getContext('2d
 let controller, media, analysis, receiver, pairing, phoneFeedback, currentCoach, coachingPauseKey, latest, lastArrived = 0, animation, completed = 0;
 let capture;
 let coachingController, coachingCapture;
-let reviewGeneration = 0, replayUrl = null;
+let reviewGeneration = 0, replayUrl = null, stoppedReplay = null;
 const unsaved = new Set();
 function setReviewLinksPending(pending) {
   for (const link of document.querySelectorAll('a[href="/#history"], #saved-sessions a')) {
@@ -35,6 +35,7 @@ function setReviewLinksPending(pending) {
 }
 
 function clearStoppedReview() {
+  stoppedReplay?.dispose(); stoppedReplay = null;
   video.pause(); video.srcObject = null; video.removeAttribute('src'); video.controls = false;
   video.autoplay = true; video.load();
   if (replayUrl) URL.revokeObjectURL(replayUrl);
@@ -42,12 +43,119 @@ function clearStoppedReview() {
   $('session-review').hidden = true; $('review-measurements').replaceChildren(); $('review-summary').textContent = '';
 }
 
+function replayEvidenceTime(timestampMs) {
+  const replay = stoppedReplay, mapping = replay?.recorded.recording.firstSampleMapping;
+  if (controller || !replay || replay.owned.generation !== reviewGeneration || video.readyState < 1 || !Number.isFinite(timestampMs)
+    || !Number.isFinite(mapping?.analysisTimestampMs) || !Number.isFinite(mapping?.recordingElapsedMs)) return null;
+  const target = (timestampMs + mapping.recordingElapsedMs - mapping.analysisTimestampMs) / 1000;
+  const prefix = replay.recorded.recording.durationMs / 1000;
+  const duration = Math.min(prefix, Number.isFinite(video.duration) ? video.duration : prefix);
+  return Number.isFinite(target) && target >= 0 && Number.isFinite(duration) && target <= duration ? target : null;
+}
+
+function refreshReplayEvidenceLinks() {
+  for (const button of $('ai-feed').querySelectorAll('[data-replay-evidence]')) {
+    const target = Number(button.dataset.reviewGeneration) === reviewGeneration ? replayEvidenceTime(Number(button.dataset.replayEvidence)) : null;
+    button.disabled = target === null;
+    button.title = target === null ? 'Available after Stop when this evidence maps inside the saved recording.' : `Approximate recording time ${target.toFixed(2)} s; original AI evidence uses the live analysis clock.`;
+  }
+}
+
+function evidenceButton(timestampMs, label) {
+  const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
+  button.dataset.replayEvidence = String(timestampMs); button.dataset.reviewGeneration = String(reviewGeneration); button.disabled = true;
+  button.onclick = () => {
+    const target = replayEvidenceTime(timestampMs);
+    if (target === null || Number(button.dataset.reviewGeneration) !== reviewGeneration) return;
+    video.pause(); context.clearRect(0, 0, canvas.width, canvas.height); delete canvas.dataset.replayTimestampMs; video.currentTime = target;
+  };
+  return button;
+}
+
+function installStoppedPoseReplay(owned, recorded) {
+  const controls = document.createElement('div'); controls.id = 'replay-pose-controls';
+  const status = document.createElement('p'), progress = document.createElement('progress'), cancel = document.createElement('button'), retry = document.createElement('button');
+  status.setAttribute('role', 'status'); progress.max = 1; progress.value = 0; progress.setAttribute('aria-label', 'Saved recording pose analysis');
+  cancel.textContent = 'Cancel replay analysis'; retry.textContent = 'Retry replay analysis'; retry.hidden = true;
+  controls.append(status, progress, cancel, retry); $('session-review').append(controls);
+  const replay = { owned, recorded, report: null, poseController: null, frameHandle: null, raf: null, disposed: false, dispose: null };
+  const current = () => !replay.disposed && stoppedReplay === replay && !controller && reviewGeneration === owned.generation;
+  const clear = () => { context.clearRect(0, 0, canvas.width, canvas.height); delete canvas.dataset.replayTimestampMs; };
+  const draw = (time = video.currentTime) => {
+    if (!current()) return;
+    if (!replay.report || video.seeking || video.readyState < 2 || video.videoWidth !== replay.report.clip.widthPx || video.videoHeight !== replay.report.clip.heightPx) { clear(); return; }
+    const bounds = canvas.getBoundingClientRect(), scale = devicePixelRatio || 1;
+    const width = Math.round(bounds.width * scale), height = Math.round(bounds.height * scale);
+    if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+    const frame = overlayFrameAt(replay.report.frames, time * 1000);
+    drawSquatOverlay(context, frame, { side: replay.report.protocol.side, fullBody: true, showKneeArc: false,
+      videoWidth: video.videoWidth, videoHeight: video.videoHeight, width, height });
+    if (frame) canvas.dataset.replayTimestampMs = String(frame.timestampMs); else delete canvas.dataset.replayTimestampMs;
+  };
+  const stopFrames = () => { if (replay.frameHandle !== null) video.cancelVideoFrameCallback?.(replay.frameHandle); cancelAnimationFrame(replay.raf); replay.frameHandle = replay.raf = null; };
+  const schedule = () => {
+    if (!current() || video.paused || video.ended || replay.frameHandle !== null || replay.raf !== null) return;
+    if (video.requestVideoFrameCallback) replay.frameHandle = video.requestVideoFrameCallback((_now, metadata) => { replay.frameHandle = null; draw(metadata.mediaTime); schedule(); });
+    else replay.raf = requestAnimationFrame(() => { replay.raf = null; draw(); schedule(); });
+  };
+  const onSeek = () => { clear(); stopFrames(); };
+  const onReady = () => { refreshReplayEvidenceLinks(); draw(); schedule(); };
+  const onPause = () => { stopFrames(); draw(); };
+  const onError = () => { clear(); if (current()) status.textContent = 'The saved recording could not be decoded. Original measurements and notes remain available.'; };
+  const events = { seeking: onSeek, seeked: onReady, loadeddata: onReady, loadedmetadata: onReady, play: onReady, pause: onPause, ended: onPause, error: onError };
+  for (const [name, callback] of Object.entries(events)) video.addEventListener(name, callback);
+  const resize = new ResizeObserver(() => draw()); resize.observe(video);
+  replay.dispose = () => {
+    replay.disposed = true; replay.poseController?.abort(); stopFrames(); resize.disconnect();
+    for (const [name, callback] of Object.entries(events)) video.removeEventListener(name, callback);
+    controls.remove(); clear();
+  };
+  stoppedReplay = replay;
+  const prepare = async () => {
+    replay.poseController?.abort(); const own = new AbortController(); replay.poseController = own;
+    const active = () => current() && replay.poseController === own && !own.signal.aborted;
+    status.textContent = 'Preparing the pose overlay for your replay. You can still watch the video while coach notes finish.';
+    progress.hidden = cancel.hidden = false; progress.value = 0; retry.hidden = true;
+    try {
+      const saved = owned.initialSave ? await owned.initialSave : null;
+      if (!active()) return;
+      let session = saved ? await (await import('../history/index.mjs')).getSession(owned.id) : null;
+      if (!active()) return;
+      const persist = !!session;
+      if (!session) {
+        const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', await recorded.videoBlob.arrayBuffer()))].map(value => value.toString(16).padStart(2, '0')).join('');
+        session = { id: owned.id, kind: 'live', video: recorded.videoBlob, videoSha256: hash, report: null };
+      }
+      if (!active()) return;
+      const { prepareSavedPoseReplay } = await import('../history/pose-replay.mjs');
+      if (!active()) return;
+      const result = await prepareSavedPoseReplay(session, { signal: own.signal, persist, onProgress(update) {
+        if (!active()) return;
+        const value = Number.isFinite(update.progress) ? Math.max(0, Math.min(1, update.progress)) : 0;
+        progress.value = value; status.textContent = `Local replay pose analysis · ${Math.round(value * 100)}%. No new AI request.`;
+      } });
+      if (!active()) return;
+      replay.report = result.report;
+      status.textContent = `Replay skeleton ready · analyzed from this saved video.${!persist ? ' Temporary only; no history was written.' : result.saveError ? ' The overlay is available now, but could not be saved for reuse.' : ' Stored for reuse in History.'}`;
+      $('review-timing').textContent = 'The replay skeleton uses a separate local analysis of the saved video and its recording clock. Earlier AI notes still use the original live analysis clock; their video links are approximate.';
+      progress.hidden = cancel.hidden = true; draw(); schedule();
+    } catch (error) {
+      if (!current() || replay.poseController !== own) return;
+      status.textContent = own.signal.aborted ? 'Replay pose analysis cancelled. Video and saved coach notes remain available.' : `Replay pose analysis unavailable: ${error.message || 'Try again.'}`;
+      progress.hidden = cancel.hidden = true; retry.hidden = false;
+    }
+  };
+  cancel.onclick = () => { replay.poseController?.abort(); status.textContent = 'Replay pose analysis cancelled. Video and saved coach notes remain available.'; progress.hidden = cancel.hidden = true; retry.hidden = false; };
+  retry.onclick = () => { if (current()) void prepare(); };
+  refreshReplayEvidenceLinks(); void prepare();
+}
+
 async function showStoppedReview(owned, recordedPromise, archive) {
   const recorded = await recordedPromise;
   if (controller || reviewGeneration !== owned.generation) return;
   $('session-review').hidden = false;
   $('review-summary').textContent = `${archive.reps.length} completed reps · ${archive.samples.length} retained samples. ${owned.saveEnabled ? 'Save status is shown below.' : 'Temporary review only; saving was off.'} ${recorded.videoBlob ? `${elapsed(recorded.recording.durationMs)} recorded${recorded.recording.stopReason.endsWith('limit') ? ' (beginning of session only)' : ''}.` : 'Video replay is unavailable for this session.'}`;
-  $('review-timing').textContent = 'Historical measurements use the analysis clock. Recording alignment is approximate; no live or frame-exact overlay is shown during replay.';
+  $('review-timing').textContent = 'Earlier measurements and AI notes use the live analysis clock; links into the recording are approximate. A separate local pose pass prepares the replay skeleton from the saved video itself.';
   const body = $('review-measurements');
   for (const sample of archive.samples) {
     const row = document.createElement('tr');
@@ -73,9 +181,12 @@ async function showStoppedReview(owned, recordedPromise, archive) {
   video.closest('.stage').dataset.mode = 'replay'; video.load();
   $('empty').hidden = true; $('status').textContent = 'Session replay · camera off';
   $('phase').textContent = 'Recording playback'; $('age').textContent = 'Historical session';
+  installStoppedPoseReplay(owned, recorded);
 }
 
 function saveCapture(owned, finalRecording) {
+  let resolveInitialSave;
+  owned.initialSave = new Promise(resolve => { resolveInitialSave = resolve; });
   const row = document.createElement('div'); row.className = 'save-result';
   const status = document.createElement('span'), retry = document.createElement('button'), discard = document.createElement('button');
   const recovery = document.createElement('div'); recovery.className = 'save-recovery'; recovery.hidden = true;
@@ -140,11 +251,13 @@ function saveCapture(owned, finalRecording) {
         createdAt: owned.startedAt, video: recorded.videoBlob, report: null, evidenceImages,
         live, metadata: { source, samplesTruncated, repsTruncated, sessionDurationMs: owned.durationMs, evidenceTimestamps: evidence.map(({ blob, ...reference }) => reference) } }));
       unsaved.delete(owned); owned.saved = true; owned.recordingInfo = recorded.recording;
+      resolveInitialSave?.(saved); resolveInitialSave = null;
       status.textContent = saved.videoBytes ? `Saved on this computer · ${(recorded.recording.durationMs / 1000).toFixed(0)}s recorded${recorded.recording.stopReason.endsWith('limit') ? ' (session prefix)' : ''} · ${data.notes.length} coach notes. ` : 'Measurements and notes saved on this computer; video unavailable. ';
       if (!row.querySelector('a')) { const link = document.createElement('a'); link.href = `/?session=${encodeURIComponent(saved.id)}`; link.dataset.sessionId = saved.id; link.textContent = 'Open saved session'; row.append(link); }
       setReviewLinksPending(Boolean(data.repReviews?.some(review => ['queued', 'analyzing'].includes(review.state))));
       clearRecovery();
     } catch (error) {
+      resolveInitialSave?.(null); resolveInitialSave = null;
       status.textContent = `Not saved: ${error.message || 'Storage unavailable'}. Download your session or keep this page open to retry.`;
       retry.hidden = discard.hidden = false;
       showRecovery();
@@ -176,23 +289,27 @@ function pauseReason({ dimensionsMatch, poseVisible, fresh, guardState, analysis
 
 const briefFocus = text => text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
 
-function appendCoachingCard(event, result, cite, signal) {
+function appendCoachingCard(event, result, cite, signal, packet) {
   const feed = $('ai-feed');
   if (signal.aborted || coachingController?.signal !== signal || feed.children.length >= 6 ||
       [...feed.children].some(card => card.dataset.repKey === event.key)) return false;
   const followLatest = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 48;
   const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key; card.dataset.epoch = String(event.epoch);
-  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.textContent = `Rep at ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1}`;
+  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.append(evidenceButton(event.rep.bottomMs, `Rep at ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1} · replay near evidence`));
   const focus = document.createElement('p'); focus.className = 'coaching-focus'; focus.textContent = briefFocus(result.nextFocus.text);
   const why = document.createElement('details'), summary = document.createElement('summary'); summary.textContent = 'Why';
   const observations = document.createElement('ul');
+  const evidenceTimes = new Map([...packet.measurements.map(item => [item.id, item.evidenceTimestampMs]), ...packet.evidence.map(item => [item.id, item.timestampMs])]);
   for (const observation of result.observations) {
-    const item = document.createElement('li'); item.textContent = cite(observation); observations.append(item);
+    const item = document.createElement('li'); item.textContent = cite(observation);
+    for (const timestampMs of new Set(observation.evidenceIds.map(id => evidenceTimes.get(id)).filter(Number.isFinite))) item.append(evidenceButton(timestampMs, `Replay near ${elapsed(timestampMs)} evidence`));
+    observations.append(item);
   }
   const fullFocus = document.createElement('p'); fullFocus.textContent = `Next focus: ${cite(result.nextFocus)}`;
   const limits = document.createElement('p'); limits.className = 'coaching-limits'; limits.textContent = `Limits: ${result.uncertainty}`;
   why.append(summary, observations, fullFocus, limits); card.append(stamp, focus, why); feed.append(card);
   $('ai-empty').hidden = true;
+  refreshReplayEvidenceLinks();
   if (followLatest) feed.scrollTop = feed.scrollHeight;
   return true;
 }
@@ -275,7 +392,7 @@ function liveCoach(signal, onResult = () => {}) {
       const { event, bundle: { packet } } = item;
       const evidence = new Map([...packet.measurements.map(value => [value.id, value.evidenceTimestampMs]), ...packet.evidence.map(value => [value.id, value.timestampMs])]);
       const cite = value => `${value.text} [${[...new Set(value.evidenceIds.map(id => evidence.get(id)))].map(elapsed).join(', ')}]`;
-      if (!appendCoachingCard(event, result, cite, signal)) return;
+      if (!appendCoachingCard(event, result, cite, signal, packet)) return;
       coachingCapture?.archive?.note(event, result, packet);
       onResult({ kind: 'ai', text: briefFocus(currentEvidence(event) ? result.nextFocus.text : `Earlier rep: ${result.nextFocus.text}`), sourceTimestampMs: event.rep.bottomMs }, event.epoch);
     },
@@ -362,6 +479,7 @@ function render() {
 }
 
 function stop(message = 'Session stopped', { persist = true, cancelCoaching = false } = {}) {
+  if (!controller && !capture && stoppedReplay) { if (cancelCoaching) coachingController?.abort(); return; }
   liveChart.stop();
   diagnostics.append('capture-stop', { state: cancelCoaching ? 'cancelled' : 'draining', completed });
   if (cancelCoaching) coachingController?.abort();

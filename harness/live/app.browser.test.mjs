@@ -39,7 +39,8 @@ try {
   await page.route('**/api/interpret', async route => {
     const body = route.request().postDataJSON(); sends.push(body);
     assert.equal(body.packet.repIds.length, 1);
-    assert.equal(body.images.length, 3, 'The complete fixture rep must include exact descent, bottom and ascent JPEGs');
+    assert.equal(body.images.length, 7, 'The complete fixture rep includes start, descent, exact bottom, ascent and end source JPEGs');
+    assert.ok(body.packet.motionContext.samples.length <= 31);
     for (const image of body.images) assert.ok(body.packet.evidence.some(item => item.timestampMs === image.timestampMs && item.id === image.id));
     const evidenceIds = [body.packet.evidence[0].id];
     if (holdNextRequest) { holdNextRequest = false; announceHeldRequest(); await new Promise(resolve => { releaseHeldResponse = resolve; }); }

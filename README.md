@@ -65,7 +65,7 @@ Only the dedicated pairing service4176 gets temporary HTTPS access. The credenti
 ## What is available
 
 - Recorded Heavy/Full analysis, rep segmentation, source-timed measurements, full-body overlays and replay controls.
-- One-Start optional AI coaching with cited evidence; playback/seek does not request new inference.
+- One-Start optional AI coaching with cited evidence. Each live rep can include up to seven captured JPEGs and 31 timestamped knee/hip/chest-angle samples; missing evidence stays unavailable. Full video stays local, and playback/seek does not request new inference.
 - Two actual video examples with independent hashes, rep selection, phase anchors and descriptive metric differences.
 - Live camera analysis and QR/WebRTC phone transport with bounded asynchronous coaching.
 - Local angle timelines, completed-rep phase/timing summaries and personal reference curves aligned for pace. Visual practice bands are not accuracy estimates or universal good-form zones.

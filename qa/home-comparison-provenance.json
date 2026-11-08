@@ -1,0 +1,305 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:59:45.413Z",
+  "scope": "Current isolated development Compare examples UI, real MediaPipe Heavy on the public clear/bad-form pair; no personal camera, AI calls or independent accuracy claims.",
+  "checks": {
+    "currentDistinctPairUsesHeavy": true,
+    "homeRoundedValuesMatchCurrentRepOne": true,
+    "homeCurvesExactlyMatchRoundedCurrentFrames": true,
+    "currentPairScreenshot": true,
+    "noAIRequestsOrPageErrors": true
+  },
+  "errors": [],
+  "sources": [
+    {
+      "fixture": "clear-squat.mp4",
+      "sha256": "604f29cc43aace0190d1bbaffce9892b8db073dfcba955f78f2cf0f79734fc6d",
+      "model": {
+        "id": "mediapipe-pose-landmarker-heavy",
+        "version": "1"
+      },
+      "rep": {
+        "id": "rep-1",
+        "startMs": 333,
+        "bottomMs": 1067,
+        "endMs": 1733
+      },
+      "frameCount": 57,
+      "measurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 117.37974675692203,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1067
+        },
+        {
+          "id": "rep-1-duration",
+          "repId": "rep-1",
+          "metric": "rep_duration",
+          "value": 1400,
+          "unit": "ms",
+          "quality": "usable",
+          "evidenceTimestampMs": 1067
+        },
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 41.067443534064424,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1067
+        }
+      ],
+      "curve": [
+        [
+          0,
+          26
+        ],
+        [
+          67,
+          33
+        ],
+        [
+          134,
+          41
+        ],
+        [
+          200,
+          52
+        ],
+        [
+          267,
+          62
+        ],
+        [
+          334,
+          74
+        ],
+        [
+          400,
+          83
+        ],
+        [
+          467,
+          98
+        ],
+        [
+          534,
+          106
+        ],
+        [
+          600,
+          114
+        ],
+        [
+          667,
+          116
+        ],
+        [
+          734,
+          117
+        ],
+        [
+          800,
+          115
+        ],
+        [
+          867,
+          114
+        ],
+        [
+          934,
+          108
+        ],
+        [
+          1000,
+          92
+        ],
+        [
+          1067,
+          85
+        ],
+        [
+          1134,
+          64
+        ],
+        [
+          1200,
+          56
+        ],
+        [
+          1267,
+          48
+        ],
+        [
+          1334,
+          32
+        ],
+        [
+          1400,
+          24
+        ]
+      ]
+    },
+    {
+      "fixture": "bad-form-squat.mp4",
+      "sha256": "b079e776aa977612c4f1c01c353601c642f385c502d2577fe1b6e99c8f9d8581",
+      "model": {
+        "id": "mediapipe-pose-landmarker-heavy",
+        "version": "1"
+      },
+      "rep": {
+        "id": "rep-1",
+        "startMs": 600,
+        "bottomMs": 1267,
+        "endMs": 1867
+      },
+      "frameCount": 66,
+      "measurements": [
+        {
+          "id": "rep-1-knee-flexion",
+          "repId": "rep-1",
+          "metric": "knee_flexion",
+          "value": 127.43376298861932,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1267
+        },
+        {
+          "id": "rep-1-duration",
+          "repId": "rep-1",
+          "metric": "rep_duration",
+          "value": 1267,
+          "unit": "ms",
+          "quality": "usable",
+          "evidenceTimestampMs": 1267
+        },
+        {
+          "id": "rep-1-torso-lean",
+          "repId": "rep-1",
+          "metric": "torso_lean",
+          "value": 46.00784880062013,
+          "unit": "deg",
+          "quality": "usable",
+          "evidenceTimestampMs": 1267
+        }
+      ],
+      "curve": [
+        [
+          0,
+          29
+        ],
+        [
+          67,
+          42
+        ],
+        [
+          133,
+          56
+        ],
+        [
+          200,
+          61
+        ],
+        [
+          267,
+          72
+        ],
+        [
+          333,
+          83
+        ],
+        [
+          400,
+          106
+        ],
+        [
+          467,
+          114
+        ],
+        [
+          533,
+          122
+        ],
+        [
+          600,
+          127
+        ],
+        [
+          667,
+          127
+        ],
+        [
+          733,
+          123
+        ],
+        [
+          800,
+          112
+        ],
+        [
+          867,
+          101
+        ],
+        [
+          933,
+          89
+        ],
+        [
+          1000,
+          80
+        ],
+        [
+          1067,
+          72
+        ],
+        [
+          1133,
+          57
+        ],
+        [
+          1200,
+          44
+        ],
+        [
+          1267,
+          30
+        ]
+      ]
+    }
+  ],
+  "primaryMeasurements": [
+    {
+      "knee_flexion": 117.37974675692203,
+      "rep_duration": 1400,
+      "torso_lean": 41.067443534064424
+    },
+    {
+      "knee_flexion": 127.43376298861932,
+      "rep_duration": 1267,
+      "torso_lean": 46.00784880062013
+    }
+  ],
+  "screenshot": {
+    "path": "harness/public/home-compare.jpg",
+    "bounds": {
+      "x": 277.390625,
+      "y": 460.375,
+      "width": 1075.21875,
+      "height": 419.21875
+    },
+    "rep": "rep-1",
+    "phase": "bottom",
+    "width": 1076,
+    "height": 420,
+    "sha256": "d9f81b968f8dbbfb2c481b3fe7331ecb86acaeb618b3b5da54cd85d682ceab70"
+  },
+  "status": "passed",
+  "corrections": [
+    "Replaced older clear/supported rep-2 screenshot with current clear/bad-form rep-1 pair.",
+    "Corrected one clear-curve relative timestamp from 266 ms to the actual 267 ms; angle unchanged."
+  ]
+}

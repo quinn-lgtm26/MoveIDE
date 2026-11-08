@@ -24,6 +24,8 @@ export interface CoachPacket {
   repIds: string[];
   measurements: CoachingMeasurement[];
   evidence: EvidenceRef[];
+  motionContext?: { repId: string; clipId: string; modelId: string; coordinateSpace: 'projected-video'; sampling: 'observed-samples-no-interpolation'; startMs: number; bottomMs: number; endMs: number;
+    samples: {timestampMs: number; kneeFlexionDeg: number | null; hipFlexionDeg: number | null; torsoLeanDeg: number | null}[] };
 }
 
 export interface CoachingImage extends EvidenceRef {
@@ -43,6 +45,7 @@ export interface CoachingBundle {
 export interface CoachingOptions {
   repIds?: readonly string[];
   userGoal?: string;
+  maxImages?: number;
 }
 
 export interface CitedText {

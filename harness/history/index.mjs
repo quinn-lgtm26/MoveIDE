@@ -3,7 +3,7 @@ import { validateCoachPacket, validateCoachingResponse } from '../coaching/packe
 import { getCoachingSegments } from '../coaching/playback.mjs';
 import { validateHistoryReport } from './report-validation.mjs';
 export const HISTORY_LIMITS = Object.freeze({ videoBytes: 100 * 1024 ** 2, appBytes: 500 * 1024 ** 2,
-  metadataBytes: 8 * 1024 ** 2, evidenceImages: 18, evidenceImageBytes: 1024 ** 2,
+  metadataBytes: 8 * 1024 ** 2, evidenceImages: 42, evidenceImageBytes: 1024 ** 2,
   liveSamples: 10_000, liveNotes: 512, liveReps: 2000, liveRepReviews: 150 });
 const DB_NAME = 'moveide-history-v1';
 let databasePromise;
@@ -87,13 +87,13 @@ function contentSnapshot(row, assets) {
       ({timestampMs,viewEpoch,phase,repKey,imageSha256,bytes:blob.size,mimeType:blob.type})) });
 }
 function summary(row) {
-  const duration = row.report?.clip?.durationMs ?? row.live?.recording?.durationMs ?? row.metadata?.durationMs;
+  const duration = row.kind === 'live' ? row.live?.recording?.durationMs ?? row.metadata?.durationMs : row.report?.clip?.durationMs ?? row.metadata?.durationMs;
   const model = row.report?.poseModel?.id ?? row.metadata?.model;
   return { id: row.id, kind: row.kind, title: row.title, createdAt: row.createdAt, updatedAt: row.updatedAt,
     revision: row.revision, contentRevision: row.contentRevision ?? row.revision,
     queueHeartbeatAt: Number.isSafeInteger(row.live?.queueHeartbeatAt) && row.live.queueHeartbeatAt >= 0 ? row.live.queueHeartbeatAt : null, hasVideo: row.videoBytes > 0, videoBytes: row.videoBytes,
     videoSha256: row.videoSha256, evidenceImageCount: row.evidenceImageCount,
-    repCount: row.report?.reps?.length ?? row.live?.reps?.length ?? 0,
+    repCount: row.kind === 'live' ? row.live?.reps?.length ?? 0 : row.report?.reps?.length ?? 0,
     durationMs: Number.isFinite(duration) && duration >= 0 ? duration : null,
     model: typeof model === 'string' ? model : null,
     hasCoaching: Boolean(row.coaching || row.live?.notes?.length) };
@@ -130,7 +130,7 @@ async function writeSession(input, requireExisting) {
     videoHash = input.video ? await hash(input.video) : null;
   }
   if (hasEvidence) {
-    if (!Array.isArray(input.evidenceImages) || input.evidenceImages.length > HISTORY_LIMITS.evidenceImages) fail('limit_exceeded', 'Keep at most 18 saved evidence JPEGs per session.');
+    if (!Array.isArray(input.evidenceImages) || input.evidenceImages.length > HISTORY_LIMITS.evidenceImages) fail('limit_exceeded', 'Keep at most 42 saved evidence JPEGs per session.');
     const keys = new Set();
     preparedImages = await Promise.all(input.evidenceImages.map(async image => {
       if (!image || !Number.isSafeInteger(image.timestampMs) || image.timestampMs < 0 || !Number.isSafeInteger(image.viewEpoch) || image.viewEpoch < 0 ||

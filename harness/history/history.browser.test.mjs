@@ -172,6 +172,16 @@ try {
     return {code,coachingCode,count:(await h.listSessions()).length,bytes:(await h.storageStatus()).appBytes,missing:await h.getSession('recorded-original')};
   });
   assert.equal(integrity.code, 'integrity_error');assert.equal(integrity.coachingCode,'integrity_error'); assert.equal(integrity.count, 0); assert.equal(integrity.bytes, 0); assert.equal(integrity.missing, null); checks.corruptionRejectedAndExplicitDeletionClearsAssets = true;
+  const sequenceBoundary=await page.evaluate(async()=>{
+    const h=await import('/harness/history/index.mjs');
+    const evidenceImages=Array.from({length:42},(_,i)=>({timestampMs:i*100,phase:'descent',repKey:`rep-${Math.floor(i/7)}`,viewEpoch:0,blob:new Blob(['fixture JPEG bytes'],{type:'image/jpeg'})}));
+    await h.saveSession({id:'seven-image-sequences',kind:'live',title:'Six bounded reviews',evidenceImages});
+    const saved=await h.getSession('seven-image-sequences');let code;
+    try{await h.patchSession({id:saved.id,evidenceImages:[...evidenceImages,{...evidenceImages[0],timestampMs:9999}]})}catch(error){code=error.code}
+    const unchanged=await h.getSession(saved.id);await h.deleteSession(saved.id);
+    return{count:saved.evidenceImages.length,hashes:saved.evidenceImages.every(image=>/^[a-f0-9]{64}$/.test(image.imageSha256)),code,unchanged:unchanged.revision===saved.revision};
+  });
+  assert.deepEqual(sequenceBoundary,{count:42,hashes:true,code:'limit_exceeded',unchanged:true});checks.sixSevenImageReviewsPersistAndFortyThirdRollsBack=true;
   const denied = await browser.newPage();
   await denied.addInitScript(() => Object.defineProperty(window, 'indexedDB', {value:undefined})); await denied.goto(origin);
   const unavailable=await denied.evaluate(async()=>{const h=await import('/harness/history/index.mjs');return h.storageStatus();});

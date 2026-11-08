@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:40:37.232Z",
+  "verifiedAtUtc": "2026-11-08T02:05:54.731Z",
   "surface": "isolated Chromium IndexedDB on ephemeral localhost origin",
   "checks": {
     "reloadPreservesOriginalVideoReportAndReplay": true,
@@ -13,6 +13,7 @@
     "lateCoachingPatchPreservesRenameAssetsAndCannotResurrectDeletedSession": true,
     "heartbeatMetadataSkipsMediaReadWithoutHidingContentChanges": true,
     "corruptionRejectedAndExplicitDeletionClearsAssets": true,
+    "sixSevenImageReviewsPersistAndFortyThirdRollsBack": true,
     "unavailableStorageHasActionableStatus": true
   },
   "limits": "Browser quota fault and app accounting boundary injected; unavailable IndexedDB simulated. Not an actual Safari/private-mode or disk-full test.",

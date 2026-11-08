@@ -25,9 +25,9 @@ testCases:
   - id: live-setup-and-navigation
     name: Live setup comprehension and navigation without a camera
     steps:
-      - Navigate to Live coaching. Inspect source selection, Start coached squat, the local saving choice and coaching area before starting.
+      - Navigate to Live camera. Inspect source selection, Start coached squat, the local saving choice and coaching area before starting. Check that the ChatGPT status and Connect action are visible at the top.
       - Read capture guidance, saving explanation and queued-coach explanation. Inspect the movement chart, practice-target wording and expandable Session diagnostics with its download button. Do not grant a camera or create a phone pairing in this static preview; physical device and queued-response execution tests are separate.
-      - Inspect keyboard focus, readable labels and unobstructed controls. If resizing is available, inspect a narrow viewport for page overflow.
+      - Open Quick tour and step through it. Coach notes should highlight the coaching panel beside the video on desktop, not a separate bottom status. Close the tour with its button or Escape. Inspect keyboard focus, simple wording, readable labels, icon labels and unobstructed controls. If resizing is available, inspect a narrow viewport for page overflow.
       - Follow History from live, check its local-browser explanation and empty or populated state, then return to recorded review.
       - Review each visible section for consistency with recorded review and History. Report concrete improvements with reproduction steps, including unclear queue/Stop semantics, misleading ready or AI claims, empty graph labels, contrast, clipping, spacing, disappearing guidance or inaccessible navigation.
     criteria: Live setup distinguishes camera selection, starting, optional AI and local recording. It shows no fabricated measurements or coaching before capture. History is reachable and has a clear state and return path. Controls and guidance are usable; graph/diagnostics explain their empty state. Stop versus queued AI is understandable, and earlier notes are not claimed before capture. Device-only behavior is explicitly untested.

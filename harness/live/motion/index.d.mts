@@ -36,7 +36,7 @@ export interface LiveRep {
   /** Stable session + start/end key; report rep IDs are local to the rolling window. */
   key: string; epoch: number; rep: Rep; report: AnalysisReport; feedback: CompletedRepFeedback;
   /** Up to 3 exact accepted descent/bottom/ascent frames. Empty if the measured bottom is unavailable. */
-  evidenceImages: { phase: 'descent' | 'bottom' | 'ascent'; timestampMs: number; blob: Blob }[];
+  evidenceImages: { phase: 'start' | 'descent' | 'bottom' | 'ascent' | 'end'; timestampMs: number; blob: Blob }[];
 }
 export interface LiveSquatOptions {
   /** Declared capture workflow, not a validated camera classification. Default side. */

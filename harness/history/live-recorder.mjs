@@ -91,7 +91,7 @@ export function createLiveArchive({ source, startedAt = new Date().toISOString()
       if (live.notes.length >= 6 || live.notes.some(note => note.repKey === event.key)) return;
       live.notes.push({ text: result.nextFocus.text, repId: event.rep.id, repKey: event.key, timestampMs: event.rep.bottomMs,
         viewEpoch: event.epoch, result: structuredClone(result), ...(packet ? { packet: structuredClone(packet) } : {}) });
-      for (const image of event.evidenceImages.slice(0, 3)) {
+      for (const image of event.evidenceImages.slice(0, 7)) {
         if (image.blob?.size <= 1024 * 1024) live.evidence.push({ ...image, repKey: event.key, viewEpoch: event.epoch });
       }
     },

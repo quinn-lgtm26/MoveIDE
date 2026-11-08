@@ -119,3 +119,12 @@ test('real browser video-only recorder yields a replayable local blob without ca
     assert.equal(result.replay.width, 320); assert.equal(result.replay.height, 240); assert.ok(result.replay.currentTime > 0);
   } finally { await browser.close(); }
 });
+
+
+test('six accepted seven-image reviews preserve all 42 source JPEG references and remain bounded', () => {
+  const archive = createLiveArchive({source:'camera'});
+  const images=Array.from({length:9},(_,i)=>({phase:i===3?'bottom':'descent',timestampMs:i*100,blob:new Blob(['bounded jpeg'],{type:'image/jpeg'})}));
+  for(let i=0;i<8;i++) archive.note({key:`rep-${i}`,epoch:0,rep:{id:`rep-${i}`,bottomMs:300},evidenceImages:images},{nextFocus:{text:'Observed'},observations:[],uncertainty:''});
+  assert.equal(archive.live.notes.length,6);assert.equal(archive.live.evidence.length,42);
+  assert.equal(new Set(archive.live.evidence.map(image=>`${image.repKey}:${image.timestampMs}`)).size,42);
+});

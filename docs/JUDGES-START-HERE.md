@@ -39,6 +39,8 @@ In the live graph, **Compare with your first rep** provides a personal reference
 
 For live sessions, keep the original live tab open until queued reviews finish. The queue allows up to six reviews, one at a time, with at least eight seconds between dispatches. Starting another session cancels unfinished reviews from the previous one; closing the tab interrupts the queue. Older sessions do not gain invented or retroactive reviews.
 
+Saved live replay prepares a local pose overlay from the recorded video, with progress and Cancel. After preparation, pause or seek to inspect the estimated skeleton; cached reopen reuses it without another model pass. Coach-note links still show approximate recording alignment, and original live rep counts remain unchanged. This preparation sends no new AI request.
+
 History is local to this browser profile and **this exact app address**. ChatGPT login does not sync recordings. Phone recordings save on the receiving computer. Live replay alignment is approximate, and exact source JPEG evidence is shown separately. Download the original video and measurements for a backup. No angles are fabricated when tracking is unavailable.
 
 ## Optional iPhone → MacBook demonstration
