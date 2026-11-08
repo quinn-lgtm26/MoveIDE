@@ -1,6 +1,6 @@
 # Local session history and recordings
 
-User decision: **save locally for this demo**, confirmed2026-11-07. This is part of the product flow, not a raw-report archive. Implemented with scoped local browser acceptance; final Seldon product verdicts are pending. Evidence and remaining physical-device gates are tracked in [tracker.md](../tracker.md).
+User decision: **save locally for this demo**, confirmed2026-11-07. This is part of the product flow, not a raw-report archive. Implemented with scoped local browser acceptance; final Seldon product rerun passed3/3 on f4a987a. Evidence and remaining physical-device gates are tracked in [tracker.md](../tracker.md).
 
 ## Experience
 

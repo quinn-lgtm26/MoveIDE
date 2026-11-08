@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:29:04.124Z",
-  "revision": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
+  "verifiedAtUtc": "2026-11-08T00:42:16.339Z",
+  "revision": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
   "surface": "root production build",
   "fixture": "clear-squat.mp4",
   "provider": "real ChatGPT",
@@ -21,15 +21,19 @@
   "responseEvidenceIds": [
     [
       "rep-1-knee-flexion",
-      "rep-2-knee-flexion"
-    ],
-    [
+      "rep-2-knee-flexion",
       "rep-1-torso-lean",
       "rep-2-torso-lean"
     ],
     [
       "rep-1-duration",
       "rep-2-duration"
+    ],
+    [
+      "rep-1-knee-flexion",
+      "rep-2-knee-flexion",
+      "rep-1-torso-lean",
+      "rep-2-torso-lean"
     ]
   ],
   "checks": {
@@ -39,6 +43,8 @@
     "secondRepCueVisible": true,
     "noExtraSeekRequests": true,
     "twoPersistentShortCards": true,
-    "stopRetainsCards": true
+    "stopRetainsCards": true,
+    "realNotesPersistInHistory": true,
+    "reloadRestoresWithoutInference": true
   }
 }

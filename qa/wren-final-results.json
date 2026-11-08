@@ -1,0 +1,50 @@
+{
+  "experimentId": "2151c1b9-ae1c-484e-bd25-327cbe64b283",
+  "build": "f4a987aa9fd2a90acd65c71f4db43e07bd322a70",
+  "status": "Completed",
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "blocked": 0,
+    "timedOut": 0
+  },
+  "cases": [
+    {
+      "id": "measure-squat",
+      "verdict": "pass",
+      "durationSeconds": 438.139
+    },
+    {
+      "id": "compare-and-handoff",
+      "verdict": "pass",
+      "durationSeconds": 306.222
+    },
+    {
+      "id": "live-setup-and-navigation",
+      "verdict": "pass",
+      "durationSeconds": 166.243
+    }
+  ],
+  "accountAfter": {
+    "granted": 16,
+    "used": 8,
+    "remaining": 8,
+    "pending": 0
+  },
+  "reportUrl": "https://app.seldon.com/experiments/2151c1b9-ae1c-484e-bd25-327cbe64b283",
+  "scope": "Frozen public-fixture build; real Heavy, disconnected provider. Both core workflows plus live setup/navigation. Physical iPhone and independent anatomical accuracy are separate unverified gates.",
+  "sources": [
+    "get_experiment_status",
+    "get_report",
+    "get_summary",
+    "get_task_balance"
+  ],
+  "blockingFindings": [],
+  "nonBlockingObservations": [
+    "Restore banner could be larger/higher contrast.",
+    "Original-video download keeps its original filename when session title is renamed; JSON uses the session title.",
+    "Wren observed limited visible feedback when clicking Play at the end of a short clip; replay controls passed the journey."
+  ],
+  "releaseDecision": "GO for hands-on testing of the current local demo. No claim of validated arbitrary-angle accuracy or physical-iPhone acceptance."
+}

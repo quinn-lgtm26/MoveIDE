@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-08T00:43:12.896Z",
+  "readOnly": true,
+  "ready": true,
+  "checks": [
+    {
+      "name": "Node",
+      "status": "pass",
+      "detail": "26.13.0",
+      "next": "Use Node.js 22.18 or newer."
+    },
+    {
+      "name": "Platform",
+      "status": "pass",
+      "detail": "darwin",
+      "next": "The launcher supports macOS/Linux."
+    },
+    {
+      "name": "Locked dependencies",
+      "status": "pass",
+      "detail": "Both dependency trees match their direct lockfile versions and entry files.",
+      "next": null
+    },
+    {
+      "name": "full model",
+      "status": "pass",
+      "detail": "Pinned SHA-256 matches.",
+      "next": null
+    },
+    {
+      "name": "heavy model",
+      "status": "pass",
+      "detail": "Pinned SHA-256 matches.",
+      "next": null
+    },
+    {
+      "name": "WASM/runtime",
+      "status": "pass",
+      "detail": "All four runtime files match the installed SDK.",
+      "next": null
+    },
+    {
+      "name": "Built UI",
+      "status": "pass",
+      "detail": "A build exists; this does not prove it matches the current source.",
+      "next": "npm run demo rebuilds current source before launch."
+    },
+    {
+      "name": "Port 4173",
+      "status": "info",
+      "detail": "occupied",
+      "next": "Existing service left untouched; do not launch a second copy."
+    },
+    {
+      "name": "Port 4176",
+      "status": "info",
+      "detail": "occupied",
+      "next": "Existing service left untouched; do not launch a second copy."
+    },
+    {
+      "name": "Running app",
+      "status": "pass",
+      "detail": "MoveIDE health check passed on private port4173.",
+      "next": null
+    }
+  ],
+  "limits": "Does not open a camera, test a physical phone, inspect account credentials or read browser history. Browser storage belongs to the exact browser/profile/origin."
+}

@@ -1,7 +1,7 @@
 # Seldon simulation ledger
 
 - Hackathon allocation · **16 simulations**
-- Current connected account, reconciled 2026-11-07 · **16 granted, 2 used, 0 pending, 14 remaining**. The older frontend run is not visible under this API key and is tracked separately; do not subtract an unconfirmed cross-account debit.
+- Current connected account, reconciled 2026-11-07 · **16 granted, 8 used, 0 pending, 8 remaining**. The older frontend run is not visible under this API key and is tracked separately; do not subtract an unconfirmed cross-account debit.
 - Account balance at first preflight on 2026-11-07 · **16 granted, 0 used, 0 pending, 16 remaining**
 - Final-build reserve · **4 simulations**, including room to rerun both workflows if the verified debit allows
 
@@ -51,9 +51,22 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 ### 2026-11-07 · Integrated product QA · 2ad37f8
 
 - Build: `2ad37f8659bbb9b3b8bbea0d2b10e736440491a4`; immutable staging manifest `bd942dadd406ce0f99f1606256a429c4536e7ab783a2388b4626f9e3bda06192`. [Build manifest](wren-build.json).
-- Target: public fixture-only HTTPS staging. [Exact public preflight](wren-public-preflight.json) passes nine checks: private-route isolation, real Heavy sample, overlay, saved rename/reload/replay/download, independent comparison, responsive layout, live setup and History navigation. Initial preflight was interrupted by a staging copy; the frozen-copy retry passed before dispatch.
+- Target: public fixture-only HTTPS staging. [Exact public preflight](wren-initial-public-preflight.json) passes nine checks: private-route isolation, real Heavy sample, overlay, saved rename/reload/replay/download, independent comparison, responsive layout, live setup and History navigation. Initial preflight was interrupted by a staging copy; the frozen-copy retry passed before dispatch.
 - Cases: `measure-squat`, `compare-and-handoff`, `live-setup-and-navigation`. Three expected simulations. This is current product QA; final polish will be rerun separately.
 - Seldon MCP `run_seldon` dispatched experiment **`8c85e97b-ddb4-4e3a-bf78-4171930de874`**. [Report](https://app.seldon.com/experiments/8c85e97b-ddb4-4e3a-bf78-4171930de874).
 - Terminal report: **3/3 PASS**, zero failures/blocked/timeouts. Recorded/history272.980s; comparison500.467s; live setup102.014s. get_summary confirms allthree journeys and honest disconnected/empty states. Wren could not resize or test physicalcamera; local responsive/device-simulation evidence remains separate.
 - Finding: repeated native rep-menu mouse clicks failed in Wren; keyboard eventually worked. Replaced the dropdowns with visible pressed-state Rep1/Rep2 buttons;22 localcomparison checks pass including independent click/keyboard selection. Minor summary suggestions also cover saving-warning placement, coaching wording and overlapping video-jump affordances. Stop-before-closing guidance now appears beside Start; other alternate seek controls retain distinct phase/metric purposes.
 - Actual debit: **3 simulations**. Official balance after completion:16granted,5used,0pending,11remaining. This is a passed checkpoint, not the laterpolish finalrerun.
+
+
+### 2026-11-07 · Final polished-build rerun · f4a987a
+
+- Product build: `f4a987aa9fd2a90acd65c71f4db43e07bd322a70`. Frozen static manifest `e3725a8481899f6d2c2f177182a3083a5d6c77d9ba39173bb76cb6792aeec379`; [manifest](wren-final-build.json), [public preflight](wren-public-preflight.json).
+- Baseline validated again:3runnablecases. Local fullsuite110harness+8launcher/doctor=118passes; finalproduction15controlled-provider checks and9realChatGPT checks pass, including History/reload restoring realnotes without inference. Nine exact publicHTTPS preflight checks pass. Read-only doctorready; phonepage200, publicprovider404, localChatGPTconnected.
+- Dispatch reserves3simulations for the same recorded/history, comparison, and live-setup journeys. Balance before:16granted5used11remaining0pending; expected remaining8. Preserve four for any needed finalcore rerun.
+- Final experiment **2151c1b9-ae1c-484e-bd25-327cbe64b283** dispatched through Seldon MCP; [report](https://app.seldon.com/experiments/2151c1b9-ae1c-484e-bd25-327cbe64b283). Balance after reservation:5used,8remaining; terminal verdicts now complete.
+
+- Final `get_report` and `get_summary`: **3/3 PASS**, zero failures/blocked/timeouts. Recorded/history438.139s, comparison306.222s, live setup166.243s. [Saved final result](wren-final-results.json). Both core workflows cover the same final product build.
+- Actual final-run debit: **3 simulations**; official account now16granted,8used,0pending,8remaining.
+- Wren confirms visible rep selection works. Remaining nonblocking observations: restore-banner readability, retaining the original video filename after session rename, and limited end-of-clip Play feedback. These are tracked polish notes, not failed journeys.
+- **GO for hands-on testing of the current demo.** Real ChatGPT/history/reload pass locally; physical iPhone and independent movement accuracy remain separate gates. No product files changed during the final run; frozen manifest rechecked after completion.

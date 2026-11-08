@@ -1,0 +1,52 @@
+{
+  "experimentId": "8c85e97b-ddb4-4e3a-bf78-4171930de874",
+  "build": "2ad37f8659bbb9b3b8bbea0d2b10e736440491a4",
+  "status": "Completed",
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "blocked": 0,
+    "timedOut": 0
+  },
+  "cases": [
+    {
+      "id": "measure-squat",
+      "verdict": "pass",
+      "durationSeconds": 272.98
+    },
+    {
+      "id": "compare-and-handoff",
+      "verdict": "pass",
+      "durationSeconds": 500.467
+    },
+    {
+      "id": "live-setup-and-navigation",
+      "verdict": "pass",
+      "durationSeconds": 102.014
+    }
+  ],
+  "accountAfter": {
+    "granted": 16,
+    "used": 5,
+    "remaining": 11,
+    "pending": 0
+  },
+  "sources": [
+    "get_experiment_status",
+    "get_report",
+    "get_summary",
+    "search_knowledge",
+    "get_task_balance"
+  ],
+  "findings": {
+    "blocking": [],
+    "usability": [
+      "Wren native rep-menu mouse selection repeatedly missed; keyboard worked. Replaced with explicit pressed-state rep buttons, locally verified22checks.",
+      "Summary mentioned saving-warning placement; moved Stop-before-closing guidance beside Start.",
+      "Summary suggested coaching-connection wording and dual video-jump affordances; these were nonblocking clarity observations, not failed data or navigation."
+    ]
+  },
+  "scope": "Hosted public fixtures, real Heavy, disconnected provider; no personal media. Narrow viewport and physical camera were not tested by Wren. Local browser evidence covers responsive layout separately.",
+  "reportUrl": "https://app.seldon.com/experiments/8c85e97b-ddb4-4e3a-bf78-4171930de874"
+}
