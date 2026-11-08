@@ -64,6 +64,8 @@ export function createLiveRecorder(stream, {
 export function createLiveArchive({ source, startedAt = new Date().toISOString() }) {
   const live = { source, startedAt, samples: [], reps: [], notes: [], evidence: [], samplesTruncated: false, repsTruncated: false };
   let lastSample = -Infinity;
+  const finiteNonnegative = value => Number.isFinite(value) && value >= 0 ? value : null;
+  const counter = value => Number.isSafeInteger(value) && value >= 0 ? value : null;
   return {
     live,
     sample(sample) {
@@ -72,7 +74,14 @@ export function createLiveArchive({ source, startedAt = new Date().toISOString()
       if (live.samples.length >= 1200) { live.samplesTruncated = true; return; }
       live.samples.push({ timestampMs: sample.timestampMs, sourceMediaTimeMs: sample.sourceMediaTimeMs, viewEpoch: sample.viewGuard.epoch,
         metrics: structuredClone(sample.metrics), metricValidity: structuredClone(sample.metricValidity), analysisEligible: sample.analysisEligible,
-        phase: sample.phase, trackingConfidence: sample.trackingConfidence });
+        phase: sample.phase, trackingConfidence: sample.trackingConfidence,
+        // Retain why tracking was withheld. Video duration alone never proves analysis ran.
+        // Only bounded scalar diagnostics enter history; never worker payloads or raw poses.
+        viewGuard: { state: ['stable', 'reacquiring', 'unavailable'].includes(sample.viewGuard.state) ? sample.viewGuard.state : null,
+          reason: typeof sample.viewGuard.reason === 'string' ? sample.viewGuard.reason.slice(0, 80) : null,
+          epoch: sample.viewGuard.epoch },
+        processingLatencyMs: finiteNonnegative(sample.processingLatencyMs),
+        stats: { analyzedHz: finiteNonnegative(sample.stats?.analyzedHz), processedFrames: counter(sample.stats?.processedFrames), droppedBusy: counter(sample.stats?.droppedBusy) } });
     },
     rep(event) {
       if (live.reps.length >= 150) { live.repsTruncated = true; return; }

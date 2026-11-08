@@ -36,7 +36,7 @@ const milestones = [
     "id": "05",
     "title": "Integrate and verify the final build",
     "owner": "Polished demo · final Wren3/3 passed",
-    "work": "Finish final design/accessibility and physical iPhone acceptance. Two-source local comparison is implemented. The experimental continuity guard, per-metric validity and sparse phase evidence are integrated; camera-orbit accuracy is still unverified.",
+    "work": "Two-source comparison and final Wren are complete for the scoped demo. Remaining implementation includes OpenCap import UI, evidence-bound region accents, selectable goals/references and automatic view/calibration work. Physical iPhone, broad accessibility and independent motion accuracy require separate acceptance.",
     "proof": "110 harness and8 launcher/doctor tests pass (118 total). Fresh efe97bd setup/build and pinned asset hashes pass. Current root preview passes15 controlled-provider checks; history passes22 journeys and6 lifecycle cases. First product Wren passed3/3 on2ad37f8. Polished f4a987a rerun passed3/3; physical iPhone and independent accuracy remain."
   },
   {
@@ -68,7 +68,7 @@ const system = [
   {
     "title": "Optional provider",
     "stack": "Node loopback · OAuth with PKCE · Responses · validated output",
-    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers new inference; Stop cancels late work. Live requests are capped and evidence-bound. No full-video upload is claimed."
+    "body": "Credentials remain in the loopback service. Disclosed Start authorizes selected source JPEGs and bounded measurements automatically. Playback never triggers new inference; Live Stop drains bounded queued reviews; new Start cancels unfinished work. Live requests are evidence-bound. No full-video upload is claimed."
   },
   {
     "title": "Optional OpenCap research import",
@@ -95,7 +95,8 @@ const system = [
 const checks = [
   ["Polished session review", "f4a987a retains stopped live recordings, accepted cards and seven historical metrics until New Start. Late-finalization, opt-out, unsupported/failed encoding and stale-live-overlay checks pass. History video/notes, measurement inspector, slow playback and reduced motion pass11 scoped polish checks; visible comparison rep buttons pass22 checks."],
   ["Scope hold and identity", "Chat is on hold: no chat UI or endpoints. The small biomechanics logo is a movement identity, not a claim of gait/non-squat support. Physical iPhone/venue and independent angle/orbit accuracy remain unverified."],
-  ["Full product remaining gates", "Final Seldon core-workflow verdicts and reruns; actual iPhone/Mac venue capture, codec, orientation, background/lock, reconnect and recording replay; keyboard/focus/contrast/text zoom/reduced motion; independent per-view/orbit angle, identity and false-cue references. Cloud sync and unsaved crash recovery are outside the chosen local demo."],
+  ["Remaining implementation", "FE-6 OpenCap dual-track UI; UX-3 evidence-bound region accents; selectable goal/reference setup; VIEW-2–5 automatic viewpoint, identity, bounded filtering and calibration; stronger temporal-claim acceptance. Exact sequential decode and memory profiling remain BE-5 work. These are code/engineering gaps, not only missing device evidence."],
+  ["Remaining external acceptance", "Actual iPhone/Mac venue capture, codec, orientation, background/lock, reconnect, recording replay and end-to-end latency; broader contrast/text-zoom/screen-reader review; independent per-view/orbit angle, identity and false-cue references. Final Wren passed3/3 on f4a987a. Native OpenCap is deferred; cloud sync and unsaved crash recovery are outside the local demo."],
   ["Local history acceptance", "qa/history-root.json passes22 journeys; qa/history-races.json passes6 lifecycle and storage-management recovery checks; storage browser verification passes10 groups. Live finalized video/JSON/JPEG failure recovery is available. Recorded replay makes no new inference; live video alignment is explicitly approximate."],
   [
     "Geometry and missing data",
@@ -197,8 +198,8 @@ const handoff = [
     "Consume LiveSample poseDisplayFrame, analysisEligible, metricValidity, multiView and experimental viewGuard; LiveRep adds epoch and exact phase JPEGs. Reset current baselines on epochs, retain completed-rep historical AI with original view/time labels. Estimates remain experimental and missing values stay missing."
   ],
   [
-    "Implement two sources and temporal evidence",
-    "Root comparison currently means two reps of one recording; add separate report/source identities. Live sparse descent/bottom/ascent cache wiring now passes combined browser QA with five controlled-provider three-image requests. Real-provider phase return passes; independent accuracy remains."
+    "Preserve two sources; finish temporal acceptance",
+    "Compare examples already analyzes two distinct recordings with independent hashes, reports, selected reps and clocks;22 local checks pass. Preserve retained-A/B-only retry and no inference on seeks. Live three-phase evidence and real-provider return pass; reversed-sequence and unsupported temporal-claim acceptance remain."
   ],
   [
     "Launch and final acceptance",
@@ -262,7 +263,7 @@ const stories = [
   [
     "FE-2 · Synchronized overlay",
     "Merged · on the shared harness",
-    "The root product runs Heavy on clear-squat.mp4 with the shared source clock. Final Seldon acceptance remains."
+    "The root product runs Heavy on clear-squat.mp4 with the shared source clock. Final Wren passed3/3 on f4a987a, including recorded evidence/overlay review; independent angle accuracy remains unmeasured."
   ],
   [
     "FE-3 · Rep compare and handoff",
@@ -327,17 +328,17 @@ const stories = [
   [
     "VIEW-1–3 · Gated view diagnostics",
     "Experimental live integration browser-verified",
-    "Per-metric validity, full-body display and view epochs are integrated. Adaptive resolution recovers, current baselines clear and historical completed-rep AI survives. Real frontal/oblique annotations, calibration and cue accuracy remain."
+    "Per-metric validity, full-body display, epoch reset and adaptive-resolution recovery are integrated. The app still declares side view and uses a fixed110° goal. Automatic person/phase reference calibration and view selection/estimation remain implementation work; real frontal/oblique annotations and cue accuracy are separate gates."
   ],
   [
     "VIEW-4–6 · Moving camera and orbit",
     "Required target · unverified",
-    "Continuity, identity/left-right stability, bounded filtering, camera-relative versus canonical estimates and baseline reacquisition need integrated tests and independent orbit references. Full visibility alone is insufficient."
+    "The current continuity heuristic cannot infer viewpoint or distinguish camera from athlete motion. Automatic view estimation, persistent identity/left-right continuity, bounded filtering and canonical/reference construction need implementation as well as tests. Independent orbit references remain an external research gate."
   ],
   [
     "TEMP-1 · Phase-aware evidence",
     "Live cache and phase bundle browser-verified",
-    "Three pure tests and combined browser QA pass. Public real ChatGPT request now includes three exact phase JPEGs and returns historical coaching. Sparse images are not full-video upload or independent phase-angle validation."
+    "Four focused phase-evidence tests and combined browser QA pass. Public real ChatGPT uses three exact phase JPEGs and returns historical coaching. Evidence-ID validation does not prove sequencing claims; reversed-sequence and bottom-only negative acceptance remain."
   ],
   [
     "R-2 · Independent accuracy",
@@ -389,7 +390,7 @@ export default function MoveIDEDevelopmentWorkflow() {
     <header>
       <p style={eyebrow}>MoveIDE engineering · November 7, 2026</p>
       <h1 style={{ margin: "5px 0 6px", fontSize: 24, lineHeight: 1.25, fontWeight: 650 }}>From squat video to coaching evidence</h1>
-      <p style={{ ...body, maxWidth: 680 }}>Local history and onboarding are verified:118 automated tests,22 history journeys,6 lifecycle cases and15 root preview checks. Fresh efe97bd setup/build passes; later worktree changes keep their own evidence scope. Recorded/live coaching and two-video comparison are implemented. First Wren product run passed3/3 on2ad37f8. The polished f4a987a rerun passed3/3: GO for hands-on demo testing. Nine real ChatGPT checks include saved-note replay without inference. Physical iPhone, broad accessibility and independent angle/orbit accuracy remain; native OpenCap stays deferred.</p>
+      <p style={{ ...body, maxWidth: 680 }}>Local history and onboarding are verified:118 automated tests,22 history journeys,6 lifecycle cases and15 root preview checks. Fresh efe97bd setup/build passes; later worktree changes keep their own evidence scope. Recorded/live coaching and two-video comparison are implemented. First Wren product run passed3/3 on2ad37f8. The polished f4a987a rerun passed3/3: GO for hands-on demo testing. Nine real ChatGPT checks include saved-note replay without inference. OpenCap import UI, region accents, goal/reference setup and automatic view/calibration work remain implementation gaps. Physical iPhone, broad accessibility and independent angle/orbit accuracy remain separate gates; native OpenCap stays deferred.</p>
     </header>
 
     <Sources links={[["Final Wren report", "https://app.seldon.com/experiments/2151c1b9-ae1c-484e-bd25-327cbe64b283"], ["Global tracker", `${project}/tracker.md`], ["UI/UX contract", `${project}/docs/frontend-design-amendments.md`], ["AI amendment", `${project}/AI-AMENDMENTS.md`], ["Frontend API handoff", `${project}/docs/frontend-harness-amendments.md`], ["Quickstart", `${project}/docs/quickstart.md`], ["Root real AI evidence", `${project}/qa/root-live-chatgpt.json`], ["Current readiness", `${project}/qa/product-readiness.md`]]} />

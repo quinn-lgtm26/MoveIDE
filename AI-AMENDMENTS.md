@@ -8,7 +8,15 @@ After initial account/camera setup, **Start coached squat** automatically coordi
 
 For a recording, call shared `analyzeSquat`, then `prepareCoachingBundle(report, originalSource, {repIds,signal})`; the current path selects up to two complete reps/four source images. Call `chatGPTProvider.interpret` once per authorized report. Validate source binding through `getCoachingSegments`; seek/play uses stored results, not new requests. Report/packet exports are developer details only.
 
-For live video, use `startLiveSquat` and its completed-rep event/cached exact accepted pixels. Join packet evidence by source timestamp, not current screenshot time. Current limits: **one request in flight,≥8 seconds between dispatches, six calls per Start/Stop session**, skip while busy with no queue. Keep local analysis/video usable while waiting.
+For live video, use `startLiveSquat` and its completed-rep event/cached exact accepted pixels. Join packet evidence by source timestamp, not current screenshot time. Current limits: **one request in flight,≥8 seconds between dispatches, six calls per Start/Stop session**, queue immutable completed-rep bundles in a bounded FIFO. Keep local analysis/video usable while waiting.
+
+## Physical-demo correction — queued rep reviews
+
+The 2026-11-07 phone test showed that an empty AI panel could hide late/aborted interpretation. Show every completed rep's review state: queued, analyzing, ready, failed, cancelled or not queued at the six-review limit. Keep the last accepted card visible while the next request works. One request runs at a time, with at least eight seconds between actual dispatches; busy reps enter the bounded queue rather than disappearing. Full video remains local.
+
+Live Stop stops capture and saves the recording while queued reviews finish in the originating page. Save accepted results and state updates with `patchSession`, which cannot recreate a deleted recording or replace its video. History polls revisions, preserves playback while results arrive, and labels stale queue progress unconfirmed. Open History separately while work remains; leaving/closing the originating page interrupts its in-memory queue. Do not imply server-side continuation or automatic restart. New Start cancels unfinished old reviews. Persistent resumable jobs are a future extension.
+
+The live chart shows a bounded thirty-second window of knee/hip/torso estimates and rep markers, with gaps for unavailable tracking and view changes. A collapsible local diagnostic log exposes frame cadence, tracking reasons and review progress without packet contents, media, credentials or pairing URLs. Saved replay follows its approximate clock map and never invents frame-exact pose overlays.
 
 ## Stacked coaching behavior
 
@@ -16,7 +24,7 @@ Append a concise source-timestamped card when an eligible observation arrives. K
 
 Short primary actions aim for12 words or fewer; full observations remain in details. The provider asks for concise output, but a prompt alone is not a UI length guarantee. Local templates need local labels. A delayed AI card says **About rep N** and must not imply current-frame detection. Deduplicate semantic events across rewind/replay; preserve scroll/focus for someone reading an earlier card. No typed-out paragraphs or page jumps.
 
-New source/session/model invalidates pending work and clears the applicable history. Stop aborts pending requests but preserves accepted session cards. Capture/view loss clears unreliable current geometry/numbers; historical cards remain explicitly evidence-bound. Never pin an old body's skeleton or an old region highlight onto a different current frame.
+New source/session/model invalidates pending work and clears the applicable history. Live Stop ends capture, retains cards and drains already queued reviews for that session. New Start or revoked authorization cancels unfinished work. Capture/view loss clears unreliable current geometry/numbers; historical cards remain explicitly evidence-bound. Never pin an old body's skeleton or an old region highlight onto a different current frame.
 
 ## Phone and provider boundaries
 
@@ -37,18 +45,18 @@ Current real-provider evidence uses bottom JPEGs and bounded report measurements
 - Real Heavy + real ChatGPT passed smoke and [root](qa/root-live-chatgpt.json), with one request and source images1067/3000 ms; root replay showed both rep cues without extra requests.
 - Smoke stacked playback passed its controlled-provider check. Live stacked feed passed a two-card local-camera browser check. Root's designed retained feed passed fifteen production-preview checks and a user-visible real-provider demo on 9446951.
 - [Root readiness](qa/product-readiness.json) has20 passing local checks on its recorded build; [archived evidence](qa/product-readiness.md) keeps the old preview/copy result separate.
-- Physical phone, independent cross-view/orbit accuracy and both final Wren workflows remain distinct gates. No historical test should be relabeled as those results.
+- Final Wren passed all three workflows on frozen `f4a987a`, including both core workflows after fixes ([result](qa/wren-final-results.json)). Physical phone and independent cross-view/orbit accuracy remain separate gates. OpenCap root import, cited-region accents, goal/reference setup and automatic moving-camera analysis are unfinished implementation; see the [audit](tracker.md#completion-audit).
 
 Root retained-feed integration now passes fifteen controlled-provider development checks: short cards, delayed rep ordering, expanded reasons/limits/citations, Stop/reset, replay deduplication and source races. Per-rep accessible labels are preserved. Earlier built readiness and real-provider passes remain scoped to their recorded builds.
 
 ### View-epoch versus source/session invalidation
 
-A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Stop, new source/session or revoked authorization still aborts or invalidates pending work.
+A view-epoch change within the same active source/session clears current measurements, unfinished reps and relative baselines, but does not invalidate an immutable completed-rep image/measurement bundle. Let its in-flight AI request finish and append a card labeled with the original rep/view and source time. Do not apply that historical response to current geometry. Live Stop drains the current session’s bounded queue; new source/session or revoked authorization aborts unfinished work.
 
-Final automated suite checkpoint: `npm test` passed86 harness tests and4 launcher tests with no failures, cancellations or skips. Public real-provider return now passes; physical-device and independent-accuracy acceptance remain separate.
+Historical automated checkpoint: `npm test` passed86 harness tests and4 launcher tests. The latest integrated checkpoint passed110 harness and8 launcher/doctor tests (118 total), with no failures, cancellations or skips. Public real-provider return now passes; physical-device and independent-accuracy acceptance remain separate.
 
 ## Two independent recordings
 
 **Compare examples** is a local comparison action using the same selected pose model for both attributed recordings. It retains separate source hashes, reports, rep IDs and media clocks. Compare bottoms seeks each selected rep to its own bottom. It does not dispatch an AI request. Its Good example / Bad example labels come from the source dataset for one person's two clips, not from MoveIDE. See the [comparison amendment](docs/two-recording-comparison-amendment.md) and shared `compareRecordings` API. Normal single-recording Start continues to orchestrate connected AI automatically.
 
-Latest local checkpoint `65fc875`:99 harness and6 launcher tests pass, including isolated real-WebRTC regression;15 production root lifecycle and21 two-recording browser checks pass. [Evidence](qa/latest-local-checkpoint.json). Physical iPhone, independent angle/orbit accuracy and final Wren remain.
+Latest runtime checkpoint `f4a987a`:118 integrated tests,15 controlled-provider production root checks and9 real ChatGPT/history checks pass;22 comparison checks cover separate recordings and visible rep buttons. [Evidence](qa/latest-local-checkpoint.json). Final Wren passed3/3;8 simulations remain. This is a GO for the supported demo, not completion of the broader backlog. Physical iPhone and independent angle/orbit accuracy remain unverified.

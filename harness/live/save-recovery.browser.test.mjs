@@ -12,7 +12,7 @@ try {
   const context = await browser.newContext({ acceptDownloads: true });
   await context.route('**/harness/live/motion/index.mjs*', route => route.fulfill({ contentType: 'text/javascript', body: 'export async function startLiveSquat(){ return {stop(){}}; }' }));
   await context.route('**/harness/provider/client.mjs*', route => route.fulfill({ contentType: 'text/javascript', body: "export const chatGPTProvider={async getConnection(){return {state:'disconnected'}}};" }));
-  await context.route('**/harness/history/index.mjs*', route => route.fulfill({ contentType: 'text/javascript', body: `let calls=0; export const createSessionId=()=>crypto.randomUUID(); export async function saveSession(data){if(++calls%2)throw new Error('Storage full');return {id:data.id};}` }));
+  await context.route('**/harness/history/index.mjs*', route => route.fulfill({ contentType: 'text/javascript', body: `let calls=0; export const createSessionId=()=>crypto.randomUUID(); export async function saveSession(data){if(++calls%2)throw new Error('Storage full');return {id:data.id};} export const patchSession=saveSession;` }));
   await context.addInitScript(() => {
     navigator.mediaDevices.getUserMedia = async () => {
       const canvas = document.createElement('canvas'); canvas.width = 160; canvas.height = 120;

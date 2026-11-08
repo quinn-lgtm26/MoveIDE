@@ -11,8 +11,12 @@ export interface ViewGuardResult {
 export interface ViewGuardOptions {
   /** Continuous, adequately sampled dwell; defaults 500. */
   stableForMs?: number;
-  /** Maximum valid sample gap; defaults 250. */
+  /** Base valid sample gap; defaults 250ms, enlarged only by bounded observed cadence. */
   maxGapMs?: number;
+  /** Learn observed valid sample cadence (8 intervals) rather than resetting perpetually below 4Hz. Default true. */
+  cadenceAware?: boolean;
+  /** Hard ceiling for cadence-aware continuity, default1000ms. Does not relax rep evidence gap limits. */
+  maxCadenceGapMs?: number;
   minVisibility?: number;
   /** Jump distances are measured in units of the pixel-corrected image diagonal. */
   translationJump?: number; jointJump?: number; minSideSeparation?: number; minTorsoScale?: number;

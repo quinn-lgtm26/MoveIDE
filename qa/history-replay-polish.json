@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:37:50.433Z",
+  "verifiedAtUtc": "2026-11-08T01:06:29.540Z",
   "scope": "Seeded local history and existing fixture video; no Heavy or provider inference, no actual live accuracy claim",
   "checks": {
     "desktopVideoAndNotesTogether": true,

@@ -10,6 +10,7 @@ export function createLiveRecorder(stream: MediaStream, options?: {
   stop(reason?: string): Promise<{ videoBlob: Blob | null; recording: RecordingInfo }>;
   markSample(sample: import('../live/motion/index.mjs').LiveSample): void;
 };
+/** Samples retain bounded view-guard reasons and processing/cadence diagnostics; absent values remain null. */
 export function createLiveArchive(options: { source: string; startedAt?: string }): {
   live: { source: string; startedAt: string; samples: unknown[]; reps: unknown[]; notes: unknown[]; evidence: { phase: string; timestampMs: number; blob: Blob; repKey: string; viewEpoch: number }[]; samplesTruncated: boolean; repsTruncated: boolean };
   sample(sample: import('../live/motion/index.mjs').LiveSample): void;

@@ -1,0 +1,19 @@
+{
+  "verifiedAtUtc": "2026-11-08T01:11:41.428Z",
+  "scope": "Saved public Heavy report with original fixture video; seeded live samples for comparison semantics. No new inference or anatomical accuracy test.",
+  "checks": {
+    "firstCompleteRepDefault": true,
+    "valuesUseStoredBottomMeasurementsAndDuration": true,
+    "referenceIsConsistencyNotHealthGrade": true,
+    "referenceChoiceAndEvidenceSeek": true,
+    "playingRepUpdatesComparison": true,
+    "recordedMobileNoOverflow": true,
+    "unavailableMetricsDoNotProduceDifferences": true,
+    "savedReferenceUsesRetainedEvidence": true,
+    "savedCrossViewDifferencesWithheld": true,
+    "savedMobileNoOverflow": true,
+    "noInferenceOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}

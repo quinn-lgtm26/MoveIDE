@@ -172,7 +172,7 @@ The user explicitly rejected flickering walls of text and requested a coherent s
 
 - Append timestamped concise cards to a reserved scrollable feed. Aim for 12 words/action and one body region. Highlight the newest card; per-card Why expands full reasoning and uncertainty.
 - Deduplicate semantic events across frames, seeks and replay. Proposed local-candidate persistence is 500 ms; validated completed-rep AI appends once. Use the actual bounded retention (12 smoke cards; six live AI cards), with an explicit cap policy; prior cards survive phase changes and loss as historical evidence.
-- Preserve scroll/focus when reading older cards, and offer New coaching rather than forcing scroll. Never move the player or controls. Source/new session resets history; Stop retains accepted cards but rejects late replies. Tracking/view loss invalidates current geometry, not the recorded history.
+- Preserve scroll/focus when reading older cards, and offer New coaching rather than forcing scroll. Never move the player or controls. Source/new session resets history; Live Stop retains accepted cards and lets queued reviews enrich the same saved session; a new session cancels unfinished reviews. Tracking/view loss invalidates current geometry, not the recorded history.
 - **Acceptance:** three cues remain after phase changes; replay/seek adds no duplicate or inference; threshold jitter adds no repeated semantic card; events beyond the configured bound respect that cap. Test delayed AI about a prior rep, Stop, loss, source reset, narrow viewport, reduced motion, focus retention and 200% text zoom. No text clipping or layout jump.
 
 Depends on the existing local feedback and coaching-segment APIs. This supersedes the earlier exclusive-current-cue/2-second-hold design. Presentation timing does not establish biomechanical correctness.
@@ -324,3 +324,16 @@ DEV-1 status: **local setup/build acceptance passed** on fresh `efe97bd`; [evide
 **Implemented; scoped acceptance passed.** History presents video and notes together, measurement inspection and slower playback. Long reasoning does not resize the video. Note links disclose approximate timing and abstain across unsupported gaps/outside recorded prefixes. Eleven replay-polish and ten accessibility checks cover narrow layout, focus/keyboard flows and reduced motion; broader manual accessibility remains separate. Visible pressed-state comparison rep buttons address Wren's native-menu difficulty and pass 22 local comparison checks. Shared biomechanics logo expresses movement identity, without claiming support for gait or non-squat analysis.
 
 **Chat scope: on hold.** Do not add chat UI, endpoints or chat scaffolding in this delivery. Continue the existing bounded evidence-linked coaching. Final polished Wren3/3 is complete. Physical iPhone/venue behavior and independent angle/orbit accuracy remain distinct open gates.
+
+
+## Phone-demo repair and live review completion (2026-11-07 amendment)
+
+These user-directed corrections supersede busy-rep skipping and live Stop aborting completed-rep reviews.
+
+- **LIVE-Q1 — Queued rep reviews:** bounded FIFO, one request at a time, at least8s between dispatches, six reviewed reps/session disclosed. Stop drains; new Start/revocation cancels. Last accepted notes stay visible during review. Late results update the same saved session without replacing media or resurrecting deleted sessions. **Implemented; focused lifecycle and integrated local tests pass. Updated hosted QA pending.**
+- **HIST-7 — Synchronized live replay:** follow video through the approximate recording/source map; sample selection seeks video. Abstain across missing data/view boundaries; open near first completed rep. Same-session AI revisions preserve playback and focus. Stale progress is clearly unconfirmed. **Implemented;12 sync and13 revision-update checks pass.**
+- **LIVE-VIZ1 — Live graph and personal reference:** bounded30s angle traces and rep markers, visible unavailable gaps, first completed rep reference only within compatible view/model conditions. Recorded and saved-live reference choices compare measured depth/chest angle/duration without a universal quality score. **Implemented; isolated chart and11 reference checks pass; final visual pass pending.**
+- **LIVE-OBS1 — Local operational diagnostics:** bounded cadence/tracking/review-state events and downloadable log, excluding video/images/packets/credentials/private links. Archive available processing diagnostics for future failed-run investigations. **Implemented; privacy/bounds regression passes.**
+- **PHONE-ACCEPT — Physical retest:** QR connection works according to the user; actual previous run recorded128samples and3reps but no AI notes. Fixed deterministic slow-cadence guard starvation; that reproduction is not proof of the original run's sole cause. **Await final physical replay/overlay/queued-coaching test after deployment.**
+
+Current queue lifetime is the originating browser page. History opens separately while it drains; closing the page interrupts pending work. Durable server-side/resumable jobs are not implemented and must not be implied.
