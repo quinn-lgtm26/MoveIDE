@@ -1,0 +1,16 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:31:34.541Z",
+  "scope": "Actual portable export/import UI and IndexedDB with public video, cached report and synthetic saved notes/JPEG. No camera, Heavy or AI.",
+  "checks": {
+    "missingManifestHasNoBrokenDemoButton": true,
+    "fullBundleExportIncludesVideoNotesPoseAndJpeg": true,
+    "importOpensNewIdPreservingOriginalAndCachedReplay": true,
+    "invalidImportShowsErrorWithoutNewSession": true,
+    "manifestDiscoveryDoesNotFetchRecording": true,
+    "oneClickDemoImportsAndOpensSameReview": true,
+    "mobileControlsFit": true,
+    "noNewInferenceAIOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}

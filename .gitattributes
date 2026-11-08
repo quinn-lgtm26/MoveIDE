@@ -1,0 +1,2 @@
+
+harness/public/demo/*.moveide.json -diff -text

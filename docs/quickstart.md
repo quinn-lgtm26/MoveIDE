@@ -24,6 +24,20 @@ npm run demo -- --setup-only
 
 Asset setup may need network access on the first run. The launcher uses the pinned setup script and locked npm dependencies. It does not install Node/cloudflared or change account credentials. Initial ChatGPT connection happens in the app; connected sessions can automatically send bounded rep images/measurements under the Start disclosure. Local analysis still works when the coach is disconnected.
 
+## Open the same saved demo on another computer
+
+For an existing checkout, preserve local changes and update with `git pull --ff-only` when safe, then run `npm run demo`. A fresh clone or ZIP uses the normal first-run setup above.
+
+1. Open **History → Open demo session**. The button is shown only when `/demo/session.json` is present in the build; it points to the portable `.moveide.json` demo package.
+2. Open the imported recording and play, pause or seek. Saved coaching and source evidence are already included; **ChatGPT login is not needed to replay them**.
+3. Expect approximately **60.2 seconds, 7 detected reps and 6 AI reviews** in the designated demo. The session allows up to six AI reviews, so an additional detected rep can remain without a coach note while retaining its video and measurements.
+
+The package includes the original video, original saved notes and JPEG evidence, live measurement data, and the prepared report/cache when available. Import validates the package and creates a new local session ID. It carries no account credentials, pairing invitation or authenticated ChatGPT session. Existing browser history stays local; signing in does not synchronize it. If the pose cache is absent, a bounded local preparation pass can run without sending an AI request.
+
+For your own recording, open **Recording details and downloads → Export session** and transfer the resulting `.moveide.json` file. On the other computer choose **History → Import session**. Unlike a measurements-only JSON download, the session export includes the saved media needed for replay. Treat an export as a copy of its recording and coaching; share it only with the people you intend to receive that content.
+
+The designated bundle is served from `harness/public/demo/latest-session.moveide.json` with its manifest at `harness/public/demo/session.json`. This guide specifies the handoff; [the tracker](../tracker.md) records whether export, publication and clean-browser import have actually completed. If **Open demo session** is missing, update safely and run `npm run demo` again, or use **Import session** with an exported bundle. Connect your own eligible ChatGPT account only for new AI coaching.
+
 ## iPhone → MacBook
 
 An installed `cloudflared` executable must be available on PATH. Use the [official installation instructions](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) if needed; the launcher does not install it automatically.

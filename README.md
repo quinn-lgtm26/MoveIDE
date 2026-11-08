@@ -15,8 +15,12 @@ on 127.0.0.1:4173, reuse it. Otherwise run npm run demo and keep its terminal al
 The launcher installs locked dependencies, verifies pose assets and builds the UI.
 Run doctor again once ready, then open the actual local homepage for me.
 
+Open History and choose Open demo session if that button is available. Replay its
+saved video and coaching without signing in; do not regenerate its notes. If the
+bundled demo is absent, show Import session for a .moveide.json session export.
 Show me Quick tour, Try a sample squat and the header's Connect ChatGPT button.
-Let me sign in with my own eligible account and grant any camera permission.
+For new AI coaching, let me sign in with my own eligible account. Let me grant
+any camera permission myself.
 Verify real local measurements; report AI success only after a real reply arrives.
 Explain local History and keeping the original live tab open for queued reviews.
 For optional iPhone pairing, follow docs/quickstart.md and npm run demo -- --phone;
@@ -50,6 +54,16 @@ Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1
 
 Already cloned? Preserve your work, update from main when safe, then run `npm run demo` again. Need diagnosis rather than another server? Use **`npm run doctor`**: it checks dependencies, model hashes, runtime files and local service state without installing, changing or stopping anything.
 
+## Replay the portable demo
+
+After updating an existing checkout with a safe `git pull --ff-only` and running `npm run demo`, choose **History → Open demo session**. This button appears when the checkout contains the bundled demo manifest; consult [the tracker](tracker.md) for publication status. A fresh clone uses the same flow after setup.
+
+The designated demo is **Recorded demo · 7 reps**: approximately 60.2 seconds, seven detected reps and six saved AI reviews. The six-review session cap explains the missing seventh AI note; detected motion and reviewed motion are separate counts. Saved video, measurements, notes and evidence replay without a ChatGPT connection. Connect your own eligible account only to request new coaching.
+
+To move another session between computers, open its **Recording details and downloads → Export session**, then choose **History → Import session** on the destination and select the `.moveide.json` file. The portable package carries the original video, saved notes, source JPEG evidence, measurement data and any prepared pose-report cache together. Import creates a fresh local session ID; it does not transfer account credentials, pairing invitations or a ChatGPT connection. Saved notes are retained as recorded, not regenerated. Without a prepared pose cache, local pose preparation can run once; it makes no new AI request.
+
+If **Open demo session** is absent, update safely and rebuild, or import an exported session file. Availability of the button is not proof that a particular bundle has been published or verified; the tracker records the shipped artifact and acceptance.
+
 ## iPhone camera → MacBook
 
 Install [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/) and use this instead of the ordinary startup command:
@@ -70,13 +84,13 @@ Only the dedicated pairing service4176 gets temporary HTTPS access. The credenti
 - Live camera analysis and QR/WebRTC phone transport with bounded asynchronous coaching.
 - Local angle timelines, completed-rep phase/timing summaries and personal reference curves aligned for pace. Visual practice bands are not accuracy estimates or universal good-form zones.
 - OpenCap result import labeled as imported/unverified; native inference remains deferred.
-- Local session history: save recorded originals and accepted notes, record live video on the receiving computer, then reopen, search, rename, download or delete. Replay makes no new AI request. [History behavior and limits](docs/HISTORY.md).
+- Local session history: save recorded originals and accepted notes, record live video on the receiving computer, then reopen, search, rename, export/import a portable session, download or delete. Replay makes no new AI request. [History behavior and limits](docs/HISTORY.md).
 
 Measurements are projected or explicitly experimental estimates, not independently validated anatomical angles. Physical iPhone/venue acceptance and moving-camera/orbit accuracy remain separate from the browser fixture tests. The examples are not a validated good/bad technique pair. [Read what was actually tested](qa/latest-local-checkpoint.json).
 
 ## Save and review
 
-“Save on this device” is on by default. For live sessions, press **Stop** to finalize and save; recordings are limited to five minutes / 100 MiB and may cover only the beginning of a longer session. History belongs to this browser profile at this app address. Downloads are your backup; ChatGPT sign-in does not sync recordings. If saving fails, use Retry or download the unsaved video and analysis before leaving.
+“Save on this device” is on by default. For live sessions, press **Stop** to finalize and save; recordings are limited to five minutes / 100 MiB and may cover only the beginning of a longer session. History belongs to this browser profile at this app address. Use Export session for a portable backup with video, notes and evidence; separate original-video and measurement downloads remain available. ChatGPT sign-in does not sync recordings. If saving fails, use Retry or download the unsaved video and analysis before leaving.
 
 The earlier polished `f4a987a` Wren rerun passed **3/3**. Later queue, replay, graph and reference changes have their own local evidence; newer final Wren acceptance remains pending. See the [current evidence and remaining checklist](tracker.md). Physical iPhone and independent movement accuracy remain separate gates. Live Stop drains queued reviews while the original tab remains open; wait for them to finish before leaving.
 

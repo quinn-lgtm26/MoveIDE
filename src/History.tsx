@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import './index.css';
 import clearSquatReport from '../harness/results/clear-squat.analysis-report.v1.json';
 import {getMotionTrace,type AnalysisReport} from '../harness/motion/analyze.mjs';
+import {exportSessionBundle,importSessionBundle} from '../harness/history/portable.mjs';
 import {useSavedPoseReplay} from './useSavedPoseReplay';
 import { validateCoachPacket, validateCoachingResponse } from '../harness/coaching/index.mjs';
 import { deleteSession, exportSessionData, getSession, listSessions, saveSession, storageStatus } from '../harness/history/index.mjs';
@@ -12,8 +13,12 @@ const date = (value: number) => new Date(value).toLocaleString();
 const bytes = (value: number) => `${(value / 1024 / 1024).toFixed(1)} MB`;
 export function download(blob: Blob, name: string) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
 export function SessionDownloads({ session }: { session: SavedSession }) {
-  return <div className="toolbar"><button disabled={!session.video} onClick={() => session.video && download(session.video, String(session.metadata?.videoName ?? `${session.title}.${session.video.type.includes('mp4') ? 'mp4' : 'webm'}`))}>Download original video</button><button onClick={() => { const data = exportSessionData(session); download(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}), `${session.title}-analysis.json`); }}>Download measurements</button></div>;
+  const [exporting,setExporting]=useState(false),[exportError,setExportError]=useState('');
+  const alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+  const exportPortable=async()=>{setExporting(true);setExportError('');try{const blob=await exportSessionBundle(session);if(alive.current)download(blob,`${session.id}.moveide-session.json`);}catch(error){if(alive.current)setExportError(message(error));}finally{if(alive.current)setExporting(false);}};
+  return <><div className="toolbar"><button disabled={!session.video||exporting} onClick={()=>void exportPortable()}>{exporting?'Preparing export…':'Export session'}</button><button disabled={!session.video} onClick={() => session.video && download(session.video, String(session.metadata?.videoName ?? `${session.title}.${session.video.type.includes('mp4') ? 'mp4' : 'webm'}`))}>Download original video</button><button onClick={() => { const data = exportSessionData(session); download(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}), `${session.title}-analysis.json`); }}>Download measurements</button></div><p className="fine">Export session includes the recording, saved measurements, coach notes and snapshots in one file. Import it on another computer to review.</p>{exporting&&<p role="status">Preparing your session file. Larger recordings can take a moment.</p>}{exportError&&<p role="alert" className="error">Export failed: {exportError}</p>}</>;
 }
+
 function SavedReason({result}:{result:unknown}) {
   const value = result as {observations?: {text:string}[];nextFocus?:{text:string};uncertainty?:string} | null;
   if (!value || typeof value !== 'object') return <p>Detailed reasoning was not stored.</p>;
@@ -315,6 +320,11 @@ function LiveReplay({ session, focusRequest, onReturnToList }: { session: SavedS
 
 export function History({ initialSessionId, onOpenRecorded, onBack, onDelete }: { initialSessionId: string | null; onOpenRecorded: (session: SavedSession) => void; onBack: () => void; onDelete: (id:string) => void }) {
   const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listSessions>>>([]);
+  const importInput=useRef<HTMLInputElement>(null),portableRequest=useRef<AbortController|null>(null);
+  const [transferStatus,setTransferStatus]=useState(''),[transferError,setTransferError]=useState('');
+  const [demoManifest,setDemoManifest]=useState<{bundle:string;title:string}|null>(null);
+  useEffect(()=>{const own=new AbortController();void fetch('/demo/session.json',{signal:own.signal,cache:'no-store',redirect:'error'}).then(async response=>{if(!response.ok)return;const manifest=await response.json();if(!own.signal.aborted&&manifest?.version===1&&typeof manifest.bundle==='string'&&/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}\.moveide\.json$/.test(manifest.bundle))setDemoManifest({bundle:manifest.bundle,title:typeof manifest.title==='string'?manifest.title.slice(0,80):'Recorded demo'});}).catch(()=>{});return()=>{own.abort();portableRequest.current?.abort();};},[]);
+
   const [selected, setSelected] = useState<SavedSession | null>(null);
   const [search, setSearch] = useState(''); const [kind, setKind] = useState('all');
   const [error, setError] = useState<string | null>(null); const [busy, setBusy] = useState(true);
@@ -387,6 +397,30 @@ export function History({ initialSessionId, onOpenRecorded, onBack, onDelete }: 
     } catch(e) { if(alive.current && generation===openGeneration.current)setError(message(e)); }
     finally { if(alive.current && generation===openGeneration.current)setBusy(false); }
   };
+  const importPortable=async(file?:File)=>{
+    portableRequest.current?.abort();const own=new AbortController();portableRequest.current=own;
+    openGeneration.current++;requestedSession.current=null;setBusy(true);setTransferError('');setTransferStatus(file?'Checking session file…':'Loading demo session…');
+    try{
+      let blob:Blob;
+      if(file)blob=file;
+      else{
+        if(!demoManifest)throw Error('The demo session is not available.');
+        const response=await fetch(`/demo/${demoManifest.bundle}`,{signal:own.signal,redirect:'error'});
+        if(!response.ok)throw Error('The demo session could not be loaded. Please try again.');
+        const limit=200*1024*1024,total=Number(response.headers.get('content-length'));
+        if(total>limit)throw Error('This demo file is larger than the 200 MiB import limit.');
+        if(!response.body)throw Error('This browser could not read the demo file. Import a downloaded session instead.');
+        const reader=response.body.getReader(),chunks:Uint8Array<ArrayBuffer>[]= [];let received=0;
+        try{while(true){const next=await reader.read();own.signal.throwIfAborted();if(next.done)break;received+=next.value.byteLength;if(received>limit)throw Error('This demo file is larger than the 200 MiB import limit.');chunks.push(next.value as Uint8Array<ArrayBuffer>);if(alive.current)setTransferStatus(`Loading demo session · ${bytes(received)}${total>0?` of ${bytes(total)}`:''}`);}}catch(error){await reader.cancel().catch(()=>{});throw error;}finally{reader.releaseLock();}
+        blob=new Blob(chunks,{type:'application/json'});
+      }
+      own.signal.throwIfAborted();setTransferStatus('Checking and saving this session on this computer…');
+      const id=await importSessionBundle(blob);
+      if(own.signal.aborted||!alive.current)return;
+      setTransferStatus('Session imported. The original recording and saved notes are ready.');setRefresh(value=>value+1);await open(id);
+    }catch(error){if(!own.signal.aborted&&alive.current){setTransferError(message(error));setTransferStatus('');}}
+    finally{if(portableRequest.current===own&&alive.current){setBusy(false);portableRequest.current=null;}if(importInput.current)importInput.current.value='';}
+  };
   useEffect(() => { if(initialSessionId)void open(initialSessionId); },[initialSessionId]);
   const remove = async (id:string) => {setBusy(true);try{await deleteSession(id);onDelete(id);setConfirmation(null);if(selected?.id===id)backToList();setRefresh(v=>v+1);focusList();}catch(e){setError(message(e));}finally{setBusy(false);}};
   const renameSession = async(id:string) => {if(!title.trim())return;setBusy(true);try{const updated=await saveSession({id,title:title.trim()});if(selected?.id===id)setSelected(previous=>preservePlayback(previous,updated));setRename(null);setRefresh(v=>v+1);focusSession(id);}catch(e){setError(message(e));}finally{setBusy(false);}};
@@ -395,6 +429,7 @@ export function History({ initialSessionId, onOpenRecorded, onBack, onDelete }: 
     <p className="fine">Local storage is not a cloud backup. Private browsing and browser storage limits can prevent saving or remove data.</p>
     {storage && <p className="fine">{storage.available ? `This app uses ${bytes(storage.appBytes)} of its ${bytes(storage.maxAppBytes)} local limit. ${storage.persisted ? 'Browser persistence is enabled.' : 'Browser storage may be cleared under storage pressure.'}` : `Storage unavailable: ${storage.error?.message ?? 'This browser cannot save sessions.'}`}</p>}
     {error && <div role="alert" className="error">{error} <button onClick={()=>{setRefresh(v=>v+1);if(requestedSession.current)void open(requestedSession.current);}}>Retry history</button></div>}
+    <div className="toolbar"><button disabled={busy} onClick={()=>importInput.current?.click()}>Import session</button><input ref={importInput} type="file" accept="application/json,.json" aria-label="Choose a MoveIDE session file" hidden onChange={event=>{const file=event.target.files?.[0];if(file)void importPortable(file);}}/>{demoManifest&&<button disabled={busy} onClick={()=>void importPortable()} title={demoManifest.title}>Open demo session</button>}</div><p className="fine">Import a full session file to review its original video and saved coaching. It creates a new copy here; no new AI review is requested.</p>{transferStatus&&<p role="status">{transferStatus}</p>}{transferError&&<p role="alert" className="error">Import failed: {transferError}</p>}
     <div className="toolbar"><label>Search sessions <input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Title, date or reps" /></label><label>Session type <select value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All sessions</option><option value="recorded">Recorded</option><option value="live">Live</option></select></label></div>
     {busy&&<p role="status">Loading saved sessions…</p>}{!busy&&!matching.length&&!error&&<p>No saved sessions match. Start a squat with “Save on this device” enabled.</p>}
     <ul className="history-list">{matching.map(item=><li key={item.id} className="history-card"><h2>{item.title}</h2><p className="fine">{date(item.createdAt)} · {item.kind==='live'?'Live':'Recorded'} · {item.repCount} reps · {item.hasVideo?bytes(item.videoBytes):'No saved video'}{item.durationMs != null ? ` · ${(item.durationMs/1000).toFixed(1)}s video` : ''}{item.model ? ` · ${item.model.replace('mediapipe-pose-landmarker-','MediaPipe ')}` : ''}{item.hasCoaching?' · AI notes saved':''}</p><div className="toolbar"><button ref={node=>{if(node)openButtons.current.set(item.id,node);else openButtons.current.delete(item.id);}} disabled={busy} onClick={()=>void open(item.id)}>Open {item.title}</button><button disabled={busy} onClick={()=>{setRename(item.id);setTitle(item.title);}}>Rename</button><button disabled={busy} onClick={()=>setConfirmation(item.id)}>Delete</button></div>

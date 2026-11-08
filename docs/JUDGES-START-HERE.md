@@ -2,7 +2,7 @@
 
 [GitHub repository](https://github.com/quinn-lgtm26/MoveIDE) · [Current delivery status](../tracker.md) · [QA evidence](../qa/PRODUCT-CONTEXT.md)
 
-MoveIDE turns a squat video into local motion measurements, rep comparisons and optional evidence-linked ChatGPT coaching. The fastest demonstration uses the included public recording; no camera or phone is required.
+MoveIDE turns a squat video into local motion measurements, rep comparisons and optional evidence-linked ChatGPT coaching. The saved-session demo replays a recording with its existing coaching; no camera, phone or ChatGPT login is required. New analysis remains available through the included example clips.
 
 ## Download and start
 
@@ -18,6 +18,16 @@ Alternatively, use GitHub **Code → Download ZIP**, extract it, open a terminal
 
 Open **[MoveIDE locally](http://127.0.0.1:4173/)** when the launcher says it is ready. GitHub is the source download, not a hosted analysis service. Each judge runs their own local app and keeps their own account and recordings.
 
+## Start with the saved session
+
+Choose **History → Open demo session**. This button is available when the shipped build includes the demo manifest; [the tracker](../tracker.md) records publication and verification status. On an existing checkout, update safely with `git pull --ff-only` and run `npm run demo` to rebuild before trying it.
+
+The designated **Recorded demo · 7 reps** package contains approximately 60.2 seconds of video, seven detected reps and six saved AI reviews. The seventh rep is still detected; the coaching queue allows at most six reviews per session. Play, pause, inspect the pose replay, click a note to its corresponding moment, and open Why or source evidence. Original live note timing remains approximately aligned with the recording; separately prepared pose frames use the recorded video's timeline.
+
+The portable package carries video, notes, JPEG evidence, measurements and any prepared pose-report cache. It imports under a fresh local ID, with **no account credentials or authenticated session**. Replaying those saved notes makes no new ChatGPT request. A missing pose cache may require a local preparation pass. Connect your own eligible account only if you want new coaching.
+
+If the button is absent, use **History → Import session** with a `.moveide.json` export. To take a session to another computer, choose **Recording details and downloads → Export session**, then import that file there. A measurements-only JSON download is not the portable session package.
+
 ## Connect the optional coach
 
 1. Look for the persistent **ChatGPT** status in the header on the home or live page. Local measurements work without an account connection.
@@ -30,6 +40,7 @@ Allow the asynchronous coach time to return. An unavailable account or model lea
 
 | Action | What to inspect |
 | --- | --- |
+| **History → Open demo session** | Replay the designated seven-rep session with six saved AI reviews, source evidence and existing measurements. No account is needed; the button appears only when the bundled manifest is present. |
 | **Try a sample squat** | Real MediaPipe Heavy measurements, detected reps and the source-timed overlay. Play, pause and seek; accepted coaching stays in short cards with expandable Why. Model warm-up and AI response may take longer than the tour. |
 | **Compare examples** | Two independently analyzed public videos. Pick each recording's rep and Compare bottoms. Good/Bad labels belong to the source dataset. Differences are descriptive, not a validated universal technique standard. |
 | **Live camera → Start coached squat** | Grant camera permission, stand side-on with your whole body visible, and do a few reps. Local angles/graphs appear without AI. Completed reps queue for coaching when connected. |
@@ -41,7 +52,7 @@ For live sessions, keep the original live tab open until queued reviews finish. 
 
 Saved live replay prepares a local pose overlay from the recorded video, with progress and Cancel. After preparation, pause or seek to inspect the estimated skeleton; cached reopen reuses it without another model pass. Coach-note links still show approximate recording alignment, and original live rep counts remain unchanged. This preparation sends no new AI request.
 
-History is local to this browser profile and **this exact app address**. ChatGPT login does not sync recordings. Phone recordings save on the receiving computer. Live replay alignment is approximate, and exact source JPEG evidence is shown separately. Download the original video and measurements for a backup. No angles are fabricated when tracking is unavailable.
+History is local to this browser profile and **this exact app address**. ChatGPT login does not sync recordings. Phone recordings save on the receiving computer. Live replay alignment is approximate, and exact source JPEG evidence is shown separately. Use Export session for a portable backup containing video, notes and evidence; individual video and measurement downloads are also available. No angles are fabricated when tracking is unavailable.
 
 ## Optional iPhone → MacBook demonstration
 
