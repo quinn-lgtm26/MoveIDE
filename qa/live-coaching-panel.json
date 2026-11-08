@@ -1,0 +1,16 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:28:19.792Z",
+  "scope": "Six seeded notes through actual live card renderer and real fixture video playback. No camera, Heavy, AI or real account.",
+  "checks": {
+    "sixRetainedNotesAndCompactRepNavigation": true,
+    "desktopMobileNoHorizontalClipping": true,
+    "onlyOneVerticalNoteScroller": true,
+    "keyboardRepJumpAndExpandedWhy": true,
+    "actual44pxRepTargets": true,
+    "originalApproximateEvidenceSeekPreserved": true,
+    "pendingStatusRetained": true,
+    "noCameraInferenceAIOrPageErrors": true
+  },
+  "errors": [],
+  "status": "passed"
+}

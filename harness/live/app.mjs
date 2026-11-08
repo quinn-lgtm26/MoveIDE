@@ -289,28 +289,50 @@ function pauseReason({ dimensionsMatch, poseVisible, fresh, guardState, analysis
 
 const briefFocus = text => text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
 
+function updateCoachingNavigation() {
+  const nav = $('ai-rep-nav'), scroll = $('coach-notes-scroll'), cards = [...$('ai-feed').children];
+  nav.replaceChildren(); nav.hidden = !cards.length;
+  for (const card of cards) {
+    const button = document.createElement('button'); button.type = 'button';
+    button.textContent = `Rep ${card.dataset.repOrdinal}`; button.setAttribute('aria-label', `Jump to coach note for rep ${card.dataset.repOrdinal}`);
+    button.onclick = () => {
+      const bounds = scroll.getBoundingClientRect(), zoom = bounds.width / scroll.offsetWidth || 1;
+      scroll.scrollTop += (card.getBoundingClientRect().top - bounds.top - 6) / zoom;
+      card.focus({ preventScroll: true });
+    };
+    nav.append(button);
+  }
+}
+
 function appendCoachingCard(event, result, cite, signal, packet) {
   const feed = $('ai-feed');
   if (signal.aborted || coachingController?.signal !== signal || feed.children.length >= 6 ||
       [...feed.children].some(card => card.dataset.repKey === event.key)) return false;
-  const followLatest = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 48;
+  const scroll = $('coach-notes-scroll');
+  const followLatest = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 48;
   const card = document.createElement('li'); card.className = 'coaching-card'; card.dataset.repKey = event.key; card.dataset.epoch = String(event.epoch);
-  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp'; stamp.append(evidenceButton(event.rep.bottomMs, `Rep at ${elapsed(event.rep.bottomMs)} · view ${event.epoch + 1} · replay near evidence`));
+  const ordinal = (coachingCapture?.archive?.live.reps.findIndex(rep => rep.key === event.key) ?? -1) + 1 || feed.children.length + 1;
+  card.dataset.repOrdinal = String(ordinal); card.tabIndex = -1;
+  const stamp = document.createElement('p'); stamp.className = 'coaching-stamp';
+  const replay = evidenceButton(event.rep.bottomMs, `Rep ${ordinal} · ${elapsed(event.rep.bottomMs)} ↗`);
+  replay.setAttribute('aria-label', `Replay near rep ${ordinal} evidence at analysis ${elapsed(event.rep.bottomMs)}`); stamp.append(replay);
   const focus = document.createElement('p'); focus.className = 'coaching-focus'; focus.textContent = briefFocus(result.nextFocus.text);
   const why = document.createElement('details'), summary = document.createElement('summary'); summary.textContent = 'Why';
   const observations = document.createElement('ul');
   const evidenceTimes = new Map([...packet.measurements.map(item => [item.id, item.evidenceTimestampMs]), ...packet.evidence.map(item => [item.id, item.timestampMs])]);
   for (const observation of result.observations) {
     const item = document.createElement('li'); item.textContent = cite(observation);
-    for (const timestampMs of new Set(observation.evidenceIds.map(id => evidenceTimes.get(id)).filter(Number.isFinite))) item.append(evidenceButton(timestampMs, `Replay near ${elapsed(timestampMs)} evidence`));
+    for (const timestampMs of new Set(observation.evidenceIds.map(id => evidenceTimes.get(id)).filter(Number.isFinite))) item.append(evidenceButton(timestampMs, `At ${elapsed(timestampMs)} ↗`));
     observations.append(item);
   }
   const fullFocus = document.createElement('p'); fullFocus.textContent = `Next focus: ${cite(result.nextFocus)}`;
   const limits = document.createElement('p'); limits.className = 'coaching-limits'; limits.textContent = `Limits: ${result.uncertainty}`;
-  why.append(summary, observations, fullFocus, limits); card.append(stamp, focus, why); feed.append(card);
+  const timing = document.createElement('p'); timing.className = 'coaching-limits'; timing.textContent = `Original analysis ${elapsed(event.rep.bottomMs)} · camera view ${event.epoch + 1}. Recording links are approximate.`;
+  why.append(summary, timing, observations, fullFocus, limits); card.append(stamp, focus, why); feed.append(card);
   $('ai-empty').hidden = true;
   refreshReplayEvidenceLinks();
-  if (followLatest) feed.scrollTop = feed.scrollHeight;
+  updateCoachingNavigation();
+  if (followLatest) scroll.scrollTop = scroll.scrollHeight;
   return true;
 }
 
@@ -652,7 +674,7 @@ $('start').onclick = async () => {
   completed = 0; $('count').textContent = '0'; $('rep').textContent = 'How your last rep went will show here.';
   $('rep').removeAttribute('data-state'); $('latency').textContent = '—';
   $('ai').textContent = 'Checking ChatGPT connection…'; $('ai-limit').hidden = true;
-  $('ai-feed').replaceChildren(); $('ai-feed').scrollTop = 0; $('ai-empty').hidden = false;
+  $('ai-feed').replaceChildren(); $('coach-notes-scroll').scrollTop = 0; updateCoachingNavigation(); $('ai-empty').hidden = false;
   $('ai-queue').replaceChildren();
   try {
     if (source === 'phone') {
