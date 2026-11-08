@@ -1,0 +1,7 @@
+{
+  "clip": "bad-form-squat.mp4",
+  "method": "Manual frame-by-frame review of subject_010_squat_bad_side.mp4 before pose inference. Selected the first two complete reps. Labeled the lowest visible hip position at source frames 22 and 52, zero-based at 15 fps. The derivative starts at source frame 3.",
+  "expectedCompleteReps": 2,
+  "bottomTimestampsMs": [1267, 3267],
+  "bottomToleranceMs": 150
+}

@@ -16,7 +16,7 @@ The initial compare action can be entirely local and must say **Local comparison
 
 ## Meaning of the examples and colors
 
-Both recordings are real attributed dataset clips; their people/capture conditions differ. These examples demonstrate measurement and navigation, not a controlled before/after experiment. Link [fixture attribution](../fixtures/squat/README.md). Dataset “good/bad” labels are metadata, not MoveIDE clinical validation. `sample-squat.mp4` is a hard tracking case, not a bad-posture example.
+Both recordings are real attributed dataset clips of the same person (subject 010), gym and side camera: `clear-squat.mp4` from the dataset's good folder and `bad-form-squat.mp4` from its bad folder. The UI labels them Good example and Bad example and states that the labels are the dataset's. Link [fixture attribution](../fixtures/squat/README.md). Dataset “good/bad” labels are metadata, not MoveIDE clinical validation. `sample-squat.mp4` is a hard tracking case, not a bad-posture example.
 
 Do not title these cards Good squat/Bad squat. Green means a disclosed selected target was met with usable phase evidence; amber means that same target was missed with usable evidence; gray means unavailable or uncertain. Without a target, keep a neutral overlay. Never color Example A green and B amber solely because of their filenames, different angles or larger/smaller metric values. A convincing good/needs-attention demonstration still needs a reviewed, independently annotated pair with the intended observable difference. Current clips do not close that requirement.
 
@@ -41,7 +41,7 @@ The helper treats the same URL/Blob or equal supplied source hashes as duplicate
 | --- | --- |
 | One action, two actual sources | Click Compare examples once; both actual fixture hashes and separate reports are present, both Heavy analyses complete, each yields usable selected reps. No packet/copy action required. |
 | Correct phase association | Compare bottoms reaches each report's own bottom within the existing source-frame tolerance. Select another rep and verify both labels/timestamps/overlays remain source-bound. Different rep timing must not be normalized into fake equal file time. |
-| Comparison validity | Same model/protocol is recorded; three primary values come from their correct reports. Missing/incompatible values show unavailable or no delta. No invented good/bad labels or automatic “improved” verdict. |
+| Comparison validity | Same model/protocol is recorded; three primary values come from their correct reports. Missing/incompatible values show unavailable or no delta. Good/bad labels only as sourced from the dataset; no automatic “improved” verdict. |
 | Lifecycle race | Replace source or change model during loading/analysis; old completion cannot replace the newer view. Cancel/unmount clears owned work and URLs. Reused rep IDs across sources do not collide. |
 | Failure recovery | One corrupt/unsupported recording or no complete reps produces a source-specific explanation; the valid other source remains inspectable. |
 | Navigation and cost | Multiple seeks, phase changes and rep changes cause zero additional interpretation requests and no duplicate accepted coaching cards. Local-only comparison is explicitly labeled. |

@@ -14,7 +14,7 @@ Describe the paid workflow the team actually wants to replace. Use an actual sub
 - Confirm the primary **Start coached squat** disclosure: local tracking, bounded evidence sent only to the connected coach during the active session. Start is the session action; no repeated packet assembly or per-rep upload dialog.
 - Verify a real live stream and several comfortable reps. Record model identity, usable updates/second, observed delay, connection loss/recovery and whether the AI reply resolves valid evidence. A visible green line alone is not a successful test.
 - Select a named comparison goal and inspect its measurement definition. Do not call a default angle threshold a universally correct squat. Do not ask a demonstrator to perform risky movement to manufacture a failure.
-- Load `clear-squat.mp4` and `supported-squat.mp4` as two real fallback recordings. They are a comparison of recordings, not automatically a validated good/bad pair. Keep attribution accessible from [fixture provenance](../fixtures/squat/README.md).
+- Load `clear-squat.mp4` and `bad-form-squat.mp4`, the same person's dataset-labeled good-form and bad-form squats. Keep attribution accessible from [fixture provenance](../fixtures/squat/README.md).
 - For an actual target-met/target-missed showcase, prefer two consented same-person recordings at the same camera position with a comfortable, observable difference such as pace. Independently annotate the selected rep boundaries or target evidence before measuring. Keep file hashes/provenance. If this pair is unavailable, show the truthful two-recording comparison and explain the selected target.
 - Verify the exact final commit with both Wren workflows and save the results. Do not spend the held simulations on cosmetic rehearsals.
 
@@ -47,7 +47,7 @@ The secondary panel can show knee flexion, torso lean and rep duration with defi
 | Venue peer networking blocked | Try a pre-tested relay/network configuration; otherwise switch to tested local camera or recording and label the route |
 | Heavy cannot keep up | Show measured processing rate and drop old queued frames; use an explicitly labeled, pre-verified alternate model only if supported |
 | AI slow/offline | Keep local measures live; label coach pending/unavailable; reconnect in setup if necessary. Do not divert the person to a manual packet handoff |
-| No independently reviewed contrast pair | Show two real recordings without inventing a good/bad label |
+| Contrast pair labels | Use the source dataset's good/bad labels for one person's clips and say so in the UI |
 
 Continuity Camera is an optional hardware fallback: Apple supports iPhone-as-Mac-webcam with compatible devices, same Apple Account and nearby Wi-Fi/Bluetooth, including a USB route ([Apple documentation](https://support.apple.com/en-au/102546)). Test the actual browser/device first. Its success must not be presented as verification of the QR/WebRTC feature.
 

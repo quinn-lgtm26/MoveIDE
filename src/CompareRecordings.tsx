@@ -4,11 +4,11 @@ import type { AnalysisReport } from '../harness/motion/analyze.mjs';
 import { drawSquatOverlay, overlayFrameAt } from '../harness/motion/overlay.mjs';
 import { compareRecordings } from '../harness/motion/compare-recordings.mjs';
 import firstUrl from '../fixtures/squat/clear-squat.mp4';
-import secondUrl from '../fixtures/squat/supported-squat.mp4';
+import secondUrl from '../fixtures/squat/bad-form-squat.mp4';
 
 type Recording = { label: string; source: string; sourceSha256: string; report: AnalysisReport };
 type Anchor = { timestampMs: number; generation: number };
-const examples = [{ label: 'Example A', url: firstUrl }, { label: 'Example B', url: secondUrl }];
+const examples = [{ label: 'Good example', url: firstUrl }, { label: 'Bad example', url: secondUrl }];
 const displayValue = (value: number | null, unit: string) => value === null ? 'Unavailable' : unit === 'ms' ? `${(value / 1000).toFixed(1)} s` : `${value.toFixed(unit === 'leg_lengths' ? 2 : 0)}${unit === 'deg' ? '°' : ' leg lengths'}`;
 const plainLabel: Record<string, string> = { kneeFlexionDeg: 'Knee bend at bottom', torsoLeanDeg: 'Chest angle at bottom', repDurationMs: 'Rep time' };
 const primaryMetrics = new Set(['kneeFlexionDeg', 'torsoLeanDeg', 'repDurationMs']);
@@ -127,7 +127,8 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
   const close = () => { request.current?.abort(); onClose(); };
   return <section className="recordings-comparison" aria-label="Compare two recordings">
     <div className="toolbar"><h2>Compare two recordings</h2><button onClick={close}>{recordings || error ? 'Back to one recording' : 'Cancel comparison'}</button></div>
-    <p className="fine">Different people and cameras: a guide, not a score.</p>
+    <p>The same person squatting with good form and with bad form. Line them up to see which measurements change.</p>
+    <p className="fine">Good and bad labels come from the public dataset, not from MoveIDE. Same person, gym and camera.</p>
     <p role="status">{status}</p>
     {error && <><div role="alert"><p>{error}</p><button onClick={() => setGeneration(value => value + 1)}>Retry unavailable recording</button></div>
       {partial.length > 0 && <><p className="fine">Completed recording retained. Retry analyzes only the unavailable recording.</p><div className="recording-pair">{partial.map((recording, index) => <RecordingPlayer key={recording.sourceSha256} recording={recording} repId={repIds[index] || recording.report.reps[0].id} onRep={repId => selectRep(index, repId)} anchor={anchors[index]} slot={index === 0 ? 'a' : 'b'} />)}</div></>}
@@ -136,11 +137,11 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
       <div className="toolbar" role="group" aria-label="Line up both videos at">Line up at{' '}<button aria-label="Compare starts" onClick={() => jump('startMs')}>Start</button><button className="primary" aria-label="Compare bottoms" onClick={() => jump('bottomMs')}>Bottom</button><button aria-label="Compare returns" onClick={() => jump('endMs')}>Stand</button></div>
       <div className="recording-pair">{recordings.map((recording, index) => <RecordingPlayer key={recording.sourceSha256} recording={recording} repId={repIds[index]} onRep={repId => selectRep(index, repId)} anchor={anchors[index]} slot={index === 0 ? 'a' : 'b'} />)}</div>
       <section className="compare"><h3>Rep measurements</h3>
-        <table><thead><tr><th>Measurement</th><th>Example A</th><th>Example B</th><th>Change</th></tr></thead><tbody>
+        <table><thead><tr><th>Measurement</th><th>Good example</th><th>Bad example</th><th>Bad vs good</th></tr></thead><tbody>
           {comparison.metrics.filter(metric => primaryMetrics.has(metric.key)).map(metric => <tr key={metric.key}><th>{plainLabel[metric.key] ?? metric.label}</th><td>{displayValue(metric.a.value, metric.unit)}</td><td>{displayValue(metric.b.value, metric.unit)}</td><td>{metric.delta === null ? 'Not comparable' : `${metric.delta > 0 ? '+' : ''}${displayValue(metric.delta, metric.unit)}`}</td></tr>)}
         </tbody></table>
-        <details><summary>More measurements</summary><table><thead><tr><th>Measurement</th><th>Example A</th><th>Example B</th><th>Change</th></tr></thead><tbody>{comparison.metrics.filter(metric => !primaryMetrics.has(metric.key)).map(metric => <tr key={metric.key}><th>{plainLabel[metric.key] ?? metric.label}</th><td>{displayValue(metric.a.value, metric.unit)}</td><td>{displayValue(metric.b.value, metric.unit)}</td><td>{metric.delta === null ? 'Not comparable' : `${metric.delta > 0 ? '+' : ''}${displayValue(metric.delta, metric.unit)}`}</td></tr>)}</tbody></table></details>
-        <details><summary>Sources and limits</summary><p>Analyzed on this device with {model === 'heavy' ? 'MediaPipe Heavy' : 'MediaPipe Full'} for both recordings. Same model and measurement protocol; distinct source bytes verified. Both clips retain independent timestamps and selected rep identities.</p><ul>{recordings.map(recording => <li key={recording.sourceSha256}>{recording.label}: {recording.report.clip.id} · SHA-256 <code>{recording.sourceSha256}</code></li>)}</ul><p>Projected angles depend on framing and body proportions. Neither recording supplies a calibrated angle reference or a universal technique target.</p></details>
+        <details><summary>More measurements</summary><table><thead><tr><th>Measurement</th><th>Good example</th><th>Bad example</th><th>Bad vs good</th></tr></thead><tbody>{comparison.metrics.filter(metric => !primaryMetrics.has(metric.key)).map(metric => <tr key={metric.key}><th>{plainLabel[metric.key] ?? metric.label}</th><td>{displayValue(metric.a.value, metric.unit)}</td><td>{displayValue(metric.b.value, metric.unit)}</td><td>{metric.delta === null ? 'Not comparable' : `${metric.delta > 0 ? '+' : ''}${displayValue(metric.delta, metric.unit)}`}</td></tr>)}</tbody></table></details>
+        <details><summary>Sources and limits</summary><p>Analyzed on this device with {model === 'heavy' ? 'MediaPipe Heavy' : 'MediaPipe Full'} for both recordings. Same model and measurement protocol; distinct source bytes verified. Both clips retain independent timestamps and selected rep identities.</p><ul>{recordings.map(recording => <li key={recording.sourceSha256}>{recording.label}: {recording.report.clip.id} · SHA-256 <code>{recording.sourceSha256}</code></li>)}</ul><p>Projected angles depend on framing and body proportions. The good/bad labels are the dataset authors&rsquo; and describe these two clips only. Neither recording supplies a calibrated angle reference or a universal technique target.</p></details>
       </section>
     </>}
   </section>;

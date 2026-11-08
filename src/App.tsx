@@ -341,7 +341,7 @@ export function App() {
           <p className="start-disclosure">ChatGPT sees stills and numbers, not the video.</p></>}
           <div className="toolbar">
             <button className="primary" onClick={openSample}>Try a sample squat</button>
-            <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing two sample squats side by side.'); setComparisonMode(true); }}>Compare examples</button>
+            <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing a good-form and a bad-form squat side by side.'); setComparisonMode(true); }}>Compare examples</button>
             {active && <button onClick={stop}>Stop session</button>}
             {clip && connection !== 'connected' && <button onClick={connect}>Connect ChatGPT coach</button>}
           </div>

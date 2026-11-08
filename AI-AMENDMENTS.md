@@ -49,6 +49,6 @@ Final automated suite checkpoint: `npm test` passed86 harness tests and4 launche
 
 ## Two independent recordings
 
-**Compare examples** is a local comparison action using the same selected pose model for both attributed recordings. It retains separate source hashes, reports, rep IDs and media clocks. Compare bottoms seeks each selected rep to its own bottom. It does not dispatch an AI request or label one person good/bad. See the [comparison amendment](docs/two-recording-comparison-amendment.md) and shared `compareRecordings` API. Normal single-recording Start continues to orchestrate connected AI automatically.
+**Compare examples** is a local comparison action using the same selected pose model for both attributed recordings. It retains separate source hashes, reports, rep IDs and media clocks. Compare bottoms seeks each selected rep to its own bottom. It does not dispatch an AI request. Its Good example / Bad example labels come from the source dataset for one person's two clips, not from MoveIDE. See the [comparison amendment](docs/two-recording-comparison-amendment.md) and shared `compareRecordings` API. Normal single-recording Start continues to orchestrate connected AI automatically.
 
 Latest local checkpoint `65fc875`:99 harness and6 launcher tests pass, including isolated real-WebRTC regression;15 production root lifecycle and21 two-recording browser checks pass. [Evidence](qa/latest-local-checkpoint.json). Physical iPhone, independent angle/orbit accuracy and final Wren remain.

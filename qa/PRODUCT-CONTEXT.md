@@ -2,7 +2,7 @@
 
 Updated 2026-11-07. This and the Seldon baseline describe the current product. Earlier manual handoff experiments are historical.
 
-MoveIDE is local squat video review and live coaching. One action coordinates video, MediaPipe Heavy measurements, source evidence and optional connected ChatGPT coaching. A normal user never copies a packet. Recorded review uses Try a sample squat or upload; live uses Start coached squat. Two examples demonstrate independent recordings, not validated good/bad labels.
+MoveIDE is local squat video review and live coaching. One action coordinates video, MediaPipe Heavy measurements, source evidence and optional connected ChatGPT coaching. A normal user never copies a packet. Recorded review uses Try a sample squat or upload; live uses Start coached squat. Compare examples shows one person's good-form and bad-form squat, labeled by the source dataset, not by MoveIDE.
 
 ## Current journeys
 - Recorded: analyze, play/step with overlay, review reps, select evidence and compare phases. Disconnected ChatGPT does not block measurements.

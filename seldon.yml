@@ -21,7 +21,7 @@ testCases:
       - Inspect both videos and separately labeled measurements. Select a rep for each recording and use the shared start, bottom and stand phase controls.
       - Play and pause each video; check independent source times and missing measurements are not zero or bad posture.
       - Return to recorded review and verify its sample action remains accessible. Report confusing labels, unreadable comparison or clipping.
-    criteria: Two genuinely different videos are playable with independent source-timed overlays, rep selection and phase navigation. Comparison shows like-for-like knee bend, torso lean and duration with limits. Neither example is falsely labeled clinically good or bad. No ChatGPT account or manual coaching packet is required.
+    criteria: Two genuinely different videos are playable with independent source-timed overlays, rep selection and phase navigation. Comparison shows like-for-like knee bend, torso lean and duration with limits. The examples are labeled Good example and Bad example and the page says those labels come from the source dataset, not from MoveIDE; no clinical or diagnostic claim is made. No ChatGPT account or manual coaching packet is required.
   - id: live-setup-and-navigation
     name: Live setup comprehension and navigation without a camera
     steps:
