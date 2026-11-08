@@ -6,7 +6,7 @@ testCases:
   - id: measure-squat
     name: One-button squat review and durable local history
     steps:
-      - Open MoveIDE. Keep Save on this device enabled. This public QA preview has no ChatGPT account; do not log in.
+      - Open MoveIDE; it starts on the homepage. Save on this device stays on by default. This public QA preview has no ChatGPT account; do not log in.
       - Choose Try a sample squat once and wait up to two minutes for Heavy analysis.
       - Review both complete reps. Select the first rep knee bend measurement or Bottom control; inspect the matching source video moment, skeleton and angle. Play and pause.
       - Open History, rename the saved sample QA squat review, and open it without starting another analysis.

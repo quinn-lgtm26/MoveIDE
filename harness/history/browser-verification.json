@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T00:54:10.172Z",
+  "verifiedAtUtc": "2026-11-08T00:58:15.687Z",
   "surface": "isolated Chromium IndexedDB on ephemeral localhost origin",
   "checks": {
     "reloadPreservesOriginalVideoReportAndReplay": true,
