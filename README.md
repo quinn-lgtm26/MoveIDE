@@ -56,13 +56,13 @@ Already cloned? Preserve your work, update from main when safe, then run `npm ru
 
 ## Replay the portable demo
 
-After updating an existing checkout with a safe `git pull --ff-only` and running `npm run demo`, choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [nine clean-browser checks](qa/published-demo-replay.json) verify the saved replay without new pose inference or AI. A fresh clone uses the same flow after setup.
+After updating an existing checkout with a safe `git pull --ff-only` and running `npm run demo`, choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [ten clean-browser checks](qa/published-demo-replay.json) verify the saved replay without new pose inference or AI. A fresh clone uses the same flow after setup.
 
 The designated demo is **Recorded demo · 7 reps**: approximately 60.2 seconds, seven detected reps and six saved AI reviews. The six-review session cap explains the missing seventh AI note; detected motion and reviewed motion are separate counts. Saved video, measurements, notes and evidence replay without a ChatGPT connection. Connect your own eligible account only to request new coaching.
 
 To move another session between computers, open its **Recording details and downloads → Export session**, then choose **History → Import session** on the destination and select the `.moveide.json` file. The portable package carries the original video, saved notes, source JPEG evidence, measurement data and any prepared pose-report cache together. Import creates a fresh local session ID; it does not transfer account credentials, pairing invitations or a ChatGPT connection. Saved notes are retained as recorded, not regenerated. Without a prepared pose cache, local pose preparation can run once; it makes no new AI request.
 
-If **Open demo session** is absent, update safely and rebuild, or import an exported session file. The [tracker](tracker.md) separates this verified saved-demo replay from pending final hosted QA and accuracy acceptance.
+If **Open demo session** is absent, update safely and rebuild, or import an exported session file. The [tracker](tracker.md) separates this verified saved-demo replay from the reported History reload issue, incomplete hosted QA and accuracy acceptance.
 
 ## iPhone camera → MacBook
 
@@ -92,7 +92,7 @@ Measurements are projected or explicitly experimental estimates, not independent
 
 “Save on this device” is on by default. For live sessions, press **Stop** to finalize and save; recordings are limited to five minutes / 100 MiB and may cover only the beginning of a longer session. History belongs to this browser profile at this app address. Use Export session for a portable backup with video, notes and evidence; separate original-video and measurement downloads remain available. ChatGPT sign-in does not sync recordings. If saving fails, use Retry or download the unsaved video and analysis before leaving.
 
-The earlier polished `f4a987a` Wren rerun passed **3/3**. Later queue, replay, graph and reference changes have their own local evidence; newer final Wren acceptance remains pending. See the [current evidence and remaining checklist](tracker.md). Physical iPhone and independent movement accuracy remain separate gates. Live Stop drains queued reviews while the original tab remains open; wait for them to finish before leaving.
+The earlier polished `f4a987a` Wren rerun passed **3/3**. Later queue, replay, graph and reference changes have their own local evidence; the latest Wren report flags a misleading History reload error, and its second case has no verdict yet. See the [current evidence and remaining checklist](tracker.md). Physical iPhone and independent movement accuracy remain separate gates. Live Stop drains queued reviews while the original tab remains open; wait for them to finish before leaving.
 
 ## Developers and coding assistants
 

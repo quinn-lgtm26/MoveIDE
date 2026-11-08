@@ -91,5 +91,11 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 
 - Frozen runtime **ab492c0cef3612cebce3947ac3181e263b72770f** includes32-image reviews, comparison fixes, readable six-note panel, portable import/export and the explicitly approved demo package. [Manifest](wren-release-build.json), [12-gate exact public preflight](release-public-preflight.json).
 - Expected debit **2** for `measure-squat` and `compare-and-handoff`, the two previously failed workflows. YAML validated with2runnablecases. Confirmed pre-dispatch balance16granted14used0pending2remaining; expected remaining0. No additional paid runs authorized beyond this allocation.
-- Separate local evidence: actualpublished7-rep/6-note replay import/reload/overlay passes9checks; portablevalidation8; portableUI8; livepanel8; comparisoncontrols7; personalreference14. This does not substitute for hosted verdicts.
+- Separate local evidence: actual published 7-rep/6-note replay import/reload/overlay passes 10 checks; portablevalidation8; portableUI8; livepanel8; comparisoncontrols7; personalreference14. This does not substitute for hosted verdicts.
 - Seldon MCP dispatched **f0047a86-ebfb-4918-924e-cec64026bdb6**. [Final two-core run](https://app.seldon.com/experiments/f0047a86-ebfb-4918-924e-cec64026bdb6). Final submission sign-off awaits terminal results. User can already record the verified saved demo.
+
+### Documentation handoff — latest observed result
+
+The user requested documentation-only finalization; no further runtime changes are made in this handoff. The latest [partial report](wren-release-partial-results.json) reports **one failed case and one case without a verdict**, not a final pass. `get_experiment_status` remains Running (1 completed, 1 failed, 2 total), and `get_summary` reports not_summarized_yet. The report endpoint labels its available report complete; that does not establish completion of both workflows.
+
+`measure-squat` reports a misleading “This saved session is no longer available” banner on reload while the saved card remains intact. It also reports that downloads retain the original filename and are split across locations. Keep these as unresolved hosted findings, not established data loss. The other workflow has no verdict in this snapshot. The expected two-credit reservation is already recorded above; no new paid run was dispatched. Final debit reconciliation and both terminal verdicts remain outstanding.

@@ -15,7 +15,7 @@
     "file": "qa/release-public-preflight.json"
   },
   "publishedDemoReplay": {
-    "passed": 9,
+    "passed": 10,
     "file": "qa/published-demo-replay.json",
     "reps": 7,
     "savedReviews": 6,
@@ -38,12 +38,17 @@
       "measure-squat",
       "compare-and-handoff"
     ],
-    "status": "running"
+    "status": "running_with_reported_failure",
+    "reportedFailures": 1,
+    "casesWithoutVerdict": 1,
+    "evidence": "qa/wren-release-partial-results.json",
+    "finding": "Misleading session-unavailable banner after recorded History reload; download naming/discoverability also reported."
   },
   "go": {
     "recordPublishedDemo": true,
     "handsOnTesting": true,
     "finalHostedQaSignoff": false
   },
-  "limits": "No independent anatomical-angle accuracy certification; physical phone/network acceptance is separate. Saved coaching alignment remains approximate, cached pose uses encoded video timestamps."
+  "limits": "No independent anatomical-angle accuracy certification; physical phone/network acceptance is separate. Saved coaching alignment remains approximate, cached pose uses encoded video timestamps.",
+  "handoff": "User requested documentation-only finalization; runtime unchanged. Saved-demo GO does not mean final hosted QA passed."
 }

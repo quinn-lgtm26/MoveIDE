@@ -20,13 +20,19 @@ Open **[MoveIDE locally](http://127.0.0.1:4173/)** when the launcher says it is 
 
 ## Start with the saved session
 
-Choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [nine fresh-browser checks](../qa/published-demo-replay.json) verify replay with its original video, six notes and cached pose, without new inference or AI. On an existing checkout, update safely with `git pull --ff-only` and run `npm run demo` to rebuild before trying it.
+Choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [ten fresh-browser checks](../qa/published-demo-replay.json) verify replay with its original video, six notes and cached pose, without new inference or AI. On an existing checkout, update safely with `git pull --ff-only` and run `npm run demo` to rebuild before trying it.
 
 The designated **Recorded demo · 7 reps** package contains approximately 60.2 seconds of video, seven detected reps and six saved AI reviews. The seventh rep is still detected; the coaching queue allows at most six reviews per session. Play, pause, inspect the pose replay, click a note to its corresponding moment, and open Why or source evidence. Original live note timing remains approximately aligned with the recording; separately prepared pose frames use the recorded video's timeline.
 
 The portable package carries video, notes, JPEG evidence, measurements and any prepared pose-report cache. It imports under a fresh local ID, with **no account credentials or authenticated session**. Replaying those saved notes makes no new ChatGPT request. A missing pose cache may require a local preparation pass. Connect your own eligible account only if you want new coaching.
 
 If the button is absent, use **History → Import session** with a `.moveide.json` export. To take a session to another computer, choose **Recording details and downloads → Export session**, then import that file there. A measurements-only JSON download is not the portable session package.
+
+## Understand the saved feedback
+
+The demo preserves the original run. Notes for reps 1–4 ask for more room around the feet because the source images cut them off; these are camera-position tips, not an analysis-service error. Rep 5 explains lowering the hips and bending the knees together. Rep 6 explains bringing the chest up with the hips. Choose a rep, open **Why**, and compare its saved images with the replay. Rep 7 has no AI note because this version reviews at most six reps.
+
+For recording a demo: show History → Open demo session, play and pause the overlay, choose Rep 5 and open Why, then show the movement graph and example comparison. These are saved results; say so during the demo. [Current QA findings and limitations](FINAL-HANDOFF.md) remain separate from this verified replay.
 
 ## Connect the optional coach
 

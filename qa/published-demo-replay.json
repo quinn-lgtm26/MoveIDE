@@ -1,5 +1,7 @@
 {
-  "verifiedAtUtc": "2026-11-08T02:34:24.357Z",
+  "verifiedAtUtc": "2026-11-08T02:39:48.147Z",
+  "checkoutRevision": "c5db0fcba3b759c7866d74b9aff4217591e1bb8a",
+  "runtimeCodeReference": "ab492c0",
   "scope": "Fresh isolated browser imports the explicitly approved bundled actual user session through Open demo session. Cached replay only; no camera, Heavy worker or AI request. UI proof is not independent motion accuracy.",
   "checks": {
     "freshProfileAndLazyDemoLoad": true,
@@ -10,11 +12,12 @@
     "firstAndLastAcceptedRepNotesStayAligned": true,
     "unreviewedRepDoesNotReuseAnotherNote": true,
     "actualOrderedSnapshotsAvailable": true,
+    "selectedRepTextContrastPasses": true,
     "noNewWorkersAIOrPageErrors": true
   },
   "errors": [],
   "session": {
-    "id": "edadf6ab-a43b-44de-9206-256495cce6ff",
+    "id": "49376ab8-48e7-4b4b-9760-865d546fc0e4",
     "hash": "cbb2d476665b14f3bd40a9cc55fc126e4ea558ef6b4a7ec127c90b234a63355b",
     "bytes": 15056569,
     "repCount": 7,
@@ -45,6 +48,11 @@
   "pose": {
     "timestampMs": 19401,
     "paintedPixels": 2237
+  },
+  "selectedRepStyle": {
+    "foreground": "rgb(243, 255, 233)",
+    "background": "rgb(25, 62, 48)",
+    "contrastRatio": 11.44435310351339
   },
   "status": "passed"
 }

@@ -1,0 +1,54 @@
+{
+  "experimentId": "f0047a86-ebfb-4918-924e-cec64026bdb6",
+  "planTitle": "Seldon QA: quinn-lgtm26/MoveIDE · MoveIDE final portable demo and core workflow fixes ab492c0",
+  "status": "complete",
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "failed": 1,
+    "blocked": 0,
+    "timedOut": 0,
+    "passRate": 0,
+    "headline": "0/2 passed (0%), 1 failed."
+  },
+  "failures": [
+    {
+      "id": "measure-squat",
+      "title": "One-button squat review and durable local history",
+      "area": "general",
+      "verdict": "fail",
+      "severity": "major",
+      "acceptanceCriterion": "One sample action produces two measured reps with playable video and pose overlay. Evidence seeks the matching moment. The renamed saved session survives reload, reopens with its video and measurements, and has usable video/data downloads. Disconnected AI is honestly explained without blocking local analysis or inventing coaching. No manual packet or send task is required.",
+      "expected": "The renamed saved session survives a reload and reopens cleanly, with no misleading error messages shown to the user, plus usable video and data downloads are available.",
+      "actual": "After a full page reload, a red banner reading 'This saved session is no longer available. Retry history' appeared even though the session card was still listed and fully intact directly below it — a user would believe their data was lost. Additionally, the downloaded video file was named after the original auto-generated title ('clear-squat.mp4') rather than the renamed session title ('QA squat review'), and download options were split across two separate locations (video/measurements in 'Saved on this device', JSON report buried in a collapsed 'Developer tools' section), making them hard to find.",
+      "recommendation": "Fix the deep-link session-load logic so that it does not show an error banner when the referenced session is actually present in local history — the banner should only appear when the session truly cannot be found. As a secondary fix, consolidate all download options (video, measurements, JSON report) into a single clearly-labelled 'Downloads' section so users don't have to hunt across the page.",
+      "reproductionSteps": [
+        "Open MoveIDE and click 'Try a sample squat'; wait for analysis to complete.",
+        "Open History, rename the saved session (e.g. to 'QA squat review'), and reopen it.",
+        "Reload the page while the session URL (?session=…) is in the address bar.",
+        "Observe the red 'This saved session is no longer available. Retry history' banner, even though the session card appears correctly below it."
+      ],
+      "unmetPreconditions": [],
+      "evidence": [],
+      "hint": "Expected: The renamed saved session survives a reload and reopens cleanly, with no misleading error messages shown to the user, plus usable video and data downloads are available. Observed: After a full page reload, a red banner reading 'This saved session is no longer available. Retry history' appeared even though the session card was still listed and fully intact directly below it — a user would believe their data was lost. Additionally, the downloaded video file was named after the original auto-generated title ('clear-squat.mp4') rather than the renamed session title ('QA squat review'), and download options were split across two separate locations (video/measurements in 'Saved on this device', JSON report buried in a collapsed 'Developer tools' section), making them hard to find.",
+      "screenshotUrls": [],
+      "attempts": 1,
+      "passes": 0,
+      "flaky": false,
+      "durationSeconds": 377.112,
+      "startedAt": "2026-11-08T02:36:24.341307+00:00",
+      "completedAt": "2026-11-08T02:42:41.453072+00:00"
+    }
+  ],
+  "passed": [],
+  "coverage": {
+    "journeysExercised": [
+      "One-button squat review and durable local history"
+    ],
+    "unreachable": [],
+    "confidenceNote": "0/2 cases passed. 1 of 2 planned cases have no result yet.",
+    "flakyCaseIds": []
+  },
+  "openQuestions": [],
+  "documentationNote": "Partial report: status endpoint still Running; one of two planned cases has no result. Do not interpret report status complete as overall success."
+}
