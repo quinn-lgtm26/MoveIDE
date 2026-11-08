@@ -81,5 +81,7 @@
 .history .saved-trace [data-series="1"] path { stroke-dasharray:7 3; }
 .history .saved-trace [data-series="2"] { color:#b47bcb; }
 .history .saved-trace [data-series="2"] path { stroke-dasharray:2 3; }
-.history .saved-trace-cursor { stroke:var(--text); stroke-width:1.5; }
+.history .saved-trace-cursor { stroke:var(--fg); stroke-width:1.5; }
 .history .saved-trace-legend { display:flex; gap:12px; flex-wrap:wrap; font-size:.75rem; margin:8px 0; }
+
+@media(min-width:1001px){.history .saved-trace svg text{font-size:14px}}

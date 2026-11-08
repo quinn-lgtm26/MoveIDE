@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:29:55.894Z",
-  "revision": "32159db5660ed61c8cf35b2a3c867f8545b6bb8d",
+  "verifiedAtUtc": "2026-11-08T01:40:05.156Z",
+  "revision": "5e99f7265c22780bf2f6d63e736df056e003bace",
   "mode": "isolated current-source Vite dev",
   "captureMode": "public clear-squat.mp4 via canvas.captureStream; replayed stored pose/metric callbacks; mock ChatGPT; no fresh Heavy inference, physical camera, account or phone",
   "checks": {
@@ -26,8 +26,8 @@
         "top": 613,
         "left": 48,
         "width": 1344,
-        "height": 570.796875,
-        "bottom": 1183.796875
+        "height": 950.546875,
+        "bottom": 1563.546875
       },
       "svg": {
         "top": 654,
@@ -44,6 +44,12 @@
         "bottom": 560.6875
       },
       "axisPixels": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
         11,
         11,
         11,
@@ -78,8 +84,8 @@
         "top": 526.59375,
         "left": 48,
         "width": 1184,
-        "height": 570.796875,
-        "bottom": 1097.390625
+        "height": 969.734375,
+        "bottom": 1496.328125
       },
       "svg": {
         "top": 567.59375,
@@ -96,6 +102,12 @@
         "bottom": 538.484375
       },
       "axisPixels": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
         11,
         11,
         11,
@@ -130,8 +142,8 @@
         "top": 674.109375,
         "left": 16,
         "width": 358,
-        "height": 681.59375,
-        "bottom": 1355.703125
+        "height": 1214.84375,
+        "bottom": 1888.953125
       },
       "svg": {
         "top": 740.109375,
@@ -141,13 +153,19 @@
         "bottom": 960.109375
       },
       "note": {
-        "top": 1525.703125,
+        "top": 2058.953125,
         "left": 20,
         "width": 335,
         "height": 151,
-        "bottom": 1676.703125
+        "bottom": 2209.953125
       },
       "axisPixels": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
         11,
         11,
         11,
@@ -167,9 +185,9 @@
     }
   ],
   "sourceHashes": {
-    "harness/live/app.css": "1c3c16abeb7b3ac2d2f011a77f19483504410d2b70843639b895e201a50f8c4f",
-    "harness/live/app.mjs": "6a334de94331b2b323b4a2c161b64836effd732b2a9d68101e1083435109fb05",
-    "harness/live/motion/live-chart.mjs": "a469807a5a3f457002d046f34e91616c60269a5ab52f68a7b2531175193cf633"
+    "harness/live/app.css": "aa1e5d9d03fd8aa99a180c1041aba96a8f28c016c4ed40bb208e4ae4bf59c1b2",
+    "harness/live/app.mjs": "e2e4783bcc14b7d04662028696caebdb742a770e8ae499cb415700181ecccd86",
+    "harness/live/motion/live-chart.mjs": "66621e3da5cbcf7e1715ba0f962fdc6dba6882cce1f608859591d04c8299f5a1"
   },
   "browserErrors": [],
   "passed": true

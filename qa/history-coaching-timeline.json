@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:33:18.632Z",
+  "verifiedAtUtc": "2026-11-08T01:39:27.373Z",
   "scope": "Synthetic saved-session UI fixture, three detected reps and one schema-valid saved review; public video is a playback carrier. No Heavy or AI inference; not a model accuracy test.",
   "checks": {
     "detectedVsReviewedCountsAndAllRepRows": true,
@@ -11,6 +11,7 @@
     "bothClocksAndActualCitationsVisible": true,
     "fullRetainedTraceBreaksInvalidMetricGapAndEpoch": true,
     "graphSelectionSeeksMappedVideo": true,
+    "visibleCursorAndDesktopAxis": true,
     "beyondRecordingPrefixCanInspectWithoutFalseSeek": true,
     "mobileAxisRemainsLegible": true,
     "mobileNoOverflow": true,

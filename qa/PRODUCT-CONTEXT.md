@@ -27,6 +27,10 @@ Queued reviews run one at a time with at least eight seconds between dispatches,
 
 Graph acceptance is independent of AI availability: readable degree/time axes on laptop and narrow screens, knee/hip/chest estimates, no zeroes substituted for missing measurements, and breaks at view changes. Reference changes describe consistency with the person's own rep, not correctness. The illustrative 110° practice target is not an ideal angle for everyone. Distinguish exact rep-bottom evidence from a nearby archived sample used for a labeled approximate comparison.
 
+The curved-reference increment compares completed reps against the first compatible personal rep. Its horizontal phase axis uses start 0%, bottom 50%, end 100%, while preserving measured angle amplitude in degrees. Actual phase durations remain separate; the normalized horizontal axis does not prove equal tempo. An adjustable ±5°/±10°/±15° band is a visual difference aid, not a validated measurement-error bound, confidence interval or universally good technique range. It must not automatically generate a posture fault. The flat 110° practice target remains a separate optional goal.
+
+Reference acceptance requires compatible view/model/protocol, source-bound completed intervals, finite measurements, preserved tracking gaps and no extrapolated missing curve. Verify identical curves, known degree differences, unequal timing, missing spans, view changes, accessible controls and readable mobile axes. Changes to reference/tolerance must not initiate AI or rewrite recorded measurements. Until linked helper and rendered-panel evidence exists, this is an acceptance requirement rather than a passed gate.
+
 ## Truth and scope
 33 landmarks and estimated world coordinates are not calibrated 3D truth. Recorded metrics use a supported side view. Live front/oblique/orbit support is experimental and gates unsupported measurements. Full-body visibility alone does not establish accuracy. There is no clinical correctness or universal ideal-angle claim. OpenCap import exists; native GPU inference is user-deferred.
 

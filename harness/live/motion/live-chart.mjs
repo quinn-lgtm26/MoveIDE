@@ -1,3 +1,5 @@
+import { createRepReference } from './rep-reference.mjs';
+
 const NS = 'http://www.w3.org/2000/svg';
 const WINDOW_MS = 30_000, MAX_SAMPLES = 450, MAX_GAP_MS = 1000;
 const SERIES = [
@@ -48,9 +50,49 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
   const baselinePanel = document.createElement('div'); baselinePanel.dataset.chartBaseline = '';
   baselinePanel.style.fontSize = '0.85rem'; baselinePanel.style.overflowX = 'auto';
   baselineDetails.append(baselineTitle, baselinePanel);
-  element.replaceChildren(svg, summary, phaseLegend, repSummary, windowLabel, controls, repDetails, baselineDetails);
+  const normalized = document.createElement('details'); normalized.className = 'chart-reference'; normalized.open = true; normalized.hidden = true;
+  const normalizedTitle = document.createElement('summary'); normalizedTitle.textContent = 'Your rep curve, adjusted for pace';
+  const normalizedText = document.createElement('p'); normalizedText.style.fontSize = '12px';
+  normalizedText.textContent = 'First complete compatible rep = personal reference, not an ideal squat. Start, bottom and finish align; angle differences stay unchanged. This comparison updates only after a rep finishes, when its full timing is known.';
+  const bandLabel = document.createElement('label'); bandLabel.textContent = 'Visual practice band ';
+  const bandSelect = document.createElement('select'); bandSelect.setAttribute('aria-label', 'Visual practice band');
+  for (const degrees of [5, 10, 15]) { const option = document.createElement('option'); option.value = String(degrees); option.textContent = `±${degrees}°`; option.selected = degrees === 10; bandSelect.append(option); }
+  bandLabel.append(bandSelect);
+  const bandNote = document.createElement('p'); bandNote.style.fontSize = '12px'; bandNote.textContent = 'Shaded band is a chosen visual tolerance, not measurement uncertainty, a safety zone or a good-form score. Dashed purple: your reference. Solid teal: latest comparable completed rep.';
+  const normalizedSvg = svgNode('svg', { role: 'img', 'aria-label': 'Completed knee-bend curves aligned at start, bottom and finish', width: '100%', height: 200 });
+  normalizedSvg.style.minWidth = '300px'; normalizedSvg.style.display = 'block';
+  const normalizedStatus = document.createElement('p'); normalizedStatus.style.fontSize = '12px';
+  normalized.append(normalizedTitle, normalizedText, bandLabel, normalizedSvg, normalizedStatus, bandNote);
+  element.replaceChildren(svg, summary, phaseLegend, repSummary, windowLabel, controls, repDetails, baselineDetails, normalized);
   let samples = [], reps = [], stopped = false, timer = null, lastRender = -Infinity;
   let currentEpoch = null, baseline = null, latestRep = null, baselineReset = false, renderedWidth = 0;
+  let curveReference = null, curveLatest = null;
+  bandSelect.addEventListener('change', () => requestRender());
+  const renderNormalized = () => {
+    normalized.hidden = !curveReference;
+    if (!curveReference) { normalizedSvg.replaceChildren(); return; }
+    const width = Math.max(300, element.clientWidth), right = width - 18;
+    const x = phase => 46 + phase / 100 * (right - 46), y = angle => 160 - angle / 180 * 140;
+    normalizedSvg.setAttribute('viewBox', `0 0 ${width} 200`); normalizedSvg.replaceChildren();
+    for (const angle of [0, 90, 180]) { normalizedSvg.append(svgNode('line', { x1:46,x2:right,y1:y(angle),y2:y(angle),stroke:'currentColor',opacity:.12 }),svgNode('text',{x:39,y:y(angle)+4,'text-anchor':'end','font-size':11,fill:'currentColor'},`${angle}°`)); }
+    for (const [phase,label] of [[0,'Start · 0%'],[50,'Bottom · 50%'],[100,'Finish · 100%']]) normalizedSvg.append(svgNode('text',{x:x(phase),y:184,'text-anchor':phase===0?'start':phase===100?'end':'middle','font-size':11,fill:'currentColor'},label));
+    const segments = points => { const groups=[]; let current=[]; for(const point of points){if(point.kneeFlexionDeg===null||current.length&&current.at(-1).segmentId!==point.segmentId){if(current.length)groups.push(current);current=[];}if(point.kneeFlexionDeg!==null)current.push(point);}if(current.length)groups.push(current);return groups; };
+    const band = [5,10,15].includes(Number(bandSelect.value)) ? Number(bandSelect.value) : 10;
+    for(const points of segments(curveReference.points)){
+      const upper=points.map(point=>`${x(point.phasePercent)},${y(Math.min(180,point.kneeFlexionDeg+band))}`);
+      const lower=[...points].reverse().map(point=>`${x(point.phasePercent)},${y(Math.max(0,point.kneeFlexionDeg-band))}`);
+      normalizedSvg.append(svgNode('polygon',{points:[...upper,...lower].join(' '),fill:'#7759b6',opacity:.12,'data-reference-band':band}));
+    }
+    for(const [curve,color,dash,role] of [[curveReference,'#7759b6','6 4','reference'],[curveLatest,'#087f8c','','latest']]){
+      if(!curve)continue;
+      for(const points of segments(curve.points)){
+        const d=points.map((point,index)=>`${index?'L':'M'}${x(point.phasePercent).toFixed(2)},${y(point.kneeFlexionDeg).toFixed(2)}`).join(' ');
+        normalizedSvg.append(svgNode('path',{d,fill:'none',stroke:color,'stroke-width':2.2,'stroke-dasharray':dash,'data-normalized-curve':role}));
+      }
+    }
+    normalizedStatus.textContent = curveReference.key===curveLatest?.key ? 'Reference captured. Finish another rep in the same view to compare its shape.'
+      : `Reference bottom ${(curveReference.bottomMs/1000).toFixed(2)} s · latest bottom ${(curveLatest.bottomMs/1000).toFixed(2)} s. Time is aligned separately for descent and return; missing source intervals stay gaps.`;
+  };
   const readRep = event => {
     const { rep, report } = event;
     const original = report?.reps?.find(value => value.id === rep.id);
@@ -160,6 +202,7 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
     repList.replaceChildren();
     for (const rep of reps.filter(rep => rep.reference)) { const item = document.createElement('li'); item.textContent = describeRep(rep.reference); repList.append(item); }
     renderBaseline();
+    renderNormalized();
   };
   const requestRender = () => {
     if (timer !== null) return;
@@ -177,7 +220,7 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
       if (stopped || !Number.isFinite(sample?.timestampMs) || sample.timestampMs < 0 || sample.timestampMs <= (samples.at(-1)?.timestampMs ?? -1)) return;
       const epoch = sample.viewGuard?.epoch;
       if (Number.isSafeInteger(epoch) && epoch >= 0 && currentEpoch !== epoch) {
-        baselineReset = currentEpoch !== null; currentEpoch = epoch; baseline = null; latestRep = null;
+        baselineReset = currentEpoch !== null; currentEpoch = epoch; baseline = null; latestRep = null; curveReference = null; curveLatest = null;
       }
       const stable = sample.viewGuard?.state === 'stable' && Number.isSafeInteger(epoch) && epoch >= 0 && sample.analysisEligible !== false;
       const point = { timestampMs: sample.timestampMs, epoch };
@@ -193,12 +236,18 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
       const reference = readRep(event);
       if (reference && (currentEpoch === null || currentEpoch === event.epoch)) {
         currentEpoch = event.epoch;
+        if (curveReference && curveReference.provenance !== reference.provenance) { curveReference = null; curveLatest = null; }
         if (!baseline || baseline.provenance !== reference.provenance) { baselineReset = baseline !== null; baseline = reference; latestRep = reference; }
         else if (reference.timestampMs > latestRep.timestampMs) latestRep = reference;
+        const curve = createRepReference(event);
+        if (curve) {
+          if (!curveReference || curveReference.provenance !== curve.provenance) curveReference = curve;
+          if (!curveLatest || curveLatest.provenance !== curve.provenance || curve.bottomMs > curveLatest.bottomMs) curveLatest = curve;
+        }
       }
       reps.push({ key: event.key, timestampMs, epoch: event.epoch, reference }); prune(); requestRender();
     },
-    reset() { clearTimeout(timer); timer = null; samples = []; reps = []; stopped = false; currentEpoch = null; baseline = null; latestRep = null; baselineReset = false; render(); },
+    reset() { clearTimeout(timer); timer = null; samples = []; reps = []; stopped = false; currentEpoch = null; baseline = null; latestRep = null; baselineReset = false; curveReference = null; curveLatest = null; render(); },
     stop() { stopped = true; clearTimeout(timer); timer = null; render(); },
   };
 }

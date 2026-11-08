@@ -5,10 +5,14 @@ import { chromium } from 'playwright';
 
 test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds memory and stops cleanly', async () => {
   const source = await readFile(new URL('./live-chart.mjs', import.meta.url), 'utf8');
+  const modules = new Map([['/live-chart.mjs',source],...await Promise.all([
+    ['/rep-reference.mjs','./rep-reference.mjs'],['/motion/squat-profile.mjs','../../motion/squat-profile.mjs'],['/motion/geometry.mjs','../../motion/geometry.mjs'],
+  ].map(async([path,file])=>[path,await readFile(new URL(file,import.meta.url),'utf8')]))]);
+  const fixture = JSON.parse(await readFile(new URL('../../results/clear-squat.analysis-report.v1.json',import.meta.url)));
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
     const page = await browser.newPage();
-    await page.route('**/*', route => route.fulfill({ contentType: route.request().url().endsWith('.mjs') ? 'text/javascript' : 'text/html', body: route.request().url().endsWith('.mjs') ? source : '<!doctype html><main id="chart"></main>' }));
+    await page.route('**/*', route => {const path=new URL(route.request().url()).pathname;return route.fulfill({ contentType: path.endsWith('.mjs') ? 'text/javascript' : 'text/html', body: modules.get(path)??'<!doctype html><main id="chart"></main>' });});
     await page.goto('http://chart.test/'); await page.clock.install();
     await page.evaluate(async () => {
       const { createLiveChart } = await import('/live-chart.mjs');
@@ -22,7 +26,7 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
       chart.rep({ key: 'epoch1-rep', epoch: 1, rep: { bottomMs: 400 } });
     });
     assert.match(await page.locator('#chart p').first().textContent(), /graph starts when tracking/);
-    assert.equal(await page.locator('svg').isVisible(), false, 'Empty state has no large fake 0–1s plot');
+    assert.equal(await page.locator('#chart > svg').isVisible(), false, 'Empty state has no large fake 0–1s plot');
     assert.ok((await page.locator('#chart').boundingBox()).height < 120, 'Empty chart stays compact');
     await page.clock.fastForward(250);
     await page.locator('.chart-metric-controls summary').click();
@@ -31,7 +35,7 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
     await page.clock.fastForward(250);
     const path = await page.locator('[data-metric="kneeFlexionDeg"]').getAttribute('d');
     assert.equal((path.match(/M/g) ?? []).length, 4); assert.equal((path.match(/L/g) ?? []).length, 1);
-    assert.equal(await page.locator('svg').getAttribute('data-rep-count'), '1');
+    assert.equal(await page.locator('#chart > svg').getAttribute('data-rep-count'), '1');
     assert.match(await page.locator('#chart p').first().textContent(), /2.00 s.*70.0°/);
     await page.evaluate(() => {
       const missing = sample(2100); missing.metricValidity.kneeFlexionDeg.status = 'unavailable'; chart.push(missing);
@@ -40,14 +44,14 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
     assert.match(await page.locator('#chart p').first().textContent(), /Knee bend: unavailable.*Hip hinge: 100.0°/);
     await page.evaluate(() => { for (let t = 2200; t < 100_000; t += 10) chart.push(sample(t)); });
     await page.clock.fastForward(250);
-    assert.equal(await page.locator('svg').getAttribute('data-sample-count'), '450');
-    assert.equal(await page.locator('svg').getAttribute('data-rep-count'), '0');
-    assert.match(await page.locator('svg').textContent(), /70.0 s/);
+    assert.equal(await page.locator('#chart > svg').getAttribute('data-sample-count'), '450');
+    assert.equal(await page.locator('#chart > svg').getAttribute('data-rep-count'), '0');
+    assert.match(await page.locator('#chart > svg').textContent(), /70.0 s/);
     await page.evaluate(() => { chart.stop(); chart.push(sample(200000)); });
     assert.match(await page.locator('#chart p').first().textContent(), /Stopped · retained.*99.99 s/);
     await page.evaluate(() => { chart.reset(); chart.push(sample(0, 0)); });
     await page.clock.fastForward(250);
-    assert.equal(await page.locator('svg').getAttribute('data-sample-count'), '1');
+    assert.equal(await page.locator('#chart > svg').getAttribute('data-sample-count'), '1');
     assert.match(await page.locator('#chart p').first().textContent(), /Knee bend: 0.0°/);
     assert.match(await page.getByRole('img').getAttribute('aria-label'), /source time/);
     await page.evaluate(() => { const unknown = sample(100); unknown.viewGuard.state = 'reacquiring'; chart.push(unknown); });
@@ -74,7 +78,7 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
     assert.equal(await page.locator('[data-rep-phase="return"]').count(), 2);
     assert.equal(await page.locator('.chart-rep-details li').count(), 2);
     assert.match(await page.locator('.chart-rep-summary').textContent(), /Knee bend 120.0°.*Down 0.10 s.*Return 0.10 s.*Total 0.20 s/);
-    assert.match(await page.locator('.chart-window-label').textContent(), /Rolling 30-second.*saved session/);
+    assert.match(await page.locator('.chart-window-label').textContent(), /Rolling 30-second.*Save on this device/);
     assert.equal(await page.locator('[data-practice-target]').getAttribute('data-practice-target'), '110');
     await page.evaluate(() => {
       const wrongEvidence = completed('third', 800, 130);
@@ -92,7 +96,7 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
     for (const width of [375, 1280]) {
       await page.setViewportSize({ width, height: 800 });
       await page.waitForTimeout(50); await page.clock.fastForward(250);
-      const layout = await page.locator('svg').evaluate(svg => ({
+      const layout = await page.locator('#chart > svg').evaluate(svg => ({
         viewWidth: svg.viewBox.baseVal.width, containerWidth: svg.parentElement.clientWidth,
         width: svg.getBoundingClientRect().width, height: svg.getBoundingClientRect().height,
         text: [...svg.querySelectorAll('text')].map(node => ({
@@ -104,8 +108,21 @@ test('live SVG keeps valid source angles, breaks missing/epoch/time gaps, bounds
       assert.equal(layout.height, 220);
       assert.equal(layout.width, layout.containerWidth);
       assert.ok(layout.text.every(label => label.fontPixels >= 10.9 && label.left >= 0 && label.right <= width));
-      assert.ok(!(await page.locator('svg').textContent()).includes('form-quality'));
+      assert.ok(!(await page.locator('#chart > svg').textContent()).includes('form-quality'));
       assert.match(await page.locator('.chart-metric-controls > p').textContent(), /110° knee practice target, not a form-quality standard/);
     }
+    await page.evaluate(report=>{
+      chart.reset();chart.push(sample(4000));
+      report.reps.forEach(rep=>chart.rep({key:rep.id,epoch:0,rep,report}));
+    },fixture);
+    await page.clock.fastForward(250);
+    assert.ok(await page.locator('[data-normalized-curve="reference"]').count());
+    assert.ok(await page.locator('[data-normalized-curve="latest"]').count());
+    assert.equal(await page.locator('[data-reference-band]').first().getAttribute('data-reference-band'),'10');
+    await page.getByLabel('Visual practice band').selectOption('15');await page.clock.fastForward(250);
+    assert.equal(await page.locator('[data-reference-band]').first().getAttribute('data-reference-band'),'15');
+    assert.match(await page.locator('#chart').textContent(),/not measurement uncertainty, a safety zone or a good-form score/);
+    await page.evaluate(()=>chart.push(sample(4100,90,1)));await page.clock.fastForward(250);
+    assert.equal(await page.getByLabel('Visual practice band').isVisible(),false,'A new view cannot retain the previous normalized comparison');
   } finally { await browser.close(); }
 });

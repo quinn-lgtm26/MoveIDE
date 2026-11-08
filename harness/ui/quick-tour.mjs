@@ -44,7 +44,13 @@ export function mountQuickTour({ surface = 'recorded', document = globalThis.doc
   };
   const labels = surface === 'live' ? ['Start coached squat', 'Your movement over time', 'Coach notes', 'History'] : ['Try a sample squat', 'Local analysis', 'ChatGPT coach setup', 'History'];
   const clearTarget = () => { target?.classList.remove('moveide-tour-target'); target = null; };
+  const syncPageZoom = () => {
+    const pageZoom = Number.parseFloat(win.getComputedStyle(document.documentElement).zoom) || 1;
+    // Keep this overlay in viewport CSS pixels while preserving the app's responsive page zoom.
+    root.style.zoom = dialog.style.zoom = String(1 / pageZoom);
+  };
   const position = () => {
+    syncPageZoom();
     if (!dialog.open) return;
     const box = target?.getBoundingClientRect();
     const width = Math.min(440, win.innerWidth - 32);
@@ -83,6 +89,10 @@ export function mountQuickTour({ surface = 'recorded', document = globalThis.doc
   const routeChanged = () => { if (win.location.hash === '#history' || new URLSearchParams(win.location.search).has('session')) { invitation?.remove(); invitation = null; } };
   let navigationTimer;
   const afterNavigation = () => { clearTimeout(navigationTimer); navigationTimer = setTimeout(routeChanged, 0); };
+  const useProductControl = event => { if (event.target?.closest?.('main button, main select, main input, main a, main label')) dismiss(); };
+  document.addEventListener('pointerdown', useProductControl, true);
+  document.addEventListener('click', useProductControl, true);
+  document.addEventListener('change', useProductControl, true);
   document.addEventListener('click', afterNavigation);
   win.addEventListener('hashchange', routeChanged); win.addEventListener('popstate', routeChanged);
   win.addEventListener('resize', position);
@@ -94,6 +104,6 @@ export function mountQuickTour({ surface = 'recorded', document = globalThis.doc
     const buttons = element('div', null, 'moveide-tour-actions'), later = element('button', 'Not now'), begin = element('button', 'Take the tour', 'moveide-tour-primary'); later.type = begin.type = 'button';
     later.onclick = () => { dismiss(); reopen.focus(); }; begin.onclick = open; buttons.append(later, begin); invitation.append(element('p', 'New here? Four quick steps.'), buttons); root.append(invitation);
   }
-  document.head.append(style); document.body.append(root, dialog);
-  return () => { clearTarget(); cancelAnimationFrame(layoutFrame); clearTimeout(navigationTimer); document.removeEventListener('click', afterNavigation); win.removeEventListener('hashchange', routeChanged); win.removeEventListener('popstate', routeChanged); win.removeEventListener('resize', position); win.removeEventListener('scroll', position); if (dialog.open) dialog.close(); root.remove(); dialog.remove(); style.remove(); };
+  document.head.append(style); document.body.append(root, dialog); syncPageZoom();
+  return () => { clearTarget(); cancelAnimationFrame(layoutFrame); clearTimeout(navigationTimer); document.removeEventListener('pointerdown', useProductControl, true); document.removeEventListener('click', useProductControl, true); document.removeEventListener('change', useProductControl, true); document.removeEventListener('click', afterNavigation); win.removeEventListener('hashchange', routeChanged); win.removeEventListener('popstate', routeChanged); win.removeEventListener('resize', position); win.removeEventListener('scroll', position); if (dialog.open) dialog.close(); root.remove(); dialog.remove(); style.remove(); };
 }
