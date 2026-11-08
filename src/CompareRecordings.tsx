@@ -12,11 +12,11 @@ const examples = [{ label: 'Good example', url: firstUrl }, { label: 'Bad exampl
 const displayValue = (value: number | null, unit: string) => value === null ? 'Unavailable' : unit === 'ms' ? `${(value / 1000).toFixed(1)} s` : `${value.toFixed(unit === 'leg_lengths' ? 2 : 0)}${unit === 'deg' ? '°' : ' leg lengths'}`;
 const plainLabel: Record<string, string> = { kneeFlexionDeg: 'Knee bend at bottom', torsoLeanDeg: 'Chest angle at bottom', repDurationMs: 'Rep time' };
 const primaryMetrics = new Set(['kneeFlexionDeg', 'torsoLeanDeg', 'repDurationMs']);
-// Body cues for differences big enough to see: bad example minus good example must reach `min` (sign = direction of the fault).
+// Describe selected example differences; projected angles and total duration alone do not establish a technique fault.
 const tips = [
-  { key: 'shinInclinationDeg', min: 4, cue: 'Sit your hips back', feel: 'Heels down, knees back.', evidence: (d: number) => `Bad example: shins ${d.toFixed(0)}° further forward.` },
-  { key: 'torsoLeanDeg', min: 4, cue: 'Keep your chest up', feel: 'Brace and look ahead.', evidence: (d: number) => `Bad example: chest ${d.toFixed(0)}° further forward.` },
-  { key: 'repDurationMs', min: -300, cue: 'Lower slowly', feel: 'About two seconds down.', evidence: (d: number) => `Bad example: rep ${(-d / 1000).toFixed(1)} s faster.` },
+  { key: 'shinInclinationDeg', min: 4, cue: 'Compare shin position', feel: 'Inspect both bottom frames. A shin-angle difference alone does not tell you to move your knees back.', evidence: (d: number) => `Bad example: shins ${d.toFixed(0)}° further forward.` },
+  { key: 'torsoLeanDeg', min: 4, cue: 'Compare torso inclination', feel: 'Inspect the hip-to-shoulder line. Forward lean alone does not establish a need to be more upright.', evidence: (d: number) => `Bad example: chest ${d.toFixed(0)}° further forward.` },
+  { key: 'repDurationMs', min: -300, cue: 'Compare the full rep timing', feel: 'Replay both cycles. Total rep time does not tell us how long the descent took.', evidence: (d: number) => `Bad example: rep ${(-d / 1000).toFixed(1)} s faster.` },
 ];
 
 function RecordingPlayer({ recording, repId, onRep, anchor, slot }: {
@@ -142,11 +142,11 @@ export function CompareRecordings({ model, onClose }: { model: PoseModel; onClos
     {recordings && comparison && <>
       <div className="toolbar" role="group" aria-label="Line up both videos at">Line up at{' '}<button aria-label="Compare starts" onClick={() => jump('startMs')}>Start</button><button className="primary" aria-label="Compare bottoms" onClick={() => jump('bottomMs')}>Bottom</button><button aria-label="Compare returns" onClick={() => jump('endMs')}>Stand</button></div>
       <div className="recording-pair">{recordings.map((recording, index) => <RecordingPlayer key={recording.sourceSha256} recording={recording} repId={repIds[index]} onRep={repId => selectRep(index, repId)} anchor={anchors[index]} slot={index === 0 ? 'a' : 'b'} />)}</div>
-      <section className="compare tips"><h3>Try this when you squat</h3>
+      <section className="compare tips"><h3>What to look for</h3>
         {(() => {
           const shown = tips.flatMap(tip => { const d = comparison.metrics.find(metric => metric.key === tip.key)?.delta; return d != null && (tip.min > 0 ? d >= tip.min : d <= tip.min) ? [{ ...tip, d }] : []; });
           return shown.length ? <ol>{shown.map(tip => <li key={tip.key}><strong>{tip.cue}</strong><p>{tip.feel} <span className="fine">{tip.evidence(tip.d)}</span></p></li>)}</ol>
-            : <p>These reps look alike. Try another rep in each video.</p>;
+            : <p>No large difference in these selected measures. That does not establish equivalent technique; inspect another rep or phase.</p>;
         })()}
         <p className="fine"><button onClick={() => jump('bottomMs')}>Compare at the bottom</button> Not medical advice.</p>
       </section>

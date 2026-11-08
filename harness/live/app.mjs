@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { mountCoachConnection } from '../ui/coach-connection.mjs';
 import { mountQuickTour } from '../ui/quick-tour.mjs';
 mountQuickTour({ surface: 'live' });
 import { createLiveChart } from './motion/live-chart.mjs';
@@ -14,6 +15,7 @@ import { createLiveRecorder, createLiveArchive } from '../history/live-recorder.
 import { createSessionId, saveSession, patchSession } from '../history/index.mjs';
 
 const $ = id => document.getElementById(id);
+mountCoachConnection($('coach-connection'), { onState: state => { if (state === 'connected' && controller && currentCoach?.snapshot().connectionState === 'offline') $('ai').textContent = 'ChatGPT connected. Start a new session for coaching; earlier unreviewed reps are not retried.'; }, onDisconnect: () => stop('ChatGPT disconnected; local measurements remain saved.', { cancelCoaching: true }) });
 const diagnostics = createSessionDiagnostics($('live-diagnostics'), $('download-diagnostics'));
 const liveChart = createLiveChart($('live-chart'));
 let lastDiagnosticAt = -Infinity;

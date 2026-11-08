@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 if (!process.argv.includes('--send-public-fixture')) throw new Error('Use --send-public-fixture to send at most two public fixture rep reviews to the connected plan.');
-const evidencePath = new URL('../../qa/phone-queued-review.json', import.meta.url);
+const evidencePath = new URL(process.env.MOVEIDE_PHONE_QA_OUTPUT ?? '../../qa/phone-queued-review.json', import.meta.url);
 const safe = value => String(value).replace(/https?:\/\/\S+/g, '[URL redacted]').replace(/[a-f0-9-]{32,}/gi, '[identifier redacted]').slice(0, 500);
 const result = { status: 'running', verifiedAtUtc: new Date().toISOString(), publicHttps: true,
   camera: 'Synthetic fixture stream; physical iPhone NOT tested', video: 'Real WebRTC across isolated Chrome contexts',
@@ -58,14 +58,14 @@ try {
   receiver.on('request', request => {
     if (new URL(request.url()).pathname !== '/api/interpret') return;
     const { packet, images, model } = request.postDataJSON();
-    result.requests.push({ at: Date.now(), model, repCount: packet.repIds.length, measurementCount: packet.measurements.length, imageTimestampsMs: images.map(image => image.timestampMs) });
+    result.requests.push({ at: Date.now(), model, repCount: packet.repIds.length, measurementCount: packet.measurements.length, goal: packet.goal ?? null, imageTimestampsMs: images.map(image => image.timestampMs) });
     resolveFirstRequest();
   });
   receiver.on('requestfailed', request => { if (new URL(request.url()).pathname === '/api/interpret') result.errors.push(`Provider request failed: ${safe(request.failure()?.errorText)}`); });
   receiver.on('response', response => {
     if (new URL(response.url()).pathname !== '/api/interpret') return;
     const at = Date.now();
-    responseTasks.push((async () => { const body = await response.json().catch(() => null); result.responses.push({ at, status: response.status(), observationCount: body?.observations?.length ?? 0, nextFocusLength: body?.nextFocus?.text?.length ?? 0 }); })());
+    responseTasks.push((async () => { const body = await response.json().catch(() => null); result.responses.push({ at, status: response.status(), observationCount: body?.observations?.length ?? 0, nextFocusLength: body?.nextFocus?.text?.length ?? 0, nextFocus: body?.nextFocus, observations: body?.observations, uncertainty: body?.uncertainty }); })());
   });
   await receiver.goto('http://127.0.0.1:4173/harness/live/');
   await receiver.locator('#source').selectOption('phone'); await receiver.locator('#start').click();

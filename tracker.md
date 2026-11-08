@@ -1,6 +1,6 @@
 # MoveIDE global delivery tracker
 
-Updated 2026-11-08 UTC (2026-11-07 Pacific). **Phone-workflow GO temporarily withheld after the user’s physical QR test: replay synchronization, tracking continuity and delayed per-rep AI are under repair. The historical Wren pass below does not cover this incident.** Polished product checkpoint `f4a987a` retains stopped replay, improves history review and rep selection, and adds the biomechanics mark. The local suite passed 118 tests; the first Wren product checkpoint passed 3/3 on `2ad37f8`. The final polished Wren rerun passed 3/3; **GO for hands-on testing of this demo**. Physical iPhone and independent movement accuracy remain unverified. **Incoming frontend agent: read this first.** This tracker distinguishes implemented code, the surface actually verified, and remaining acceptance. Later commits do not inherit an earlier build's final-QA status automatically.
+Updated 2026-11-08 UTC (2026-11-07 Pacific). **Final demo GO pending the combined production verification below.** Main includes the phone/replay repair, paced personal-reference graph and latest homepage. The integrated suite passed137tests (129harness+8launcher/doctor); the persistent ChatGPT header is receiving its own focused checks. Wren passed3/3 on32159db. Later changes require their own final rerun; physical iPhone rehearsal and independent motion accuracy remain separate. Incoming frontend agents: preserve the recorded evidence boundaries and keep the final runtime frozen during Wren.
 
 ## Latest runtime checkpoint — `32159db`
 

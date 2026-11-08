@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { mountCoachConnection } from '../harness/ui/coach-connection.mjs';
 import { mountQuickTour } from '../harness/ui/quick-tour.mjs';
 import type { AnalysisReport, Measurement, MotionTraceSample } from '../harness/motion/analyze.mjs';
 import { getMotionTrace } from '../harness/motion/analyze.mjs';
@@ -35,6 +36,9 @@ const shortCue = (segment: CoachingSegment, response: CoachingResponse) => {
 
 export function App() {
   useEffect(() => mountQuickTour({ surface: 'recorded' }), []);
+  const coachHeader = useRef<HTMLDivElement>(null);
+  const stopForCoach = useRef<() => void>(() => {});
+  useEffect(() => coachHeader.current ? mountCoachConnection(coachHeader.current, { onState: setConnection, onDisconnect: () => stopForCoach.current() }) : undefined, []);
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [clip, setClip] = useState<{ name: string; src: string; blob: Blob } | null>(null);
@@ -197,6 +201,8 @@ export function App() {
     setCoachStatus(coaching ? 'Stopped · your coach notes stay below.' : 'Stopped · nothing more will be sent to your coach.');
   };
 
+  stopForCoach.current = stop;
+
   const connect = async () => {
     stop();
     try {
@@ -322,6 +328,7 @@ export function App() {
           <a href="/harness/live/">Live camera</a>
           <a href="#history" aria-current={historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); showHistory(); }}>History</a>
         </nav>
+        <div ref={coachHeader} />
       </header>
 
       {homeMode ? <Home onSample={openSample} onCompare={compareExamples} /> : historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={openSaved} onBack={closeHistory} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>

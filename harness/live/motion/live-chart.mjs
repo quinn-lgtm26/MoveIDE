@@ -12,6 +12,8 @@ const SERIES = [
 export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
   if (targetKneeFlexionDeg !== null && (!Number.isFinite(targetKneeFlexionDeg) || targetKneeFlexionDeg < 30 || targetKneeFlexionDeg > 150)) throw new RangeError('Practice target must be 30–150 degrees or null.');
   const document = element.ownerDocument;
+  // Counter the host page's CSS zoom while retaining its layout scale.
+  const axisFontSize = () => 11 / Math.max(.25, Math.min(4, element.getBoundingClientRect().width / (element.offsetWidth || 1) || 1));
   const svgNode = (tag, attrs = {}, text) => {
     const node = document.createElementNS(NS, tag);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
@@ -71,11 +73,11 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
   const renderNormalized = () => {
     normalized.hidden = !curveReference;
     if (!curveReference) { normalizedSvg.replaceChildren(); return; }
-    const width = Math.max(300, element.clientWidth), right = width - 18;
+    const width = Math.max(300, element.clientWidth), right = width - 18, fontSize = axisFontSize();
     const x = phase => 46 + phase / 100 * (right - 46), y = angle => 160 - angle / 180 * 140;
     normalizedSvg.setAttribute('viewBox', `0 0 ${width} 200`); normalizedSvg.replaceChildren();
-    for (const angle of [0, 90, 180]) { normalizedSvg.append(svgNode('line', { x1:46,x2:right,y1:y(angle),y2:y(angle),stroke:'currentColor',opacity:.12 }),svgNode('text',{x:39,y:y(angle)+4,'text-anchor':'end','font-size':11,fill:'currentColor'},`${angle}°`)); }
-    for (const [phase,label] of [[0,'Start · 0%'],[50,'Bottom · 50%'],[100,'Finish · 100%']]) normalizedSvg.append(svgNode('text',{x:x(phase),y:184,'text-anchor':phase===0?'start':phase===100?'end':'middle','font-size':11,fill:'currentColor'},label));
+    for (const angle of [0, 90, 180]) { normalizedSvg.append(svgNode('line', { x1:46,x2:right,y1:y(angle),y2:y(angle),stroke:'currentColor',opacity:.12 }),svgNode('text',{x:39,y:y(angle)+4,'text-anchor':'end','font-size':fontSize,fill:'currentColor'},`${angle}°`)); }
+    for (const [phase,label] of [[0,'Start · 0%'],[50,'Bottom · 50%'],[100,'Finish · 100%']]) normalizedSvg.append(svgNode('text',{x:x(phase),y:184,'text-anchor':phase===0?'start':phase===100?'end':'middle','font-size':fontSize,fill:'currentColor'},label));
     const segments = points => { const groups=[]; let current=[]; for(const point of points){if(point.kneeFlexionDeg===null||current.length&&current.at(-1).segmentId!==point.segmentId){if(current.length)groups.push(current);current=[];}if(point.kneeFlexionDeg!==null)current.push(point);}if(current.length)groups.push(current);return groups; };
     const band = [5,10,15].includes(Number(bandSelect.value)) ? Number(bandSelect.value) : 10;
     for(const points of segments(curveReference.points)){
@@ -139,7 +141,7 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
     timer = null; lastRender = performance.now();
     renderedWidth = Math.max(300, element.clientWidth);
     svg.setAttribute('viewBox', `0 0 ${renderedWidth} 220`);
-    const right = renderedWidth - 18;
+    const right = renderedWidth - 18, fontSize = axisFontSize();
     const latest = samples.at(-1), end = latest?.timestampMs ?? 0, start = Math.max(0, end - WINDOW_MS);
     const span = Math.max(1000, end - start), x = time => 46 + (time - start) / span * (right - 46);
     const y = degrees => 176 - degrees / 180 * 150;
@@ -154,16 +156,16 @@ export function createLiveChart(element, { targetKneeFlexionDeg = 110 } = {}) {
     baselineDetails.hidden = !baseline; repDetails.hidden = !reps.some(rep => rep.reference);
     for (const angle of [0, 90, 180]) {
       svg.append(svgNode('line', { x1: 46, x2: right, y1: y(angle), y2: y(angle), stroke: 'currentColor', opacity: 0.12 }));
-      svg.append(svgNode('text', { x: 39, y: y(angle) + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'currentColor' }, `${angle}°`));
+      svg.append(svgNode('text', { x: 39, y: y(angle) + 4, 'text-anchor': 'end', 'font-size': fontSize, fill: 'currentColor' }, `${angle}°`));
     }
-    svg.append(svgNode('text', { x: 46, y: 14, 'font-size': 11, fill: 'currentColor' }, 'Angle (degrees)'));
+    svg.append(svgNode('text', { x: 46, y: 14, 'font-size': fontSize, fill: 'currentColor' }, 'Angle (degrees)'));
     if (targetKneeFlexionDeg !== null && enabled.has('kneeFlexionDeg')) {
       svg.append(svgNode('line', { x1: 46, x2: right, y1: y(targetKneeFlexionDeg), y2: y(targetKneeFlexionDeg), stroke: '#087f8c', opacity: 0.6, 'stroke-dasharray': '8 5', 'data-practice-target': targetKneeFlexionDeg }));
     }
     for (const time of [start, start + span / 2, start + span]) {
-      svg.append(svgNode('text', { x: x(time), y: 194, 'text-anchor': time === start ? 'start' : time === start + span ? 'end' : 'middle', 'font-size': 11, fill: 'currentColor' }, `${(time / 1000).toFixed(1)} s`));
+      svg.append(svgNode('text', { x: x(time), y: 194, 'text-anchor': time === start ? 'start' : time === start + span ? 'end' : 'middle', 'font-size': fontSize, fill: 'currentColor' }, `${(time / 1000).toFixed(1)} s`));
     }
-    svg.append(svgNode('text', { x: (46 + right) / 2, y: 214, 'text-anchor': 'middle', 'font-size': 11, fill: 'currentColor' }, 'Source time (seconds)'));
+    svg.append(svgNode('text', { x: (46 + right) / 2, y: 214, 'text-anchor': 'middle', 'font-size': fontSize, fill: 'currentColor' }, 'Source time (seconds)'));
     for (const rep of reps) {
       if (rep.timestampMs < start || rep.timestampMs > end) continue;
       if (rep.reference) {

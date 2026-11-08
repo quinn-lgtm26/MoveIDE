@@ -72,3 +72,4 @@ main:has(#stop:not([hidden])) .source-label,main:has(#stop:not([hidden])) .start
 
 /* Desktop reads better at 80% scale; phones keep full size (matches index.html). */
 @media (min-width: 1001px) { html { zoom: 0.8; } }
+@media (min-width: 1001px) { main:has(#stop:not([hidden])) .stage { min-height: max(375px, clamp(340px,48vh,440px)); } }

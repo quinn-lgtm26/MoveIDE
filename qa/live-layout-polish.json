@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-11-08T01:40:05.156Z",
-  "revision": "5e99f7265c22780bf2f6d63e736df056e003bace",
+  "verifiedAtUtc": "2026-11-08T01:41:35.277Z",
+  "revision": "cfe4300ebb8438cb3e17320e1d63134387e9328b",
   "mode": "isolated current-source Vite dev",
   "captureMode": "public clear-squat.mp4 via canvas.captureStream; replayed stored pose/metric callbacks; mock ChatGPT; no fresh Heavy inference, physical camera, account or phone",
   "checks": {
@@ -16,48 +16,48 @@
       },
       "documentWidth": 1440,
       "video": {
-        "top": 169,
-        "left": 48,
-        "width": 884,
-        "height": 432,
-        "bottom": 601
+        "top": 134.9375,
+        "left": 182.390625,
+        "width": 707.21875,
+        "height": 345.59375,
+        "bottom": 480.53125
       },
       "chart": {
-        "top": 613,
-        "left": 48,
-        "width": 1344,
-        "height": 950.546875,
-        "bottom": 1563.546875
+        "top": 490.125,
+        "left": 182.390625,
+        "width": 1075.21875,
+        "height": 762.125,
+        "bottom": 1252.25
       },
       "svg": {
-        "top": 654,
-        "left": 69,
-        "width": 1302,
-        "height": 220,
-        "bottom": 874
+        "top": 523.125,
+        "left": 199.390625,
+        "width": 1041.21875,
+        "height": 175.921875,
+        "bottom": 699.046875
       },
       "note": {
-        "top": 460.59375,
-        "left": 952,
-        "width": 425,
-        "height": 100.09375,
-        "bottom": 560.6875
+        "top": 368.53125,
+        "left": 905.609375,
+        "width": 337,
+        "height": 80.828125,
+        "bottom": 449.359375
       },
       "axisPixels": [
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686
       ],
       "checks": {
         "noHorizontalOverflow": true,
@@ -74,48 +74,48 @@
       },
       "documentWidth": 1280,
       "video": {
-        "top": 169,
-        "left": 48,
-        "width": 724,
-        "height": 345.59375,
-        "bottom": 514.59375
+        "top": 134.9375,
+        "left": 102.390625,
+        "width": 707.21875,
+        "height": 300,
+        "bottom": 434.9375
       },
       "chart": {
-        "top": 526.59375,
-        "left": 48,
-        "width": 1184,
-        "height": 969.734375,
-        "bottom": 1496.328125
+        "top": 444.53125,
+        "left": 102.390625,
+        "width": 1075.21875,
+        "height": 762.125,
+        "bottom": 1206.65625
       },
       "svg": {
-        "top": 567.59375,
-        "left": 69,
-        "width": 1142,
-        "height": 220,
-        "bottom": 787.59375
+        "top": 477.53125,
+        "left": 119.390625,
+        "width": 1041.21875,
+        "height": 175.921875,
+        "bottom": 653.453125
       },
       "note": {
-        "top": 438.390625,
-        "left": 792,
-        "width": 425,
-        "height": 100.09375,
-        "bottom": 538.484375
+        "top": 362.53125,
+        "left": 825.609375,
+        "width": 337,
+        "height": 80.828125,
+        "bottom": 443.359375
       },
       "axisPixels": [
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11,
-        11
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999143295446569,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686,
+        10.999729447500686
       ],
       "checks": {
         "noHorizontalOverflow": true,
@@ -185,9 +185,9 @@
     }
   ],
   "sourceHashes": {
-    "harness/live/app.css": "aa1e5d9d03fd8aa99a180c1041aba96a8f28c016c4ed40bb208e4ae4bf59c1b2",
+    "harness/live/app.css": "b48d294d6413077ef82429c0d00f0a1e128d92f525d82c9c0e051623e4b6616b",
     "harness/live/app.mjs": "e2e4783bcc14b7d04662028696caebdb742a770e8ae499cb415700181ecccd86",
-    "harness/live/motion/live-chart.mjs": "66621e3da5cbcf7e1715ba0f962fdc6dba6882cce1f608859591d04c8299f5a1"
+    "harness/live/motion/live-chart.mjs": "6dfa4f7f4ddf250a4d986cca69da057b3adcb18b939cdb1fe50e60760e1dfa6c"
   },
   "browserErrors": [],
   "passed": true

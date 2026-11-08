@@ -20,9 +20,9 @@ Open **[MoveIDE locally](http://127.0.0.1:4173/)** when the launcher says it is 
 
 ## Connect the optional coach
 
-1. Choose **Try a sample squat**. Local measurements work immediately without an account connection.
-2. Select **Connect ChatGPT coach**, complete the browser sign-in with your own eligible ChatGPT account, and return to the local app. Account eligibility and usage limits still apply; this repository does not include a shared subscription or bypass them.
-3. Choose **Try a sample squat** again after returning. This starts a new analysis/coaching session using the connected account. It sends selected source JPEGs and bounded measurements automatically; the full video stays local. No API key, packet copy or separate Send action is required.
+1. Look for the persistent **ChatGPT** status in the header on the home or live page. Local measurements work without an account connection.
+2. Select **Connect ChatGPT**, complete the browser sign-in with your own eligible ChatGPT account, and return to the local app. Account eligibility and usage limits still apply; this repository does not include a shared subscription or bypass them.
+3. Choose **Try a sample squat** after returning. This starts a new analysis/coaching session using the connected account. It sends selected source JPEGs and bounded measurements automatically; the full video stays local. No API key, packet copy or separate Send action is required.
 
 Allow the asynchronous coach time to return. An unavailable account or model leaves local measurements usable and shows the connection/error state. Never treat a disconnected or mock result as a successful live AI review.
 
@@ -31,7 +31,7 @@ Allow the asynchronous coach time to return. An unavailable account or model lea
 | Action | What to inspect |
 | --- | --- |
 | **Try a sample squat** | Real MediaPipe Heavy measurements, detected reps and the source-timed overlay. Play, pause and seek; accepted coaching stays in short cards with expandable Why. Model warm-up and AI response may take longer than the tour. |
-| **Compare examples** | Two independently analyzed public videos. Pick each recording's rep and Compare bottoms. Differences are descriptive; these are not a validated good/bad technique pair. |
+| **Compare examples** | Two independently analyzed public videos. Pick each recording's rep and Compare bottoms. Good/Bad labels belong to the source dataset. Differences are descriptive, not a validated universal technique standard. |
 | **Live camera → Start coached squat** | Grant camera permission, stand side-on with your whole body visible, and do a few reps. Local angles/graphs appear without AI. Completed reps queue for coaching when connected. |
 | **Stop → Open saved session / History** | Camera capture ends, replay and measurements remain, and queued reviews continue in the original live tab. See detected reps separately from saved AI reviews. Reopening or seeking never requests another AI analysis. |
 
