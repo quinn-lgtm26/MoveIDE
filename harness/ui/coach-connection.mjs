@@ -36,8 +36,10 @@ export function mountCoachConnection(host, { provider = chatGPTProvider, onState
   const escape = event => { if (event.key === 'Escape' && details.open) { event.preventDefault(); closeMenu(); summary.focus(); } };
   details.addEventListener('toggle', placePanel); details.addEventListener('focusout', leave);
   doc.addEventListener('pointerdown', outside); doc.addEventListener('keydown', escape); win.addEventListener('resize', placePanel); placePanel();
-  let state = 'checking', pending = false, popup, timer, polls = 0, lastCheck = -Infinity, disposed = false;
-  const render = message => { status.dataset.state = state; status.textContent = message ?? `ChatGPT · ${state === 'connected' ? 'Connected' : state === 'connecting' ? 'Finish sign-in' : state === 'checking' ? 'Checking…' : state === 'unavailable' ? 'Unavailable here' : 'Not connected'}`; connect.hidden = state === 'connected'; connect.disabled = pending; details.hidden = state !== 'connected'; if (details.hidden) closeMenu(); };
+  // Start from the tab's last known state so a page load (e.g. to or from Live camera) doesn't swap the header chip mid-fade.
+  const remembered = () => { try { return win.sessionStorage.getItem('moveide-coach-state'); } catch { return null; } };
+  let state = remembered() || 'checking', pending = false, popup, timer, polls = 0, lastCheck = -Infinity, disposed = false;
+  const render = message => { if (state !== 'checking') { try { win.sessionStorage.setItem('moveide-coach-state', state); } catch {} } status.dataset.state = state; status.textContent = message ?? `ChatGPT · ${state === 'connected' ? 'Connected' : state === 'connecting' ? 'Finish sign-in' : state === 'checking' ? 'Checking…' : state === 'unavailable' ? 'Unavailable here' : 'Not connected'}`; connect.hidden = state === 'connected'; connect.disabled = pending; details.hidden = state !== 'connected'; if (details.hidden) closeMenu(); };
   const refresh = async (force = false) => {
     if (disposed || pending || (!force && Date.now() - lastCheck < 2000)) return;
     lastCheck = Date.now(); pending = true; render();

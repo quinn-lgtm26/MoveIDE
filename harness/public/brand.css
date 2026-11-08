@@ -5,9 +5,8 @@
 .moveide-brand span { font-weight: 400; }
 .moveide-brand:focus-visible { outline: 3px solid #58ac76; outline-offset: 4px; border-radius: 6px; }
 
-/* Live camera is a separate page: cross-fade page loads and hold the shared header still. */
+/* Live camera is a separate page: cross-fade page loads. No named header: a scrolled page would slide it. */
 @view-transition { navigation: auto; }
-.moveide-header { view-transition-name: moveide-header; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
 .source-nav a { gap: 5px; }
 .source-nav .material-icon { width: 18px; height: 18px; margin: 0; flex: none; }

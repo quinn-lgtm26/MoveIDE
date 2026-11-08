@@ -159,6 +159,7 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, jwks 
       if (!pending || !matchesState(query.get('state'), pending.state)) return false;
       attempt = null;
       if (query.has('error')) {
+        console.warn('[chatgpt] sign-in returned an error:', query.get('error'), query.get('error_description') ?? '');
         failure = { state: query.get('error') === 'access_denied' ? 'denied' : 'unavailable' };
         return true;
       }
@@ -168,7 +169,7 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, jwks 
       const { signal } = exchange;
       try {
         if (!/^oaiapp_[A-Za-z0-9_-]+$/.test(clientId ?? '') || !query.get('code')
-            || (returnedClientId && returnedClientId !== clientId)) throw new Error('Invalid callback');
+            || (returnedClientId && returnedClientId !== clientId)) throw new Error(`Invalid callback (client_id=${clientId ?? 'missing'}, code=${query.has('code')})`);
         const response = await post(tokenUrl, {
           grant_type: 'authorization_code',
           client_id: clientId,
@@ -177,7 +178,10 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, jwks 
           redirect_uri: redirectUri,
           resource,
         }, signal);
-        if (!response.ok) throw new Error('Token exchange failed');
+        if (!response.ok) {
+          const detail = await response.text().catch(() => '');
+          throw new Error(`Token exchange failed (${response.status}) ${detail.slice(0, 500)} [redirect_uri=${redirectUri}, client_id=${clientId}, callback_keys=${[...query.keys()].join(',')}]`);
+        }
         const body = await response.json();
         const subject = await verifyIdentity(body.id_token, clientId, pending.nonce, jwks);
         if (pending.profile && subject !== pending.profile.subject) throw new Error('Account mismatch');
@@ -185,7 +189,8 @@ export function createChatGPTSession({ directory, origin, fetcher = fetch, jwks 
         const current = await read();
         await save({ ...current, profile: { clientId, subject, tokens } }, signal);
         if (!tokens.scopes.includes(planScope)) failure = { state: 'denied' };
-      } catch {
+      } catch (error) {
+        if (!signal.aborted) console.warn('[chatgpt] sign-in could not finish:', error?.message);
         if (!signal.aborted) failure = { state: 'unavailable' };
       } finally {
         exchange = null;
