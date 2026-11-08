@@ -101,3 +101,24 @@ The user requested documentation-only finalization; no further runtime changes a
 `measure-squat` reports a misleading “This saved session is no longer available” banner on reload while the saved card remains intact. It also reports that downloads retain the original filename and are split across locations. Keep these as unresolved hosted findings, not established data loss. The other workflow has no verdict in this snapshot. The expected two-credit reservation is already recorded above; no new paid run was dispatched. Final debit reconciliation and both terminal verdicts remain outstanding.
 
 Read-only account reconciliation after the documentation push: `get_task_balance` reports **16 granted, 15 used, 0 remaining, 0 pending**, while the final experiment status remains Running with one result missing. These fields do not reconcile to 16 as a simple used-plus-remaining sum; record the provider response as returned rather than infer a refund, second debit or available credit. No additional run was dispatched. Final settlement remains unknown.
+
+## Squat rep-guard + Live page smoothing — e6f199f
+
+- Account note: the currently connected Seldon key belongs to a different account from the entries above (it cannot see `f0047a86`). Its Usage page showed **15 simulations left, 1 run** before this dispatch.
+- Frozen runtime: production `dist` of **e6f199f** served statically on 127.0.0.1:4180 with no provider (`/api/status` 404), exposed through the Seldon CLI's temporary authenticated tunnel. Public sample fixtures only; no account or camera.
+- Local pre-check: `seldon validate` OK, 3 cases. Try a sample squat produces 2 reps (depth 118°, chest 41°), overlay and rep table; disconnected coach explained honestly.
+- Expected debit **3** (all three cases); expected remaining **12**. Hosted QA cannot exercise the live-camera rep-guard fix itself (26ac348); that is covered by `view-guard.test.mjs` on the recorded side-view squat.
+- Dispatched via `seldon run --url http://127.0.0.1:4180 --label build-e6f199f`: experiment **0c3fe690-239e-43b1-87db-9e9a65564865** ([run](https://app.seldon.com/experiments/0c3fe690-239e-43b1-87db-9e9a65564865)).
+
+### Result — 0c3fe690 (report complete, 1 of 3 passed)
+
+| Case | Verdict | Duration |
+|---|---|---|
+| `compare-and-handoff` | **PASS** | 427 s |
+| `measure-squat` | **FAIL — blocker** | 1028 s |
+| `live-setup-and-navigation` | **FAIL — minor** | 227 s |
+
+- `measure-squat`: two reps, video, overlay, chart, rep comparison, honest AI status and downloads from the active review all worked. The sample session is **never saved to History**, so rename, reload-reopen and downloads-from-history were unreachable. Reproduced locally: `indexedDB.databases()` is `[]` after the sample and History is empty. Root cause: 88b9124 changed the draft guard in `src/App.tsx` `open()` to `saveEnabled && !sample`, so the sample (the only clip hosted QA can use) is skipped. Earlier builds passed this path.
+- `live-setup-and-navigation`: History's "Back to recording" lands on "Review a recorded squat." instead of Live camera. Everything else passed.
+- Debit: expected 3, remaining 12; actual account balance not yet re-read.
+- Follow-up: restore sample saving (or keep Demo unsaved and give QA a saved path), fix the Back target, then rerun `measure-squat` and `live-setup-and-navigation` only (expected debit 2).
