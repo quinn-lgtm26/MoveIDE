@@ -6,7 +6,7 @@ testCases:
   - id: measure-squat
     name: One-button squat review and durable local history
     steps:
-      - Open MoveIDE. Keep Save on this device enabled. This public QA preview has no ChatGPT account; do not log in.
+      - Open MoveIDE; it starts on the homepage. Save on this device stays on by default. This public QA preview has no ChatGPT account; do not log in.
       - Choose Try a sample squat once and wait up to two minutes for Heavy analysis.
       - Review both complete reps. Select Bottom and inspect the source moment, skeleton and angles. Play and pause; inspect the live-updating chart, units and readable labels. Change the personal reference/compare rep and confirm the differences are understandable and not a good/bad score.
       - Open History, rename the saved sample QA squat review, and open it without starting another analysis.
@@ -21,7 +21,7 @@ testCases:
       - Inspect both videos and separately labeled measurements. Select a rep for each recording and use the shared start, bottom and stand phase controls.
       - Play and pause each video; check independent source times and missing measurements are not zero or bad posture.
       - Return to recorded review and verify its sample action remains accessible. Report confusing labels, unreadable comparison or clipping.
-    criteria: Two genuinely different videos are playable with independent source-timed overlays, rep selection and phase navigation. Comparison shows like-for-like knee bend, torso lean and duration with limits. Neither example is falsely labeled clinically good or bad. No ChatGPT account or manual coaching packet is required.
+    criteria: Two genuinely different videos are playable with independent source-timed overlays, rep selection and phase navigation. Comparison shows like-for-like knee bend, torso lean and duration with limits. The examples are labeled Good example and Bad example and the page says those labels come from the source dataset, not from MoveIDE; no clinical or diagnostic claim is made. No ChatGPT account or manual coaching packet is required.
   - id: live-setup-and-navigation
     name: Live setup comprehension and navigation without a camera
     steps:

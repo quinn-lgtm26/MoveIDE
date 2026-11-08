@@ -193,3 +193,8 @@ History keeps video and notes together, supports slower playback and a measureme
 Open the refreshed local app at http://127.0.0.1:4173/. Try the sample, play both reps, reopen History and reload; real AI notes are retained without another inference. Then start a live session, perform a few reps, and press Stop: the recording, historical measurements and full accepted coaching remain until the next Start. Use a newly generated phone QR. The current public phone page returns200 and private provider routes404. Nine real ChatGPT production checks include History/reload preservation.
 
 Nonblocking Wren follow-ups: clearer restore banner, optional session-title filenames for original-video exports, and end-of-clip replay feedback. Broader manual accessibility, physical iPhone/venue behavior and independent angle/orbit accuracy are still explicit acceptance work. History chat remains on hold.
+
+## Homepage at `/` (2026-11-07, Claude, uncommitted)
+- New `src/Home.tsx`: a hero section with "Try a sample squat" / "Compare examples" plus a compare screenshot. Recorded review moved to `/#review`. Nav and harness links were updated, and so was seldon.yml step 1 (validated: 3 cases ok).
+- Evidence: `tsc --noEmit` passes. At 390px there is no horizontal overflow. Better Design inspect-spacing at 1440 is completed: 0 serious, 7 moderate (shared header/button tokens, left as is). Comprehension has 1 borderline finding (17s vs 15s target), and the GitHub link was kept on purpose.
+- The predev `git pull` is blocked by conflicts with pre-existing local edits. The `web-nopull` launch config was used instead.

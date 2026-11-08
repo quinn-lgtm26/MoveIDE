@@ -14,6 +14,7 @@ import sampleUrl from '../fixtures/squat/clear-squat.mp4';
 import { prepareCoachingBundle, getCoachingSegments, coachingSegmentAt } from '../harness/coaching/index.mjs';
 import type { CoachingBundle, CoachingResponse, CoachingSegment } from '../harness/coaching/index.mjs';
 import { chatGPTProvider } from '../harness/provider/client.mjs';
+import { Home } from './Home';
 
 type SavedCoach = { packet: CoachingBundle['packet']; response: CoachingResponse; segments: CoachingSegment[] };
 type SaveDraft = { id: string; title: string; video: Blob; videoName: string; createdAt: number; report?: AnalysisReport; coaching?: SavedCoach; queue: Promise<unknown>; persisted?: boolean };
@@ -40,6 +41,7 @@ export function App() {
   const [model, setModel] = useState<PoseModel>('heavy');
   const [comparisonMode, setComparisonMode] = useState(false);
   const [historyMode, setHistoryMode] = useState(() => window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session'));
+  const [homeMode, setHomeMode] = useState(() => !window.location.hash && !new URLSearchParams(window.location.search).has('session'));
   const [historySessionId, setHistorySessionId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('session'));
   const [saveEnabled, setSaveEnabled] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
@@ -158,14 +160,15 @@ export function App() {
 
   const open = (file: File | undefined) => {
     if (!file) return;
-    setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); window.history.replaceState(null, '', window.location.pathname);
+    setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); enterReview();
     invalidateSession(); setActive(true); setCoachStatus('Reading your squat…');
     if (saveEnabled) saveDraft.current = { id: createSessionId(), title: file.name.replace(/\.[^.]+$/, ''), video: file, videoName: file.name, createdAt: Date.now(), queue: Promise.resolve() };
     setClip({ name: file.name, src: URL.createObjectURL(file), blob: file });
   };
 
+  const enterReview = () => { setHomeMode(false); window.history.replaceState(null, '', `${window.location.pathname}#review`); };
   const openSample = async () => {
-    setComparisonMode(false); setHistoryMode(false);
+    setComparisonMode(false); setHistoryMode(false); enterReview();
     invalidateSession(); setClip(null); setActive(true); setError(null);
     const ctrl = new AbortController(); sampleRequest.current = ctrl;
     setStatus('loading');
@@ -202,11 +205,12 @@ export function App() {
     } catch (e) { setCoachStatus('Couldn’t open ChatGPT setup. Try again in a moment.'); }
   };
 
-  const showHistory = () => { stop(); setComparisonMode(false); setHistorySessionId(null); setHistoryMode(true); window.history.replaceState(null, '', `${window.location.pathname}#history`); };
-  const closeHistory = () => { setHistoryMode(false); setHistorySessionId(null); window.history.replaceState(null, '', window.location.pathname); };
+  const showHistory = () => { stop(); setComparisonMode(false); setHistorySessionId(null); setHomeMode(false); setHistoryMode(true); window.history.replaceState(null, '', `${window.location.pathname}#history`); };
+  const closeHistory = () => { setHistoryMode(false); setHistorySessionId(null); enterReview(); };
+  const compareExamples = () => { enterReview(); stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing a good-form and a bad-form squat side by side.'); setComparisonMode(true); };
   const openSaved = (saved: SavedSession) => {
     if (!saved.report || !saved.video) return;
-    stop(); invalidateSession(); setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null);
+    stop(); invalidateSession(); setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); setHomeMode(false);
     const src = URL.createObjectURL(saved.video);
     focusSavedReplay.current = true;
     bindReportSource(saved.report, src); // getSession verified the persisted original video's SHA before this association.
@@ -221,7 +225,7 @@ export function App() {
     window.history.replaceState(null, '', `?session=${encodeURIComponent(saved.id)}`);
   };
   useEffect(() => {
-    const route = () => { if (window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session')) { stop(); setHistorySessionId(new URLSearchParams(window.location.search).get('session')); setHistoryMode(true); } };
+    const route = () => { const hash = window.location.hash; if (!hash && !new URLSearchParams(window.location.search).has('session')) { stop(); setHistoryMode(false); setHomeMode(true); return; } if (hash === '#review') { setHistoryMode(false); setHomeMode(false); return; } setHomeMode(false); if (window.location.hash === '#history' || new URLSearchParams(window.location.search).has('session')) { stop(); setHistorySessionId(new URLSearchParams(window.location.search).get('session')); setHistoryMode(true); } };
     window.addEventListener('hashchange', route); window.addEventListener('popstate', route);
     return () => { window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route); };
   }, []);
@@ -312,15 +316,15 @@ export function App() {
   return (
     <main>
       <header className="moveide-header">
-        <a className="wordmark" href="/" aria-label="MoveIDE home"><img className="moveide-mark" src="/moveide-mark.svg" width="36" height="36" alt="" aria-hidden="true" />MOVE<span>IDE</span></a>
+        <a className="wordmark" href="/" aria-label="MoveIDE home" onClick={event => { event.preventDefault(); stop(); setHistoryMode(false); setHomeMode(true); window.history.replaceState(null, '', window.location.pathname); }}><img className="moveide-mark" src="/moveide-mark.svg" width="36" height="36" alt="" aria-hidden="true" />MOVE<span>IDE</span></a>
         <nav aria-label="Session source" className="source-nav">
-          <a href="/" aria-current={!historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); closeHistory(); }}>Recorded clip</a>
+          <a href="#review" aria-current={!historyMode && !homeMode ? "page" : undefined} onClick={event => { event.preventDefault(); closeHistory(); }}>Recorded clip</a>
           <a href="/harness/live/">Live camera</a>
           <a href="#history" aria-current={historyMode ? "page" : undefined} onClick={event => { event.preventDefault(); showHistory(); }}>History</a>
         </nav>
       </header>
 
-      {historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={openSaved} onBack={closeHistory} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
+      {homeMode ? <Home onSample={openSample} onCompare={compareExamples} /> : historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={openSaved} onBack={closeHistory} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
       <section className="intro">
         <div>
           <h1>Review a recorded squat.</h1>
@@ -343,7 +347,7 @@ export function App() {
           <p className="start-disclosure">ChatGPT sees stills and numbers, not the video.</p></>}
           <div className="toolbar">
             <button className="primary" onClick={openSample}>Try a sample squat</button>
-            <button onClick={() => { stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing two sample squats side by side.'); setComparisonMode(true); }}>Compare examples</button>
+            <button onClick={compareExamples}>Compare examples</button>
             {active && <button onClick={stop}>Stop session</button>}
             {clip && connection !== 'connected' && <button onClick={connect}>Connect ChatGPT coach</button>}
           </div>
