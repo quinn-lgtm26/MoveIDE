@@ -1,24 +1,52 @@
 # MoveIDE
 
+Copy this into **Claude or Codex** to set up the existing app:
+
+```text
+Set up and run https://github.com/quinn-lgtm26/MoveIDE.git for me.
+Use an existing checkout if present; otherwise clone into a new folder.
+Read AGENTS.md/CODEX.md or CLAUDE.md, then AI.md, docs/quickstart.md and tracker.md.
+Preserve local changes, existing recordings and running services. Check the remote;
+update only by a safe fast-forward. Do not recreate the app or replace its models.
+
+Check Node.js 22.18+, npm and Chrome. Run npm run doctor (read-only); missing
+dependencies/models are expected before first setup. If this app is already healthy
+on 127.0.0.1:4173, reuse it. Otherwise run npm run demo and keep its terminal alive.
+The launcher installs locked dependencies, verifies pose assets and builds the UI.
+Run doctor again once ready, then open the actual local homepage for me.
+
+Show me Quick tour, Try a sample squat and the header's Connect ChatGPT button.
+Let me sign in with my own eligible account and grant any camera permission.
+Verify real local measurements; report AI success only after a real reply arrives.
+Explain local History and keeping the original live tab open for queued reviews.
+For optional iPhone pairing, follow docs/quickstart.md and npm run demo -- --phone;
+only the dedicated phone service may be public, never the account/provider service.
+Leave the working app running. Report the URL, revision and any remaining setup step.
+```
+
 An open-source squat analysis and coaching app. Start with a recorded clip or a camera: MediaPipe Heavy measures motion locally, and an optional connected ChatGPT coach reviews bounded source images and measurements. Short coaching notes stay visible alongside the video.
 
 **[Judges: download, connect and try the demo →](docs/JUDGES-START-HERE.md)**
 
 [Set up with Claude or Codex](docs/AI-SETUP.md) · [Quickstart](docs/quickstart.md) · [Developer guide](docs/DEVELOPMENT.md) · [Current status and evidence](tracker.md)
 
+![MoveIDE homepage with the included squat examples and persistent ChatGPT connection controls](docs/images/homepage.png)
+
+Current production homepage, captured in a fresh browser with the coach explicitly mocked as **Not connected**. The image uses bundled public examples; no personal history, camera or AI inference was used. [Capture details](docs/images/homepage.capture.json).
+
 ## Run it
 
-Install [Node.js22.18 or newer](https://nodejs.org/en/download), then on macOS/Linux:
+Install [Node.js 22.18 or newer](https://nodejs.org/en/download) and Chrome. From a parent folder on macOS/Linux where `MoveIDE` does not already exist, run:
 
 ```sh
-git clone https://github.com/quinn-lgtm26/MoveIDE.git
-cd MoveIDE
-npm run demo
+git clone https://github.com/quinn-lgtm26/MoveIDE.git && cd MoveIDE && npm run demo
 ```
 
-The launcher installs locked dependencies, downloads and verifies the pinned Heavy/Full models, builds the UI, and starts the local services. On macOS, you can also double-click **Start MoveIDE.command** after cloning. Keep the terminal open; Ctrl+C stops its owned services.
+The launcher installs locked dependencies, downloads and verifies the pinned Heavy/Full models, builds the UI, and starts the local services. First setup needs network access, disk space and time for the downloads. Keep the terminal open; Ctrl+C stops its owned services.
 
-Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1:4173/harness/live/)**. Choose **Try a sample squat** for the bundled recording or **Compare examples** for two independently analyzed videos. Local measurements work without a ChatGPT connection. Connect the coach once in the app to enable automatic evidence-linked interpretation.
+**Prefer downloading a ZIP on a Mac?** On [GitHub](https://github.com/quinn-lgtm26/MoveIDE), choose **Code → Download ZIP**, extract it, then double-click **[Start MoveIDE.command](Start%20MoveIDE.command)** inside the extracted folder. With Node installed, that file runs the same automatic setup and launch. Keep its terminal open. If you prefer a terminal, run `npm run demo` from the extracted folder.
+
+Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1:4173/harness/live/)**. **Quick tour** highlights the real controls. Choose **Try a sample squat** for the bundled recording or **Compare examples** for two independently analyzed videos. Local measurements work without a ChatGPT connection. Use the persistent header's **Connect ChatGPT** button to sign in with your own eligible account, then start a sample or live session for automatic evidence-linked interpretation.
 
 Already cloned? Preserve your work, update from main when safe, then run `npm run demo` again. Need diagnosis rather than another server? Use **`npm run doctor`**: it checks dependencies, model hashes, runtime files and local service state without installing, changing or stopping anything.
 
@@ -40,6 +68,7 @@ Only the dedicated pairing service4176 gets temporary HTTPS access. The credenti
 - One-Start optional AI coaching with cited evidence; playback/seek does not request new inference.
 - Two actual video examples with independent hashes, rep selection, phase anchors and descriptive metric differences.
 - Live camera analysis and QR/WebRTC phone transport with bounded asynchronous coaching.
+- Local angle timelines, completed-rep phase/timing summaries and personal reference curves aligned for pace. Visual practice bands are not accuracy estimates or universal good-form zones.
 - OpenCap result import labeled as imported/unverified; native inference remains deferred.
 - Local session history: save recorded originals and accepted notes, record live video on the receiving computer, then reopen, search, rename, download or delete. Replay makes no new AI request. [History behavior and limits](docs/HISTORY.md).
 

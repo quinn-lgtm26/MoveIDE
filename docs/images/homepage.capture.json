@@ -1,0 +1,20 @@
+{
+  "capturedAtUtc": "2026-11-08T01:49:37.002Z",
+  "surface": "Existing localhost4173 production homepage; no service restart",
+  "mode": "Fresh isolated Chrome context; public bundled homepage image; disconnected coach status mocked before any account request",
+  "viewport": {
+    "width": 1440,
+    "height": 820
+  },
+  "htmlSha256": "5143d73981778980a06b06ba059996163b6ed28420b9a517780c4d865c161f4f",
+  "screenshotSha256": "1d5fd59be5c130c7b2f86ad506b590ec45c71b0016306fdfc6996eb5f3099481",
+  "mockedConnectionReads": 2,
+  "containsPersonalHistory": false,
+  "cameraActivated": false,
+  "inferenceRequests": 0,
+  "heading": "Measure every squat rep from a phone video.",
+  "coach": "ChatGPT · Not connected",
+  "asset": "/home-compare.jpg",
+  "assetLoaded": true,
+  "overflow": false
+}

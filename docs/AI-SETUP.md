@@ -2,7 +2,9 @@
 
 For a short human/judge walkthrough, start with [Download, connect and try MoveIDE](JUDGES-START-HERE.md).
 
-These prompts set up the **existing MoveIDE repository**. They do not ask an assistant to recreate the product or invent new pose calculations. Start with a normal macOS/Linux terminal and Node.js22.18+ ([official downloads](https://nodejs.org/en/download)). The launcher does not install Node. Phone mode also needs [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/).
+These prompts set up the **existing MoveIDE repository**. They do not ask an assistant to recreate the product or invent new pose calculations. A shorter universal prompt is at the [top of the README](../README.md). Start with a normal macOS/Linux terminal and Node.js 22.18+ ([official downloads](https://nodejs.org/en/download)). The launcher does not install Node. Phone mode also needs [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/).
+
+The current homepage includes **Quick tour**, **Try a sample squat**, **Compare examples**, and a persistent **ChatGPT** connection control. Local measurements work while that control says **Not connected**. Account sign-in is the user's own action; setup does not supply a shared account. For a Mac ZIP download, extract the repository and double-click **Start MoveIDE.command** with Node installed to run the same `npm run demo` setup.
 
 ## Claude copy-paste
 

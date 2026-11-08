@@ -17,12 +17,12 @@ export function mountQuickTour({ surface = 'recorded', document = globalThis.doc
   if (document.querySelector('[data-moveide-tour]')) return () => {};
   try { storage ??= win.localStorage; } catch { /* A restricted browser still gets a dismissible tour. */ }
   const steps = [
-    { title: 'Choose how to try it', text: surface === 'live'
-      ? 'Choose a Mac camera or iPhone link, then Start coached squat. For iPhone, open the private link in Safari and tap Start camera. Camera access happens only when you choose it.'
-      : 'Tap Try a sample squat to start automatically, or upload a side-view clip. Compare examples shows two recordings. Live camera opens the Mac or paired iPhone workflow.' },
-    { title: 'Watch the local form check', text: 'Heavy loads locally; the first run may take longer. Follow the progress messages. Keep your whole body side-on. The chart shows estimated angles; gaps mean tracking or that measurement is unavailable.' },
-    { title: 'Let the coach finish', text: 'Coaching needs an eligible connected ChatGPT account. Local measurements work without it. Live queues up to 6 rep reviews. Stop ends capture; keep this page open for pending notes. New Start cancels unfinished reviews.' },
-    { title: 'Replay and revisit', text: 'With saving enabled, History keeps video, measurements and accepted notes on this computer—even for iPhone sessions. Live Stop keeps your replay visible. Pending reviews open History separately so coaching can finish.', note: 'Selected images and measurements reach ChatGPT; full video stays local. Live replay timing is approximate. Closing the original live page interrupts pending reviews.' },
+    { title: 'Choose your video', text: surface === 'live'
+      ? 'Choose your camera, then press Start coached squat. On iPhone, open the link in Safari and tap Start camera.'
+      : 'Try a sample squat or upload a side-view video. Analysis starts automatically.' },
+    { title: 'See your movement', text: 'Keep your whole body in view and stand side-on. The graph fills as we find your movement; missing numbers mean we cannot measure yet.', note: 'The first model load can take a moment. Angles are estimates.' },
+    { title: 'Read your coach notes', text: 'Connect ChatGPT at the top for coach notes here. After Stop, keep this page open while your notes finish.', note: 'Up to 6 reps per live session. Starting again cancels unfinished notes.' },
+    { title: 'Watch it again', text: 'Open History to replay your saved video and notes. They stay on this computer, even when you use an iPhone.', note: 'Full video stays here; only selected stills and numbers go to ChatGPT. Live replay timing is approximate.' },
   ];
   const element = (tag, text, className) => { const node = document.createElement(tag); if (text) node.textContent = text; if (className) node.className = className; return node; };
   const style = element('style'); style.textContent = STYLE;
@@ -38,11 +38,11 @@ export function mountQuickTour({ surface = 'recorded', document = globalThis.doc
   const named = pattern => [...document.querySelectorAll('main button,main a')].find(node => visible(node) && pattern.test(node.textContent.trim()));
   const anchor = () => {
     const choices = surface === 'live'
-      ? [document.querySelector('#start'), document.querySelector('#live-trends-title'), document.querySelector('#ai'), document.querySelector('a[href="/#history"]')]
-      : [named(/^Try a sample squat/), document.querySelector('.model-select') ?? document.querySelector('.trace figcaption'), named(/^Connect ChatGPT/) ?? document.querySelector('.start-disclosure'), document.querySelector('a[href="#history"]')];
+      ? [document.querySelector('#start'), document.querySelector('#live-trends-title'), document.querySelector('.coaching-feed'), document.querySelector('a[href="/#history"]')]
+      : [named(/^Try a sample squat/), document.querySelector('.model-select') ?? document.querySelector('.trace figcaption'), document.querySelector('.coaching-feed') ?? document.querySelector('[aria-label="ChatGPT connection"]') ?? document.querySelector('.start-disclosure'), document.querySelector('a[href="#history"]')];
     return visible(choices[index]) ? choices[index] : named(/^Recorded clip/) ?? null;
   };
-  const labels = surface === 'live' ? ['Start coached squat', 'Your movement over time', 'Coach notes', 'History'] : ['Try a sample squat', 'Local analysis', 'ChatGPT coach setup', 'History'];
+  const labels = surface === 'live' ? ['Start coached squat', 'Your movement over time', 'Coach notes', 'History'] : ['Try a sample squat', 'Your movement', 'Coach notes', 'History'];
   const clearTarget = () => { target?.classList.remove('moveide-tour-target'); target = null; };
   const syncPageZoom = () => {
     const pageZoom = Number.parseFloat(win.getComputedStyle(document.documentElement).zoom) || 1;
