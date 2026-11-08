@@ -175,7 +175,7 @@ export function App() {
     if (!file) return;
     setComparisonMode(false); setHistoryMode(false); setHistorySessionId(null); enterReview(sample ? '#demo' : '#review');
     invalidateSession(); setActive(true); setCoachStatus('Reading your squat…');
-    if (saveEnabled && !sample) saveDraft.current = { id: createSessionId(), title: file.name.replace(/\.[^.]+$/, ''), video: file, videoName: file.name, createdAt: Date.now(), queue: Promise.resolve() };
+    if (saveEnabled) saveDraft.current = { id: createSessionId(), title: file.name.replace(/\.[^.]+$/, ''), video: file, videoName: file.name, createdAt: Date.now(), queue: Promise.resolve() };
     setClip({ name: file.name, src: URL.createObjectURL(file), blob: file });
   };
 
@@ -190,7 +190,7 @@ export function App() {
       if (!response.ok) throw new Error('Sample unavailable');
       const blob = await response.blob();
       if (ctrl.signal.aborted || sampleRequest.current !== ctrl) return;
-      open(new File([blob], 'clear-squat.mp4', { type: 'video/mp4' }), true); // same path as an import; demos stay out of History
+      open(new File([blob], 'clear-squat.mp4', { type: 'video/mp4' }), true); // same path as an import, saved to History when Save on this device is on
     } catch {
       if (ctrl.signal.aborted) return;
       setStatus('error'); setError('Couldn’t load the built-in sample.');
@@ -220,8 +220,10 @@ export function App() {
     } catch (e) { setCoachStatus('Couldn’t open ChatGPT setup. Try again in a moment.'); }
   };
 
-  const showHistory = () => { stop(); setComparisonMode(false); setHistorySessionId(null); setHomeMode(false); setHistoryMode(true); window.history.replaceState(null, '', `${window.location.pathname}#history`); };
-  const closeHistory = () => { setHistoryMode(false); setHistorySessionId(null); enterReview(); };
+  const showHistory = () => { setFromLive(false); stop(); setComparisonMode(false); setHistorySessionId(null); setHomeMode(false); setHistoryMode(true); window.history.replaceState(null, '', `${window.location.pathname}#history`); };
+  // History opened from the Live camera page returns there; otherwise to recorded review.
+  const [fromLive, setFromLive] = useState(() => document.referrer.startsWith(`${window.location.origin}/harness/live/`));
+  const closeHistory = () => { setFromLive(false); setHistoryMode(false); setHistorySessionId(null); enterReview(); };
   const compareExamples = () => { setCompareSources(null); enterReview(); stop(); invalidateSession(); setClip(null); setStatus('idle'); setError(null); setCoachStatus('Comparing a good-form and a bad-form squat side by side.'); setComparisonMode(true); };
   const compareSaved = (pair: SavedSession[]) => {
     setCompareSources(pair.map(s => ({ label: s.title, video: s.video!, report: s.report! })));
@@ -357,7 +359,7 @@ export function App() {
         <div ref={coachHeader} />
       </header>
 
-      {homeMode ? <Home onSample={() => transition(() => { void openSample(); })} onCompare={() => transition(compareExamples)} /> : historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={(...args: Parameters<typeof openSaved>) => transition(() => { void openSaved(...args); })} onCompare={(...args: Parameters<typeof compareSaved>) => transition(() => { void compareSaved(...args); })} onBack={() => transition(closeHistory)} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
+      {homeMode ? <Home onSample={() => transition(() => { void openSample(); })} onCompare={() => transition(compareExamples)} /> : historyMode ? <History initialSessionId={historySessionId} onOpenRecorded={(...args: Parameters<typeof openSaved>) => transition(() => { void openSaved(...args); })} onCompare={(...args: Parameters<typeof compareSaved>) => transition(() => { void compareSaved(...args); })} backLabel={fromLive ? 'Back to Live camera' : 'Back to recording'} onBack={() => fromLive ? window.location.assign('/harness/live/') : transition(closeHistory)} onDelete={id => { if(savedSession?.id===id) { setSavedSession(null); setSaveStatus('Deleted from history. Current video and analysis remain available until you replace them.'); } }} /> : <>
       <section className="intro">
         <div>
           <h1>{demo ? 'Demo squat review.' : 'Review a recorded squat.'}</h1>

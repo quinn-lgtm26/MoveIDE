@@ -323,7 +323,7 @@ function LiveReplay({ session, focusRequest, onReturnToList }: { session: SavedS
   </section>;
 }
 
-export function History({ initialSessionId, onOpenRecorded, onCompare, onBack, onDelete }: { initialSessionId: string | null; onOpenRecorded: (session: SavedSession) => void; onCompare: (pair: SavedSession[]) => void; onBack: () => void; onDelete: (id:string) => void }) {
+export function History({ initialSessionId, onOpenRecorded, onCompare, onBack, backLabel = 'Back to recording', onDelete }: { initialSessionId: string | null; backLabel?: string; onOpenRecorded: (session: SavedSession) => void; onCompare: (pair: SavedSession[]) => void; onBack: () => void; onDelete: (id:string) => void }) {
   const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listSessions>>>([]);
   const importInput=useRef<HTMLInputElement>(null),portableRequest=useRef<AbortController|null>(null);
   const [transferStatus,setTransferStatus]=useState(''),[transferError,setTransferError]=useState('');
@@ -432,7 +432,7 @@ export function History({ initialSessionId, onOpenRecorded, onCompare, onBack, o
   const remove = async (id:string) => {setBusy(true);try{await deleteSession(id);onDelete(id);setConfirmation(null);if(selected?.id===id)backToList();setRefresh(v=>v+1);focusList();}catch(e){setError(message(e));}finally{setBusy(false);}};
   const renameSession = async(id:string) => {if(!title.trim())return;setBusy(true);try{const updated=await saveSession({id,title:title.trim()});if(selected?.id===id)setSelected(previous=>preservePlayback(previous,updated));setRename(null);setRefresh(v=>v+1);focusSession(id);}catch(e){setError(message(e));}finally{setBusy(false);}};
   const matching=sessions.filter(item=>(kind==='all'||item.kind===kind)&&`${item.title} ${date(item.createdAt)} ${item.kind} ${item.repCount} reps`.toLowerCase().includes(search.toLowerCase()));
-  return <section className="history" aria-label="Session history"><div className="toolbar"><h1 ref={listHeading} tabIndex={-1}>Saved sessions.</h1><button onClick={onBack}>Back to recording</button></div>
+  return <section className="history" aria-label="Session history"><div className="toolbar"><h1 ref={listHeading} tabIndex={-1}>Saved sessions.</h1><button onClick={onBack}>{backLabel}</button></div>
     <details className="fine"><summary>Where is this saved?</summary><p>{privacy}</p><p>Local storage is not a cloud backup. Private browsing and browser storage limits can prevent saving or remove data.</p>
     {storage && <p>{storage.available ? `This app uses ${bytes(storage.appBytes)} of its ${bytes(storage.maxAppBytes)} local limit. ${storage.persisted ? 'Browser persistence is enabled.' : 'Browser storage may be cleared under storage pressure.'}` : `Storage unavailable: ${storage.error?.message ?? 'This browser cannot save sessions.'}`}</p>}</details>
     {error && <div role="alert" className="error">{error} <button onClick={()=>{setRefresh(v=>v+1);if(requestedSession.current)void open(requestedSession.current);}}>Retry history</button></div>}
