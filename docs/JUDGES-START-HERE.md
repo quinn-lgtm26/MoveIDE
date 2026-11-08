@@ -20,7 +20,7 @@ Open **[MoveIDE locally](http://127.0.0.1:4173/)** when the launcher says it is 
 
 ## Start with the saved session
 
-Choose **History → Open demo session**. This button is available when the shipped build includes the demo manifest; [the tracker](../tracker.md) records publication and verification status. On an existing checkout, update safely with `git pull --ff-only` and run `npm run demo` to rebuild before trying it.
+Choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [nine fresh-browser checks](../qa/published-demo-replay.json) verify replay with its original video, six notes and cached pose, without new inference or AI. On an existing checkout, update safely with `git pull --ff-only` and run `npm run demo` to rebuild before trying it.
 
 The designated **Recorded demo · 7 reps** package contains approximately 60.2 seconds of video, seven detected reps and six saved AI reviews. The seventh rep is still detected; the coaching queue allows at most six reviews per session. Play, pause, inspect the pose replay, click a note to its corresponding moment, and open Why or source evidence. Original live note timing remains approximately aligned with the recording; separately prepared pose frames use the recorded video's timeline.
 

@@ -1,0 +1,49 @@
+{
+  "verifiedAtUtc": "2026-11-08T02:38:44.505264+00:00",
+  "runtimeCommit": "ab492c0cef3612cebce3947ac3181e263b72770f",
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "completeLocalSuite": {
+    "harness": 142,
+    "launcherDoctor": 8,
+    "passed": 150,
+    "failed": 0,
+    "singleInvocation": true
+  },
+  "publicProductionPreflight": {
+    "passed": 12,
+    "file": "qa/release-public-preflight.json"
+  },
+  "publishedDemoReplay": {
+    "passed": 9,
+    "file": "qa/published-demo-replay.json",
+    "reps": 7,
+    "savedReviews": 6,
+    "jpegImages": 75,
+    "savedSamples": 198,
+    "cachedPoseFrames": 903,
+    "newAiRequests": 0
+  },
+  "focusedEvidence": [
+    "qa/history-portable-ui.json",
+    "qa/portable-session.json",
+    "qa/live-coaching-panel.json",
+    "qa/comparison-controls.json",
+    "qa/history-rep-navigation.json",
+    "qa/sequence-coaching-checkpoint.json"
+  ],
+  "seldonFinal": {
+    "experimentId": "f0047a86-ebfb-4918-924e-cec64026bdb6",
+    "cases": [
+      "measure-squat",
+      "compare-and-handoff"
+    ],
+    "status": "running"
+  },
+  "go": {
+    "recordPublishedDemo": true,
+    "handsOnTesting": true,
+    "finalHostedQaSignoff": false
+  },
+  "limits": "No independent anatomical-angle accuracy certification; physical phone/network acceptance is separate. Saved coaching alignment remains approximate, cached pose uses encoded video timestamps."
+}

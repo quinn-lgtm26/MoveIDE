@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "verifiedAtUtc": "2026-11-08T02:31:45.953Z",
+  "verifiedAtUtc": "2026-11-08T02:36:39.552Z",
   "surface": "two isolated Chromium storage contexts; public fixture, no camera/provider/user data",
   "checks": {
     "exportContainsOriginalVideoAndEvidence": true,

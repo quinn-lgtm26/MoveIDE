@@ -56,13 +56,13 @@ Already cloned? Preserve your work, update from main when safe, then run `npm ru
 
 ## Replay the portable demo
 
-After updating an existing checkout with a safe `git pull --ff-only` and running `npm run demo`, choose **History → Open demo session**. This button appears when the checkout contains the bundled demo manifest; consult [the tracker](tracker.md) for publication status. A fresh clone uses the same flow after setup.
+After updating an existing checkout with a safe `git pull --ff-only` and running `npm run demo`, choose **History → Open demo session**. The authorized recording and manifest are published in `ab492c0`; [nine clean-browser checks](qa/published-demo-replay.json) verify the saved replay without new pose inference or AI. A fresh clone uses the same flow after setup.
 
 The designated demo is **Recorded demo · 7 reps**: approximately 60.2 seconds, seven detected reps and six saved AI reviews. The six-review session cap explains the missing seventh AI note; detected motion and reviewed motion are separate counts. Saved video, measurements, notes and evidence replay without a ChatGPT connection. Connect your own eligible account only to request new coaching.
 
 To move another session between computers, open its **Recording details and downloads → Export session**, then choose **History → Import session** on the destination and select the `.moveide.json` file. The portable package carries the original video, saved notes, source JPEG evidence, measurement data and any prepared pose-report cache together. Import creates a fresh local session ID; it does not transfer account credentials, pairing invitations or a ChatGPT connection. Saved notes are retained as recorded, not regenerated. Without a prepared pose cache, local pose preparation can run once; it makes no new AI request.
 
-If **Open demo session** is absent, update safely and rebuild, or import an exported session file. Availability of the button is not proof that a particular bundle has been published or verified; the tracker records the shipped artifact and acceptance.
+If **Open demo session** is absent, update safely and rebuild, or import an exported session file. The [tracker](tracker.md) separates this verified saved-demo replay from pending final hosted QA and accuracy acceptance.
 
 ## iPhone camera → MacBook
 

@@ -86,3 +86,10 @@ Append one entry per dispatch. Include date, purpose, target and build ID, selec
 - Experiment **dd2c7084-9720-4956-b35d-4592f607a7ce**: **1/3 passed, 2 failed**. [Report](wren-submission-results.json), [summary](wren-submission-summary.json). Live setup/navigation passed. Recorded/history failed on mouse selection of the personal comparison rep; two-video comparison failed on Start phase navigation/feedback. Other recorded analysis, persistence and downloads succeeded.
 - Actual debit3. Reconciled account:16 granted,14 used,0 pending,2 remaining. Two remaining cases are reserved for the repaired recorded/history and two-video comparison workflows on one frozen final build.
 - Subsequent62cf457 adds richer32-image reviews and History comparison and is published for user live testing. It does not yet carry a final Wren pass. Local live Heavy/WebRTC test passed after correcting the stale7-image assertion.
+
+## Final two-core rerun — ab492c0
+
+- Frozen runtime **ab492c0cef3612cebce3947ac3181e263b72770f** includes32-image reviews, comparison fixes, readable six-note panel, portable import/export and the explicitly approved demo package. [Manifest](wren-release-build.json), [12-gate exact public preflight](release-public-preflight.json).
+- Expected debit **2** for `measure-squat` and `compare-and-handoff`, the two previously failed workflows. YAML validated with2runnablecases. Confirmed pre-dispatch balance16granted14used0pending2remaining; expected remaining0. No additional paid runs authorized beyond this allocation.
+- Separate local evidence: actualpublished7-rep/6-note replay import/reload/overlay passes9checks; portablevalidation8; portableUI8; livepanel8; comparisoncontrols7; personalreference14. This does not substitute for hosted verdicts.
+- Seldon MCP dispatched **f0047a86-ebfb-4918-924e-cec64026bdb6**. [Final two-core run](https://app.seldon.com/experiments/f0047a86-ebfb-4918-924e-cec64026bdb6). Final submission sign-off awaits terminal results. User can already record the verified saved demo.
