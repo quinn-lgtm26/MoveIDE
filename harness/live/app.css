@@ -69,3 +69,6 @@ main:has(#stop:not([hidden])) .source-label,main:has(#stop:not([hidden])) .start
 #live-chart [hidden]{display:none!important}
 
 .session-diagnostics>summary{display:list-item;list-style:disclosure-closed;cursor:pointer}.session-diagnostics[open]>summary{list-style:disclosure-open}
+
+/* Desktop reads better at 80% scale; phones keep full size (matches index.html). */
+@media (min-width: 1001px) { html { zoom: 0.8; } }
