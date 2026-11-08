@@ -113,7 +113,7 @@ try {
   await page.locator('#start').click();
   assert.equal(await page.locator('#ai-feed > li').count(), 0, 'New session clears previous cards');
   await page.waitForFunction(() => document.querySelector('#knee').textContent !== '—', null, { timeout: 60000 });
-  assert.ok((await page.locator('#ai').innerText()).includes('Connect the AI coach'), 'Stable local tracking must not promise AI when disconnected');
+  assert.ok((await page.locator('#ai').innerText()).includes('Connect ChatGPT'), 'Stable local tracking must not promise AI when disconnected');
   await page.locator('#stop').click(); connectionState = 'connected';
   assert.equal(await page.locator('#saved-sessions .save-result').count(), 1, 'Opting out saves no new session');
   await page.locator('#save-local').check();
@@ -165,7 +165,7 @@ try {
   });
   await sender.locator('#start').click();
   await page.waitForFunction(() => document.querySelector('#status').textContent.includes('Live · iPhone') && document.querySelector('#knee').textContent !== '—', null, { timeout: 60_000 });
-  await sender.waitForFunction(() => window.feedbackHistory.some(text => text.includes('Local') && text.includes('projected knee flexion')), null, { timeout: 20_000 });
+  await sender.waitForFunction(() => window.feedbackHistory.some(text => text.includes('Local') && text.includes('Knee bend')), null, { timeout: 20_000 });
   await sender.waitForFunction(() => window.feedbackHistory.some(text => text.includes('AI') && text.includes('Keep the same camera position.')), null, { timeout: 40_000 });
   assert.ok(sends.length > localRequests);
   const phoneObserved = await page.locator('#latency').innerText();

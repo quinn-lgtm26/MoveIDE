@@ -8,7 +8,7 @@ From the repository on your Mac:
 npm run demo
 ```
 
-The launcher checks Node and ports, installs missing or version-mismatched locked dependencies, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Start coached squat** for a recording, or **Live coached squat** for a camera session. The default command opens no public tunnel.
+The launcher checks Node and ports, installs missing or version-mismatched locked dependencies, prepares the pinned pose/QR assets, builds the current code without pulling Git changes, then starts the private app on **127.0.0.1:4173** and dedicated pairing service on **127.0.0.1:4176**. Open the printed local app address. Use **Try a sample squat** for a recording, or open **Live camera** and choose **Start coached squat** for a camera session. The default command opens no public tunnel.
 
 Keep that terminal open. **Ctrl+C** stops only child processes started by the launcher. If a port is occupied, startup stops with a clear message; it never kills an existing app or test process.
 
@@ -78,6 +78,6 @@ Latest designed root checkpoint (`9446951`): [15 production-preview checks](../q
 
 ## Compare the two included recordings
 
-On the recorded page choose **Compare examples**. Both videos run through the selected Heavy/Full model locally. Use **Compare bottoms** or choose each recording’s rep to inspect corresponding phases. The three primary measurements have expandable detail; the recordings keep separate source clocks and hashes. This action does not send an AI request or declare either person’s technique good/bad. **Start coached squat** returns to the integrated single-recording AI workflow.
+On the recorded page choose **Compare examples**. Both videos run through the selected Heavy/Full model locally. Use **Compare bottoms** or choose each recording’s rep to inspect corresponding phases. The three primary measurements have expandable detail; the recordings keep separate source clocks and hashes. This action does not send an AI request or declare either person’s technique good/bad. **Try a sample squat** returns to the integrated single-recording AI workflow.
 
 If Safari reported “did not present the requested video frame,” update to include `6c1bae0` or later: that was a decoder callback problem, not a missing model. Its fallback uses the seeked media time when Safari omits the decoded-frame callback. Physical iPhone and HEVC decoder coverage remain separate.

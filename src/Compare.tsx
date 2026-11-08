@@ -8,24 +8,27 @@ import type { CoachingBundle } from '../harness/coaching/index.mjs';
 type Row = { label: string; unit: '°' | ' ms' | ' leg lengths'; get: (r: SquatRepProfile) => number | null };
 const bottom = (k: keyof SquatMetrics) => (r: SquatRepProfile) => r.bottom[k];
 const PRIMARY: Row[] = [
-  { label: 'Knee flexion (bottom)', unit: '°', get: bottom('kneeFlexionDeg') },
-  { label: 'Hip flexion (bottom)', unit: '°', get: bottom('hipFlexionDeg') },
-  { label: 'Torso lean (bottom)', unit: '°', get: bottom('torsoLeanDeg') },
-  { label: 'Descent', unit: ' ms', get: (r) => r.descentMs },
-  { label: 'Ascent', unit: ' ms', get: (r) => r.ascentMs },
+  { label: 'Depth (knee bend)', unit: '°', get: bottom('kneeFlexionDeg') },
+  { label: 'Hip hinge at bottom', unit: '°', get: bottom('hipFlexionDeg') },
+  { label: 'Chest angle at bottom', unit: '°', get: bottom('torsoLeanDeg') },
+  { label: 'Time going down', unit: ' ms', get: (r) => r.descentMs },
+  { label: 'Time coming up', unit: ' ms', get: (r) => r.ascentMs },
 ];
 const DETAILS: Row[] = [
-  { label: 'Shin inclination (bottom)', unit: '°', get: bottom('shinInclinationDeg') },
-  { label: 'Ankle closure change', unit: '°', get: bottom('ankleClosureChangeDeg') },
-  { label: 'Hip descent', unit: ' leg lengths', get: bottom('hipDescentLegLengths') },
-  { label: 'Hip above knee', unit: ' leg lengths', get: bottom('hipAboveKneeLegLengths') },
+  { label: 'Shin angle at bottom', unit: '°', get: bottom('shinInclinationDeg') },
+  { label: 'Ankle bend change', unit: '°', get: bottom('ankleClosureChangeDeg') },
+  { label: 'How far hips dropped', unit: ' leg lengths', get: bottom('hipDescentLegLengths') },
+  { label: 'Hips above knees', unit: ' leg lengths', get: bottom('hipAboveKneeLegLengths') },
 ];
 
-const val = (v: number | null, unit: string) => (v === null ? <span className="muted">unavailable</span> : `${unit === ' ms' ? Math.round(v) : v.toFixed(unit === '°' ? 1 : 2)}${unit}`);
+const repName = (id: string) => id.replace(/^rep-/, 'Rep ');
+const val = (v: number | null, unit: string) => (v === null ? <span className="muted">—</span> : unit === ' ms' ? `${(v / 1000).toFixed(1)} s` : `${v.toFixed(unit === '°' ? 0 : 2)}${unit}`);
 const diff = (a: number | null, b: number | null, unit: string) => {
   if (a === null || b === null) return <span className="muted">—</span>;
   const d = b - a;
-  return `${d > 0 ? '+' : ''}${unit === ' ms' ? Math.round(d) : d.toFixed(unit === '°' ? 1 : 2)}${unit}`;
+  const text = unit === ' ms' ? (d / 1000).toFixed(1) : d.toFixed(unit === '°' ? 0 : 2);
+  if (Number(text) === 0) return 'same';
+  return `${d > 0 ? '+' : ''}${text}${unit === ' ms' ? ' s' : unit}`;
 };
 
 type Shots = { bundle: CoachingBundle; urls: Record<string, string> };
@@ -71,7 +74,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
   const text = useMemo(() => shots && formatManualHandoff(shots.bundle.packet, shots.bundle.images), [shots]);
 
   if (ids.length < 2) {
-    return <section className="compare"><h2>Compare reps</h2><p className="muted">Comparison needs two complete reps; this clip has {ids.length}.</p></section>;
+    return <section className="compare"><h2>Compare reps</h2><p className="muted">Comparing needs two full reps; this video has {ids.length}.</p></section>;
   }
 
   const a = profile.reps.find((r) => r.repId === pair[0])!, b = profile.reps.find((r) => r.repId === pair[1])!;
@@ -99,7 +102,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
           <label key={label}>
             {label}{' '}
             <select value={pair[i]} onChange={(e) => setPair((p) => (i ? [p[0], e.target.value] : [e.target.value, p[1]]))}>
-              {ids.map((id) => <option key={id} value={id}>{id}</option>)}
+              {ids.map((id) => <option key={id} value={id}>{repName(id)}</option>)}
             </select>
           </label>
         ))}
@@ -107,12 +110,12 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
       {!distinct && <p className="warning">Pick two different reps to compare.</p>}
 
       <table>
-        <thead><tr><th /><th>{a.repId}</th><th>{b.repId}</th><th>B − A</th></tr></thead>
+        <thead><tr><th /><th>{repName(a.repId)}</th><th>{repName(b.repId)}</th><th>Difference (B vs A)</th></tr></thead>
         <tbody>
           {rows(PRIMARY)}
           <tr>
             <th>Evidence</th>
-            {[a, b].map((r, i) => <td key={i}><button onClick={() => onSeek(r.bottomMs)}>Bottom frame @ {r.bottomMs} ms</button></td>)}
+            {[a, b].map((r, i) => <td key={i}><button onClick={() => onSeek(r.bottomMs)}>▸ See the bottom · {(r.bottomMs / 1000).toFixed(1)} s</button></td>)}
             <td />
           </tr>
         </tbody>
@@ -120,7 +123,7 @@ export function Compare({ report, clipSrc, onSeek }: Props) {
       <details>
         <summary>More measurements</summary>
         <table><tbody>{rows(DETAILS)}</tbody></table>
-        <p className="muted">Estimated in the video plane from a single side view. Depth proxies are in leg lengths, not centimetres. No overall score.</p>
+        <p className="muted">ⓘ Estimates from one side-on camera. Hip drop is measured in leg lengths, not centimetres.</p>
       </details>
 
       <details>

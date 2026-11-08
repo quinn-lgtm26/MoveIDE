@@ -40,9 +40,9 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   await page.route('**/api/connection', route => route.fulfill({ json: { state: 'disconnected', enabled: false } }));
   await page.goto(origin);
-  await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
-  await page.getByText(/Ready · clear-squat\.mp4/).waitFor({ timeout: 90_000 });
-  await page.getByText(/Local tracking only — coach disconnected/).waitFor();
+  await page.getByRole('button', { name: 'Try a sample squat', exact: true }).click();
+  await page.getByText(/Ready · sample squat/).waitFor({ timeout: 90_000 });
+  await page.getByText(/Connect ChatGPT to also get coach notes/).waitFor();
   checks.oneStartReady = true;
   checks.honestOfflineMode = true;
   checks.packetHiddenByDefault = !await page.getByRole('button', { name: 'Preview coaching packet', exact: true }).isVisible();
@@ -67,10 +67,10 @@ try {
     result.developerPacket.decodedImages = await page.locator('.packet .frames img').count();
   }
   await page.getByText('Developer tools: report and coaching packet', { exact: true }).click();
-  const trace = page.getByRole('img', { name: 'Knee flexion and torso lean over time', exact: true });
+  const trace = page.getByRole('img', { name: 'Knee bend and chest angle over time', exact: true });
   checks.traceVisible = await trace.isVisible();
   checks.traceHasMetrics = await trace.locator('path').evaluateAll(paths => paths.length === 2 && paths.every(path => path.getAttribute('d')?.includes('L')));
-  await page.getByRole('button', { name: `${report.reps[0].id} bottom @ ${report.reps[0].bottomMs} ms`, exact: true }).click();
+  await page.getByRole('button', { name: `${report.reps[0].id.replace(/^rep-/, 'Rep ')} bottom at ${(report.reps[0].bottomMs / 1000).toFixed(1)} s`, exact: true }).click();
   await page.waitForFunction(ms => Math.abs(document.querySelector('video').currentTime * 1000 - ms) < 2, report.reps[0].bottomMs);
   await page.waitForFunction(() => !!document.querySelector('.trace .playhead'));
   checks.repEvidenceSeek = true;
@@ -95,7 +95,7 @@ try {
   checks.traceClickSeek = true;
   // A replacement that fails to load must not keep the prior person's geometry.
   await page.route('**/assets/clear-squat-*.mp4', route => route.abort('failed'));
-  await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
+  await page.getByRole('button', { name: 'Try a sample squat', exact: true }).click();
   await page.getByRole('alert').filter({ hasText: 'Couldn’t load the built-in sample.' }).waitFor();
   checks.noStaleOverlayAfterReplacementFailure = !await hasOverlay();
   checks.noUnrequestedInterpretation = interpretationRequests === 0;

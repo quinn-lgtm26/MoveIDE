@@ -14,16 +14,16 @@ try {
     if (new URL(request.url()).pathname === '/api/interpret') {requestCount++; approved = request.postDataJSON();}
   });
   await page.goto(origin);
-  await page.getByRole('button', { name: 'Start coached squat', exact: true }).click();
+  await page.getByRole('button', { name: 'Try a sample squat', exact: true }).click();
   const response = await page.waitForResponse(r => new URL(r.url()).pathname === '/api/interpret', { timeout: 150_000 });
   const body = await response.json();
   assert(response.ok(), `Real provider failed: ${body.error ?? response.status()}`);
   validateCoachingResponse(body, approved.packet);
-  await page.getByText(/AI analysis ready/).waitFor();
-  await page.getByRole('button', { name: 'rep-1 bottom' }).click();
+  await page.getByText(/Coach notes ready/).waitFor();
+  await page.getByRole('button', { name: 'Rep 1 bottom' }).click();
   await page.locator('[aria-label="Playback AI cue"]').waitFor({ state: 'visible' });
-  await page.getByRole('button', { name: 'rep-2 bottom' }).click();
-  await page.locator('[aria-label="Playback AI cue"]').getByText(/rep-2/).waitFor();
+  await page.getByRole('button', { name: 'Rep 2 bottom' }).click();
+  await page.locator('[aria-label="Playback AI cue"]').getByText(/Rep 2/).waitFor();
   assert.equal(requestCount, 1, 'Seek must reuse the first response');
   assert.equal(await page.locator('.coaching-card').count(), 2);
   assert(await page.locator('.coaching-focus').evaluateAll(nodes => nodes.every(node => node.textContent.length <= 180)));

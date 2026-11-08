@@ -16,7 +16,7 @@ npm run demo
 
 The launcher installs locked dependencies, downloads and verifies the pinned Heavy/Full models, builds the UI, and starts the local services. On macOS, you can also double-click **Start MoveIDE.command** after cloning. Keep the terminal open; Ctrl+C stops its owned services.
 
-Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1:4173/harness/live/)**. Choose **Start coached squat** for the bundled recording or **Compare examples** for two independently analyzed videos. Local measurements work without a ChatGPT connection. Connect the coach once in the app to enable automatic evidence-linked interpretation.
+Open **[the app](http://127.0.0.1:4173/)** or **[live coaching](http://127.0.0.1:4173/harness/live/)**. Choose **Try a sample squat** for the bundled recording or **Compare examples** for two independently analyzed videos. Local measurements work without a ChatGPT connection. Connect the coach once in the app to enable automatic evidence-linked interpretation.
 
 Already cloned? Preserve your work, update from main when safe, then run `npm run demo` again. Need diagnosis rather than another server? Use **`npm run doctor`**: it checks dependencies, model hashes, runtime files and local service state without installing, changing or stopping anything.
 
