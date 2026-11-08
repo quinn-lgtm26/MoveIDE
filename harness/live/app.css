@@ -33,6 +33,7 @@
 main:has(#stop:not([hidden])) .intro>div:first-child{display:none}
 main:has(#stop:not([hidden])) .intro{justify-content:flex-end}
 main:has(#stop:not([hidden])) .actions{display:flex;align-items:center;gap:12px;margin-top:0}
+.save-local input{flex:none}@media(min-width:731px){main:has(#stop:not([hidden])) .save-local{flex:none;white-space:nowrap;margin-inline:13px}}
 main:has(#stop:not([hidden])) .source-label,main:has(#stop:not([hidden])) .start-disclosure{display:none}
 @media(max-width:730px){main:has(#stop:not([hidden])) #source{display:none}main:has(#stop:not([hidden])) .intro{margin-bottom:14px}main:has(#stop:not([hidden])) .stage{height:48vh;max-height:420px;min-height:300px;aspect-ratio:auto}}
 
